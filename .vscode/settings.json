@@ -1,0 +1,9 @@
+{
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 4000,
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "editor.minimap.enabled": false,
+  "git.enableSmartCommit": true,
+  "files.eol": "\n"
+}
