@@ -37,6 +37,7 @@
 		B6B8425A43844DEBB4708DC3 /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 031E27FD5A19454C98CC29FD /* SimpleLineIcons.ttf */; };
 		C12261E593674C9F8CD95C36 /* Fontisto.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9CF9F37E8C9A43388E60CC60 /* Fontisto.ttf */; };
 		E89A097F2493E3E700007182 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = E89A097E2493E3E700007182 /* LaunchScreen.xib */; };
+		E89A09812493E8BA00007182 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E89A09802493E8BA00007182 /* GoogleService-Info.plist */; };
 		EBF1504C8E8149E5BA978D8D /* Ionicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = ABEC62DDC5644D1F9364E8C5 /* Ionicons.ttf */; };
 		FDA2143075CF409B858E570D /* MaterialCommunityIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4B45BE6535364E59B6CACF5C /* MaterialCommunityIcons.ttf */; };
 /* End PBXBuildFile section */
@@ -101,6 +102,7 @@
 		E12DCFF85E4E4A9FB0875B96 /* Roboto.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Roboto.ttf; path = "../node_modules/native-base/Fonts/Roboto.ttf"; sourceTree = "<group>"; };
 		E341335319AE405EA68265C2 /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/native-base/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
 		E89A097E2493E3E700007182 /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
+		E89A09802493E8BA00007182 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E9CD97A69DBE4F1AB33CCDF7 /* Pods-marketeerclientapp-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-marketeerclientapp-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-marketeerclientapp-tvOS/Pods-marketeerclientapp-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
@@ -238,6 +240,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				E89A09802493E8BA00007182 /* GoogleService-Info.plist */,
 				13B07FAE1A68108700A75B9A /* marketeerclientapp */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* marketeerclientappTests */,
@@ -422,6 +425,7 @@
 				299883C52F164214A7A1036B /* Roboto_medium.ttf in Resources */,
 				9745C14500BC4B1DA1E08C14 /* Roboto.ttf in Resources */,
 				0C1F915C7D4D4E818F13685D /* rubicon-icon-font.ttf in Resources */,
+				E89A09812493E8BA00007182 /* GoogleService-Info.plist in Resources */,
 				B6B8425A43844DEBB4708DC3 /* SimpleLineIcons.ttf in Resources */,
 				08447B1B93A04215A42D48E5 /* Zocial.ttf in Resources */,
 			);
