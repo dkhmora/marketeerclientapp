@@ -15,8 +15,11 @@ import moment from 'moment';
 global._ = _;
 global.moment = moment;
 
+import GeneralStore from './src/store/generalStore';
+
 import Setup from './src/boot/setup';
 
+const generalStore = (window.store = new GeneralStore());
 export default class App extends React.Component {
   componentDidMount() {
     SplashScreen.hide();
@@ -24,7 +27,7 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <Provider>
+      <Provider generalStore={generalStore}>
         <Setup />
       </Provider>
     );
