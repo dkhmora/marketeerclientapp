@@ -1,4 +1,4 @@
-package com.marketeerclientapp;
+package com.marketeerph.marketeerclientapp;
 
 import com.facebook.react.ReactActivity;
 

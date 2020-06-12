@@ -129,7 +129,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.marketeerclientapp"
+        applicationId "com.marketeerph.marketeerclientapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

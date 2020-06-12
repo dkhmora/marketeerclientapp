@@ -35,12 +35,12 @@ android_library(
 
 android_build_config(
     name = "build_config",
-    package = "com.marketeerclientapp",
+    package = "com.marketeerph.marketeerclientapp",
 )
 
 android_resource(
     name = "res",
-    package = "com.marketeerclientapp",
+    package = "com.marketeerph.marketeerclientapp",
     res = "src/main/res",
 )
 
