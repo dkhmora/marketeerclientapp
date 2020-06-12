@@ -7,7 +7,13 @@
  */
 import 'react-native-gesture-handler';
 import React from 'react';
-import SplashScreen from 'react-native-splash-screen'
+import {Provider} from 'mobx-react';
+import SplashScreen from 'react-native-splash-screen';
+import _ from 'lodash';
+import moment from 'moment';
+
+global._ = _;
+global.moment = moment;
 
 import Setup from './src/boot/setup';
 
@@ -17,6 +23,10 @@ export default class App extends React.Component {
   }
 
   render() {
-    return <Setup />;
+    return (
+      <Provider>
+        <Setup />
+      </Provider>
+    );
   }
 }
