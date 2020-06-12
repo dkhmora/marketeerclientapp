@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.marketeerph.marketeerclientapp">
+  package="com.marketeerph.marketeerclientapp.android">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
