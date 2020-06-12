@@ -1,0 +1,99 @@
+{
+  "project_info": {
+    "project_number": "1549607298",
+    "firebase_url": "https://marketeerph-b9653.firebaseio.com",
+    "project_id": "marketeerph-b9653",
+    "storage_bucket": "marketeerph-b9653.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1549607298:android:d63bbbc9245fb10e09af9b",
+        "android_client_info": {
+          "package_name": "com.marketeerph.marketeerclientapp.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1549607298-l9ecpmg0o7mo7pcftmqp2vomt9to2e2m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.marketeerph.marketeerclientapp.android",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "1549607298-928kle9cvet18h9s0jv87pb8inokrrbd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgo8Ds4N80HWTdjal9AW1jQyLcXxaQAgg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1549607298-928kle9cvet18h9s0jv87pb8inokrrbd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1549607298-q1290th7j81hiiemr00bftuoo3k62mnh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.marketeerph.marketeerclientapp.ios"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1549607298:android:64efe0b99dd1b52409af9b",
+        "android_client_info": {
+          "package_name": "com.marketeerph.marketeermerchantapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1549607298-6c2jet8dr53fqgeu5nf0ggv5bh9idbq4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.marketeerph.marketeermerchantapp",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "1549607298-928kle9cvet18h9s0jv87pb8inokrrbd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgo8Ds4N80HWTdjal9AW1jQyLcXxaQAgg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1549607298-928kle9cvet18h9s0jv87pb8inokrrbd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1549607298-q1290th7j81hiiemr00bftuoo3k62mnh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.marketeerph.marketeerclientapp.ios"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
