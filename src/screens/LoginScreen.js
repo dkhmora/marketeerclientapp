@@ -13,36 +13,37 @@ import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
 import {Icon, Image, SocialIcon, Button} from 'react-native-elements';
 @inject('generalStore')
+@inject('authStore')
 @observer
 class LoginScreen extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      username: '',
+      email: '',
       password: '',
       check_textInputChange: false,
       secureTextEntry: true,
     };
   }
 
-  textInputChange = (val) => {
-    if (val.length !== 0) {
+  textInputChange = (value) => {
+    if (value.length !== 0) {
       this.setState({
-        username: val,
+        email: value,
         check_textInputChange: true,
       });
     } else {
       this.setState({
-        username: val,
+        email: value,
         check_textInputChange: false,
       });
     }
   };
 
-  handlePasswordChange = (val) => {
+  handlePasswordChange = (value) => {
     this.setState({
-      password: val,
+      password: value,
     });
   };
 
@@ -52,8 +53,15 @@ class LoginScreen extends Component {
     });
   };
 
+  handleSignIn() {
+    const {email, password} = this.state;
+
+    this.props.authStore.signIn(email, password);
+  }
+
   render() {
     const {iconPrefix} = this.props.generalStore;
+    const {navigation} = this.props;
 
     return (
       <View style={styles.container}>
@@ -80,7 +88,7 @@ class LoginScreen extends Component {
                 placeholder="Your Email Address"
                 style={styles.textInput}
                 autoCapitalize="none"
-                onChangeText={(val) => this.textInputChange(val)}
+                onChangeText={(value) => this.textInputChange(value)}
               />
               {this.state.check_textInputChange ? (
                 <Animatable.View animation="bounceIn">
@@ -105,7 +113,7 @@ class LoginScreen extends Component {
                 secureTextEntry={this.state.secureTextEntry ? true : false}
                 style={styles.textInput}
                 autoCapitalize="none"
-                onChangeText={(val) => this.handlePasswordChange(val)}
+                onChangeText={(value) => this.handlePasswordChange(value)}
               />
               <TouchableOpacity onPress={this.updateSecureTextEntry}>
                 {this.state.secureTextEntry ? (
@@ -127,6 +135,7 @@ class LoginScreen extends Component {
             </View>
 
             <Button
+              onPress={() => this.handleSignIn()}
               title="Login"
               type="outline"
               containerStyle={{
@@ -139,6 +148,7 @@ class LoginScreen extends Component {
               buttonStyle={{height: 50}}
               titleStyle={{color: '#E91E63'}}
             />
+
             <View
               style={{
                 flexDirection: 'row',
@@ -148,7 +158,7 @@ class LoginScreen extends Component {
               <Text style={styles.color_textPrivate}>
                 Don't have an account? You can sign up{' '}
               </Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('Sign Up')}>
                 <Text style={styles.touchable_text}>here</Text>
               </TouchableOpacity>
             </View>
