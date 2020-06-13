@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
-import {Icon} from 'react-native-elements';
+import {Icon, Image} from 'react-native-elements';
 @inject('generalStore')
 @observer
 class SignUpScreen extends Component {
@@ -76,11 +76,44 @@ class SignUpScreen extends Component {
         <StatusBar backgroundColor="#E91E63" />
 
         <View style={styles.header}>
-          <Text style={styles.text_header}>Register Now!</Text>
+          <Image
+            source={require('../../assets/loginLogo.png')}
+            style={{
+              height: 150,
+              width: 200,
+              resizeMode: 'center',
+            }}
+          />
         </View>
         <Animatable.View animation="fadeInUpBig" style={styles.footer}>
           <ScrollView>
-            <Text style={styles.text_footer}>Username</Text>
+            <Text style={styles.text_header}>Sign Up</Text>
+            <Text style={[styles.text_subtext]}>
+              Enjoy the convenience of goods delivered right to your doorstep
+              while also supporting your local businesses!
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                width: '100%',
+                paddingVertical: 20,
+              }}>
+              <Text style={styles.text_subtext}>
+                Are you a merchant? Join us by registering
+              </Text>
+              <TouchableOpacity>
+                <Text
+                  style={[
+                    styles.text_subtext,
+                    {fontWeight: 'bold', color: '#E91E63'},
+                  ]}>
+                  {' '}
+                  here!
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.text_footer}>Email Address</Text>
             <View style={styles.action}>
               <Icon name="person-outline" color="#E91E63" size={20} />
               <TextInput
@@ -184,18 +217,6 @@ class SignUpScreen extends Component {
               </Text>
             </View>
             <View style={styles.button}>
-              <TouchableOpacity style={styles.signIn} onPress={() => {}}>
-                <Text
-                  style={[
-                    styles.textSign,
-                    {
-                      color: '#fff',
-                    },
-                  ]}>
-                  Sign Up
-                </Text>
-              </TouchableOpacity>
-
               <TouchableOpacity
                 style={[
                   styles.signIn,
@@ -230,13 +251,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#E91E63',
   },
   header: {
-    flex: 1,
+    flex: 2,
+    alignItems: 'center',
     justifyContent: 'flex-end',
     paddingHorizontal: 20,
-    paddingBottom: 50,
+    paddingBottom: 10,
   },
   footer: {
-    flex: Platform.OS === 'ios' ? 3 : 5,
+    flex: Platform.OS === 'ios' ? 5 : 7,
     backgroundColor: '#fff',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
@@ -244,9 +266,16 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
   },
   text_header: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: '#111',
+    fontWeight: 'normal',
     fontSize: 30,
+    paddingBottom: 20,
+  },
+  text_subtext: {
+    color: 'grey',
+    textAlign: 'left',
+    justifyContent: 'flex-start',
+    alignSelf: 'flex-start',
   },
   text_footer: {
     color: '#E91E63',
