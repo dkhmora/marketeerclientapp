@@ -100,7 +100,7 @@ class SignUpScreen extends Component {
                 Are you a merchant? Come and join us! Register
               </Text>
               <TouchableOpacity>
-                <Text style={styles.touchable_text}> here!</Text>
+                <Text style={styles.touchable_text}> here</Text>
               </TouchableOpacity>
             </View>
 
@@ -199,13 +199,25 @@ class SignUpScreen extends Component {
               <Text style={styles.color_textPrivate}>
                 By signing up you agree to our{' '}
               </Text>
-              <Text style={[styles.color_textPrivate, {fontWeight: 'bold'}]}>
-                Terms of service
-              </Text>
+              <TouchableOpacity>
+                <Text
+                  style={[
+                    styles.color_textPrivate,
+                    {fontWeight: 'bold', color: '#E91E63'},
+                  ]}>
+                  Terms of service
+                </Text>
+              </TouchableOpacity>
               <Text style={styles.color_textPrivate}> and </Text>
-              <Text style={[styles.color_textPrivate, {fontWeight: 'bold'}]}>
-                Privacy policy
-              </Text>
+              <TouchableOpacity>
+                <Text
+                  style={[
+                    styles.color_textPrivate,
+                    {fontWeight: 'bold', color: '#E91E63'},
+                  ]}>
+                  Privacy policy
+                </Text>
+              </TouchableOpacity>
             </View>
             <View style={styles.button}>
               <TouchableOpacity
@@ -274,7 +286,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   text_subtext: {
-    color: 'grey',
+    color: '#333',
     textAlign: 'left',
     justifyContent: 'flex-start',
     alignSelf: 'flex-start',

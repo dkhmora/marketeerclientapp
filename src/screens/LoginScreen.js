@@ -148,7 +148,7 @@ class LoginScreen extends Component {
                 Don't have an account? You can sign up{' '}
               </Text>
               <TouchableOpacity>
-                <Text style={styles.touchable_text}>here.</Text>
+                <Text style={styles.touchable_text}>here</Text>
               </TouchableOpacity>
             </View>
             <SocialIcon
