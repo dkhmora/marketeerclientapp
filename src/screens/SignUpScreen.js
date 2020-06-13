@@ -13,44 +13,61 @@ import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
 import {Icon, Image, Button} from 'react-native-elements';
 @inject('generalStore')
+@inject('authStore')
 @observer
 class SignUpScreen extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      username: '',
+      email: '',
+      phoneNumber: '',
       password: '',
-      confirm_password: '',
-      check_textInputChange: false,
+      confirmPassword: '',
+      emailCheck: false,
+      phoneCheck: false,
       secureTextEntry: true,
       confirm_secureTextEntry: true,
     };
   }
 
-  textInputChange = (val) => {
-    if (val.length !== 0) {
+  handleEmailChange = (value) => {
+    if (value.length !== 0) {
       this.setState({
-        username: val,
-        check_textInputChange: true,
+        email: value,
+        emailCheck: true,
       });
     } else {
       this.setState({
-        username: val,
-        check_textInputChange: false,
+        email: value,
+        emailCheck: false,
       });
     }
   };
 
-  handlePasswordChange = (val) => {
+  handlePhoneChange = (value) => {
+    if (value.length !== 0) {
+      this.setState({
+        phoneNumber: value,
+        phoneCheck: true,
+      });
+    } else {
+      this.setState({
+        phoneNumber: value,
+        phoneCheck: false,
+      });
+    }
+  };
+
+  handlePasswordChange = (value) => {
     this.setState({
-      password: val,
+      password: value,
     });
   };
 
-  handleConfirmPasswordChange = (val) => {
+  handleConfirmPasswordChange = (value) => {
     this.setState({
-      confirm_password: val,
+      confirmPassword: value,
     });
   };
 
@@ -66,8 +83,19 @@ class SignUpScreen extends Component {
     });
   };
 
+  handleSignUp() {
+    const {email, password, phoneNumber} = this.state;
+
+    this.props.navigation.navigate('Phone Verification', {
+      email,
+      password,
+      phoneNumber,
+    });
+  }
+
   render() {
     const {iconPrefix} = this.props.generalStore;
+    const {navigation} = this.props;
 
     return (
       <View style={styles.container}>
@@ -111,9 +139,9 @@ class SignUpScreen extends Component {
                 placeholder="Email Address"
                 style={styles.textInput}
                 autoCapitalize="none"
-                onChangeText={(val) => this.textInputChange(val)}
+                onChangeText={(value) => this.handleEmailChange(value)}
               />
-              {this.state.check_textInputChange ? (
+              {this.state.emailCheck ? (
                 <Animatable.View animation="bounceIn">
                   <Icon name="check-circle" color="green" size={20} />
                 </Animatable.View>
@@ -127,9 +155,9 @@ class SignUpScreen extends Component {
                 placeholder="Phone Number"
                 style={styles.textInput}
                 autoCapitalize="none"
-                onChangeText={(val) => this.textInputChange(val)}
+                onChangeText={(value) => this.handlePhoneChange(value)}
               />
-              {this.state.check_textInputChange ? (
+              {this.state.phoneCheck ? (
                 <Animatable.View animation="bounceIn">
                   <Icon name="check-circle" color="green" size={20} />
                 </Animatable.View>
@@ -144,7 +172,7 @@ class SignUpScreen extends Component {
                 secureTextEntry={this.state.secureTextEntry ? true : false}
                 style={styles.textInput}
                 autoCapitalize="none"
-                onChangeText={(val) => this.handlePasswordChange(val)}
+                onChangeText={(value) => this.handlePasswordChange(value)}
               />
               <TouchableOpacity onPress={this.updateSecureTextEntry}>
                 {this.state.secureTextEntry ? (
@@ -175,7 +203,9 @@ class SignUpScreen extends Component {
                 }
                 style={styles.textInput}
                 autoCapitalize="none"
-                onChangeText={(val) => this.handleConfirmPasswordChange(val)}
+                onChangeText={(value) =>
+                  this.handleConfirmPasswordChange(value)
+                }
               />
               <TouchableOpacity onPress={this.updateConfirmSecureTextEntry}>
                 {this.state.secureTextEntry ? (
@@ -220,6 +250,7 @@ class SignUpScreen extends Component {
               </TouchableOpacity>
             </View>
             <Button
+              onPress={() => this.handleSignUp()}
               title="Sign Up"
               type="outline"
               containerStyle={{
@@ -236,10 +267,10 @@ class SignUpScreen extends Component {
               style={{
                 flexDirection: 'row',
                 justifyContent: 'center',
-                paddingTop: 10,
+                paddingVertical: 10,
               }}>
               <Text>Already have an account? You can login </Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                 <Text style={styles.touchable_text}>here.</Text>
               </TouchableOpacity>
             </View>

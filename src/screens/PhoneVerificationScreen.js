@@ -13,6 +13,7 @@ import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
 import {Icon, Image, Button} from 'react-native-elements';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
+import auth from '@react-native-firebase/auth';
 
 @inject('generalStore')
 @observer
@@ -20,11 +21,37 @@ class PhoneVerificationScreen extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      code: null,
+      confirm: null,
+    };
+  }
+
+  componentDidMount() {
+    const {phoneNumber} = this.props.route.params;
+
+    this.signInWithPhoneNumber(phoneNumber);
+  }
+
+  async signInWithPhoneNumber(phoneNumber) {
+    const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+
+    this.setState({confirm: confirmation});
+  }
+
+  async confirmCode(code) {
+    try {
+      await this.state.confirm.confirm(code).then(() => {
+        console.log('success');
+      });
+    } catch (error) {
+      console.log('Invalid code.');
+    }
   }
 
   render() {
     const {iconPrefix} = this.props.generalStore;
+    const {phoneNumber, email, password} = this.props.route.params;
 
     return (
       <View style={styles.container}>
@@ -45,7 +72,7 @@ class PhoneVerificationScreen extends Component {
             <View style={{flex: 1, justifyContent: 'flex-start'}}>
               <Text style={styles.text_header}>SMS Verification</Text>
               <Text style={styles.text_subtext}>
-                Please enter the SMS Verification Code sent to +639172938455
+                Please enter the SMS Verification Code sent to {phoneNumber}
               </Text>
             </View>
             <View style={{flex: 3}}>
@@ -60,7 +87,7 @@ class PhoneVerificationScreen extends Component {
                 codeInputHighlightStyle={{borderColor: '#E91E63'}}
                 keyboardType="number-pad"
                 onCodeFilled={(code) => {
-                  console.log(`Code is ${code}, you are good to go!`);
+                  this.confirmCode(code);
                 }}
                 style={{width: '95%', height: 100, alignSelf: 'center'}}
               />
