@@ -8,7 +8,7 @@ import {
   SocialIcon,
   Image,
 } from 'react-native-elements';
-import {View, StyleSheet, StatusBar} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 import {observer, inject} from 'mobx-react';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {Container} from 'native-base';
@@ -24,8 +24,6 @@ class LoginScreen extends Component {
         contentContainerStyle={styles.container}
         style={{backgroundColor: '#E91E63'}}>
         <Container style={styles.container}>
-          <StatusBar backgroundColor="#E91E63" />
-
           <View style={styles.header}>
             <Image
               source={require('../../assets/loginLogo.png')}
@@ -92,7 +90,6 @@ class LoginScreen extends Component {
     );
   }
 }
-export default LoginScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -147,3 +144,5 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
 });
+
+export default LoginScreen;
