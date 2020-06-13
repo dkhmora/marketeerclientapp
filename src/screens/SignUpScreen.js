@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   text_footer: {
-    color: '#E91E63',
+    color: '#333',
     fontSize: 18,
   },
   touchable_text: {
