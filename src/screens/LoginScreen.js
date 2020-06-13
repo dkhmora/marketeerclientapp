@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
-import {Icon, Image} from 'react-native-elements';
+import {Icon, Image, SocialIcon, Button} from 'react-native-elements';
 @inject('generalStore')
 @observer
 class LoginScreen extends Component {
@@ -126,39 +126,37 @@ class LoginScreen extends Component {
               </TouchableOpacity>
             </View>
 
-            <View style={styles.button}>
-              <TouchableOpacity
-                style={[
-                  styles.signIn,
-                  {
-                    borderRadius: 24,
-                    borderColor: '#E91E63',
-                    borderWidth: 1,
-                    marginTop: 15,
-                  },
-                ]}>
-                <Text
-                  style={[
-                    styles.textSign,
-                    {
-                      color: '#E91E63',
-                    },
-                  ]}>
-                  Login
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <Button
+              title="Login"
+              type="outline"
+              containerStyle={{
+                borderRadius: 24,
+                borderWidth: 1,
+                borderColor: '#E91E63',
+                marginTop: 40,
+                height: 50,
+              }}
+              titleStyle={{color: '#E91E63'}}
+            />
             <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'center',
                 paddingTop: 10,
               }}>
-              <Text>Don't have an account? You can sign up </Text>
+              <Text style={styles.color_textPrivate}>
+                Don't have an account? You can sign up{' '}
+              </Text>
               <TouchableOpacity>
                 <Text style={styles.touchable_text}>here.</Text>
               </TouchableOpacity>
             </View>
+            <SocialIcon
+              title="Sign In With Facebook"
+              button
+              type="facebook"
+              style={{marginHorizontal: 0, marginTop: 30}}
+            />
           </ScrollView>
         </Animatable.View>
       </View>
@@ -187,7 +185,7 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
   },
   text_header: {
-    color: '#111',
+    color: '#333',
     fontWeight: 'normal',
     fontSize: 30,
     paddingBottom: 20,
@@ -199,7 +197,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   text_footer: {
-    color: '#E91E63',
+    color: '#333',
     fontSize: 18,
   },
   touchable_text: {
@@ -240,7 +238,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   color_textPrivate: {
-    color: 'grey',
+    color: '#333',
   },
 });
 
