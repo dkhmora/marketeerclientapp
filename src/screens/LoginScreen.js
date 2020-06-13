@@ -20,7 +20,9 @@ class LoginScreen extends Component {
     const {iconPrefix} = this.props.generalStore;
 
     return (
-      <KeyboardAwareScrollView contentContainerStyle={{flex: 1}}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.container}
+        style={{backgroundColor: '#E91E63'}}>
         <Container style={styles.container}>
           <StatusBar backgroundColor="#E91E63" />
 
@@ -109,9 +111,10 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     margin: 0,
     elevation: 20,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
+    borderRadius: 30,
     paddingTop: 50,
+    paddingBottom: 300,
+    marginBottom: -300,
     paddingHorizontal: 30,
   },
   signUpContainer: {bottom: 0},
