@@ -136,6 +136,7 @@ class LoginScreen extends Component {
                 marginTop: 40,
                 height: 50,
               }}
+              buttonStyle={{height: 50}}
               titleStyle={{color: '#E91E63'}}
             />
             <View
