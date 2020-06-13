@@ -1,24 +1,25 @@
 import {observable, action} from 'mobx';
 import auth from '@react-native-firebase/auth';
+import firebase from '@react-native-firebase/app';
 import firestore from '@react-native-firebase/firestore';
 
 class authStore {
-  @action async signUp(email, password) {
+  @action async linkPhoneNumberWithEmail(email, password) {
+    const credential = await firebase.auth.EmailAuthProvider.credential(
+      email,
+      password,
+    );
+    console.log(credential);
+    console.log('umabot');
+
     await auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        console.log('User account created & signed in!');
+      .currentUser.linkWithCredential(credential)
+      .then((usercred) => {
+        var user = usercred.user;
+        console.log('Account linking success', user);
       })
       .catch((error) => {
-        if (error.code === 'auth/email-already-in-use') {
-          console.log('That email address is already in use!');
-        }
-
-        if (error.code === 'auth/invalid-email') {
-          console.log('That email address is invalid!');
-        }
-
-        console.log(error);
+        console.log('Account linking error', error);
       });
   }
 

@@ -16,6 +16,7 @@ import OTPInputView from '@twotalltotems/react-native-otp-input';
 import auth from '@react-native-firebase/auth';
 
 @inject('generalStore')
+@inject('authStore')
 @observer
 class PhoneVerificationScreen extends Component {
   constructor(props) {
@@ -40,13 +41,14 @@ class PhoneVerificationScreen extends Component {
   }
 
   async confirmCode(code) {
-    try {
-      await this.state.confirm.confirm(code).then(() => {
-        console.log('success');
-      });
-    } catch (error) {
-      console.log('Invalid code.');
-    }
+    const {email, password} = this.props.route.params;
+    await this.state.confirm
+      .confirm(code)
+      .then(() => {
+        this.props.authStore.linkPhoneNumberWithEmail(email, password);
+        console.log('phone success');
+      })
+      .catch((err) => console.log('unsuccessful phone auth', err));
   }
 
   render() {
