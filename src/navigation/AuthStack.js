@@ -13,7 +13,7 @@ class AuthStack extends Component {
 
   render() {
     return (
-      <StackAuth.Navigator initialRouteName="Phone Verification" headerMode="none">
+      <StackAuth.Navigator initialRouteName="Login" headerMode="none">
         <StackAuth.Screen name="Login" component={LoginScreen} />
         <StackAuth.Screen name="Sign Up" component={SignUpScreen} />
         <StackAuth.Screen

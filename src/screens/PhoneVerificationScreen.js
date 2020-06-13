@@ -105,13 +105,14 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 20,
-    paddingVertical: 30,
+    paddingTop: 10,
   },
   text_header: {
     color: '#111',
     fontWeight: 'normal',
     fontSize: 30,
     paddingBottom: 20,
+    paddingTop: 10,
   },
   text_subtext: {
     color: '#333',

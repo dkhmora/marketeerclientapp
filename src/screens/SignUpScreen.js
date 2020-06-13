@@ -108,7 +108,7 @@ class SignUpScreen extends Component {
             <View style={styles.action}>
               <Icon name="person-outline" color="#E91E63" size={20} />
               <TextInput
-                placeholder="Your Username"
+                placeholder="Email Address"
                 style={styles.textInput}
                 autoCapitalize="none"
                 onChangeText={(val) => this.textInputChange(val)}
@@ -120,19 +120,27 @@ class SignUpScreen extends Component {
               ) : null}
             </View>
 
-            <Text
-              style={[
-                styles.text_footer,
-                {
-                  marginTop: 35,
-                },
-              ]}>
-              Password
-            </Text>
+            <Text style={styles.text_footer}>Phone Number</Text>
+            <View style={styles.action}>
+              <Icon name="person-outline" color="#E91E63" size={20} />
+              <TextInput
+                placeholder="Phone Number"
+                style={styles.textInput}
+                autoCapitalize="none"
+                onChangeText={(val) => this.textInputChange(val)}
+              />
+              {this.state.check_textInputChange ? (
+                <Animatable.View animation="bounceIn">
+                  <Icon name="check-circle" color="green" size={20} />
+                </Animatable.View>
+              ) : null}
+            </View>
+
+            <Text style={styles.text_footer}>Password</Text>
             <View style={styles.action}>
               <Icon name="lock-outline" color="#E91E63" size={20} />
               <TextInput
-                placeholder="Your Password"
+                placeholder="Password"
                 secureTextEntry={this.state.secureTextEntry ? true : false}
                 style={styles.textInput}
                 autoCapitalize="none"
@@ -157,19 +165,11 @@ class SignUpScreen extends Component {
               </TouchableOpacity>
             </View>
 
-            <Text
-              style={[
-                styles.text_footer,
-                {
-                  marginTop: 35,
-                },
-              ]}>
-              Confirm Password
-            </Text>
+            <Text style={styles.text_footer}>Confirm Password</Text>
             <View style={styles.action}>
               <Icon name="lock-outline" color="#E91E63" size={20} />
               <TextInput
-                placeholder="Confirm Your Password"
+                placeholder="Confirm Password"
                 secureTextEntry={
                   this.state.confirm_secureTextEntry ? true : false
                 }
@@ -268,13 +268,14 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 20,
-    paddingVertical: 30,
+    paddingTop: 10,
   },
   text_header: {
     color: '#111',
     fontWeight: 'normal',
     fontSize: 30,
     paddingBottom: 20,
+    paddingTop: 10,
   },
   text_subtext: {
     color: '#333',

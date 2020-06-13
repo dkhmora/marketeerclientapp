@@ -93,7 +93,7 @@ class LoginScreen extends Component {
               style={[
                 styles.text_footer,
                 {
-                  marginTop: 35,
+                  marginTop: 20,
                 },
               ]}>
               Password
@@ -183,13 +183,14 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 20,
-    paddingVertical: 30,
+    paddingTop: 10,
   },
   text_header: {
     color: '#333',
     fontWeight: 'normal',
     fontSize: 30,
     paddingBottom: 20,
+    paddingTop: 10,
   },
   text_subtext: {
     color: 'grey',
