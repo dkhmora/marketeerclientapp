@@ -47,23 +47,8 @@ class PhoneVerificationScreen extends Component {
               <Text style={styles.text_subtext}>
                 Please enter the SMS Verification Code sent to +639172938455
               </Text>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'flex-start',
-                  paddingTop: 10,
-                }}>
-                <Text styles={styles.text_subtext}>
-                  Didn't receive the code?{' '}
-                </Text>
-                <TouchableOpacity>
-                  <Text style={styles.touchable_text}>
-                    Resend Verification Code
-                  </Text>
-                </TouchableOpacity>
-              </View>
             </View>
-            <View style={{flex: 2}}>
+            <View style={{flex: 3}}>
               <OTPInputView
                 pinCount={6}
                 autoFocusOnLoad
@@ -79,6 +64,21 @@ class PhoneVerificationScreen extends Component {
                 }}
                 style={{width: '95%', height: 100, alignSelf: 'center'}}
               />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'flex-start',
+                  paddingTop: 10,
+                }}>
+                <Text styles={styles.text_subtext}>
+                  Didn't receive the code?{' '}
+                </Text>
+                <TouchableOpacity>
+                  <Text style={styles.touchable_text}>
+                    Resend Verification Code
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </Animatable.View>
