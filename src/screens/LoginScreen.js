@@ -6,9 +6,12 @@ import {
   Button,
   Card,
   SocialIcon,
+  Image,
 } from 'react-native-elements';
 import {View, StyleSheet, StatusBar} from 'react-native';
 import {observer, inject} from 'mobx-react';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {Container} from 'native-base';
 
 @inject('generalStore')
 @observer
@@ -17,64 +20,73 @@ class LoginScreen extends Component {
     const {iconPrefix} = this.props.generalStore;
 
     return (
-      <View style={styles.container}>
-        <StatusBar backgroundColor="#E91E63" />
+      <KeyboardAwareScrollView contentContainerStyle={{flex: 1}}>
+        <Container style={styles.container}>
+          <StatusBar backgroundColor="#E91E63" />
 
-        <View style={styles.header}>
-          <Text h3>Marketeer PH</Text>
-          <Text h4>Welcome!</Text>
-        </View>
-        <Card containerStyle={styles.footer}>
-          <View>
-            <View style={styles.formContainer}>
-              <Input
-                placeholder="Email Address"
-                inputContainerStyle={styles.inputContainer}
-                leftIcon={
-                  <Icon
-                    name={`${iconPrefix}-mail`}
-                    type="ionicon"
-                    size={24}
-                    color="#E91E63"
-                    style={{marginLeft: 10}}
-                  />
-                }
+          <View style={styles.header}>
+            <Image
+              source={require('../../assets/loginLogo.png')}
+              style={{width: 200, height: 150, resizeMode: 'center'}}
+            />
+            <Text style={{fontSize: 16, color: '#fff'}}>Welcome!</Text>
+          </View>
+          <Card containerStyle={styles.footer}>
+            <View>
+              <View style={styles.formContainer}>
+                <Input
+                  placeholder="Email Address"
+                  inputContainerStyle={styles.inputContainer}
+                  leftIcon={
+                    <Icon
+                      name={`${iconPrefix}-mail`}
+                      type="ionicon"
+                      size={24}
+                      color="#E91E63"
+                      style={{marginLeft: 10}}
+                    />
+                  }
+                />
+                <Input
+                  placeholder="Password"
+                  secureTextEntry={true}
+                  inputContainerStyle={styles.inputContainer}
+                  leftIcon={
+                    <Icon
+                      name={`${iconPrefix}-key`}
+                      type="ionicon"
+                      size={24}
+                      color="#E91E63"
+                      style={{marginLeft: 10}}
+                    />
+                  }
+                />
+              </View>
+              <Button
+                title="Login"
+                buttonStyle={styles.loginButton}
+                containerStyle={styles.buttonContainer}
               />
-              <Input
-                placeholder="Password"
-                secureTextEntry={true}
-                inputContainerStyle={styles.inputContainer}
-                leftIcon={
-                  <Icon
-                    name={`${iconPrefix}-key`}
-                    type="ionicon"
-                    size={24}
-                    color="#E91E63"
-                    style={{marginLeft: 10}}
-                  />
-                }
+              <Text style={styles.centerText}>Or</Text>
+              <SocialIcon
+                title="Sign In With Facebook"
+                button
+                type="facebook"
               />
             </View>
-            <Button
-              title="Login"
-              buttonStyle={styles.loginButton}
-              containerStyle={styles.buttonContainer}
-            />
-            <Text style={styles.centerText}>Or</Text>
-            <SocialIcon title="Sign In With Facebook" button type="facebook" />
-          </View>
-          <View style={styles.signUpContainer}>
-            <Text style={styles.centerText}>New to Marketeer?</Text>
-            <Button
-              title="Sign Up"
-              type="outline"
-              titleStyle={styles.signUpButtonTitleStyle}
-              buttonStyle={styles.signUpButton}
-              containerStyle={styles.buttonContainer}
-            />
-          </View>
-        </Card>
-      </View>
+            <View style={styles.signUpContainer}>
+              <Text style={styles.centerText}>New to Marketeer?</Text>
+              <Button
+                title="Sign Up"
+                type="outline"
+                titleStyle={styles.signUpButtonTitleStyle}
+                buttonStyle={styles.signUpButton}
+                containerStyle={styles.buttonContainer}
+              />
+            </View>
+          </Card>
+        </Container>
+      </KeyboardAwareScrollView>
     );
   }
 }
@@ -87,7 +99,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
   },
   footer: {
@@ -99,7 +111,7 @@ const styles = StyleSheet.create({
     elevation: 20,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    paddingVertical: 50,
+    paddingTop: 50,
     paddingHorizontal: 30,
   },
   signUpContainer: {bottom: 0},
