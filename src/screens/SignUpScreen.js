@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
-import {Icon, Image} from 'react-native-elements';
+import {Icon, Image, Button} from 'react-native-elements';
 @inject('generalStore')
 @observer
 class SignUpScreen extends Component {
@@ -219,28 +219,19 @@ class SignUpScreen extends Component {
                 </Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.button}>
-              <TouchableOpacity
-                style={[
-                  styles.signIn,
-                  {
-                    borderRadius: 24,
-                    borderColor: '#E91E63',
-                    borderWidth: 1,
-                    marginTop: 15,
-                  },
-                ]}>
-                <Text
-                  style={[
-                    styles.textSign,
-                    {
-                      color: '#E91E63',
-                    },
-                  ]}>
-                  Sign Up
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <Button
+              title="Sign Up"
+              type="outline"
+              containerStyle={{
+                borderRadius: 24,
+                borderWidth: 1,
+                borderColor: '#E91E63',
+                marginTop: 40,
+                height: 50,
+              }}
+              buttonStyle={{height: 50}}
+              titleStyle={{color: '#E91E63'}}
+            />
             <View
               style={{
                 flexDirection: 'row',
