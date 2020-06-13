@@ -99,17 +99,10 @@ class SignUpScreen extends Component {
                 paddingVertical: 20,
               }}>
               <Text style={styles.text_subtext}>
-                Are you a merchant? Join us by registering
+                Are you a merchant? Come and join us! Register
               </Text>
               <TouchableOpacity>
-                <Text
-                  style={[
-                    styles.text_subtext,
-                    {fontWeight: 'bold', color: '#E91E63'},
-                  ]}>
-                  {' '}
-                  here!
-                </Text>
+                <Text style={styles.touchable_text}> here!</Text>
               </TouchableOpacity>
             </View>
 
@@ -238,6 +231,17 @@ class SignUpScreen extends Component {
                 </Text>
               </TouchableOpacity>
             </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                paddingTop: 10,
+              }}>
+              <Text>Already have an account? You can login </Text>
+              <TouchableOpacity>
+                <Text style={styles.touchable_text}>here.</Text>
+              </TouchableOpacity>
+            </View>
           </ScrollView>
         </Animatable.View>
       </View>
@@ -280,6 +284,10 @@ const styles = StyleSheet.create({
   text_footer: {
     color: '#E91E63',
     fontSize: 18,
+  },
+  touchable_text: {
+    fontWeight: 'bold',
+    color: '#E91E63',
   },
   action: {
     flexDirection: 'row',
