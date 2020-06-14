@@ -22,21 +22,25 @@ class LoginScreen extends Component {
     this.state = {
       email: '',
       password: '',
-      check_textInputChange: false,
+      emailCheck: false,
       secureTextEntry: true,
     };
   }
 
-  textInputChange = (value) => {
-    if (value.length !== 0) {
+  handleEmailChange = (email) => {
+    const regexp = new RegExp(
+      /^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,5})$/,
+    );
+
+    this.setState({email});
+
+    if (email.length !== 0 && regexp.test(email)) {
       this.setState({
-        email: value,
-        check_textInputChange: true,
+        emailCheck: true,
       });
     } else {
       this.setState({
-        email: value,
-        check_textInputChange: false,
+        emailCheck: false,
       });
     }
   };
@@ -87,14 +91,21 @@ class LoginScreen extends Component {
                 <Icon name="person-outline" color="#E91E63" size={20} />
               </View>
               <TextInput
-                placeholder="Your Email Address"
+                placeholder="myemail@gmail.com"
+                maxLength={256}
                 style={styles.textInput}
                 autoCapitalize="none"
-                onChangeText={(value) => this.textInputChange(value)}
+                onChangeText={(value) => this.handleEmailChange(value)}
               />
-              {this.state.check_textInputChange ? (
+              {this.state.emailCheck ? (
                 <Animatable.View animation="bounceIn">
-                  <Icon name="check-circle" color="green" size={20} />
+                  <Icon
+                    name={`${iconPrefix}-checkmark-circle`}
+                    type="ionicon"
+                    color="#388e3c"
+                    size={20}
+                    style={{marginRight: 22}}
+                  />
                 </Animatable.View>
               ) : null}
             </View>
@@ -114,6 +125,7 @@ class LoginScreen extends Component {
               </View>
               <TextInput
                 placeholder="Your Password"
+                maxLength={32}
                 secureTextEntry={this.state.secureTextEntry ? true : false}
                 style={styles.textInput}
                 autoCapitalize="none"
