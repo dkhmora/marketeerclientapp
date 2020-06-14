@@ -3,7 +3,7 @@ import {View, ScrollView, StyleSheet} from 'react-native';
 import {Header} from 'react-native-elements';
 import BaseHeader from '../components/BaseHeader';
 
-class HomeScreen extends Component {
+class MainScreen extends Component {
   render() {
     const {navigation} = this.props;
 
@@ -22,4 +22,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default MainScreen;
