@@ -8,10 +8,11 @@ import {
   StyleSheet,
   ScrollView,
   StatusBar,
+  Image,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
-import {Icon, Image, SocialIcon, Button} from 'react-native-elements';
+import {Icon, SocialIcon, Button} from 'react-native-elements';
 @inject('generalStore')
 @inject('authStore')
 @observer
