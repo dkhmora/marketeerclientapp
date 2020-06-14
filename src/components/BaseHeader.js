@@ -24,6 +24,7 @@ class BaseHeader extends Component {
 
     this.state = {
       showLocation: false,
+      initialPosition: -200,
     };
     const headerHeight = Platform.OS === 'android' ? 56 : 44;
 
@@ -85,6 +86,7 @@ class BaseHeader extends Component {
         <TouchableOpacity
           style={{flex: 1, flexDirection: 'row'}}
           onPress={() => {
+            this.setState({initialPosition: 0});
             if (!showLocation) {
               this.drawer.animate('slideIn');
               this.overlay.animate('fadeIn');
@@ -125,11 +127,12 @@ class BaseHeader extends Component {
         <Animatable.View
           ref={(drawer) => (this.drawer = drawer)}
           duration={200}
+          useNativeDriver
           style={{
             width: '100%',
             backgroundColor: '#fff',
             zIndex: -10,
-            translateY: -200,
+            top: this.state.initialPosition,
             position: 'absolute',
           }}>
           <ListItem
@@ -146,6 +149,7 @@ class BaseHeader extends Component {
           />
           <Animatable.View
             ref={(overlay) => (this.overlay = overlay)}
+            useNativeDriver
             duration={200}
             style={{
               position: 'absolute',
