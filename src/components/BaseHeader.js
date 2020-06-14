@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
+import {getStatusBarHeight} from 'react-native-status-bar-height';
 import {
   Header,
   Icon,
@@ -24,15 +25,18 @@ class BaseHeader extends Component {
     this.state = {
       showLocation: false,
     };
+    const headerHeight = Platform.OS === 'android' ? 56 : 44;
+
+    const pixelsFromTop = getStatusBarHeight() + headerHeight;
 
     Animatable.initializeRegistryWithDefinitions({
       slideIn: {
-        from: {translateY: -200},
-        to: {translateY: 100},
+        from: {translateY: -pixelsFromTop},
+        to: {translateY: pixelsFromTop},
       },
       slideOut: {
-        from: {translateY: 100},
-        to: {translateY: -200},
+        from: {translateY: pixelsFromTop},
+        to: {translateY: -pixelsFromTop},
       },
       fadeIn: {
         from: {
