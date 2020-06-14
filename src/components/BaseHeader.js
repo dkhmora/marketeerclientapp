@@ -140,6 +140,7 @@ class BaseHeader extends Component {
             subtitle="Test Location"
             bottomDivider
             chevron
+            onPress={() => console.log('yes')}
           />
           <ListItem
             title="Last Location Delivery"
@@ -173,7 +174,7 @@ class BaseHeader extends Component {
     const {showLocation} = this.state;
 
     return (
-      <View>
+      <View style={{flex: 1}}>
         {this.slideDownDrawer()}
         <Header
           placement={Platform.OS === 'ios' ? 'center' : 'left'}
