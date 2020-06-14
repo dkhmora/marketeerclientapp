@@ -23,6 +23,8 @@ class SignUpScreen extends Component {
       email: '',
       phoneNumber: '',
       password: '',
+      passwordCheck: false,
+      confirmPasswordCheck: false,
       confirmPassword: '',
       emailCheck: false,
       phoneCheck: false,
@@ -66,16 +68,36 @@ class SignUpScreen extends Component {
     }
   };
 
-  handlePasswordChange = (value) => {
-    this.setState({
-      password: value,
-    });
+  handlePasswordChange = (password) => {
+    this.setState({password});
+
+    if (password.length >= 6) {
+      this.setState({
+        passwordCheck: true,
+      });
+    } else {
+      this.setState({
+        passwordCheck: false,
+      });
+    }
   };
 
-  handleConfirmPasswordChange = (value) => {
+  handleConfirmPasswordChange = (confirmPassword) => {
+    const {password, passwordCheck} = this.state;
+
     this.setState({
-      confirmPassword: value,
+      confirmPassword,
     });
+
+    if (confirmPassword === password && passwordCheck) {
+      this.setState({
+        confirmPasswordCheck: true,
+      });
+    } else {
+      this.setState({
+        confirmPasswordCheck: false,
+      });
+    }
   };
 
   updateSecureTextEntry = () => {
@@ -153,7 +175,13 @@ class SignUpScreen extends Component {
               />
               {this.state.emailCheck ? (
                 <Animatable.View animation="bounceIn">
-                  <Icon name="check-circle" color="green" size={20} />
+                  <Icon
+                    name={`${iconPrefix}-checkmark-circle`}
+                    type="ionicon"
+                    color="#388e3c"
+                    size={20}
+                    style={{marginRight: 22}}
+                  />
                 </Animatable.View>
               ) : null}
             </View>
@@ -176,7 +204,13 @@ class SignUpScreen extends Component {
               />
               {this.state.phoneCheck ? (
                 <Animatable.View animation="bounceIn">
-                  <Icon name="check-circle" color="green" size={20} />
+                  <Icon
+                    name={`${iconPrefix}-checkmark-circle`}
+                    type="ionicon"
+                    color="#388e3c"
+                    size={20}
+                    style={{marginRight: 22}}
+                  />
                 </Animatable.View>
               ) : null}
             </View>
@@ -194,6 +228,17 @@ class SignUpScreen extends Component {
                 autoCapitalize="none"
                 onChangeText={(value) => this.handlePasswordChange(value)}
               />
+              {this.state.passwordCheck ? (
+                <Animatable.View animation="bounceIn">
+                  <Icon
+                    name={`${iconPrefix}-checkmark-circle`}
+                    type="ionicon"
+                    color="#388e3c"
+                    size={20}
+                    style={{marginRight: 4}}
+                  />
+                </Animatable.View>
+              ) : null}
               <TouchableOpacity onPress={this.updateSecureTextEntry}>
                 {this.state.secureTextEntry ? (
                   <Icon
@@ -230,6 +275,17 @@ class SignUpScreen extends Component {
                   this.handleConfirmPasswordChange(value)
                 }
               />
+              {this.state.confirmPasswordCheck ? (
+                <Animatable.View animation="bounceIn">
+                  <Icon
+                    name={`${iconPrefix}-checkmark-circle`}
+                    type="ionicon"
+                    color="#388e3c"
+                    size={20}
+                    style={{marginRight: 4}}
+                  />
+                </Animatable.View>
+              ) : null}
               <TouchableOpacity onPress={this.updateConfirmSecureTextEntry}>
                 {this.state.secureTextEntry ? (
                   <Icon
