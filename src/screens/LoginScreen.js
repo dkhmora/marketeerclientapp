@@ -83,7 +83,9 @@ class LoginScreen extends Component {
 
             <Text style={styles.text_footer}>Email Address</Text>
             <View style={styles.action}>
-              <Icon name="person-outline" color="#E91E63" size={20} />
+              <View style={styles.icon_container}>
+                <Icon name="person-outline" color="#E91E63" size={20} />
+              </View>
               <TextInput
                 placeholder="Your Email Address"
                 style={styles.textInput}
@@ -107,7 +109,9 @@ class LoginScreen extends Component {
               Password
             </Text>
             <View style={styles.action}>
-              <Icon name="lock-outline" color="#E91E63" size={20} />
+              <View style={styles.icon_container}>
+                <Icon name="lock-outline" color="#E91E63" size={20} />
+              </View>
               <TextInput
                 placeholder="Your Password"
                 secureTextEntry={this.state.secureTextEntry ? true : false}
@@ -251,6 +255,10 @@ const styles = StyleSheet.create({
   },
   color_textPrivate: {
     color: '#333',
+  },
+  icon_container: {
+    flexDirection: 'row',
+    marginTop: 2,
   },
 });
 

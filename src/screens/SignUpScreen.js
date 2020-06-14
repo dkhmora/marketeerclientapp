@@ -40,26 +40,27 @@ class SignUpScreen extends Component {
 
     if (email.length !== 0 && regexp.test(email)) {
       this.setState({
-        email,
         emailCheck: true,
       });
     } else {
       this.setState({
-        email,
         emailCheck: false,
       });
     }
   };
 
-  handlePhoneChange = (value) => {
-    if (value.length !== 0) {
+  handlePhoneChange = (phoneBody) => {
+    const phoneNumber = `+63${phoneBody}`;
+    const regexp = new RegExp(/^(\+639)\d{9}$/);
+
+    this.setState({phoneNumber});
+
+    if (phoneNumber.length !== 0 && regexp.test(phoneNumber)) {
       this.setState({
-        phoneNumber: value,
         phoneCheck: true,
       });
     } else {
       this.setState({
-        phoneNumber: value,
         phoneCheck: false,
       });
     }
@@ -140,9 +141,12 @@ class SignUpScreen extends Component {
 
             <Text style={styles.text_footer}>Email Address</Text>
             <View style={styles.action}>
-              <Icon name="person-outline" color="#E91E63" size={20} />
+              <View style={styles.icon_container}>
+                <Icon name="person-outline" color="#E91E63" size={20} />
+              </View>
               <TextInput
-                placeholder="Email Address"
+                placeholder="myemail@gmail.com"
+                maxLength={256}
                 style={styles.textInput}
                 autoCapitalize="none"
                 onChangeText={(value) => this.handleEmailChange(value)}
@@ -156,9 +160,16 @@ class SignUpScreen extends Component {
 
             <Text style={styles.text_footer}>Phone Number</Text>
             <View style={styles.action}>
-              <Icon name="person-outline" color="#E91E63" size={20} />
+              <View style={styles.icon_container}>
+                <Icon name="person-outline" color="#E91E63" size={20} />
+                <Text style={[styles.text_subtext, {marginLeft: 5}]}>
+                  (+63)
+                </Text>
+              </View>
               <TextInput
-                placeholder="Phone Number"
+                placeholder="9172359492"
+                keyboardType="numeric"
+                maxLength={10}
                 style={styles.textInput}
                 autoCapitalize="none"
                 onChangeText={(value) => this.handlePhoneChange(value)}
@@ -172,10 +183,13 @@ class SignUpScreen extends Component {
 
             <Text style={styles.text_footer}>Password</Text>
             <View style={styles.action}>
-              <Icon name="lock-outline" color="#E91E63" size={20} />
+              <View style={styles.icon_container}>
+                <Icon name="lock-outline" color="#E91E63" size={20} />
+              </View>
               <TextInput
                 placeholder="Password"
                 secureTextEntry={this.state.secureTextEntry ? true : false}
+                maxLength={32}
                 style={styles.textInput}
                 autoCapitalize="none"
                 onChangeText={(value) => this.handlePasswordChange(value)}
@@ -201,12 +215,15 @@ class SignUpScreen extends Component {
 
             <Text style={styles.text_footer}>Confirm Password</Text>
             <View style={styles.action}>
-              <Icon name="lock-outline" color="#E91E63" size={20} />
+              <View style={styles.icon_container}>
+                <Icon name="lock-outline" color="#E91E63" size={20} />
+              </View>
               <TextInput
                 placeholder="Confirm Password"
                 secureTextEntry={
                   this.state.confirm_secureTextEntry ? true : false
                 }
+                maxLength={32}
                 style={styles.textInput}
                 autoCapitalize="none"
                 onChangeText={(value) =>
@@ -363,6 +380,10 @@ const styles = StyleSheet.create({
   },
   color_textPrivate: {
     color: '#333',
+  },
+  icon_container: {
+    flexDirection: 'row',
+    marginTop: 2,
   },
 });
 
