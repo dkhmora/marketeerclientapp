@@ -9,8 +9,6 @@ class authStore {
       email,
       password,
     );
-    console.log(credential);
-    console.log('umabot');
 
     await auth()
       .currentUser.linkWithCredential(credential)

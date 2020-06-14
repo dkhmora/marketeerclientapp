@@ -31,15 +31,21 @@ class SignUpScreen extends Component {
     };
   }
 
-  handleEmailChange = (value) => {
-    if (value.length !== 0) {
+  handleEmailChange = (email) => {
+    const regexp = new RegExp(
+      /^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,5})$/,
+    );
+
+    this.setState({email});
+
+    if (email.length !== 0 && regexp.test(email)) {
       this.setState({
-        email: value,
+        email,
         emailCheck: true,
       });
     } else {
       this.setState({
-        email: value,
+        email,
         emailCheck: false,
       });
     }
@@ -103,7 +109,7 @@ class SignUpScreen extends Component {
 
         <View style={styles.header}>
           <Image
-            source={require('../../assets/loginLogo.png')}
+            source={require('../../assets/logo.png')}
             style={{
               height: 150,
               width: 200,
