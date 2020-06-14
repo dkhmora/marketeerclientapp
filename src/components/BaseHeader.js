@@ -1,6 +1,19 @@
 import React, {Component} from 'react';
-import {StyleSheet, Platform, View, TouchableOpacity} from 'react-native';
-import {Header, Icon, Button, Text} from 'react-native-elements';
+import {
+  StyleSheet,
+  Platform,
+  View,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
+import {
+  Header,
+  Icon,
+  Button,
+  Text,
+  ListItem,
+  Overlay,
+} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import * as Animatable from 'react-native-animatable';
 
@@ -15,11 +28,27 @@ class BaseHeader extends Component {
     Animatable.initializeRegistryWithDefinitions({
       slideIn: {
         from: {translateY: -200},
-        to: {translateY: 0},
+        to: {translateY: 100},
       },
       slideOut: {
-        from: {translateY: 0},
+        from: {translateY: 100},
         to: {translateY: -200},
+      },
+      fadeIn: {
+        from: {
+          opacity: 0,
+        },
+        to: {
+          opacity: 0.35,
+        },
+      },
+      fadeOut: {
+        from: {
+          opacity: 0.35,
+        },
+        to: {
+          opacity: 0,
+        },
       },
     });
   }
@@ -53,9 +82,11 @@ class BaseHeader extends Component {
           style={{flex: 1, flexDirection: 'row'}}
           onPress={() => {
             if (!showLocation) {
-              this.view.animate('slideIn');
+              this.drawer.animate('slideIn');
+              this.overlay.animate('fadeIn');
             } else {
-              this.view.animate('slideOut');
+              this.drawer.animate('slideOut');
+              this.overlay.animate('fadeOut');
             }
 
             this.setState({showLocation: !showLocation});
@@ -86,19 +117,45 @@ class BaseHeader extends Component {
 
   slideDownDrawer = () => {
     return (
-      <View>
+      <View style={{flex: 1}}>
         <Animatable.View
-          ref={(view) => (this.view = view)}
+          ref={(drawer) => (this.drawer = drawer)}
           duration={200}
           style={{
             width: '100%',
-            height: 200,
             backgroundColor: '#fff',
-            zIndex: -99,
+            zIndex: -10,
             translateY: -200,
             position: 'absolute',
           }}>
-          <Text>Hello World</Text>
+          <ListItem
+            title="Current Location"
+            subtitle="Test Location"
+            bottomDivider
+            chevron
+          />
+          <ListItem
+            title="Last Location Delivery"
+            subtitle="Test Location"
+            bottomDivider
+            chevron
+          />
+          <Animatable.View
+            ref={(overlay) => (this.overlay = overlay)}
+            duration={200}
+            style={{
+              position: 'absolute',
+              height: Dimensions.get('window').height + 400,
+              width: '100%',
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: -100,
+              opacity: 0,
+              backgroundColor: '#000',
+            }}
+          />
         </Animatable.View>
       </View>
     );
@@ -106,6 +163,7 @@ class BaseHeader extends Component {
 
   render() {
     const {showLocation} = this.state;
+
     return (
       <View>
         {this.slideDownDrawer()}
@@ -133,6 +191,7 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: colors.primary,
     justifyContent: 'space-around',
+    zIndex: 100,
   },
   buttonContainer: {
     borderRadius: 24,
