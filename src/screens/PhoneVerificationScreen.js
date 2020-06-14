@@ -3,16 +3,13 @@ import {
   View,
   Text,
   TouchableOpacity,
-  TextInput,
   Platform,
   StyleSheet,
-  ScrollView,
   StatusBar,
   Image,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
-import {Icon, Button} from 'react-native-elements';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 import auth from '@react-native-firebase/auth';
 import {colors} from '../../assets/colors';

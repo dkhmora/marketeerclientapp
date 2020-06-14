@@ -1,22 +1,7 @@
 import React, {Component} from 'react';
-import {
-  StyleSheet,
-  Platform,
-  View,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
-import {getStatusBarHeight} from 'react-native-status-bar-height';
-import {
-  Header,
-  Icon,
-  Button,
-  Text,
-  ListItem,
-  Overlay,
-} from 'react-native-elements';
+import {StyleSheet, Platform, View} from 'react-native';
+import {Header, Icon, Button, Text} from 'react-native-elements';
 import {colors} from '../../assets/colors';
-import * as Animatable from 'react-native-animatable';
 
 class BaseHeader extends Component {
   constructor(props) {

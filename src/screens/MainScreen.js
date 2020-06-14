@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 import {Header, Text, ListItem, Button, Icon} from 'react-native-elements';
-import BaseHeader from '../components/BaseHeader';
 import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
 
