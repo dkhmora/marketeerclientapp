@@ -21,41 +21,6 @@ import * as Animatable from 'react-native-animatable';
 class BaseHeader extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      showLocation: false,
-      initialPosition: -200,
-    };
-    const headerHeight = Platform.OS === 'android' ? 56 : 44;
-
-    const pixelsFromTop = getStatusBarHeight() + headerHeight;
-
-    Animatable.initializeRegistryWithDefinitions({
-      slideIn: {
-        from: {translateY: -pixelsFromTop},
-        to: {translateY: pixelsFromTop},
-      },
-      slideOut: {
-        from: {translateY: pixelsFromTop},
-        to: {translateY: -pixelsFromTop},
-      },
-      fadeIn: {
-        from: {
-          opacity: 0,
-        },
-        to: {
-          opacity: 0.35,
-        },
-      },
-      fadeOut: {
-        from: {
-          opacity: 0.35,
-        },
-        to: {
-          opacity: 0,
-        },
-      },
-    });
   }
 
   menuIcon = () => {
@@ -79,33 +44,9 @@ class BaseHeader extends Component {
 
   centerComponent = () => {
     const {centerComponent, title} = this.props;
-    const {showLocation} = this.state;
 
     if (centerComponent) {
-      return (
-        <TouchableOpacity
-          style={{flex: 1, flexDirection: 'row'}}
-          onPress={() => {
-            this.setState({initialPosition: 0});
-            if (!showLocation) {
-              this.drawer.animate('slideIn');
-              this.overlay.animate('fadeIn');
-            } else {
-              this.drawer.animate('slideOut');
-              this.overlay.animate('fadeOut');
-            }
-
-            this.setState({showLocation: !showLocation});
-          }}>
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-            }}>
-            <Text style={styles.titleText}>Deliver To: </Text>
-          </View>
-        </TouchableOpacity>
-      );
+      return centerComponent;
     }
 
     return <Text style={styles.titleText}>{title}</Text>;
@@ -121,61 +62,9 @@ class BaseHeader extends Component {
     return <View style={{flex: 1}}></View>;
   };
 
-  slideDownDrawer = () => {
-    return (
-      <View style={{flex: 1}}>
-        <Animatable.View
-          ref={(drawer) => (this.drawer = drawer)}
-          duration={200}
-          useNativeDriver
-          style={{
-            width: '100%',
-            backgroundColor: '#fff',
-            zIndex: -10,
-            top: this.state.initialPosition,
-            position: 'absolute',
-          }}>
-          <ListItem
-            title="Current Location"
-            subtitle="Test Location"
-            bottomDivider
-            chevron
-            onPress={() => console.log('yes')}
-          />
-          <ListItem
-            title="Last Location Delivery"
-            subtitle="Test Location"
-            bottomDivider
-            chevron
-          />
-          <Animatable.View
-            ref={(overlay) => (this.overlay = overlay)}
-            useNativeDriver
-            duration={200}
-            style={{
-              position: 'absolute',
-              height: Dimensions.get('window').height + 400,
-              width: '100%',
-              top: 0,
-              bottom: 0,
-              left: 0,
-              right: 0,
-              zIndex: -100,
-              opacity: 0,
-              backgroundColor: '#000',
-            }}
-          />
-        </Animatable.View>
-      </View>
-    );
-  };
-
   render() {
-    const {showLocation} = this.state;
-
     return (
-      <View style={{flex: 1}}>
-        {this.slideDownDrawer()}
+      <View>
         <Header
           placement={Platform.OS === 'ios' ? 'center' : 'left'}
           leftComponent={this.menuIcon}

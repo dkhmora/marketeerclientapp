@@ -165,25 +165,26 @@ class MainScreen extends Component {
   };
 
   revealLocationMenu() {
-    this.drawer.animate('slideIn');
-    this.overlay.animate('fadeIn');
-
-    this.setState({showLocation: !this.state.showLocation});
+    this.setState({showLocation: true}, () => {
+      this.drawer.animate('slideIn');
+      this.overlay.animate('fadeIn');
+    });
   }
 
   hideLocationMenu() {
     this.drawer.animate('slideOut');
     this.overlay.animate('fadeOut');
 
-    this.setState({showLocation: !this.state.showLocation});
+    this.setState({showLocation: false});
   }
 
   render() {
     const {navigation} = this.props;
+    const {showLocation} = this.state;
 
     return (
       <View style={styles.container}>
-        <this.Overlay />
+        {showLocation && <this.Overlay />}
         <this.SlideDownDrawer />
         <Header
           placement={Platform.OS === 'ios' ? 'center' : 'left'}
