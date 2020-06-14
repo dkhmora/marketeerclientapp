@@ -15,6 +15,7 @@ import {observer, inject} from 'mobx-react';
 import {Icon, Button} from 'react-native-elements';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 import auth from '@react-native-firebase/auth';
+import {colors} from '../../assets/colors';
 
 @inject('generalStore')
 @inject('authStore')
@@ -58,7 +59,7 @@ class PhoneVerificationScreen extends Component {
 
     return (
       <View style={styles.container}>
-        <StatusBar backgroundColor="#E91E63" />
+        <StatusBar backgroundColor={colors.primary} />
 
         <View style={styles.header}>
           <Image
@@ -85,9 +86,9 @@ class PhoneVerificationScreen extends Component {
                 codeInputFieldStyle={{
                   borderRadius: 24,
                   borderColor: '#666',
-                  color: '#E91E63',
+                  color: colors.primary,
                 }}
-                codeInputHighlightStyle={{borderColor: '#E91E63'}}
+                codeInputHighlightStyle={{borderColor: colors.primary}}
                 keyboardType="number-pad"
                 onCodeFilled={(code) => {
                   this.confirmCode(code);
@@ -120,7 +121,7 @@ class PhoneVerificationScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E91E63',
+    backgroundColor: colors.primary,
   },
   header: {
     flex: 2,
@@ -152,13 +153,13 @@ const styles = StyleSheet.create({
   },
   touchable_text: {
     fontWeight: 'bold',
-    color: '#E91E63',
+    color: colors.primary,
   },
   textInput: {
     flex: 1,
     marginTop: Platform.OS === 'ios' ? 0 : -12,
     paddingLeft: 10,
-    color: '#E91E63',
+    color: colors.primary,
   },
   button: {
     alignItems: 'center',

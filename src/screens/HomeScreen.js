@@ -1,32 +1,25 @@
-import React from 'react';
-import {
-  Text,
-  Container,
-  Content,
-  Header,
-  Body,
-  Right,
-  Left,
-  Button,
-} from 'native-base';
+import React, {Component} from 'react';
+import {View, ScrollView, StyleSheet} from 'react-native';
+import {Header} from 'react-native-elements';
+import BaseHeader from '../components/BaseHeader';
 
-export const HomeScreen = () => {
-  return (
-    <Container style={{flex: 1}}>
-      <Header>
-        <Left />
-        <Body>
-          <Text>Home Screen</Text>
-        </Body>
-        <Right />
-      </Header>
+class HomeScreen extends Component {
+  render() {
+    const {navigation} = this.props;
 
-      <Content>
-        <Text style={{textAlign: 'center'}}>Hello World</Text>
-        <Button rounded style={{flex: 1}}>
-          <Text>Testing</Text>
-        </Button>
-      </Content>
-    </Container>
-  );
-};
+    return (
+      <View style={styles.container}>
+        <BaseHeader navigation={navigation} />
+        <ScrollView></ScrollView>
+      </View>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
+
+export default HomeScreen;

@@ -13,6 +13,7 @@ import {
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
 import {Icon, Button} from 'react-native-elements';
+import {colors} from '../../assets/colors';
 @inject('generalStore')
 @inject('authStore')
 @observer
@@ -129,7 +130,7 @@ class SignUpScreen extends Component {
 
     return (
       <View style={styles.container}>
-        <StatusBar backgroundColor="#E91E63" />
+        <StatusBar backgroundColor={colors.primary} />
 
         <View style={styles.header}>
           <Image
@@ -165,7 +166,7 @@ class SignUpScreen extends Component {
             <Text style={styles.text_footer}>Email Address</Text>
             <View style={styles.action}>
               <View style={styles.icon_container}>
-                <Icon name="person-outline" color="#E91E63" size={20} />
+                <Icon name="person-outline" color={colors.primary} size={20} />
               </View>
               <TextInput
                 placeholder="myemail@gmail.com"
@@ -190,7 +191,7 @@ class SignUpScreen extends Component {
             <Text style={styles.text_footer}>Phone Number</Text>
             <View style={styles.action}>
               <View style={styles.icon_container}>
-                <Icon name="person-outline" color="#E91E63" size={20} />
+                <Icon name="person-outline" color={colors.primary} size={20} />
                 <Text style={[styles.text_subtext, {marginLeft: 5}]}>
                   (+63)
                 </Text>
@@ -219,7 +220,7 @@ class SignUpScreen extends Component {
             <Text style={styles.text_footer}>Password</Text>
             <View style={styles.action}>
               <View style={styles.icon_container}>
-                <Icon name="lock-outline" color="#E91E63" size={20} />
+                <Icon name="lock-outline" color={colors.primary} size={20} />
               </View>
               <TextInput
                 placeholder="Password"
@@ -262,7 +263,7 @@ class SignUpScreen extends Component {
             <Text style={styles.text_footer}>Confirm Password</Text>
             <View style={styles.action}>
               <View style={styles.icon_container}>
-                <Icon name="lock-outline" color="#E91E63" size={20} />
+                <Icon name="lock-outline" color={colors.primary} size={20} />
               </View>
               <TextInput
                 placeholder="Confirm Password"
@@ -313,7 +314,7 @@ class SignUpScreen extends Component {
                 <Text
                   style={[
                     styles.color_textPrivate,
-                    {fontWeight: 'bold', color: '#E91E63'},
+                    {fontWeight: 'bold', color: colors.primary},
                   ]}>
                   Terms of service
                 </Text>
@@ -323,7 +324,7 @@ class SignUpScreen extends Component {
                 <Text
                   style={[
                     styles.color_textPrivate,
-                    {fontWeight: 'bold', color: '#E91E63'},
+                    {fontWeight: 'bold', color: colors.primary},
                   ]}>
                   Privacy policy
                 </Text>
@@ -336,12 +337,12 @@ class SignUpScreen extends Component {
               containerStyle={{
                 borderRadius: 24,
                 borderWidth: 1,
-                borderColor: '#E91E63',
+                borderColor: colors.primary,
                 marginTop: 40,
                 height: 50,
               }}
               buttonStyle={{height: 50}}
-              titleStyle={{color: '#E91E63'}}
+              titleStyle={{color: colors.primary}}
             />
             <View
               style={{
@@ -364,7 +365,7 @@ class SignUpScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E91E63',
+    backgroundColor: colors.primary,
   },
   header: {
     flex: 2,
@@ -400,7 +401,7 @@ const styles = StyleSheet.create({
   },
   touchable_text: {
     fontWeight: 'bold',
-    color: '#E91E63',
+    color: colors.primary,
   },
   action: {
     flexDirection: 'row',
@@ -413,7 +414,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: Platform.OS === 'ios' ? 0 : -12,
     paddingLeft: 10,
-    color: '#E91E63',
+    color: colors.primary,
   },
   button: {
     alignItems: 'center',
