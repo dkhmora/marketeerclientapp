@@ -7,6 +7,31 @@ class authStore {
   @observable userAuthenticated = false;
   @observable userName = '';
 
+  @action async createUser(name, email, password) {
+    await this.createUserDocuments(name, email, password)
+      .then(() => console.log('Successfully created user documents'))
+      .then(() => this.linkPhoneNumberWithEmail(name, email, password))
+      .then((user) => console.log('Account linking success', user))
+      .then(() => (this.userAuthenticated = true))
+      .catch((err) => {
+        this.userAuthenticated = false;
+        console.log(err);
+      });
+  }
+
+  @action async createUserDocuments(name, email, phoneNumber) {
+    const userId = await auth().currentUser.uid;
+
+    await firestore().collection('user_carts').doc(userId).set({});
+    await firestore().collection('users').doc(userId).set({
+      name,
+      email,
+      phoneNumber,
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+    });
+  }
+
   @action async linkPhoneNumberWithEmail(name, email, password) {
     const credential = await firebase.auth.EmailAuthProvider.credential(
       email,
@@ -18,21 +43,11 @@ class authStore {
       .then((usercred) => {
         const user = usercred.user;
 
-        usercred.updateProfile({
+        user.updateProfile({
           displayName: name,
         });
 
         return user;
-      })
-      .then((user) => {
-        this.userAuthenticated = true;
-
-        console.log('Account linking success', user);
-      })
-      .catch((error) => {
-        this.userAuthenticated = false;
-
-        console.log('Account linking error', error);
       });
   }
 

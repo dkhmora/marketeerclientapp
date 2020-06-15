@@ -44,7 +44,7 @@ class PhoneVerificationScreen extends Component {
     await this.state.confirm
       .confirm(code)
       .then(() => {
-        this.props.authStore.linkPhoneNumberWithEmail(name, email, password);
+        this.props.authStore.createUser(name, email, password);
         console.log('phone success');
       })
       .catch((err) => console.log('unsuccessful phone auth', err));
