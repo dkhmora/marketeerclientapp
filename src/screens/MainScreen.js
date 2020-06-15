@@ -165,10 +165,12 @@ class MainScreen extends Component {
           opacity: 0,
           backgroundColor: '#000',
         }}>
-        <TouchableOpacity
-          style={{flex: 1}}
-          onPress={() => this.hideLocationMenu()}
-        />
+        {this.state.showLocation && (
+          <TouchableOpacity
+            style={{flex: 1}}
+            onPress={() => this.hideLocationMenu()}
+          />
+        )}
       </Animatable.View>
     );
   };
@@ -193,7 +195,7 @@ class MainScreen extends Component {
 
     return (
       <View style={styles.container}>
-        {showLocation && <this.Overlay />}
+        <this.Overlay />
         <this.SlideDownDrawer />
         <Header
           placement={Platform.OS === 'ios' ? 'center' : 'left'}
