@@ -34,11 +34,12 @@ class SignUpScreen extends Component {
       phoneCheck: false,
       secureTextEntry: true,
       confirm_secureTextEntry: true,
+      signUpButton_disabled: true,
     };
   }
 
   handleNameChange = (name) => {
-    const formattedName = _.capitalize(name);
+    let formattedName = _.startCase(_.toLower(name));
 
     this.setState({name: formattedName});
 
@@ -144,7 +145,18 @@ class SignUpScreen extends Component {
   }
 
   render() {
-    const {iconPrefix} = this.props.generalStore;
+    const {
+      signUpButton_disabled,
+      passwordCheck,
+      confirmPasswordCheck,
+      name,
+      nameCheck,
+      emailCheck,
+      phoneCheck,
+      secureTextEntry,
+      confirm_secureTextEntry,
+    } = this.state;
+
     const {navigation} = this.props;
 
     return (
@@ -199,7 +211,7 @@ class SignUpScreen extends Component {
                 autoCapitalize="words"
                 onChangeText={(value) => this.handleNameChange(value)}
               />
-              {this.state.nameCheck ? (
+              {nameCheck ? (
                 <Animatable.View animation="bounceIn">
                   <Icon
                     name="check-circle"
@@ -229,7 +241,7 @@ class SignUpScreen extends Component {
                 autoCapitalize="none"
                 onChangeText={(value) => this.handleEmailChange(value)}
               />
-              {this.state.emailCheck ? (
+              {emailCheck ? (
                 <Animatable.View animation="bounceIn">
                   <Icon
                     name="check-circle"
@@ -267,7 +279,7 @@ class SignUpScreen extends Component {
                 autoCapitalize="none"
                 onChangeText={(value) => this.handlePhoneChange(value)}
               />
-              {this.state.phoneCheck ? (
+              {phoneCheck ? (
                 <Animatable.View animation="bounceIn">
                   <Icon
                     name="check-circle"
@@ -292,13 +304,13 @@ class SignUpScreen extends Component {
               </View>
               <TextInput
                 placeholder="Password"
-                secureTextEntry={this.state.secureTextEntry ? true : false}
+                secureTextEntry={secureTextEntry ? true : false}
                 maxLength={32}
                 style={styles.textInput}
                 autoCapitalize="none"
                 onChangeText={(value) => this.handlePasswordChange(value)}
               />
-              {this.state.passwordCheck ? (
+              {passwordCheck ? (
                 <Animatable.View animation="bounceIn">
                   <Icon
                     name="check-circle"
@@ -310,7 +322,7 @@ class SignUpScreen extends Component {
                 </Animatable.View>
               ) : null}
               <TouchableOpacity onPress={this.updateSecureTextEntry}>
-                {this.state.secureTextEntry ? (
+                {secureTextEntry ? (
                   <Icon name="eye" type="feather" color="grey" size={20} />
                 ) : (
                   <Icon name="eye-off" type="feather" color="grey" size={20} />
@@ -330,9 +342,7 @@ class SignUpScreen extends Component {
               </View>
               <TextInput
                 placeholder="Confirm Password"
-                secureTextEntry={
-                  this.state.confirm_secureTextEntry ? true : false
-                }
+                secureTextEntry={confirm_secureTextEntry ? true : false}
                 maxLength={32}
                 style={styles.textInput}
                 autoCapitalize="none"
@@ -340,7 +350,7 @@ class SignUpScreen extends Component {
                   this.handleConfirmPasswordChange(value)
                 }
               />
-              {this.state.confirmPasswordCheck ? (
+              {confirmPasswordCheck ? (
                 <Animatable.View animation="bounceIn">
                   <Icon
                     name="check-circle"
@@ -352,7 +362,7 @@ class SignUpScreen extends Component {
                 </Animatable.View>
               ) : null}
               <TouchableOpacity onPress={this.updateConfirmSecureTextEntry}>
-                {this.state.confirm_secureTextEntry ? (
+                {confirm_secureTextEntry ? (
                   <Icon name="eye" type="feather" color="grey" size={20} />
                 ) : (
                   <Icon name="eye-off" type="feather" color="grey" size={20} />
@@ -376,6 +386,15 @@ class SignUpScreen extends Component {
             </View>
             <Button
               onPress={() => this.handleSignUp()}
+              disabled={
+                !(
+                  nameCheck &&
+                  emailCheck &&
+                  phoneCheck &&
+                  passwordCheck &&
+                  confirmPasswordCheck
+                )
+              }
               title="Sign Up"
               type="outline"
               containerStyle={{

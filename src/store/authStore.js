@@ -18,7 +18,7 @@ class authStore {
       .then((usercred) => {
         const user = usercred.user;
 
-        user.updateProfile({
+        usercred.updateProfile({
           displayName: name,
         });
 
