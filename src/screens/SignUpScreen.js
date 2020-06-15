@@ -187,7 +187,7 @@ class SignUpScreen extends Component {
                     type="feather"
                     color="#388e3c"
                     size={20}
-                    style={{marginRight: 22}}
+                    style={{marginRight: 25}}
                   />
                 </Animatable.View>
               ) : null}
@@ -221,7 +221,7 @@ class SignUpScreen extends Component {
                     type="feather"
                     color="#388e3c"
                     size={20}
-                    style={{marginRight: 22}}
+                    style={{marginRight: 25}}
                   />
                 </Animatable.View>
               ) : null}
@@ -252,7 +252,7 @@ class SignUpScreen extends Component {
                     type="feather"
                     color="#388e3c"
                     size={20}
-                    style={{marginRight: 4}}
+                    style={{marginRight: 5}}
                   />
                 </Animatable.View>
               ) : null}
@@ -294,12 +294,12 @@ class SignUpScreen extends Component {
                     type="feather"
                     color="#388e3c"
                     size={20}
-                    style={{marginRight: 4}}
+                    style={{marginRight: 5}}
                   />
                 </Animatable.View>
               ) : null}
               <TouchableOpacity onPress={this.updateConfirmSecureTextEntry}>
-                {this.state.secureTextEntry ? (
+                {this.state.confirm_secureTextEntry ? (
                   <Icon name="eye" type="feather" color="grey" size={20} />
                 ) : (
                   <Icon name="eye-off" type="feather" color="grey" size={20} />
