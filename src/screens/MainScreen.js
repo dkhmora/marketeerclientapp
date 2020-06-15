@@ -192,7 +192,7 @@ class MainScreen extends Component {
           rightComponent={this.rightComponent}
           statusBarProps={{
             barStyle: 'light-content',
-            backgroundColor: colors.primary,
+            backgroundColor: 'rgba(0, 0, 0, 0.10)',
             translucent: true,
           }}
           containerStyle={styles.header}
