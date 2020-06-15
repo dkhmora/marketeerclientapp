@@ -5,6 +5,7 @@ import firestore from '@react-native-firebase/firestore';
 
 class authStore {
   @observable userAuthenticated = false;
+  @observable userName = '';
 
   @action async linkPhoneNumberWithEmail(email, password) {
     const credential = await firebase.auth.EmailAuthProvider.credential(

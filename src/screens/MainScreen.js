@@ -219,8 +219,9 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   titleText: {
-    fontSize: 16,
+    fontSize: 19,
     color: colors.icons,
+    fontFamily: 'ProductSans-Light',
   },
 });
 
