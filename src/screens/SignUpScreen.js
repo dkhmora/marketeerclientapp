@@ -166,7 +166,12 @@ class SignUpScreen extends Component {
             <Text style={styles.text_footer}>Email Address</Text>
             <View style={styles.action}>
               <View style={styles.icon_container}>
-                <Icon name="person-outline" color={colors.primary} size={20} />
+                <Icon
+                  name="user"
+                  type="feather"
+                  color={colors.primary}
+                  size={20}
+                />
               </View>
               <TextInput
                 placeholder="myemail@gmail.com"
@@ -178,8 +183,8 @@ class SignUpScreen extends Component {
               {this.state.emailCheck ? (
                 <Animatable.View animation="bounceIn">
                   <Icon
-                    name={`${iconPrefix}-checkmark-circle`}
-                    type="ionicon"
+                    name="check-circle"
+                    type="feather"
                     color="#388e3c"
                     size={20}
                     style={{marginRight: 22}}
@@ -191,7 +196,12 @@ class SignUpScreen extends Component {
             <Text style={styles.text_footer}>Phone Number</Text>
             <View style={styles.action}>
               <View style={styles.icon_container}>
-                <Icon name="person-outline" color={colors.primary} size={20} />
+                <Icon
+                  name="smartphone"
+                  type="feather"
+                  color={colors.primary}
+                  size={20}
+                />
                 <Text style={[styles.text_subtext, {marginLeft: 5}]}>
                   (+63)
                 </Text>
@@ -207,8 +217,8 @@ class SignUpScreen extends Component {
               {this.state.phoneCheck ? (
                 <Animatable.View animation="bounceIn">
                   <Icon
-                    name={`${iconPrefix}-checkmark-circle`}
-                    type="ionicon"
+                    name="check-circle"
+                    type="feather"
                     color="#388e3c"
                     size={20}
                     style={{marginRight: 22}}
@@ -220,7 +230,12 @@ class SignUpScreen extends Component {
             <Text style={styles.text_footer}>Password</Text>
             <View style={styles.action}>
               <View style={styles.icon_container}>
-                <Icon name="lock-outline" color={colors.primary} size={20} />
+                <Icon
+                  name="lock"
+                  type="feather"
+                  color={colors.primary}
+                  size={20}
+                />
               </View>
               <TextInput
                 placeholder="Password"
@@ -233,8 +248,8 @@ class SignUpScreen extends Component {
               {this.state.passwordCheck ? (
                 <Animatable.View animation="bounceIn">
                   <Icon
-                    name={`${iconPrefix}-checkmark-circle`}
-                    type="ionicon"
+                    name="check-circle"
+                    type="feather"
                     color="#388e3c"
                     size={20}
                     style={{marginRight: 4}}
@@ -243,19 +258,9 @@ class SignUpScreen extends Component {
               ) : null}
               <TouchableOpacity onPress={this.updateSecureTextEntry}>
                 {this.state.secureTextEntry ? (
-                  <Icon
-                    name={`${iconPrefix}-eye`}
-                    type="ionicon"
-                    color="grey"
-                    size={20}
-                  />
+                  <Icon name="eye" type="feather" color="grey" size={20} />
                 ) : (
-                  <Icon
-                    name={`${iconPrefix}-eye-off`}
-                    type="ionicon"
-                    color="grey"
-                    size={20}
-                  />
+                  <Icon name="eye-off" type="feather" color="grey" size={20} />
                 )}
               </TouchableOpacity>
             </View>
@@ -263,7 +268,12 @@ class SignUpScreen extends Component {
             <Text style={styles.text_footer}>Confirm Password</Text>
             <View style={styles.action}>
               <View style={styles.icon_container}>
-                <Icon name="lock-outline" color={colors.primary} size={20} />
+                <Icon
+                  name="lock"
+                  type="feather"
+                  color={colors.primary}
+                  size={20}
+                />
               </View>
               <TextInput
                 placeholder="Confirm Password"
@@ -280,8 +290,8 @@ class SignUpScreen extends Component {
               {this.state.confirmPasswordCheck ? (
                 <Animatable.View animation="bounceIn">
                   <Icon
-                    name={`${iconPrefix}-checkmark-circle`}
-                    type="ionicon"
+                    name="check-circle"
+                    type="feather"
                     color="#388e3c"
                     size={20}
                     style={{marginRight: 4}}
@@ -290,44 +300,22 @@ class SignUpScreen extends Component {
               ) : null}
               <TouchableOpacity onPress={this.updateConfirmSecureTextEntry}>
                 {this.state.secureTextEntry ? (
-                  <Icon
-                    name={`${iconPrefix}-eye`}
-                    type="ionicon"
-                    color="grey"
-                    size={20}
-                  />
+                  <Icon name="eye" type="feather" color="grey" size={20} />
                 ) : (
-                  <Icon
-                    name={`${iconPrefix}-eye-off`}
-                    type="ionicon"
-                    color="grey"
-                    size={20}
-                  />
+                  <Icon name="eye-off" type="feather" color="grey" size={20} />
                 )}
               </TouchableOpacity>
             </View>
             <View style={styles.textPrivate}>
-              <Text style={styles.color_textPrivate}>
+              <Text style={[styles.color_textPrivate, styles.text_subtext]}>
                 By signing up you agree to our{' '}
               </Text>
               <TouchableOpacity>
-                <Text
-                  style={[
-                    styles.color_textPrivate,
-                    {fontWeight: 'bold', color: colors.primary},
-                  ]}>
-                  Terms of service
-                </Text>
+                <Text style={styles.touchable_text}>Terms of service</Text>
               </TouchableOpacity>
               <Text style={styles.color_textPrivate}> and </Text>
               <TouchableOpacity>
-                <Text
-                  style={[
-                    styles.color_textPrivate,
-                    {fontWeight: 'bold', color: colors.primary},
-                  ]}>
-                  Privacy policy
-                </Text>
+                <Text style={styles.touchable_text}>Privacy policy</Text>
               </TouchableOpacity>
             </View>
             <Button
@@ -342,7 +330,10 @@ class SignUpScreen extends Component {
                 height: 50,
               }}
               buttonStyle={{height: 50}}
-              titleStyle={{color: colors.primary}}
+              titleStyle={{
+                color: colors.primary,
+                fontFamily: 'ProductSans-Bold',
+              }}
             />
             <View
               style={{
@@ -350,7 +341,9 @@ class SignUpScreen extends Component {
                 justifyContent: 'center',
                 paddingVertical: 10,
               }}>
-              <Text>Already have an account? You can login </Text>
+              <Text style={styles.text_subtext}>
+                Already have an account? You can login{' '}
+              </Text>
               <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                 <Text style={styles.touchable_text}>here.</Text>
               </TouchableOpacity>
@@ -388,19 +381,22 @@ const styles = StyleSheet.create({
     fontSize: 30,
     paddingBottom: 20,
     paddingTop: 10,
+    fontFamily: 'ProductSans-Light',
   },
   text_subtext: {
     color: '#333',
     textAlign: 'left',
+    fontFamily: 'ProductSans-Light',
     justifyContent: 'flex-start',
     alignSelf: 'flex-start',
   },
   text_footer: {
+    fontFamily: 'ProductSans-Light',
     color: '#333',
     fontSize: 18,
   },
   touchable_text: {
-    fontWeight: 'bold',
+    fontFamily: 'ProductSans-Bold',
     color: colors.primary,
   },
   action: {
