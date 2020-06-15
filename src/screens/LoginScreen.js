@@ -91,7 +91,12 @@ class LoginScreen extends Component {
             <Text style={styles.text_footer}>Email Address</Text>
             <View style={styles.action}>
               <View style={styles.icon_container}>
-                <Icon name="person-outline" color={colors.primary} size={20} />
+                <Icon
+                  name="user"
+                  type="feather"
+                  color={colors.primary}
+                  size={20}
+                />
               </View>
               <TextInput
                 placeholder="myemail@gmail.com"
@@ -103,11 +108,11 @@ class LoginScreen extends Component {
               {this.state.emailCheck ? (
                 <Animatable.View animation="bounceIn">
                   <Icon
-                    name={`${iconPrefix}-checkmark-circle`}
-                    type="ionicon"
+                    name="check-circle"
+                    type="feather"
                     color="#388e3c"
                     size={20}
-                    style={{marginRight: 22}}
+                    style={{marginRight: 25}}
                   />
                 </Animatable.View>
               ) : null}
@@ -124,7 +129,12 @@ class LoginScreen extends Component {
             </Text>
             <View style={styles.action}>
               <View style={styles.icon_container}>
-                <Icon name="lock-outline" color={colors.primary} size={20} />
+                <Icon
+                  name="lock"
+                  type="feather"
+                  color={colors.primary}
+                  size={20}
+                />
               </View>
               <TextInput
                 placeholder="Your Password"
@@ -136,19 +146,9 @@ class LoginScreen extends Component {
               />
               <TouchableOpacity onPress={this.updateSecureTextEntry}>
                 {this.state.secureTextEntry ? (
-                  <Icon
-                    name={`${iconPrefix}-eye`}
-                    type="ionicon"
-                    color="grey"
-                    size={20}
-                  />
+                  <Icon name="eye" type="feather" color="grey" size={20} />
                 ) : (
-                  <Icon
-                    name={`${iconPrefix}-eye-off`}
-                    type="ionicon"
-                    color="grey"
-                    size={20}
-                  />
+                  <Icon name="eye-off" type="feather" color="grey" size={20} />
                 )}
               </TouchableOpacity>
             </View>
@@ -165,7 +165,10 @@ class LoginScreen extends Component {
                 height: 50,
               }}
               buttonStyle={{height: 50}}
-              titleStyle={{color: colors.primary}}
+              titleStyle={{
+                color: colors.primary,
+                fontFamily: 'ProductSans-Bold',
+              }}
             />
 
             <View
@@ -215,25 +218,29 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   text_header: {
-    color: '#333',
+    color: '#111',
     fontWeight: 'normal',
     fontSize: 30,
     paddingBottom: 20,
     paddingTop: 10,
+    fontFamily: 'ProductSans-Light',
   },
   text_subtext: {
-    color: 'grey',
+    color: '#333',
     textAlign: 'left',
+    fontFamily: 'ProductSans-Light',
     justifyContent: 'flex-start',
     alignSelf: 'flex-start',
   },
   text_footer: {
+    fontFamily: 'ProductSans-Light',
     color: '#333',
     fontSize: 18,
   },
   touchable_text: {
-    fontWeight: 'bold',
+    fontFamily: 'ProductSans-Bold',
     color: colors.primary,
+    marginTop: 1,
   },
   action: {
     flexDirection: 'row',
