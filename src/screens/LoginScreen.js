@@ -136,7 +136,7 @@ class LoginScreen extends Component {
                 />
               </View>
               <TextInput
-                placeholder="Your Password"
+                placeholder="Password"
                 maxLength={32}
                 secureTextEntry={this.state.secureTextEntry ? true : false}
                 style={styles.textInput}
@@ -253,6 +253,7 @@ const styles = StyleSheet.create({
     marginTop: Platform.OS === 'ios' ? 0 : -12,
     paddingLeft: 10,
     color: colors.primary,
+    fontFamily: 'ProductSans-Bold',
   },
   button: {
     alignItems: 'center',

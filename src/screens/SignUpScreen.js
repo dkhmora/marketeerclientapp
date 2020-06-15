@@ -22,18 +22,36 @@ class SignUpScreen extends Component {
     super(props);
 
     this.state = {
+      name: '',
       email: '',
       phoneNumber: '',
       password: '',
       passwordCheck: false,
       confirmPasswordCheck: false,
       confirmPassword: '',
+      nameCheck: false,
       emailCheck: false,
       phoneCheck: false,
       secureTextEntry: true,
       confirm_secureTextEntry: true,
     };
   }
+
+  handleNameChange = (name) => {
+    const formattedName = _.capitalize(name);
+
+    this.setState({name: formattedName});
+
+    if (name.length !== 0) {
+      this.setState({
+        nameCheck: true,
+      });
+    } else {
+      this.setState({
+        nameCheck: false,
+      });
+    }
+  };
 
   handleEmailChange = (email) => {
     const regexp = new RegExp(
@@ -163,7 +181,7 @@ class SignUpScreen extends Component {
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.text_footer}>Email Address</Text>
+            <Text style={styles.text_footer}>Full Name</Text>
             <View style={styles.action}>
               <View style={styles.icon_container}>
                 <Icon
@@ -174,7 +192,37 @@ class SignUpScreen extends Component {
                 />
               </View>
               <TextInput
-                placeholder="myemail@gmail.com"
+                placeholder="Gordon Norman"
+                maxLength={100}
+                style={styles.textInput}
+                autoCapitalize="words"
+                onChangeText={(value) => this.handleNameChange(value)}
+              />
+              {this.state.nameCheck ? (
+                <Animatable.View animation="bounceIn">
+                  <Icon
+                    name="check-circle"
+                    type="feather"
+                    color="#388e3c"
+                    size={20}
+                    style={{marginRight: 25}}
+                  />
+                </Animatable.View>
+              ) : null}
+            </View>
+
+            <Text style={styles.text_footer}>Email Address</Text>
+            <View style={styles.action}>
+              <View style={styles.icon_container}>
+                <Icon
+                  name="mail"
+                  type="feather"
+                  color={colors.primary}
+                  size={20}
+                />
+              </View>
+              <TextInput
+                placeholder="gordon_norman@gmail.com"
                 maxLength={256}
                 style={styles.textInput}
                 autoCapitalize="none"
@@ -202,12 +250,16 @@ class SignUpScreen extends Component {
                   color={colors.primary}
                   size={20}
                 />
-                <Text style={[styles.text_subtext, {marginLeft: 5}]}>
+                <Text
+                  style={[
+                    styles.text_subtext,
+                    {marginLeft: 5, marginRight: -5, marginTop: 2},
+                  ]}>
                   (+63)
                 </Text>
               </View>
               <TextInput
-                placeholder="9172359492"
+                placeholder="9173456789"
                 keyboardType="numeric"
                 maxLength={10}
                 style={styles.textInput}
@@ -313,7 +365,10 @@ class SignUpScreen extends Component {
               <TouchableOpacity>
                 <Text style={styles.touchable_text}>Terms of service</Text>
               </TouchableOpacity>
-              <Text style={styles.color_textPrivate}> and </Text>
+              <Text style={[styles.color_textPrivate, styles.text_subtext]}>
+                {' '}
+                and{' '}
+              </Text>
               <TouchableOpacity>
                 <Text style={styles.touchable_text}>Privacy policy</Text>
               </TouchableOpacity>
@@ -345,7 +400,7 @@ class SignUpScreen extends Component {
                 Already have an account? You can login{' '}
               </Text>
               <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                <Text style={styles.touchable_text}>here.</Text>
+                <Text style={styles.touchable_text}>here</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -398,7 +453,6 @@ const styles = StyleSheet.create({
   touchable_text: {
     fontFamily: 'ProductSans-Bold',
     color: colors.primary,
-    marginTop: 1,
   },
   action: {
     flexDirection: 'row',
@@ -411,6 +465,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: Platform.OS === 'ios' ? 0 : -12,
     paddingLeft: 10,
+    fontFamily: 'ProductSans-Bold',
     color: colors.primary,
   },
   button: {
