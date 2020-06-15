@@ -121,14 +121,24 @@ class MainScreen extends Component {
         }}>
         <ListItem
           title="Current Location"
+          titleStyle={styles.listTitleText}
           subtitle="Test Location"
+          subtitleStyle={styles.subtitleStyle}
+          leftIcon={
+            <Icon name="map-pin" type="feather" color={colors.primary} />
+          }
           bottomDivider
           chevron
           onPress={() => console.log('yes')}
         />
         <ListItem
-          title="Last Location Delivery"
+          title="Last Delivery Location"
+          titleStyle={styles.listTitleText}
           subtitle="Test Location"
+          subtitleStyle={styles.subtitleStyle}
+          leftIcon={
+            <Icon name="navigation" type="feather" color={colors.primary} />
+          }
           bottomDivider
           chevron
           onPress={() => console.log('yes')}
@@ -221,6 +231,16 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 19,
     color: colors.icons,
+    fontFamily: 'ProductSans-Light',
+  },
+  listTitleText: {
+    fontSize: 19,
+    color: colors.text_primary,
+    fontFamily: 'ProductSans-Light',
+  },
+  subtitleStyle: {
+    fontSize: 14,
+    color: colors.text_secondary,
     fontFamily: 'ProductSans-Light',
   },
 });

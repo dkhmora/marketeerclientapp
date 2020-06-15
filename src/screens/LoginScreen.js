@@ -67,7 +67,6 @@ class LoginScreen extends Component {
   }
 
   render() {
-    const {iconPrefix} = this.props.generalStore;
     const {navigation} = this.props;
 
     return (
