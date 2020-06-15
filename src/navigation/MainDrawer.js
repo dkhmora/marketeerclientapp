@@ -21,7 +21,7 @@ class MainDrawer extends Component {
     const {userAuthenticated, userName} = this.props.authStore;
 
     const userNameText = userName ? userName : 'Guest Account';
-    const userInitials = userNameText.match(/\b\w/g) || [];
+    let userInitial = userNameText.charAt(0);
 
     return (
       <DrawerContentScrollView
@@ -60,7 +60,7 @@ class MainDrawer extends Component {
               size="medium"
               rounded
               overlayContainerStyle={{backgroundColor: colors.icons}}
-              title={userInitials}
+              title={userInitial}
               titleStyle={{
                 fontFamily: 'ProductSans-Light',
                 color: colors.primary,

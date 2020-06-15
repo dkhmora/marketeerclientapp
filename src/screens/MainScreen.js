@@ -7,10 +7,21 @@ import {
   Dimensions,
 } from 'react-native';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
-import {Header, Text, ListItem, Button, Icon} from 'react-native-elements';
+import {
+  Header,
+  Text,
+  ListItem,
+  Button,
+  Icon,
+  Card,
+  Image,
+} from 'react-native-elements';
 import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
+import {inject} from 'mobx-react';
+import StoreCard from '../components/StoreCard';
 
+@inject('shopStore')
 class MainScreen extends Component {
   constructor(props) {
     super(props);
@@ -18,6 +29,9 @@ class MainScreen extends Component {
     this.state = {
       showLocation: false,
       initialPosition: -200,
+      ready: false,
+      image: '',
+      url: '',
     };
     const headerHeight = Platform.OS === 'android' ? 56 : 44;
 
@@ -189,31 +203,43 @@ class MainScreen extends Component {
     this.setState({showLocation: false});
   }
 
+  componentDidMount() {
+    this.props.shopStore.getShopList().then(() => this.setState({ready: true}));
+  }
+
   render() {
     const {navigation} = this.props;
-    const {showLocation} = this.state;
+    const {showLocation, ready} = this.state;
+    const {shopList} = this.props.shopStore;
+    const items = shopList.slice();
+    console.log('yes', items);
 
-    return (
-      <View style={styles.container}>
-        <this.Overlay />
-        <this.SlideDownDrawer />
-        <Header
-          placement={Platform.OS === 'ios' ? 'center' : 'left'}
-          leftComponent={this.menuIcon}
-          centerComponent={this.centerComponent}
-          rightComponent={this.rightComponent}
-          statusBarProps={{
-            barStyle: 'light-content',
-            backgroundColor: 'rgba(0, 0, 0, 0.10)',
-            translucent: true,
-          }}
-          containerStyle={styles.header}
-          centerContainerStyle={{
-            flex: 3,
-          }}
-        />
-      </View>
-    );
+    if (ready) {
+      return (
+        <View style={styles.container}>
+          <this.Overlay />
+          <this.SlideDownDrawer />
+          <Header
+            placement={Platform.OS === 'ios' ? 'center' : 'left'}
+            leftComponent={this.menuIcon}
+            centerComponent={this.centerComponent}
+            rightComponent={this.rightComponent}
+            statusBarProps={{
+              barStyle: 'light-content',
+              backgroundColor: 'rgba(0, 0, 0, 0.10)',
+              translucent: true,
+            }}
+            containerStyle={styles.header}
+            centerContainerStyle={{
+              flex: 3,
+            }}
+          />
+          {items[0] && <StoreCard store={items[0]} />}
+        </View>
+      );
+    } else {
+      return null;
+    }
   }
 }
 
