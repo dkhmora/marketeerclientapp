@@ -40,11 +40,11 @@ class PhoneVerificationScreen extends Component {
   }
 
   async confirmCode(code) {
-    const {email, password} = this.props.route.params;
+    const {name, email, password} = this.props.route.params;
     await this.state.confirm
       .confirm(code)
       .then(() => {
-        this.props.authStore.linkPhoneNumberWithEmail(email, password);
+        this.props.authStore.linkPhoneNumberWithEmail(name, email, password);
         console.log('phone success');
       })
       .catch((err) => console.log('unsuccessful phone auth', err));

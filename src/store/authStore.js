@@ -7,7 +7,7 @@ class authStore {
   @observable userAuthenticated = false;
   @observable userName = '';
 
-  @action async linkPhoneNumberWithEmail(email, password) {
+  @action async linkPhoneNumberWithEmail(name, email, password) {
     const credential = await firebase.auth.EmailAuthProvider.credential(
       email,
       password,
@@ -18,6 +18,13 @@ class authStore {
       .then((usercred) => {
         const user = usercred.user;
 
+        user.updateProfile({
+          displayName: name,
+        });
+
+        return user;
+      })
+      .then((user) => {
         this.userAuthenticated = true;
 
         console.log('Account linking success', user);
