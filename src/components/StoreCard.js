@@ -138,8 +138,7 @@ class StoreCard extends Component {
                 borderBottomLeftRadius: 8,
                 bottom: 60,
                 right: 0,
-                height: 30,
-                padding: 10,
+                padding: 5,
                 backgroundColor: colors.primary,
               }}>
               <Text style={{color: colors.icons, fontSize: 17}}>
@@ -180,7 +179,7 @@ class StoreCard extends Component {
             <this.PaymentMethods />
           </View>
 
-          <View style={{height: 60, paddingBottom: 10}}>
+          <View style={{height: 60}}>
             <Text
               style={[
                 styles.text_subtext,
@@ -188,8 +187,6 @@ class StoreCard extends Component {
                   fontFamily: 'ProductSans-light',
                   textAlign: 'left',
                   alignSelf: 'flex-start',
-                  flexWrap: 'wrap',
-                  flexShrink: 1,
                 },
               ]}>
               {store.storeDescription}
