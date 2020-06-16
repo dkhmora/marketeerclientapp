@@ -16,6 +16,7 @@ import {
   Icon,
   Card,
   Image,
+  Badge,
 } from 'react-native-elements';
 import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
@@ -92,13 +93,37 @@ class MainScreen extends Component {
   };
 
   rightComponent = () => {
-    const {rightComponent} = this.props;
+    const {navigation} = this.props;
+    const {locationMenuOpen} = this.state;
 
-    if (rightComponent) {
-      return <View style={{flex: 1}}></View>;
-    }
+    return (
+      <View>
+        <Button
+          onPress={() => {
+            if (locationMenuOpen) {
+              this.hideLocationMenu();
+            }
+            navigation.openDrawer();
+          }}
+          type="clear"
+          color={colors.icons}
+          icon={
+            <Image
+              source={require('../../assets/images/logo_cart.png')}
+              style={{width: 30, height: 30, resizeMode: 'center'}}
+            />
+          }
+          containerStyle={styles.buttonContainer}
+          titleStyle={{color: colors.icons}}
+        />
 
-    return <View style={{flex: 1}}></View>;
+        <Badge
+          value={0}
+          status="primary"
+          containerStyle={{position: 'absolute', top: 8, right: 2}}
+        />
+      </View>
+    );
   };
 
   centerComponent = () => {
