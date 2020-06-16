@@ -170,6 +170,7 @@ class StoreCard extends Component {
             width: '100%',
             height: 65,
             borderRadius: 8,
+            paddingBottom: 20,
             position: 'relative',
             bottom: 40,
           }}>
@@ -178,26 +179,25 @@ class StoreCard extends Component {
               alignSelf: 'flex-start',
               flexDirection: 'row',
               flexWrap: 'wrap',
-              height: 25,
-              marginBottom: 5,
             }}>
             <Text
+              numberOfLines={1}
               style={[
                 styles.text_footer,
                 {
                   fontFamily: 'ProductSans-Regular',
+                  flex: 1,
                   textAlign: 'left',
                   alignSelf: 'flex-start',
-                  marginRight: 5,
                 },
               ]}>
               {store.storeName}
             </Text>
-            <this.PaymentMethods />
           </View>
 
-          <View style={[platformStyle.storeDescriptionContainer, {height: 60}]}>
+          <View style={[platformStyle.storeDescriptionContainer]}>
             <Text
+              numberOfLines={2}
               style={[
                 styles.text_subtext,
                 platformStyle.storeDescriptionText,
@@ -205,10 +205,22 @@ class StoreCard extends Component {
                   fontFamily: 'ProductSans-light',
                   textAlign: 'left',
                   alignSelf: 'flex-start',
+                  flex: 1,
                 },
               ]}>
               {store.storeDescription}
             </Text>
+          </View>
+
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'flex-start',
+              alignItems: 'flex-end',
+              marginTop: 5,
+            }}>
+            <this.PaymentMethods />
           </View>
         </CardItem>
         {{displayImageUrl} && (
