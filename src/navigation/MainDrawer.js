@@ -34,6 +34,12 @@ class MainDrawer extends Component {
       ? 'Log In'
       : 'Log Out';
 
+    const authenticationIcon = this.props.authStore.guest ? (
+      <Icon name="log-in" color={colors.primary} size={18} />
+    ) : (
+      <Icon name="log-out" color={colors.primary} size={18} />
+    );
+
     const userNameText = userName ? userName : 'Guest Account';
     let userInitial = userNameText.charAt(0);
 
@@ -128,7 +134,7 @@ class MainDrawer extends Component {
           />
           <ListItem
             title={authenticationButtonText}
-            leftIcon={<Icon name="log-out" color={colors.primary} size={18} />}
+            leftIcon={authenticationIcon}
             onPress={() => this.handleAuthentication()}
           />
         </View>
