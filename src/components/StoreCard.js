@@ -87,13 +87,31 @@ class StoreCard extends Component {
                 justifyContent: 'center',
                 position: 'absolute',
                 borderBottomRightRadius: 8,
+                top: 0,
                 left: 0,
+                padding: 7,
+                backgroundColor: colors.primary,
+              }}>
+              <Text style={{color: colors.icons, fontSize: 17}}>
+                {store.storeCategory}
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'absolute',
+                borderTopLeftRadius: 8,
+                borderBottomLeftRadius: 8,
+                bottom: 30,
+                right: 0,
                 height: 30,
                 padding: 10,
                 backgroundColor: colors.primary,
               }}>
               <Text style={{color: colors.icons, fontSize: 17}}>
-                {store.storeCategory}
+                Rating(Stars)
               </Text>
             </View>
           </View>
@@ -105,51 +123,78 @@ class StoreCard extends Component {
             height: 100,
             borderRadius: 8,
             position: 'relative',
-            bottom: 30,
-            marginBottom: -30,
+            bottom: 10,
+            marginBottom: -10,
           }}>
           <View
             style={{
-              width: '100%',
+              alignSelf: 'flex-start',
               flexDirection: 'row',
-              justifyContent: 'space-between',
+              marginBottom: 5,
             }}>
+            <Text
+              style={[
+                styles.text_footer,
+                {
+                  fontFamily: 'ProductSans-Regular',
+                  textAlign: 'left',
+                  alignSelf: 'flex-start',
+                  marginRight: 5,
+                },
+              ]}>
+              {store.storeName}
+            </Text>
             <View
               style={{
-                flexDirection: 'row',
+                borderRadius: 20,
+                backgroundColor: colors.primary,
+                padding: 3,
+                paddingHorizontal: 10,
+                marginRight: 2,
               }}>
               <Text
-                style={[
-                  styles.text_footer,
-                  {
-                    fontFamily: 'ProductSans-Regular',
-                    textAlign: 'left',
-                    alignSelf: 'flex-start',
-                    marginRight: 5,
-                  },
-                ]}>
-                {store.storeName}
-              </Text>
-              <View
                 style={{
-                  borderRadius: 20,
-                  backgroundColor: colors.primary,
-                  padding: 3,
-                  paddingHorizontal: 10,
-                  marginRight: 2,
+                  fontSize: 13,
+                  fontFamily: 'ProductSans-Regular',
+                  color: colors.icons,
                 }}>
-                <Text
-                  style={{
-                    fontSize: 13,
-                    fontFamily: 'ProductSans-Regular',
-                    color: colors.icons,
-                  }}>
-                  COD
-                </Text>
-              </View>
+                COD
+              </Text>
             </View>
-
-            <Text>Rating</Text>
+            <View
+              style={{
+                borderRadius: 20,
+                backgroundColor: colors.primary,
+                padding: 3,
+                paddingHorizontal: 10,
+                marginRight: 2,
+              }}>
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontFamily: 'ProductSans-Regular',
+                  color: colors.icons,
+                }}>
+                Credit Card
+              </Text>
+            </View>
+            <View
+              style={{
+                borderRadius: 20,
+                backgroundColor: colors.primary,
+                padding: 3,
+                paddingHorizontal: 10,
+                marginRight: 2,
+              }}>
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontFamily: 'ProductSans-Regular',
+                  color: colors.icons,
+                }}>
+                Debit Card
+              </Text>
+            </View>
           </View>
 
           <Text
