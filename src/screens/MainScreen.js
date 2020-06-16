@@ -171,7 +171,6 @@ class MainScreen extends Component {
           bottom: 0,
           left: 0,
           right: 0,
-          zIndex: -100,
           opacity: 0,
           backgroundColor: '#000',
         }}>
