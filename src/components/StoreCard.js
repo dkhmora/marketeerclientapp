@@ -151,7 +151,7 @@ class StoreCard extends Component {
           style={{
             flexDirection: 'column',
             width: '100%',
-            height: 85,
+            height: 65,
             borderRadius: 8,
             position: 'relative',
             bottom: 40,
@@ -161,7 +161,7 @@ class StoreCard extends Component {
               alignSelf: 'flex-start',
               flexDirection: 'row',
               flexWrap: 'wrap',
-              height: 45,
+              height: 25,
               marginBottom: 5,
             }}>
             <Text
@@ -199,7 +199,7 @@ class StoreCard extends Component {
             source={{uri: displayImageUrl}}
             style={{
               position: 'absolute',
-              bottom: 115,
+              bottom: 95,
               left: 20,
               width: 80,
               height: 80,
