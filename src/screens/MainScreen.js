@@ -118,7 +118,7 @@ class MainScreen extends Component {
 
         <Badge
           value={0}
-          status="primary"
+          badgeStyle={{backgroundColor: colors.accent}}
           containerStyle={{position: 'absolute', top: 8, right: 2}}
         />
       </View>
