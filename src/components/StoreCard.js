@@ -42,7 +42,7 @@ class StoreCard extends Component {
           key={index}
           style={{
             borderRadius: 20,
-            backgroundColor: colors.primary,
+            backgroundColor: colors.accent,
             padding: 3,
             paddingHorizontal: 10,
             marginRight: 2,
