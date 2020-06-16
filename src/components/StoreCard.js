@@ -12,8 +12,8 @@ class StoreCard extends Component {
     super(props);
 
     this.state = {
-      displayImageUrl: null,
-      coverImageUrl: null,
+      displayImageUrl: '',
+      coverImageUrl: '',
     };
   }
 
@@ -90,7 +90,7 @@ class StoreCard extends Component {
                 borderTopLeftRadius: 8,
                 borderTopRightRadius: 8,
               }}
-              resizeMode={FastImage.resizeMode.center}
+              resizeMode={FastImage.resizeMode.cover}
             />
             <View
               style={{
@@ -204,7 +204,7 @@ class StoreCard extends Component {
               borderWidth: 1,
               borderColor: colors.primary,
             }}
-            resizeMode={FastImage.resizeMode.center}
+            resizeMode={FastImage.resizeMode.cover}
           />
         )}
       </Card>
