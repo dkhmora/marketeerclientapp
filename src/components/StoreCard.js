@@ -32,9 +32,40 @@ class StoreCard extends Component {
     this.getImage();
   }
 
+  PaymentMethods = () => {
+    const {paymentMethods} = this.props.store;
+    const pills = [];
+
+    paymentMethods.map((method, index) => {
+      pills.push(
+        <View
+          key={index}
+          style={{
+            borderRadius: 20,
+            backgroundColor: colors.primary,
+            padding: 3,
+            paddingHorizontal: 10,
+            marginRight: 2,
+          }}>
+          <Text
+            style={{
+              fontSize: 13,
+              fontFamily: 'ProductSans-Regular',
+              color: colors.icons,
+            }}>
+            {method}
+          </Text>
+        </View>,
+      );
+    });
+
+    return pills;
+  };
+
   render() {
     const {store} = this.props;
     const {displayImageUrl, coverImageUrl} = this.state;
+    const {paymentMethods} = this.props.store;
 
     console.log('store', store);
 
@@ -144,57 +175,7 @@ class StoreCard extends Component {
               ]}>
               {store.storeName}
             </Text>
-            <View
-              style={{
-                borderRadius: 20,
-                backgroundColor: colors.primary,
-                padding: 3,
-                paddingHorizontal: 10,
-                marginRight: 2,
-              }}>
-              <Text
-                style={{
-                  fontSize: 13,
-                  fontFamily: 'ProductSans-Regular',
-                  color: colors.icons,
-                }}>
-                COD
-              </Text>
-            </View>
-            <View
-              style={{
-                borderRadius: 20,
-                backgroundColor: colors.primary,
-                padding: 3,
-                paddingHorizontal: 10,
-                marginRight: 2,
-              }}>
-              <Text
-                style={{
-                  fontSize: 13,
-                  fontFamily: 'ProductSans-Regular',
-                  color: colors.icons,
-                }}>
-                Credit Card
-              </Text>
-            </View>
-            <View
-              style={{
-                borderRadius: 20,
-                backgroundColor: colors.primary,
-                padding: 3,
-                paddingHorizontal: 10,
-                marginRight: 2,
-              }}>
-              <Text
-                style={{
-                  fontSize: 13,
-                  fontFamily: 'ProductSans-Regular',
-                  color: colors.icons,
-                }}>
-                Debit Card
-              </Text>
-            </View>
+            <this.PaymentMethods />
           </View>
 
           <Text
