@@ -12,8 +12,11 @@ class shopStore {
       .get()
       .then((querySnapshot) => {
         const list = [];
-        querySnapshot.forEach((documentSnapshot) => {
+
+        querySnapshot.forEach((documentSnapshot, index) => {
           list.push(documentSnapshot.data());
+
+          list[index].merchantId = documentSnapshot.id;
         });
 
         this.shopList = list;

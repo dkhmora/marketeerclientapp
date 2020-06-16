@@ -5,6 +5,7 @@ import {
   View,
   TouchableOpacity,
   Dimensions,
+  FlatList,
 } from 'react-native';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 import {
@@ -20,6 +21,7 @@ import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
 import {inject} from 'mobx-react';
 import StoreCard from '../components/StoreCard';
+import StoreList from '../components/StoreList';
 
 @inject('shopStore')
 class MainScreen extends Component {
@@ -210,9 +212,8 @@ class MainScreen extends Component {
   render() {
     const {navigation} = this.props;
     const {showLocation, ready} = this.state;
-    const {shopList} = this.props.shopStore;
-    const items = shopList.slice();
-    console.log('yes', items);
+    const dataSource = this.props.shopStore.shopList.slice();
+    console.log('yes', dataSource);
 
     if (ready) {
       return (
@@ -234,7 +235,16 @@ class MainScreen extends Component {
               flex: 3,
             }}
           />
-          {items[0] && <StoreCard store={items[0]} />}
+          {dataSource && (
+            <FlatList
+              data={dataSource}
+              renderItem={({item, index}) => (
+                <StoreCard store={item} key={index} />
+              )}
+              keyExtractor={(item) => item.merchantId}
+              showsVerticalScrollIndicator={false}
+            />
+          )}
         </View>
       );
     } else {
