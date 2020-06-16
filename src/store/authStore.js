@@ -9,32 +9,26 @@ class authStore {
   @observable userName = '';
 
   @action async signInAnonymously() {
-    this.checkAuthStatus().then(() => {
-      if (!this.userAuthenticated) {
-        auth()
-          .signInAnonymously()
-          .then(() => {
-            console.log('User signed in anonymously');
-          })
-          .catch((error) => {
-            if (error.code === 'auth/operation-not-allowed') {
-              console.log('Enable anonymous in your firebase console.');
-            }
+    await auth()
+      .signInAnonymously()
+      .then(() => {
+        console.log('User signed in anonymously');
+      })
+      .catch((error) => {
+        if (error.code === 'auth/operation-not-allowed') {
+          console.log('Enable anonymous in your firebase console.');
+        }
 
-            console.error(error);
-          });
-      } else {
-        console.log('User is already logged in!');
-      }
-    });
+        console.error(error);
+      });
   }
 
-  @action async createUser(name, email, password) {
-    await this.createUserDocuments(name, email, password)
+  @action async createUser(name, email, password, phoneNumber, credential) {
+    await this.createUserDocuments(name, email, phoneNumber)
       .then(() => console.log('Successfully created user documents'))
-      .then(() => this.linkPhoneNumberWithEmail(name, email, password))
-      .then((user) => console.log('Account linking success', user))
-      .then(() => (this.userAuthenticated = true))
+      .then(() => this.linkAnonymousUserWithEmail(email, password))
+      .then(() => this.linkCurrentUserWithPhoneNumber(credential))
+      .then(() => this.checkAuthStatus())
       .catch((err) => {
         this.userAuthenticated = false;
         console.log(err);
@@ -54,36 +48,25 @@ class authStore {
     });
   }
 
-  @action async linkPhoneNumberWithEmail(name, email, password) {
+  @action async linkAnonymousUserWithEmail(email, password) {
     const credential = await firebase.auth.EmailAuthProvider.credential(
       email,
       password,
     );
 
-    await auth()
+    await await auth()
       .currentUser.linkWithCredential(credential)
-      .then((usercred) => {
-        const user = usercred.user;
-
-        user.updateProfile({
-          displayName: name,
-        });
-
-        return user;
-      });
+      .then(() => console.log('Successfully linked anonymous user with email'))
+      .catch((err) => console.log(err));
   }
 
-  @action async checkAuthStatus() {
-    const user = await auth().currentUser;
-
-    if (user) {
-      console.log('User is authenticated');
-      this.guest = user.isAnonymous;
-      this.userAuthenticated = true;
-    } else {
-      console.log('User is not authenticated');
-      this.userAuthenticated = false;
-    }
+  @action async linkCurrentUserWithPhoneNumber(credential) {
+    await auth()
+      .currentUser.linkWithCredential(credential)
+      .then(() =>
+        console.log('Successfully linked email account with phone number'),
+      )
+      .catch((err) => console.log(err));
   }
 
   @action async signIn(email, password) {
@@ -99,6 +82,20 @@ class authStore {
       .signOut()
       .then(() => console.log('signed out successfully'))
       .then(() => this.checkAuthStatus());
+  }
+
+  @action async checkAuthStatus() {
+    const user = await auth().currentUser;
+
+    if (user) {
+      console.log('User is authenticated');
+      this.guest = user.isAnonymous;
+      this.userAuthenticated = true;
+    } else {
+      console.log('User is not authenticated');
+      this.userAuthenticated = false;
+      this.signInAnonymously();
+    }
   }
 }
 

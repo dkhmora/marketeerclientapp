@@ -26,7 +26,9 @@ const authStore = (window.store = new AuthStore());
 const shopStore = (window.store = new ShopStore());
 export default class App extends React.Component {
   componentDidMount() {
-    SplashScreen.hide();
+    authStore.checkAuthStatus().then(() => {
+      SplashScreen.hide();
+    });
   }
 
   render() {

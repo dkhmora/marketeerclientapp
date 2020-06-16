@@ -39,10 +39,6 @@ const theme = {
 };
 @inject('authStore')
 class Setup extends Component {
-  componentDidMount() {
-    this.props.authStore.signInAnonymously();
-  }
-
   render() {
     return (
       <ThemeProvider theme={theme}>
