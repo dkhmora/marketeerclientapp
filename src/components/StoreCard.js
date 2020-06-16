@@ -1,26 +1,31 @@
 import React, {Component} from 'react';
-import {Text} from 'react-native-elements';
+import {Text, Button} from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 import FastImage from 'react-native-fast-image';
 import {View} from 'react-native';
 import {Card, CardItem} from 'native-base';
+import {colors} from '../../assets/colors';
+import {styles} from '../../assets/styles';
 
 class StoreCard extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      url: null,
+      displayImageUrl: null,
+      coverImageUrl: null,
     };
   }
 
   getImage = async () => {
-    const image = this.props.store.displayImage;
+    const {displayImage, coverImage} = this.props.store;
 
-    const ref = storage().ref(image);
-    const url = await ref.getDownloadURL();
+    const displayImageRef = storage().ref(displayImage);
+    const coverImageRef = storage().ref(coverImage);
+    const coverImageUrl = await coverImageRef.getDownloadURL();
+    const displayImageUrl = await displayImageRef.getDownloadURL();
 
-    this.setState({url});
+    this.setState({displayImageUrl, coverImageUrl});
   };
 
   componentDidMount() {
@@ -29,7 +34,7 @@ class StoreCard extends Component {
 
   render() {
     const {store} = this.props;
-    const {url} = this.state;
+    const {displayImageUrl, coverImageUrl} = this.state;
 
     console.log('store', store);
 
@@ -41,17 +46,29 @@ class StoreCard extends Component {
           borderRadius: 8,
           elevation: 2,
         }}>
-        {{url} && (
-          <View>
+        {{coverImageUrl} && (
+          <View style={{height: 200}}>
             <FastImage
-              source={{uri: url}}
+              source={{uri: coverImageUrl}}
               style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
                 height: 200,
                 borderTopLeftRadius: 8,
                 borderTopRightRadius: 8,
               }}
               resizeMode={FastImage.resizeMode.center}
             />
+            <Button
+              containerStyle={{
+                position: 'absolute',
+                right: 0,
+                width: 60,
+                marginTop: 20,
+              }}
+              title="yes"></Button>
           </View>
         )}
         <CardItem
@@ -61,13 +78,50 @@ class StoreCard extends Component {
             height: 100,
             borderRadius: 8,
             position: 'relative',
-            bottom: 5,
+            bottom: 30,
+            marginBottom: -30,
           }}>
-          <Text>{store.storeName}</Text>
-          <Text>{store.storeDescription}</Text>
+          <Text
+            style={[
+              styles.text_footer,
+              {
+                fontFamily: 'ProductSans-Regular',
+                textAlign: 'left',
+                alignSelf: 'flex-start',
+              },
+            ]}>
+            {store.storeName}
+          </Text>
+          <Text
+            style={[
+              styles.text_subtext,
+              {
+                fontFamily: 'ProductSans-light',
+                textAlign: 'left',
+                alignSelf: 'flex-start',
+              },
+            ]}>
+            {store.storeDescription}
+          </Text>
           <Text>{store.storeCategory}</Text>
           <Text>{store.deliveryDescription}</Text>
         </CardItem>
+        {{displayImageUrl} && (
+          <FastImage
+            source={{uri: displayImageUrl}}
+            style={{
+              position: 'absolute',
+              top: 100,
+              left: 30,
+              width: 80,
+              height: 80,
+              borderRadius: 10,
+              borderWidth: 1,
+              borderColor: colors.primary,
+            }}
+            resizeMode={FastImage.resizeMode.center}
+          />
+        )}
       </Card>
     );
   }
