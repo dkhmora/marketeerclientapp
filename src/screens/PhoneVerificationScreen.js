@@ -61,7 +61,7 @@ class PhoneVerificationScreen extends Component {
 
         <View style={styles.header}>
           <Image
-            source={require('../../assets/logo.png')}
+            source={require('../../assets/images/logo.png')}
             style={{
               height: 150,
               width: 200,

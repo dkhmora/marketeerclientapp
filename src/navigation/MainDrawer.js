@@ -42,7 +42,7 @@ class MainDrawer extends Component {
             justifyContent: 'space-between',
           }}>
           <Image
-            source={require('../../assets/logo.png')}
+            source={require('../../assets/images/logo.png')}
             style={{
               height: 100,
               width: 100,
