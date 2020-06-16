@@ -17,8 +17,22 @@ class MainDrawer extends Component {
     super(props);
   }
 
+  handleAuthentication() {
+    const {guest, signOut} = this.props.authStore;
+
+    if (guest) {
+      this.props.navigation.navigate('Auth');
+    } else {
+      signOut();
+    }
+  }
+
   customDrawer = (props) => {
     const {userAuthenticated, userName} = this.props.authStore;
+
+    const authenticationButtonText = this.props.authStore.guest
+      ? 'Log In'
+      : 'Log Out';
 
     const userNameText = userName ? userName : 'Guest Account';
     let userInitial = userNameText.charAt(0);
@@ -113,9 +127,9 @@ class MainDrawer extends Component {
             onPress={() => console.log('yes')}
           />
           <ListItem
-            title="Log Out"
+            title={authenticationButtonText}
             leftIcon={<Icon name="log-out" color={colors.primary} size={18} />}
-            onPress={() => console.log('yes')}
+            onPress={() => this.handleAuthentication()}
           />
         </View>
       </DrawerContentScrollView>

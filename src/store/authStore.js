@@ -97,7 +97,8 @@ class authStore {
   @action async signOut() {
     await auth()
       .signOut()
-      .then(() => console.log('signed out successfully'));
+      .then(() => console.log('signed out successfully'))
+      .then(() => this.checkAuthStatus());
   }
 }
 
