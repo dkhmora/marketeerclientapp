@@ -14,7 +14,6 @@ import {
   ListItem,
   Button,
   Icon,
-  Card,
   Image,
   Badge,
 } from 'react-native-elements';
@@ -22,7 +21,6 @@ import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
 import {inject} from 'mobx-react';
 import StoreCard from '../components/StoreCard';
-import StoreList from '../components/StoreList';
 
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
 const pixelsFromTop = getStatusBarHeight() + headerHeight;

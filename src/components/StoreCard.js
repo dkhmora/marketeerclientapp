@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text} from 'react-native-elements';
+import {Text, Rating} from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 import FastImage from 'react-native-fast-image';
 import {View, StyleSheet, Platform} from 'react-native';
@@ -150,9 +150,17 @@ class StoreCard extends Component {
                 padding: 5,
                 backgroundColor: colors.primary,
               }}>
-              <Text style={{color: colors.icons, fontSize: 17}}>
-                Rating(Stars)
-              </Text>
+              <Rating
+                type="custom"
+                fractions={1}
+                startingValue={3.3}
+                imageSize={20}
+                ratingImage={require('../../assets/images/star.png')}
+                readonly
+                tintColor={colors.primary}
+                ratingColor={colors.accent}
+                ratingBackgroundColor="#455A64"
+              />
             </View>
           </View>
         )}
