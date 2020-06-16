@@ -117,6 +117,7 @@ class StoreCard extends Component {
                 alignItems: 'center',
                 justifyContent: 'center',
                 position: 'absolute',
+                borderTopLeftRadius: 8,
                 borderBottomRightRadius: 8,
                 top: 0,
                 left: 0,
