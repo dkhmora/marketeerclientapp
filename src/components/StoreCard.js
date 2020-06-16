@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
-import {Card, Image, Text} from 'react-native-elements';
+import {Text} from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 import FastImage from 'react-native-fast-image';
 import {View} from 'react-native';
-import {CardItem} from 'native-base';
+import {Card, CardItem} from 'native-base';
 
 class StoreCard extends Component {
   constructor(props) {
@@ -34,7 +34,13 @@ class StoreCard extends Component {
     console.log('store', store);
 
     return (
-      <Card containerStyle={{padding: 0, borderRadius: 8, elevation: 5}}>
+      <Card
+        style={{
+          padding: 0,
+          margin: 0,
+          borderRadius: 8,
+          elevation: 2,
+        }}>
         {{url} && (
           <View>
             <FastImage

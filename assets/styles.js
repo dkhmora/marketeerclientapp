@@ -38,6 +38,10 @@ export const styles = StyleSheet.create({
     color: colors.text_primary,
     fontSize: 18,
   },
+  text_flatListTitle: {
+    fontSize: 30,
+    fontFamily: 'ProductSans-Bold',
+  },
   touchable_text: {
     fontFamily: 'ProductSans-Bold',
     color: colors.primary,

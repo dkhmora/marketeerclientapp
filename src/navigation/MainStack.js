@@ -12,7 +12,7 @@ class MainStack extends Component {
     const StackMain = createStackNavigator();
 
     return (
-      <StackMain.Navigator initialRouteName="Auth" headerMode="none">
+      <StackMain.Navigator initialRouteName="Home" headerMode="none">
         <StackMain.Screen name="Auth" component={AuthStack} />
         <StackMain.Screen name="Home" component={MainDrawer} />
       </StackMain.Navigator>

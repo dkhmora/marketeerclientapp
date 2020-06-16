@@ -23,6 +23,8 @@ import {inject} from 'mobx-react';
 import StoreCard from '../components/StoreCard';
 import StoreList from '../components/StoreList';
 
+const headerHeight = Platform.OS === 'android' ? 56 : 44;
+const pixelsFromTop = getStatusBarHeight() + headerHeight;
 @inject('shopStore')
 class MainScreen extends Component {
   constructor(props) {
@@ -35,9 +37,6 @@ class MainScreen extends Component {
       image: '',
       url: '',
     };
-    const headerHeight = Platform.OS === 'android' ? 56 : 44;
-
-    const pixelsFromTop = getStatusBarHeight() + headerHeight;
 
     Animatable.initializeRegistryWithDefinitions({
       slideIn: {
@@ -116,7 +115,7 @@ class MainScreen extends Component {
             flex: 1,
             justifyContent: 'center',
           }}>
-          <Text style={styles.titleText}>Deliver To: </Text>
+          <Text style={styles.header_titleText}>Deliver To: </Text>
         </View>
       </TouchableOpacity>
     );
@@ -132,12 +131,11 @@ class MainScreen extends Component {
           width: '100%',
           backgroundColor: '#fff',
           top: this.state.initialPosition,
-          zIndex: -2,
           position: 'absolute',
         }}>
         <ListItem
           title="Current Location"
-          titleStyle={styles.listTitleText}
+          titleStyle={styles.header_topDrawerTitleText}
           subtitle="Test Location"
           subtitleStyle={styles.subtitleStyle}
           leftIcon={<Icon name="map-pin" color={colors.primary} />}
@@ -147,7 +145,7 @@ class MainScreen extends Component {
         />
         <ListItem
           title="Last Delivery Location"
-          titleStyle={styles.listTitleText}
+          titleStyle={styles.header_topDrawerTitleText}
           subtitle="Test Location"
           subtitleStyle={styles.subtitleStyle}
           leftIcon={<Icon name="navigation" color={colors.primary} />}
@@ -214,6 +212,24 @@ class MainScreen extends Component {
     if (ready) {
       return (
         <View style={styles.container}>
+          <View
+            style={{
+              flex: 1,
+              marginTop: pixelsFromTop,
+              paddingHorizontal: 15,
+            }}>
+            <Text style={styles.listTitleText}>Stores Delivering To You</Text>
+            {dataSource && (
+              <FlatList
+                data={dataSource}
+                renderItem={({item, index}) => (
+                  <StoreCard store={item} key={index} />
+                )}
+                keyExtractor={(item) => item.merchantId}
+                showsVerticalScrollIndicator={false}
+              />
+            )}
+          </View>
           <this.Overlay />
           <this.SlideDownDrawer />
           <Header
@@ -231,19 +247,6 @@ class MainScreen extends Component {
               flex: 3,
             }}
           />
-          <View style={{flex: 1}}>
-            <Text>Stores Delivering To You</Text>
-            {dataSource && (
-              <FlatList
-                data={dataSource}
-                renderItem={({item, index}) => (
-                  <StoreCard store={item} key={index} />
-                )}
-                keyExtractor={(item) => item.merchantId}
-                showsVerticalScrollIndicator={false}
-              />
-            )}
-          </View>
         </View>
       );
     } else {
@@ -255,21 +258,32 @@ class MainScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#eee',
   },
   header: {
     backgroundColor: colors.primary,
     justifyContent: 'space-around',
+    top: 0,
+    left: 0,
+    right: 0,
+    position: 'absolute',
     zIndex: 1,
   },
   buttonContainer: {
     borderRadius: 24,
     color: '#fff',
   },
-  titleText: {
+  header_titleText: {
     fontSize: 19,
     color: colors.icons,
   },
   listTitleText: {
+    fontSize: 22,
+    fontFamily: 'ProductSans-Regular',
+    color: colors.text_primary,
+    marginVertical: 10,
+  },
+  header_topDrawerTitleText: {
     fontSize: 19,
   },
   subtitleStyle: {
