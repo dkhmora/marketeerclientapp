@@ -193,9 +193,9 @@ class MainScreen extends Component {
 
   hideLocationMenu() {
     this.drawer.animate('slideOut');
-    this.overlay.animate('fadeOut');
-
-    this.setState({showLocation: false});
+    this.overlay.animate('fadeOut').then(() => {
+      this.setState({showLocation: false});
+    });
   }
 
   componentDidMount() {
@@ -229,7 +229,7 @@ class MainScreen extends Component {
               />
             )}
           </View>
-          <this.Overlay />
+          {showLocation && <this.Overlay />}
           <this.SlideDownDrawer />
           <Header
             placement={Platform.OS === 'ios' ? 'center' : 'left'}
