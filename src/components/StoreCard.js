@@ -195,8 +195,8 @@ class StoreCard extends Component {
             source={{uri: displayImageUrl}}
             style={{
               position: 'absolute',
-              top: 100,
-              left: 30,
+              bottom: 92,
+              left: 20,
               width: 80,
               height: 80,
               borderRadius: 8,
