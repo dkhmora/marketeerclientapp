@@ -94,7 +94,7 @@ class StoreCard extends Component {
             />
             <View
               style={{
-                flexDirection: 'row',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 position: 'absolute',
@@ -110,6 +110,15 @@ class StoreCard extends Component {
               <Text style={{color: colors.text_primary}}>
                 {store.deliveryType}
               </Text>
+              {store.freeDelivery && (
+                <Text
+                  style={{
+                    color: colors.text_primary,
+                    fontFamily: 'ProductSans-Black',
+                  }}>
+                  Free Delivery
+                </Text>
+              )}
             </View>
             <View
               style={{
