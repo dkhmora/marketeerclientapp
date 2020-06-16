@@ -108,7 +108,7 @@ class StoreCard extends Component {
                 backgroundColor: colors.icons,
               }}>
               <Text style={{color: colors.text_primary}}>
-                Same Day Delivery
+                {store.deliveryType}
               </Text>
             </View>
             <View
@@ -136,7 +136,7 @@ class StoreCard extends Component {
                 position: 'absolute',
                 borderTopLeftRadius: 8,
                 borderBottomLeftRadius: 8,
-                bottom: 30,
+                bottom: 60,
                 right: 0,
                 height: 30,
                 padding: 10,
@@ -152,16 +152,17 @@ class StoreCard extends Component {
           style={{
             flexDirection: 'column',
             width: '100%',
-            height: 100,
+            height: 85,
             borderRadius: 8,
             position: 'relative',
-            bottom: 10,
-            marginBottom: -10,
+            bottom: 40,
           }}>
           <View
             style={{
               alignSelf: 'flex-start',
               flexDirection: 'row',
+              flexWrap: 'wrap',
+              height: 45,
               marginBottom: 5,
             }}>
             <Text
@@ -179,24 +180,28 @@ class StoreCard extends Component {
             <this.PaymentMethods />
           </View>
 
-          <Text
-            style={[
-              styles.text_subtext,
-              {
-                fontFamily: 'ProductSans-light',
-                textAlign: 'left',
-                alignSelf: 'flex-start',
-              },
-            ]}>
-            {store.storeDescription}
-          </Text>
+          <View style={{height: 60, paddingBottom: 10}}>
+            <Text
+              style={[
+                styles.text_subtext,
+                {
+                  fontFamily: 'ProductSans-light',
+                  textAlign: 'left',
+                  alignSelf: 'flex-start',
+                  flexWrap: 'wrap',
+                  flexShrink: 1,
+                },
+              ]}>
+              {store.storeDescription}
+            </Text>
+          </View>
         </CardItem>
         {{displayImageUrl} && (
           <FastImage
             source={{uri: displayImageUrl}}
             style={{
               position: 'absolute',
-              bottom: 92,
+              bottom: 115,
               left: 20,
               width: 80,
               height: 80,
