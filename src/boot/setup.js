@@ -3,6 +3,7 @@ import App from '../App';
 // For theme
 import {colors} from '../../assets/colors';
 import {ThemeProvider} from 'react-native-elements';
+import {inject} from 'mobx-react';
 
 const theme = {
   BaseHeader: {
@@ -36,7 +37,12 @@ const theme = {
     },
   },
 };
-export default class Setup extends Component {
+@inject('authStore')
+class Setup extends Component {
+  componentDidMount() {
+    this.props.authStore.signInAnonymously();
+  }
+
   render() {
     return (
       <ThemeProvider theme={theme}>
@@ -45,3 +51,5 @@ export default class Setup extends Component {
     );
   }
 }
+
+export default Setup;

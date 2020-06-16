@@ -5,7 +5,29 @@ import firestore from '@react-native-firebase/firestore';
 
 class authStore {
   @observable userAuthenticated = false;
+  @observable guest = false;
   @observable userName = '';
+
+  @action async signInAnonymously() {
+    this.checkAuthStatus().then(() => {
+      if (!this.userAuthenticated) {
+        auth()
+          .signInAnonymously()
+          .then(() => {
+            console.log('User signed in anonymously');
+          })
+          .catch((error) => {
+            if (error.code === 'auth/operation-not-allowed') {
+              console.log('Enable anonymous in your firebase console.');
+            }
+
+            console.error(error);
+          });
+      } else {
+        console.log('User is already logged in!');
+      }
+    });
+  }
 
   @action async createUser(name, email, password) {
     await this.createUserDocuments(name, email, password)
@@ -56,6 +78,7 @@ class authStore {
 
     if (user) {
       console.log('User is authenticated');
+      this.guest = user.isAnonymous;
       this.userAuthenticated = true;
     } else {
       console.log('User is not authenticated');
