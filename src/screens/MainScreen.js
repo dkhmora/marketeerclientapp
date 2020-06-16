@@ -140,9 +140,7 @@ class MainScreen extends Component {
           titleStyle={styles.listTitleText}
           subtitle="Test Location"
           subtitleStyle={styles.subtitleStyle}
-          leftIcon={
-            <Icon name="map-pin" type="feather" color={colors.primary} />
-          }
+          leftIcon={<Icon name="map-pin" color={colors.primary} />}
           bottomDivider
           chevron
           onPress={() => console.log('yes')}
@@ -152,9 +150,7 @@ class MainScreen extends Component {
           titleStyle={styles.listTitleText}
           subtitle="Test Location"
           subtitleStyle={styles.subtitleStyle}
-          leftIcon={
-            <Icon name="navigation" type="feather" color={colors.primary} />
-          }
+          leftIcon={<Icon name="navigation" color={colors.primary} />}
           bottomDivider
           chevron
           onPress={() => console.log('yes')}
@@ -235,16 +231,19 @@ class MainScreen extends Component {
               flex: 3,
             }}
           />
-          {dataSource && (
-            <FlatList
-              data={dataSource}
-              renderItem={({item, index}) => (
-                <StoreCard store={item} key={index} />
-              )}
-              keyExtractor={(item) => item.merchantId}
-              showsVerticalScrollIndicator={false}
-            />
-          )}
+          <View style={{flex: 1}}>
+            <Text>Stores Delivering To You</Text>
+            {dataSource && (
+              <FlatList
+                data={dataSource}
+                renderItem={({item, index}) => (
+                  <StoreCard store={item} key={index} />
+                )}
+                keyExtractor={(item) => item.merchantId}
+                showsVerticalScrollIndicator={false}
+              />
+            )}
+          </View>
         </View>
       );
     } else {
@@ -269,17 +268,13 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 19,
     color: colors.icons,
-    fontFamily: 'ProductSans-Light',
   },
   listTitleText: {
     fontSize: 19,
-    color: colors.text_primary,
-    fontFamily: 'ProductSans-Light',
   },
   subtitleStyle: {
     fontSize: 14,
     color: colors.text_secondary,
-    fontFamily: 'ProductSans-Light',
   },
 });
 

@@ -13,6 +13,7 @@ import {observer, inject} from 'mobx-react';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 import auth from '@react-native-firebase/auth';
 import {colors} from '../../assets/colors';
+import {styles} from '../../assets/styles';
 
 @inject('generalStore')
 @inject('authStore')
@@ -114,59 +115,5 @@ class PhoneVerificationScreen extends Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.primary,
-  },
-  header: {
-    flex: 2,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-  },
-  footer: {
-    flex: Platform.OS === 'ios' ? 5 : 7,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    paddingHorizontal: 20,
-    paddingTop: 10,
-  },
-  text_header: {
-    color: '#111',
-    fontWeight: 'normal',
-    fontSize: 30,
-    paddingBottom: 20,
-    paddingTop: 10,
-  },
-  text_subtext: {
-    color: '#333',
-    textAlign: 'left',
-    justifyContent: 'flex-start',
-    alignSelf: 'flex-start',
-  },
-  touchable_text: {
-    fontWeight: 'bold',
-    color: colors.primary,
-  },
-  textInput: {
-    flex: 1,
-    marginTop: Platform.OS === 'ios' ? 0 : -12,
-    paddingLeft: 10,
-    color: colors.primary,
-  },
-  button: {
-    alignItems: 'center',
-    marginTop: 50,
-  },
-  textPrivate: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 20,
-  },
-});
 
 export default PhoneVerificationScreen;

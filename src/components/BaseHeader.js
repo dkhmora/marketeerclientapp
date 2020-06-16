@@ -19,7 +19,6 @@ class BaseHeader extends Component {
           color={colors.icons}
           icon={<Icon name="menu" color={colors.icons} />}
           containerStyle={styles.buttonContainer}
-          titleStyle={{color: colors.icons}}
         />
       );
     }

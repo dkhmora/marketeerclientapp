@@ -14,6 +14,7 @@ import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
 import {Icon, SocialIcon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
+import {styles} from '../../assets/styles';
 
 @inject('generalStore')
 @inject('authStore')
@@ -90,12 +91,7 @@ class LoginScreen extends Component {
             <Text style={styles.text_footer}>Email Address</Text>
             <View style={styles.action}>
               <View style={styles.icon_container}>
-                <Icon
-                  name="user"
-                  type="feather"
-                  color={colors.primary}
-                  size={20}
-                />
+                <Icon name="user" color={colors.primary} size={20} />
               </View>
               <TextInput
                 placeholder="myemail@gmail.com"
@@ -108,7 +104,6 @@ class LoginScreen extends Component {
                 <Animatable.View animation="bounceIn">
                   <Icon
                     name="check-circle"
-                    type="feather"
                     color="#388e3c"
                     size={20}
                     style={{marginRight: 25}}
@@ -128,12 +123,7 @@ class LoginScreen extends Component {
             </Text>
             <View style={styles.action}>
               <View style={styles.icon_container}>
-                <Icon
-                  name="lock"
-                  type="feather"
-                  color={colors.primary}
-                  size={20}
-                />
+                <Icon name="lock" color={colors.primary} size={20} />
               </View>
               <TextInput
                 placeholder="Password"
@@ -145,9 +135,9 @@ class LoginScreen extends Component {
               />
               <TouchableOpacity onPress={this.updateSecureTextEntry}>
                 {this.state.secureTextEntry ? (
-                  <Icon name="eye" type="feather" color="grey" size={20} />
+                  <Icon name="eye" color="grey" size={20} />
                 ) : (
-                  <Icon name="eye-off" type="feather" color="grey" size={20} />
+                  <Icon name="eye-off" color="grey" size={20} />
                 )}
               </TouchableOpacity>
             </View>
@@ -164,10 +154,6 @@ class LoginScreen extends Component {
                 height: 50,
               }}
               buttonStyle={{height: 50}}
-              titleStyle={{
-                color: colors.primary,
-                fontFamily: 'ProductSans-Bold',
-              }}
             />
 
             <View
@@ -195,93 +181,5 @@ class LoginScreen extends Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.primary,
-  },
-  header: {
-    flex: 2,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-  },
-  footer: {
-    flex: Platform.OS === 'ios' ? 5 : 7,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    paddingHorizontal: 20,
-    paddingTop: 10,
-  },
-  text_header: {
-    color: '#111',
-    fontWeight: 'normal',
-    fontSize: 30,
-    paddingBottom: 20,
-    paddingTop: 10,
-    fontFamily: 'ProductSans-Light',
-  },
-  text_subtext: {
-    color: '#333',
-    textAlign: 'left',
-    fontFamily: 'ProductSans-Light',
-    justifyContent: 'flex-start',
-    alignSelf: 'flex-start',
-  },
-  text_footer: {
-    fontFamily: 'ProductSans-Light',
-    color: '#333',
-    fontSize: 18,
-  },
-  touchable_text: {
-    fontFamily: 'ProductSans-Bold',
-    color: colors.primary,
-    marginTop: 1,
-  },
-  action: {
-    flexDirection: 'row',
-    marginTop: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f2f2f2',
-    paddingBottom: 5,
-  },
-  textInput: {
-    flex: 1,
-    marginTop: Platform.OS === 'ios' ? 0 : -12,
-    paddingLeft: 10,
-    color: colors.primary,
-    fontFamily: 'ProductSans-Bold',
-  },
-  button: {
-    alignItems: 'center',
-    marginTop: 50,
-  },
-  signIn: {
-    width: '100%',
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10,
-  },
-  textSign: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  textPrivate: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 20,
-  },
-  color_textPrivate: {
-    color: '#333',
-  },
-  icon_container: {
-    flexDirection: 'row',
-    marginTop: 2,
-  },
-});
 
 export default LoginScreen;

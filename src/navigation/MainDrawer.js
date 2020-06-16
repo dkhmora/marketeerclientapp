@@ -61,10 +61,6 @@ class MainDrawer extends Component {
               rounded
               overlayContainerStyle={{backgroundColor: colors.icons}}
               title={userInitial}
-              titleStyle={{
-                fontFamily: 'ProductSans-Light',
-                color: colors.primary,
-              }}
               onPress={() => console.log('Works!')}
               activeOpacity={0.7}
             />
@@ -88,84 +84,37 @@ class MainDrawer extends Component {
           <ListItem
             title="Orders"
             leftIcon={
-              <Icon
-                name="clipboard"
-                type="feather"
-                color={colors.primary}
-                size={18}
-              />
+              <Icon name="clipboard" color={colors.primary} size={18} />
             }
-            titleStyle={{
-              fontSize: 16,
-              fontFamily: 'ProductSans-Light',
-            }}
             onPress={() => console.log('yes')}
           />
           <ListItem
             title="Account"
-            leftIcon={
-              <Icon
-                name="user"
-                type="feather"
-                color={colors.primary}
-                size={18}
-              />
-            }
-            titleStyle={{fontSize: 16, fontFamily: 'ProductSans-Light'}}
+            leftIcon={<Icon name="user" color={colors.primary} size={18} />}
             onPress={() => console.log('yes')}
           />
           <ListItem
             title="Help"
             leftIcon={
-              <Icon
-                name="help-circle"
-                type="feather"
-                color={colors.primary}
-                size={18}
-              />
+              <Icon name="help-circle" color={colors.primary} size={18} />
             }
-            titleStyle={{fontSize: 16, fontFamily: 'ProductSans-Light'}}
             bottomDivider
             onPress={() => console.log('yes')}
           />
           <ListItem
             title="Settings"
-            leftIcon={
-              <Icon
-                name="settings"
-                type="feather"
-                color={colors.primary}
-                size={18}
-              />
-            }
-            titleStyle={{fontSize: 16, fontFamily: 'ProductSans-Light'}}
+            leftIcon={<Icon name="settings" color={colors.primary} size={18} />}
             topDivider
             onPress={() => console.log('yes')}
           />
           <ListItem
             title="Terms & Conditions / Privacy Policy"
-            leftIcon={
-              <Icon
-                name="book"
-                type="feather"
-                color={colors.primary}
-                size={18}
-              />
-            }
-            titleStyle={{fontSize: 16, fontFamily: 'ProductSans-Light'}}
+            leftIcon={<Icon name="book" color={colors.primary} size={18} />}
             onPress={() => console.log('yes')}
           />
           <ListItem
             title="Log Out"
-            leftIcon={
-              <Icon
-                name="log-out"
-                type="feather"
-                color={colors.primary}
-                size={18}
-              />
-            }
-            titleStyle={{fontSize: 16, fontFamily: 'ProductSans-Light'}}
+            leftIcon={<Icon name="log-out" color={colors.primary} size={18} />}
             onPress={() => console.log('yes')}
           />
         </View>

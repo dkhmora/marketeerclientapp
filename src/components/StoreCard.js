@@ -34,15 +34,15 @@ class StoreCard extends Component {
     console.log('store', store);
 
     return (
-      <Card containerStyle={{padding: 0, borderRadius: 5, elevation: 5}}>
+      <Card containerStyle={{padding: 0, borderRadius: 8, elevation: 5}}>
         {{url} && (
           <View>
             <FastImage
               source={{uri: url}}
               style={{
                 height: 200,
-                borderTopLeftRadius: 5,
-                borderTopRightRadius: 5,
+                borderTopLeftRadius: 8,
+                borderTopRightRadius: 8,
               }}
               resizeMode={FastImage.resizeMode.center}
             />
@@ -53,8 +53,7 @@ class StoreCard extends Component {
             flexDirection: 'column',
             width: '100%',
             height: 100,
-            borderTopLeftRadius: 5,
-            borderTopRightRadius: 5,
+            borderRadius: 8,
             position: 'relative',
             bottom: 5,
           }}>
