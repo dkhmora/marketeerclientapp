@@ -61,14 +61,41 @@ class StoreCard extends Component {
               }}
               resizeMode={FastImage.resizeMode.center}
             />
-            <Button
-              containerStyle={{
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
                 position: 'absolute',
-                right: 0,
-                width: 60,
+                borderTopLeftRadius: 8,
+                borderBottomLeftRadius: 8,
+                borderColor: 'rgba(0,0,0,0.3)',
+                borderWidth: 1,
+                right: -1,
+                padding: 7,
                 marginTop: 20,
-              }}
-              title="yes"></Button>
+                backgroundColor: colors.icons,
+              }}>
+              <Text style={{color: colors.text_primary}}>
+                Same Day Delivery
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'absolute',
+                borderBottomRightRadius: 8,
+                left: 0,
+                height: 30,
+                padding: 10,
+                backgroundColor: colors.primary,
+              }}>
+              <Text style={{color: colors.icons, fontSize: 17}}>
+                {store.storeCategory}
+              </Text>
+            </View>
           </View>
         )}
         <CardItem
@@ -81,17 +108,50 @@ class StoreCard extends Component {
             bottom: 30,
             marginBottom: -30,
           }}>
-          <Text
-            style={[
-              styles.text_footer,
-              {
-                fontFamily: 'ProductSans-Regular',
-                textAlign: 'left',
-                alignSelf: 'flex-start',
-              },
-            ]}>
-            {store.storeName}
-          </Text>
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+              }}>
+              <Text
+                style={[
+                  styles.text_footer,
+                  {
+                    fontFamily: 'ProductSans-Regular',
+                    textAlign: 'left',
+                    alignSelf: 'flex-start',
+                    marginRight: 5,
+                  },
+                ]}>
+                {store.storeName}
+              </Text>
+              <View
+                style={{
+                  borderRadius: 20,
+                  backgroundColor: colors.primary,
+                  padding: 3,
+                  paddingHorizontal: 10,
+                  marginRight: 2,
+                }}>
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontFamily: 'ProductSans-Regular',
+                    color: colors.icons,
+                  }}>
+                  COD
+                </Text>
+              </View>
+            </View>
+
+            <Text>Rating</Text>
+          </View>
+
           <Text
             style={[
               styles.text_subtext,
@@ -103,8 +163,6 @@ class StoreCard extends Component {
             ]}>
             {store.storeDescription}
           </Text>
-          <Text>{store.storeCategory}</Text>
-          <Text>{store.deliveryDescription}</Text>
         </CardItem>
         {{displayImageUrl} && (
           <FastImage
@@ -115,7 +173,7 @@ class StoreCard extends Component {
               left: 30,
               width: 80,
               height: 80,
-              borderRadius: 10,
+              borderRadius: 8,
               borderWidth: 1,
               borderColor: colors.primary,
             }}
