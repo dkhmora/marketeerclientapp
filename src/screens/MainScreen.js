@@ -31,7 +31,7 @@ class MainScreen extends Component {
     super(props);
 
     this.state = {
-      showLocation: false,
+      locationMenuOpen: false,
       initialPosition: -200,
       ready: false,
       image: '',
@@ -66,13 +66,19 @@ class MainScreen extends Component {
     });
   }
 
-  menuIcon = () => {
+  menuButton = () => {
     const {navigation} = this.props;
+    const {locationMenuOpen} = this.state;
 
     if (navigation) {
       return (
         <Button
-          onPress={() => navigation.openDrawer()}
+          onPress={() => {
+            if (locationMenuOpen) {
+              this.hideLocationMenu();
+            }
+            navigation.openDrawer();
+          }}
           type="clear"
           color={colors.icons}
           icon={<Icon name="menu" color={colors.icons} />}
@@ -97,14 +103,14 @@ class MainScreen extends Component {
 
   centerComponent = () => {
     const {centerComponent, title} = this.props;
-    const {showLocation} = this.state;
+    const {locationMenuOpen} = this.state;
 
     return (
       <TouchableOpacity
         style={{flex: 1, flexDirection: 'row'}}
         onPress={() => {
           this.setState({initialPosition: 0});
-          if (!showLocation) {
+          if (!locationMenuOpen) {
             this.revealLocationMenu();
           } else {
             this.hideLocationMenu();
@@ -174,7 +180,7 @@ class MainScreen extends Component {
           opacity: 0,
           backgroundColor: '#000',
         }}>
-        {this.state.showLocation && (
+        {this.state.locationMenuOpen && (
           <TouchableOpacity
             style={{flex: 1}}
             onPress={() => this.hideLocationMenu()}
@@ -185,7 +191,7 @@ class MainScreen extends Component {
   };
 
   revealLocationMenu() {
-    this.setState({showLocation: true}, () => {
+    this.setState({locationMenuOpen: true}, () => {
       this.drawer.animate('slideIn');
       this.overlay.animate('fadeIn');
     });
@@ -194,7 +200,7 @@ class MainScreen extends Component {
   hideLocationMenu() {
     this.drawer.animate('slideOut');
     this.overlay.animate('fadeOut').then(() => {
-      this.setState({showLocation: false});
+      this.setState({locationMenuOpen: false});
     });
   }
 
@@ -204,7 +210,7 @@ class MainScreen extends Component {
 
   render() {
     const {navigation} = this.props;
-    const {showLocation, ready} = this.state;
+    const {locationMenuOpen, ready} = this.state;
     const dataSource = this.props.shopStore.shopList.slice();
     console.log('yes', dataSource);
 
@@ -235,11 +241,11 @@ class MainScreen extends Component {
               />
             )}
           </View>
-          {showLocation && <this.Overlay />}
+          {locationMenuOpen && <this.Overlay />}
           <this.SlideDownDrawer />
           <Header
             placement={Platform.OS === 'ios' ? 'center' : 'left'}
-            leftComponent={this.menuIcon}
+            leftComponent={this.menuButton}
             centerComponent={this.centerComponent}
             rightComponent={this.rightComponent}
             statusBarProps={{
