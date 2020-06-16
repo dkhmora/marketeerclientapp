@@ -217,12 +217,18 @@ class MainScreen extends Component {
               marginTop: pixelsFromTop,
               paddingHorizontal: 15,
             }}>
-            <Text style={styles.listTitleText}>Stores Delivering To You</Text>
             {dataSource && (
               <FlatList
                 data={dataSource}
                 renderItem={({item, index}) => (
-                  <StoreCard store={item} key={index} />
+                  <View>
+                    {index === 0 && (
+                      <Text style={styles.listTitleText}>
+                        Stores Delivering To You
+                      </Text>
+                    )}
+                    <StoreCard store={item} key={index} />
+                  </View>
                 )}
                 keyExtractor={(item) => item.merchantId}
                 showsVerticalScrollIndicator={false}
