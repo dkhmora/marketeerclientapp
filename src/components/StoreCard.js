@@ -195,12 +195,11 @@ class StoreCard extends Component {
             </Text>
           </View>
 
-          <View style={[platformStyle.storeDescriptionContainer]}>
+          <View>
             <Text
               numberOfLines={2}
               style={[
                 styles.text_subtext,
-                platformStyle.storeDescriptionText,
                 {
                   fontFamily: 'ProductSans-light',
                   textAlign: 'left',
