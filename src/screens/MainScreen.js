@@ -133,7 +133,11 @@ class MainScreen extends Component {
 
     return (
       <TouchableOpacity
-        style={{flex: 1, flexDirection: 'row'}}
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          marginHorizontal: -10,
+        }}
         onPress={() => {
           this.setState({initialPosition: 0});
           if (!locationMenuOpen) {
