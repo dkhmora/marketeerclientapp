@@ -111,6 +111,7 @@ class MainScreen extends Component {
             <Image
               source={require('../../assets/images/logo_cart.png')}
               style={{width: 30, height: 30, resizeMode: 'center'}}
+              textStyle={{fontFamily: 'ProductSans-Light'}}
             />
           }
           containerStyle={styles.buttonContainer}
