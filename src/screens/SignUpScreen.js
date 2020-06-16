@@ -250,7 +250,7 @@ class SignUpScreen extends Component {
                 <Text
                   style={[
                     styles.text_subtext,
-                    {marginLeft: 5, marginRight: -5, marginTop: 2},
+                    {marginLeft: 5, marginRight: -5},
                   ]}>
                   (+63)
                 </Text>
