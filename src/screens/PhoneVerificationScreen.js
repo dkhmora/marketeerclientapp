@@ -61,6 +61,7 @@ class PhoneVerificationScreen extends Component {
   }
 
   async confirmCode(code) {
+    const {navigation} = this.props;
     const {name, email, password, phoneNumber} = this.props.route.params;
     const {verificationId} = this.state;
 
@@ -75,6 +76,7 @@ class PhoneVerificationScreen extends Component {
       password,
       phoneNumber,
       credential,
+      navigation,
     );
   }
 

@@ -2,6 +2,7 @@ import {observable, action, computed} from 'mobx';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import firestore from '@react-native-firebase/firestore';
+import {Toast} from 'native-base';
 
 class authStore {
   @observable userAuthenticated = false;
@@ -13,14 +14,33 @@ class authStore {
     return this.guest ? 'Log In' : 'Log Out';
   }
 
-  @action async createUser(name, email, password, phoneNumber, credential) {
-    await this.createUserDocuments(name, email, phoneNumber)
+  @action async createUser(
+    name,
+    email,
+    password,
+    phoneNumber,
+    phoneCredential,
+    navigation,
+  ) {
+    await this.linkCurrentUserWithPhoneNumber(phoneCredential)
+      .then(() => this.linkCurrentUserWithEmail(email, password))
+      .then(() => this.createUserDocuments(name, email, phoneNumber))
       .then(() => console.log('Successfully created user documents'))
-      .then(() => this.linkAnonymousUserWithEmail(email, password))
-      .then(() => this.linkCurrentUserWithPhoneNumber(credential))
       .then(() => this.checkAuthStatus())
+      .then(() => navigation.navigate('Home'))
       .catch((err) => {
         this.userAuthenticated = false;
+        if (err.code === 'auth/credential-already-in-use') {
+          Toast.show({
+            text:
+              'Error: Phone number is already linked to another account, please use another mobile phone number',
+            type: 'danger',
+            duration: 6000,
+            style: {margin: 20, borderRadius: 16},
+          });
+        }
+        navigation.goBack();
+
         console.log(err);
       });
   }
@@ -38,25 +58,25 @@ class authStore {
     });
   }
 
-  @action async linkAnonymousUserWithEmail(email, password) {
-    const credential = await firebase.auth.EmailAuthProvider.credential(
+  @action async linkCurrentUserWithEmail(email, password) {
+    const emailCredential = await firebase.auth.EmailAuthProvider.credential(
       email,
       password,
     );
 
-    await await auth()
-      .currentUser.linkWithCredential(credential)
-      .then(() => console.log('Successfully linked anonymous user with email'))
-      .catch((err) => console.log(err));
+    await auth()
+      .currentUser.linkWithCredential(emailCredential)
+      .then(() => console.log('Successfully linked anonymous user with email'));
   }
 
-  @action async linkCurrentUserWithPhoneNumber(credential) {
+  @action async linkCurrentUserWithPhoneNumber(phoneCredential) {
+    console.log('UID', await auth().currentUser.uid);
+
     await auth()
-      .currentUser.linkWithCredential(credential)
+      .currentUser.linkWithCredential(phoneCredential)
       .then(() =>
         console.log('Successfully linked email account with phone number'),
-      )
-      .catch((err) => console.log(err));
+      );
   }
 
   @action async signIn(email, password) {
