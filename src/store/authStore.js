@@ -55,7 +55,7 @@ class authStore {
   @action async createUserDocuments(name, email, phoneNumber) {
     const userId = await auth().currentUser.uid;
 
-    await firestore().collection('user_carts').doc(userId).set({});
+    await firestore().collection('user_carts').doc(userId).set({items: []});
     await firestore()
       .collection('users')
       .doc(userId)
