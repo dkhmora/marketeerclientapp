@@ -28,6 +28,14 @@ class authStore {
       .then(() => console.log('Successfully created user documents'))
       .then(() => this.checkAuthStatus())
       .then(() => navigation.navigate('Home'))
+      .then(() => {
+        Toast.show({
+          text: 'Welcome to Marketeer!',
+          type: 'success',
+          duration: 4000,
+          style: {margin: 20, borderRadius: 16},
+        });
+      })
       .catch((err) => {
         this.userAuthenticated = false;
         if (err.code === 'auth/credential-already-in-use') {
