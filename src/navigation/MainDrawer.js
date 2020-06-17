@@ -8,31 +8,43 @@ import MainScreen from '../screens/MainScreen';
 import {Button, Text, Icon, ListItem, Avatar} from 'react-native-elements';
 import {View, Platform, Image} from 'react-native';
 import {colors} from '../../assets/colors';
-import {inject} from 'mobx-react';
+import {inject, observer, Observer} from 'mobx-react';
 import {color} from 'react-native-reanimated';
+import {observable, computed} from 'mobx';
 
 @inject('authStore')
+@observer
 class MainDrawer extends Component {
   constructor(props) {
     super(props);
   }
 
-  handleAuthentication() {
-    const {guest, signOut} = this.props.authStore;
+  @computed get authenticationButtonText() {
+    console.log(
+      this.props.authStore.guest ? 'Log In' : 'Log Out',
+      'authbuttontext',
+    );
+    console.log(this.props.authStore.authenticationButtonText, 'sa store2');
+    return this.props.authStore.guest ? 'Log In' : 'Log Out';
+  }
 
-    if (guest) {
+  handleAuthentication(navigation) {
+    const {signOut} = this.props.authStore;
+
+    if (this.props.authStore.guest && this.props.authStore.userAuthenticated) {
+      navigation.closeDrawer();
       this.props.navigation.navigate('Auth');
+    } else if (this.props.authStore.userAuthenticated) {
+      signOut()
+        .then(() => navigation.closeDrawer())
+        .then(() => this.props.authStore.checkAuthStatus());
     } else {
-      signOut();
+      console.log('Failed to authenticate');
     }
   }
 
   customDrawer = (props) => {
-    const {userAuthenticated, userName} = this.props.authStore;
-
-    const authenticationButtonText = this.props.authStore.guest
-      ? 'Log In'
-      : 'Log Out';
+    const {userName} = this.props.authStore;
 
     const authenticationIcon = this.props.authStore.guest ? (
       <Icon name="log-in" color={colors.primary} size={18} />
@@ -133,9 +145,9 @@ class MainDrawer extends Component {
             onPress={() => console.log('yes')}
           />
           <ListItem
-            title={authenticationButtonText}
+            title={this.authenticationButtonText}
             leftIcon={authenticationIcon}
-            onPress={() => this.handleAuthentication()}
+            onPress={() => this.handleAuthentication(props.navigation)}
           />
         </View>
       </DrawerContentScrollView>
