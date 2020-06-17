@@ -20,11 +20,6 @@ class MainDrawer extends Component {
   }
 
   @computed get authenticationButtonText() {
-    console.log(
-      this.props.authStore.guest ? 'Log In' : 'Log Out',
-      'authbuttontext',
-    );
-    console.log(this.props.authStore.authenticationButtonText, 'sa store2');
     return this.props.authStore.guest ? 'Log In' : 'Log Out';
   }
 

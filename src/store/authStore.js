@@ -10,7 +10,6 @@ class authStore {
   @observable userName = '';
 
   @computed get authenticationButtonText() {
-    console.log(this.guest, 'sa store');
     return this.guest ? 'Log In' : 'Log Out';
   }
 
@@ -23,7 +22,7 @@ class authStore {
     navigation,
   ) {
     await this.linkCurrentUserWithPhoneNumber(phoneCredential)
-      .then(() => this.linkCurrentUserWithEmail(email, password))
+      .then(() => this.linkCurrentUserWithEmail(email, password, name))
       .then(() => this.createUserDocuments(name, email, phoneNumber))
       .then(() => console.log('Successfully created user documents'))
       .then(() => this.checkAuthStatus())
@@ -66,7 +65,7 @@ class authStore {
     });
   }
 
-  @action async linkCurrentUserWithEmail(email, password) {
+  @action async linkCurrentUserWithEmail(email, password, name) {
     const emailCredential = await firebase.auth.EmailAuthProvider.credential(
       email,
       password,
@@ -74,7 +73,8 @@ class authStore {
 
     await auth()
       .currentUser.linkWithCredential(emailCredential)
-      .then(() => console.log('Successfully linked anonymous user with email'));
+      .then(() => console.log('Successfully linked anonymous user with email'))
+      .then(() => auth().currentUser.updateProfile({displayName: name}));
   }
 
   @action async linkCurrentUserWithPhoneNumber(phoneCredential) {
@@ -109,7 +109,6 @@ class authStore {
           .then(() => {
             this.guest = true;
             this.userAuthenticated = true;
-            console.log('guest to', this.guest);
           }),
       )
       .catch((err) => console.log(err));
@@ -120,8 +119,7 @@ class authStore {
 
     if (user) {
       console.log('User is authenticated');
-      console.log(user.isAnonymous, 'user.isAnonymous');
-      this.name = auth().currentUser.displayName;
+      this.userName = auth().currentUser.displayName;
       this.guest = user.isAnonymous;
       this.userAuthenticated = true;
     } else if (!this.userAuthenticated) {

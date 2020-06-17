@@ -240,7 +240,6 @@ class MainScreen extends Component {
     const {navigation} = this.props;
     const {locationMenuOpen, ready} = this.state;
     const dataSource = this.props.shopStore.shopList.slice();
-    console.log('yes', dataSource);
 
     if (ready) {
       return (

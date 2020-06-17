@@ -21,7 +21,6 @@ class shopStore {
 
         this.shopList = list;
       })
-      .then(() => console.log(this.shopList))
       .catch((err) => console.log(err));
   }
 }

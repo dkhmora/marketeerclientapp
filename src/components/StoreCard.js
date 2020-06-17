@@ -65,9 +65,6 @@ class StoreCard extends Component {
   render() {
     const {store} = this.props;
     const {displayImageUrl, coverImageUrl} = this.state;
-    const {paymentMethods} = this.props.store;
-
-    console.log('store', store);
 
     return (
       <Card

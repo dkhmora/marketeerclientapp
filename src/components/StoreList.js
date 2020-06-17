@@ -10,14 +10,11 @@ class StoreList extends Component {
   render() {
     const {storeList} = this.props;
 
-    console.log('storeList', storeList);
-
     return (
       <FlatList
         style={{flex: 1}}
         data={storeList}
         renderItem={({item, index}) => {
-          console.log('yessir', item);
           <StoreCard store={item} key={index} />;
         }}
         keyExtractor={(item) => `${item.merchantId}`}
