@@ -64,6 +64,7 @@ class authStore {
       .signInWithEmailAndPassword(email, password)
       .then(() => console.log('signed in succesfully'))
       .then(() => {
+        this.name = auth().currentUser.displayName;
         this.guest = false;
         this.userAuthenticated = true;
       })
@@ -92,17 +93,17 @@ class authStore {
     if (user) {
       console.log('User is authenticated');
       console.log(user.isAnonymous, 'user.isAnonymous');
+      this.name = auth().currentUser.displayName;
       this.guest = user.isAnonymous;
       this.userAuthenticated = true;
-
-      if (!this.guest) {
-        auth()
-          .signInAnonymously()
-          .then(() => {
-            this.guest = true;
-          })
-          .catch((err) => console.log(err));
-      }
+    } else if (!user.isAnonymous && !this.userAuthenticated) {
+      auth()
+        .signInAnonymously()
+        .then(() => {
+          this.guest = true;
+          this.userAuthenticated = true;
+        })
+        .catch((err) => console.log(err));
     } else {
       console.log('User is not authenticated');
       this.userAuthenticated = false;

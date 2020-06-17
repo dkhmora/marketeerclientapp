@@ -44,7 +44,7 @@ class MainDrawer extends Component {
   }
 
   customDrawer = (props) => {
-    const {userAuthenticated, userName} = this.props.authStore;
+    const {userName} = this.props.authStore;
 
     const authenticationIcon = this.props.authStore.guest ? (
       <Icon name="log-in" color={colors.primary} size={18} />
