@@ -1,4 +1,4 @@
-import {observable, action} from 'mobx';
+import {observable, action, computed} from 'mobx';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import firestore from '@react-native-firebase/firestore';
@@ -8,19 +8,9 @@ class authStore {
   @observable guest = false;
   @observable userName = '';
 
-  @action async signInAnonymously() {
-    await auth()
-      .signInAnonymously()
-      .then(() => {
-        console.log('User signed in anonymously');
-      })
-      .catch((error) => {
-        if (error.code === 'auth/operation-not-allowed') {
-          console.log('Enable anonymous in your firebase console.');
-        }
-
-        console.error(error);
-      });
+  @computed get authenticationButtonText() {
+    console.log(this.guest, 'sa store');
+    return this.guest ? 'Log In' : 'Log Out';
   }
 
   @action async createUser(name, email, password, phoneNumber, credential) {
@@ -73,7 +63,10 @@ class authStore {
     await auth()
       .signInWithEmailAndPassword(email, password)
       .then(() => console.log('signed in succesfully'))
-      .then(() => this.checkAuthStatus())
+      .then(() => {
+        this.guest = false;
+        this.userAuthenticated = true;
+      })
       .catch((err) => console.log(err));
   }
 
@@ -81,7 +74,16 @@ class authStore {
     await auth()
       .signOut()
       .then(() => console.log('signed out successfully'))
-      .then(() => this.checkAuthStatus());
+      .then(() =>
+        auth()
+          .signInAnonymously()
+          .then(() => {
+            this.guest = true;
+            this.userAuthenticated = true;
+            console.log('guest to', this.guest);
+          }),
+      )
+      .catch((err) => console.log(err));
   }
 
   @action async checkAuthStatus() {
@@ -89,12 +91,21 @@ class authStore {
 
     if (user) {
       console.log('User is authenticated');
+      console.log(user.isAnonymous, 'user.isAnonymous');
       this.guest = user.isAnonymous;
       this.userAuthenticated = true;
+
+      if (!this.guest) {
+        auth()
+          .signInAnonymously()
+          .then(() => {
+            this.guest = true;
+          })
+          .catch((err) => console.log(err));
+      }
     } else {
       console.log('User is not authenticated');
       this.userAuthenticated = false;
-      this.signInAnonymously();
     }
   }
 }
