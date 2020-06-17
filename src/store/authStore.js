@@ -124,7 +124,7 @@ class authStore {
       this.name = auth().currentUser.displayName;
       this.guest = user.isAnonymous;
       this.userAuthenticated = true;
-    } else if (!user.isAnonymous && !this.userAuthenticated) {
+    } else if (!this.userAuthenticated) {
       auth()
         .signInAnonymously()
         .then(() => {
