@@ -71,13 +71,15 @@ class StoreCard extends Component {
   };
 
   render() {
-    const {store} = this.props;
+    const {store, navigation} = this.props;
     const {displayImageUrl, coverImageUrl} = this.state;
 
     return (
       <TouchableOpacity
         activeOpacity={0.85}
-        onPress={() => console.log('yessss')}>
+        onPress={() =>
+          navigation.navigate('Store', {store, displayImageUrl, coverImageUrl})
+        }>
         <Card
           style={{
             padding: 0,

@@ -239,7 +239,7 @@ class MainScreen extends Component {
   render() {
     const {navigation} = this.props;
     const {locationMenuOpen, ready} = this.state;
-    const dataSource = this.props.shopStore.shopList.slice();
+    const dataSource = this.props.shopStore.storeList.slice();
 
     if (ready) {
       return (
@@ -260,7 +260,11 @@ class MainScreen extends Component {
                         Stores Delivering To You
                       </Text>
                     )}
-                    <StoreCard store={item} key={index} />
+                    <StoreCard
+                      store={item}
+                      key={index}
+                      navigation={navigation}
+                    />
                   </View>
                 )}
                 keyExtractor={(item) => item.merchantId}
