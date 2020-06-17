@@ -22,7 +22,7 @@ class authStore {
     navigation,
   ) {
     await this.linkCurrentUserWithPhoneNumber(phoneCredential)
-      .then(() => this.linkCurrentUserWithEmail(email, password, name))
+      .then(() => this.linkCurrentUserWithEmail(email, password))
       .then(() => this.createUserDocuments(name, email, phoneNumber))
       .then(() => console.log('Successfully created user documents'))
       .then(() => this.checkAuthStatus())
@@ -56,16 +56,22 @@ class authStore {
     const userId = await auth().currentUser.uid;
 
     await firestore().collection('user_carts').doc(userId).set({});
-    await firestore().collection('users').doc(userId).set({
-      name,
-      email,
-      phoneNumber,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-    });
+    await firestore()
+      .collection('users')
+      .doc(userId)
+      .set({
+        name,
+        email,
+        phoneNumber,
+        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      })
+      .then(() => {
+        auth().currentUser.updateProfile({displayName: name});
+      });
   }
 
-  @action async linkCurrentUserWithEmail(email, password, name) {
+  @action async linkCurrentUserWithEmail(email, password) {
     const emailCredential = await firebase.auth.EmailAuthProvider.credential(
       email,
       password,
@@ -73,8 +79,7 @@ class authStore {
 
     await auth()
       .currentUser.linkWithCredential(emailCredential)
-      .then(() => console.log('Successfully linked anonymous user with email'))
-      .then(() => auth().currentUser.updateProfile({displayName: name}));
+      .then(() => console.log('Successfully linked anonymous user with email'));
   }
 
   @action async linkCurrentUserWithPhoneNumber(phoneCredential) {
@@ -87,7 +92,7 @@ class authStore {
       );
   }
 
-  @action async signIn(email, password) {
+  @action async signIn(email, password, navigation) {
     await auth()
       .signInWithEmailAndPassword(email, password)
       .then(() => console.log('signed in succesfully'))
@@ -95,8 +100,20 @@ class authStore {
         this.name = auth().currentUser.displayName;
         this.guest = false;
         this.userAuthenticated = true;
+        navigation.dangerouslyGetParent().navigate('Home');
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        if (err.code === 'auth/user-not-found') {
+          Toast.show({
+            text:
+              'Wrong username or password. Please create an account or try again.',
+            type: 'danger',
+            duration: 6000,
+            style: {margin: 20, borderRadius: 16},
+          });
+        }
+        console.log(err);
+      });
   }
 
   @action async signOut() {
@@ -119,6 +136,7 @@ class authStore {
 
     if (user) {
       console.log('User is authenticated');
+      console.log(user);
       this.userName = auth().currentUser.displayName;
       this.guest = user.isAnonymous;
       this.userAuthenticated = true;

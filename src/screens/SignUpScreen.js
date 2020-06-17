@@ -371,9 +371,9 @@ class SignUpScreen extends Component {
               containerStyle={{
                 borderRadius: 24,
                 borderWidth: 1,
-                borderColor: colors.primary,
                 marginTop: 40,
                 height: 50,
+                borderColor: emailCheck ? colors.primary : 'grey',
               }}
               buttonStyle={{height: 50}}
             />
