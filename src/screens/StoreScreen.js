@@ -47,6 +47,8 @@ class StoreScreen extends Component {
 
     const ItemTab = createMaterialTopTabNavigator();
 
+    const AnimatableItemTab = Animatable.createAnimatableComponent(ItemTab);
+
     return (
       <View style={{flex: 1, backgroundColor: colors.text_primary}}>
         <StatusBar translucent backgroundColor="rgba(0,0,0,0.3)" />
@@ -75,8 +77,10 @@ class StoreScreen extends Component {
         />
 
         <Animatable.View
+          ref={(animatable) => (this.animatable = animatable)}
           animation="fadeInUpBig"
-          duration={500}
+          duration={700}
+          useNativeDriver
           style={[
             styles.footer,
             {paddingHorizontal: 0, paddingTop: 0, overflow: 'hidden'},
