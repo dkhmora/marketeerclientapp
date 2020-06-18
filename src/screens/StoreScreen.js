@@ -117,19 +117,29 @@ class StoreScreen extends Component {
                 borderColor: 'rgba(0,0,0,0.6)',
               }}
             />
-            <Animatable.Text
+            <Animatable.View
               animation="fadeInUp"
               useNativeDriver
               duration={800}
-              style={{
-                fontWeight: 'normal',
-                fontSize: 30,
-                color: colors.icons,
-                alignSelf: 'flex-end',
-                paddingLeft: 10,
-              }}>
-              {store.storeName}
-            </Animatable.Text>
+              style={{flex: 1}}>
+              <Button
+                type="outline"
+                buttonStyle={{borderRadius: 24, borderColor: '#fff'}}
+                containerStyle={{marginHorizontal: 10}}
+                title={store.storeName}
+                titleStyle={{
+                  fontWeight: 'normal',
+                  fontSize: 24,
+                  color: colors.icons,
+                  alignSelf: 'flex-start',
+                  paddingRight: 10,
+                  flexShrink: 1,
+                  flexWrap: 'wrap',
+                }}
+                iconRight
+                icon={<Icon name="info" color="#fff" />}
+              />
+            </Animatable.View>
           </ImageBackground>
         </Animatable.View>
 
