@@ -1,16 +1,7 @@
 import React, {Component} from 'react';
-import {
-  Card,
-  CardItem,
-  Left,
-  Body,
-  Text,
-  Button,
-  Right,
-  Icon,
-  View,
-} from 'native-base';
+import {Card, CardItem, Left, Body, Text, Right, View} from 'native-base';
 import {Image, ActionSheetIOS, Platform} from 'react-native';
+import {Button, Icon} from 'react-native-elements';
 import moment, {ISO_8601} from 'moment';
 import storage from '@react-native-firebase/storage';
 import {inject, observer} from 'mobx-react';
@@ -18,6 +9,8 @@ import {observable} from 'mobx';
 import {ScrollView} from 'react-native-gesture-handler';
 import BaseOptionsMenu from './BaseOptionsMenu';
 import * as Animatable from 'react-native-animatable';
+import {colors} from '../../assets/colors';
+import {styles} from '../../assets/styles';
 
 @inject('authStore')
 @observer
@@ -88,15 +81,45 @@ class ItemCard extends Component {
             borderRadius: 10,
             overflow: 'hidden',
           }}>
-          <CardItem header bordered style={{backgroundColor: '#E91E63'}}>
-            <Left>
-              <Body>
-                <Text style={{color: '#fff'}}>{name}</Text>
-                <Text note style={{color: '#ddd'}}>
+          <CardItem
+            header
+            bordered
+            style={{
+              backgroundColor: '#fff',
+            }}>
+            <View style={{flex: 1}}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-end',
+                }}>
+                <View style={{flexDirection: 'column'}}>
+                  <Text
+                    style={{
+                      color: colors.text_primary,
+                      fontFamily: 'ProductSans-Black',
+                    }}>
+                    {name}
+                  </Text>
+                  <Text
+                    style={{
+                      color: colors.text_secondary,
+                      fontFamily: 'ProductSans-Regular',
+                    }}>
+                    ₱{price}/{unit}
+                  </Text>
+                </View>
+                <Text
+                  note
+                  style={{
+                    color: colors.text_secondary,
+                    fontFamily: 'ProductSans-Light',
+                  }}>
                   Left Stock: {stock}
                 </Text>
-              </Body>
-            </Left>
+              </View>
+            </View>
           </CardItem>
           <CardItem cardBody>
             {this.url ? (
@@ -124,47 +147,20 @@ class ItemCard extends Component {
               />
             )}
           </CardItem>
-          <CardItem
-            bordered
-            style={{
-              borderTopLeftRadius: 8,
-              borderTopRightRadius: 8,
-              position: 'relative',
-              bottom: 20,
-              elevation: 5,
-            }}>
-            <Body
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                height: 100,
-                flexGrow: 1,
-                flexShrink: 1,
-              }}>
-              <ScrollView style={{flex: 1}}>
-                <Text>{description ? description : 'No description'}</Text>
-              </ScrollView>
-            </Body>
-          </CardItem>
-          <CardItem bordered style={{bottom: 20, elevation: 5}}>
-            <Body
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-              }}>
-              <Text>
-                ₱{price}/{unit}
-              </Text>
-            </Body>
-          </CardItem>
-          <CardItem
-            footer
-            bordered
-            style={{bottom: 20, marginBottom: -20, elevation: 5}}>
-            <Body>
-              <Text note>+</Text>
-            </Body>
-          </CardItem>
+          <View style={{position: 'absolute', bottom: 10, right: 10}}>
+            <Button
+              type="clear"
+              color={colors.icons}
+              icon={<Icon name="plus" color={colors.primary} />}
+              containerStyle={[
+                styles.buttonContainer,
+                {
+                  borderRadius: 24,
+                  backgroundColor: '#fff',
+                },
+              ]}
+            />
+          </View>
         </Card>
       </Animatable.View>
     );
