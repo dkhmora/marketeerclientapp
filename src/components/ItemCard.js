@@ -82,7 +82,7 @@ class ItemCard extends Component {
         <Card
           {...otherProps}
           style={{
-            borderRadius: 16,
+            borderRadius: 10,
             overflow: 'hidden',
           }}>
           <CardItem header bordered style={{backgroundColor: '#E91E63'}}>
@@ -94,7 +94,6 @@ class ItemCard extends Component {
                 </Text>
               </Body>
             </Left>
-            <Right style={{marginLeft: '-50%'}}></Right>
           </CardItem>
           <CardItem cardBody>
             {this.url ? (
@@ -160,7 +159,7 @@ class ItemCard extends Component {
             bordered
             style={{bottom: 20, marginBottom: -20, elevation: 5}}>
             <Body>
-              <Text note>Added {timeStamp}</Text>
+              <Text note>+</Text>
             </Body>
           </CardItem>
         </Card>
