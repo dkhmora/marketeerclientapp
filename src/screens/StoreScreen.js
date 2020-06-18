@@ -77,7 +77,10 @@ class StoreScreen extends Component {
         <Animatable.View
           animation="fadeInUpBig"
           duration={500}
-          style={styles.footer}>
+          style={[
+            styles.footer,
+            {paddingHorizontal: 0, paddingTop: 0, overflow: 'hidden'},
+          ]}>
           {allStoreItems.length > 0 && (
             <ItemTab.Navigator>
               <ItemTab.Screen
