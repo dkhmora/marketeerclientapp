@@ -18,7 +18,6 @@ import {observable} from 'mobx';
 import {ScrollView} from 'react-native-gesture-handler';
 import BaseOptionsMenu from './BaseOptionsMenu';
 
-@inject('itemsStore')
 @inject('authStore')
 @observer
 class ItemCard extends Component {
@@ -33,35 +32,6 @@ class ItemCard extends Component {
     const link = await ref.getDownloadURL();
     this.url = link;
   };
-
-  handleDelete() {
-    const {merchantId} = this.props.authStore;
-    const {deleteStoreItem, deleteImage} = this.props.itemsStore;
-    const {
-      category,
-      name,
-      image,
-      description,
-      price,
-      stock,
-      sales,
-      unit,
-      createdAt,
-    } = this.props;
-
-    deleteStoreItem(
-      merchantId,
-      category,
-      name,
-      description,
-      unit,
-      price,
-      stock,
-      sales,
-      image,
-      createdAt,
-    ).then(() => deleteImage(image));
-  }
 
   openOptions() {
     ActionSheetIOS.showActionSheetWithOptions(
@@ -124,20 +94,13 @@ class ItemCard extends Component {
                 </Text>
               </Body>
             </Left>
-            <Right style={{marginLeft: '-50%'}}>
-              <BaseOptionsMenu
-                destructiveIndex={1}
-                iconStyle={{color: '#fff', fontSize: 24}}
-                options={['Delete Item']}
-                actions={[this.handleDelete.bind(this)]}
-              />
-            </Right>
+            <Right style={{marginLeft: '-50%'}}></Right>
           </CardItem>
           <CardItem cardBody>
             {this.url ? (
               <Image
                 loadingIndicatorSource={
-                  (require('../../assets/placeholder.jpg'), 2)
+                  (require('../../assets/images/placeholder.jpg'), 2)
                 }
                 source={{uri: this.url}}
                 style={{
@@ -149,7 +112,7 @@ class ItemCard extends Component {
               />
             ) : (
               <Image
-                source={require('../../assets/placeholder.jpg')}
+                source={require('../../assets/images/placeholder.jpg')}
                 style={{
                   height: 150,
                   width: null,

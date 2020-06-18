@@ -5,7 +5,6 @@ import {observer, inject} from 'mobx-react';
 // Custom Components
 import ItemCard from './ItemCard';
 
-@inject('itemsStore')
 @observer
 class ItemsList extends Component {
   constructor(props) {
@@ -28,21 +27,17 @@ class ItemsList extends Component {
   }
 
   render() {
-    const {category} = this.props.route.params;
+    const {allStoreItems} = this.props.route.params;
     const {navigation} = this.props;
-    let dataSource;
+    const dataSource = allStoreItems;
 
-    if (category !== 'All') {
-      dataSource = this.props.itemsStore.categoryItems.get(category).slice();
-    } else {
-      dataSource = this.props.itemsStore.storeItems;
-    }
+    console.log('Lahat ng items', dataSource);
 
     const numColumns = 2;
 
     return (
       <Container style={{flex: 1}}>
-        <View style={{paddingHorizontal: 10, flex: 1}}>
+        <View style={{flex: 1}}>
           <FlatList
             data={this.formatData(dataSource, numColumns)}
             numColumns={numColumns}

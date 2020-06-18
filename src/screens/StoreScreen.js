@@ -18,6 +18,7 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import {Item} from 'native-base';
+import ItemsList from '../components/ItemsList';
 
 @inject('shopStore')
 @observer
@@ -26,21 +27,23 @@ class StoreScreen extends Component {
     super(props);
 
     this.state = {
-      email: '',
-      password: '',
-      emailCheck: false,
-      secureTextEntry: true,
+      allStoreItems: [],
     };
 
-    this.props.shopStore.setStoreItems(
-      this.props.route.params.store.merchantId,
-    );
+    this.props.shopStore
+      .setStoreItems(this.props.route.params.store.merchantId)
+      .then(() => {
+        console.log(this.props.shopStore.categoryItems.get('All'));
+        this.setState({
+          allStoreItems: this.props.shopStore.categoryItems.get('All'),
+        });
+      });
   }
 
   render() {
     const {store, displayImageUrl, coverImageUrl} = this.props.route.params;
     const {navigation} = this.props;
-    const {emailCheck} = this.state;
+    const {allStoreItems} = this.state;
 
     const ItemTab = createMaterialTopTabNavigator();
 
@@ -74,7 +77,17 @@ class StoreScreen extends Component {
         <Animatable.View
           animation="fadeInUpBig"
           duration={500}
-          style={styles.footer}></Animatable.View>
+          style={styles.footer}>
+          {allStoreItems.length > 0 && (
+            <ItemTab.Navigator>
+              <ItemTab.Screen
+                name="All"
+                component={ItemsList}
+                initialParams={{allStoreItems}}
+              />
+            </ItemTab.Navigator>
+          )}
+        </Animatable.View>
       </View>
     );
   }
