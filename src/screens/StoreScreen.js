@@ -10,6 +10,7 @@ import {
   StatusBar,
   Image,
   ImageBackground,
+  Dimensions,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -46,12 +47,15 @@ class StoreScreen extends Component {
     const {allStoreItems} = this.state;
 
     const ItemTab = createMaterialTopTabNavigator();
+    const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
+    const SCREEN_HEIGHT = Dimensions.get('window').height;
+    const SCREEN_WIDTH = Dimensions.get('window').width;
 
     return (
       <View style={{flex: 1, backgroundColor: colors.text_primary}}>
         <StatusBar translucent backgroundColor="rgba(0,0,0,0.3)" />
 
-        <View style={{flex: 2, marginBottom: -40}}>
+        <View style={{flex: 2}}>
           <ImageBackground
             source={{uri: coverImageUrl}}
             style={{
@@ -60,7 +64,69 @@ class StoreScreen extends Component {
               height: 150,
               resizeMode: 'cover',
               justifyContent: 'center',
-            }}></ImageBackground>
+              paddingTop: STATUS_BAR_HEIGHT,
+              paddingBottom: 40 + STATUS_BAR_HEIGHT,
+              paddingHorizontal: 5,
+              alignItems: 'center',
+              justifyContent: 'flex-start',
+              backgroundColor: 'rgba(0,0,0,0.2)',
+            }}>
+            <Animatable.View
+              useNativeDriver
+              animation="fadeIn"
+              duration={1000}
+              style={{
+                flex: 1,
+                height: SCREEN_HEIGHT,
+                width: SCREEN_WIDTH,
+                top: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: 'rgba(0,0,0,1)',
+                position: 'absolute',
+              }}></Animatable.View>
+            <Animatable.View
+              animation="fadeInUp"
+              useNativeDriver
+              duration={800}>
+              <Button
+                onPress={() => navigation.goBack()}
+                type="clear"
+                color={colors.icons}
+                icon={<Icon name="arrow-left" color={colors.primary} />}
+                containerStyle={[
+                  styles.buttonContainer,
+                  {borderRadius: 24, marginRight: 5, backgroundColor: '#fff'},
+                ]}
+              />
+            </Animatable.View>
+            <Animatable.Image
+              animation="fadeInUp"
+              useNativeDriver
+              duration={800}
+              source={{uri: displayImageUrl}}
+              style={{
+                height: 75,
+                width: 75,
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: 'rgba(0,0,0,0.6)',
+              }}
+            />
+            <Animatable.Text
+              animation="fadeInUp"
+              useNativeDriver
+              duration={800}
+              style={{
+                fontWeight: 'normal',
+                fontSize: 30,
+                color: colors.icons,
+                alignSelf: 'flex-end',
+                paddingLeft: 10,
+              }}>
+              {store.storeName}
+            </Animatable.Text>
+          </ImageBackground>
         </View>
 
         <Image
@@ -84,7 +150,7 @@ class StoreScreen extends Component {
             {
               paddingHorizontal: 0,
               paddingTop: 0,
-              marginTop: -40,
+              marginTop: -80,
               overflow: 'hidden',
             },
           ]}>
