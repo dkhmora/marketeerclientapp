@@ -55,7 +55,11 @@ class StoreScreen extends Component {
       <View style={{flex: 1, backgroundColor: colors.text_primary}}>
         <StatusBar translucent backgroundColor="rgba(0,0,0,0.3)" />
 
-        <View style={{flex: 2}}>
+        <Animatable.View
+          useNativeDriver
+          animation="fadeInUp"
+          duration={800}
+          style={{flex: 2}}>
           <ImageBackground
             source={{uri: coverImageUrl}}
             style={{
@@ -127,7 +131,7 @@ class StoreScreen extends Component {
               {store.storeName}
             </Animatable.Text>
           </ImageBackground>
-        </View>
+        </Animatable.View>
 
         <Image
           source={require('../../assets/images/logo.png')}
