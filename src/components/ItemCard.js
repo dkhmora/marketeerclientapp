@@ -17,6 +17,7 @@ import {inject, observer} from 'mobx-react';
 import {observable} from 'mobx';
 import {ScrollView} from 'react-native-gesture-handler';
 import BaseOptionsMenu from './BaseOptionsMenu';
+import * as Animatable from 'react-native-animatable';
 
 @inject('authStore')
 @observer
@@ -72,7 +73,9 @@ class ItemCard extends Component {
     const timeStamp = moment(createdAt, ISO_8601).fromNow();
 
     return (
-      <View
+      <Animatable.View
+        animation="fadeInUp"
+        duration={500}
         style={{
           flex: 1,
           flexDirection: 'column',
@@ -163,7 +166,7 @@ class ItemCard extends Component {
             </Body>
           </CardItem>
         </Card>
-      </View>
+      </Animatable.View>
     );
   }
 }

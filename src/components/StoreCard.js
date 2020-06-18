@@ -96,7 +96,7 @@ class StoreCard extends Component {
                   top: 0,
                   left: 0,
                   right: 0,
-                  height: 200,
+                  height: 150,
                   borderTopLeftRadius: 8,
                   borderTopRightRadius: 8,
                 }}
@@ -149,6 +149,7 @@ class StoreCard extends Component {
               </View>
               <View
                 style={{
+                  overflow: 'hidden',
                   flexDirection: 'row',
                   alignItems: 'center',
                   justifyContent: 'center',
