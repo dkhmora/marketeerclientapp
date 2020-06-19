@@ -157,6 +157,7 @@ class ItemCard extends Component {
                 {
                   borderRadius: 24,
                   backgroundColor: '#fff',
+                  height: 40,
                 },
               ]}
             />

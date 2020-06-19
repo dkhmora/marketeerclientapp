@@ -65,7 +65,7 @@ class StoreScreen extends Component {
             style={{
               flex: 1,
               flexDirection: 'row',
-              height: 150,
+              height: 250,
               resizeMode: 'cover',
               justifyContent: 'center',
               paddingTop: STATUS_BAR_HEIGHT,
@@ -78,7 +78,7 @@ class StoreScreen extends Component {
             <Animatable.View
               useNativeDriver
               animation="fadeIn"
-              duration={1000}
+              duration={800}
               style={{
                 flex: 1,
                 height: SCREEN_HEIGHT,
@@ -88,7 +88,8 @@ class StoreScreen extends Component {
                 right: 0,
                 backgroundColor: 'rgba(0,0,0,1)',
                 position: 'absolute',
-              }}></Animatable.View>
+              }}
+            />
             <Animatable.View
               animation="fadeInUp"
               useNativeDriver
@@ -98,9 +99,10 @@ class StoreScreen extends Component {
                 type="clear"
                 color={colors.icons}
                 icon={<Icon name="arrow-left" color={colors.primary} />}
+                buttonStyle={{borderRadius: 30}}
                 containerStyle={[
                   styles.buttonContainer,
-                  {borderRadius: 24, marginRight: 5, backgroundColor: '#fff'},
+                  {marginRight: 5, backgroundColor: '#fff', height: 40},
                 ]}
               />
             </Animatable.View>
@@ -122,23 +124,37 @@ class StoreScreen extends Component {
               useNativeDriver
               duration={800}
               style={{flex: 1}}>
-              <Button
-                type="outline"
-                buttonStyle={{borderRadius: 24, borderColor: '#fff'}}
-                containerStyle={{marginHorizontal: 10}}
-                title={store.storeName}
-                titleStyle={{
-                  fontWeight: 'normal',
-                  fontSize: 24,
-                  color: colors.icons,
-                  alignSelf: 'flex-start',
-                  paddingRight: 10,
-                  flexShrink: 1,
-                  flexWrap: 'wrap',
-                }}
-                iconRight
-                icon={<Icon name="info" color="#fff" />}
-              />
+              <TouchableOpacity
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 24,
+                  borderWidth: 1,
+                  borderColor: '#fff',
+                  marginHorizontal: 5,
+                  padding: 5,
+                }}>
+                <Text
+                  adjustsFontSizeToFit
+                  numberOfLines={2}
+                  style={[
+                    styles.text_footer,
+                    {
+                      paddingLeft: 5,
+                      color: colors.icons,
+                      fontSize: 30,
+                      width: '80%',
+                    },
+                  ]}>
+                  {store.storeName}
+                </Text>
+                <Icon
+                  name="info"
+                  color={colors.icons}
+                  style={{color: '#fff'}}
+                />
+              </TouchableOpacity>
             </Animatable.View>
           </ImageBackground>
         </Animatable.View>
