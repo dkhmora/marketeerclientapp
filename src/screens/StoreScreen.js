@@ -59,7 +59,7 @@ class StoreScreen extends Component {
           useNativeDriver
           animation="fadeInUp"
           duration={800}
-          style={{flex: 2}}>
+          style={{flex: Platform.OS === 'android' ? 2.5 : 2}}>
           <ImageBackground
             source={{uri: coverImageUrl}}
             style={{
