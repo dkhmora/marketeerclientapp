@@ -85,7 +85,10 @@ class LoginScreen extends Component {
             }}
           />
         </View>
-        <Animatable.View animation="fadeInUpBig" style={styles.footer}>
+        <Animatable.View
+          useNativeDriver
+          animation="fadeInUpBig"
+          style={styles.footer}>
           <ScrollView>
             <Text style={styles.text_header}>Login</Text>
 
@@ -102,7 +105,7 @@ class LoginScreen extends Component {
                 onChangeText={(value) => this.handleEmailChange(value)}
               />
               {this.state.emailCheck ? (
-                <Animatable.View animation="bounceIn">
+                <Animatable.View useNativeDriver animation="bounceIn">
                   <Icon
                     name="check-circle"
                     color="#388e3c"

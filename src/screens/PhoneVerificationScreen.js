@@ -110,7 +110,7 @@ class PhoneVerificationScreen extends Component {
             }}
           />
         </View>
-        <Animatable.View animation="fadeInUpBig" style={styles.footer}>
+        <Animatable.View useNativeDriver animation="fadeInUpBig" style={styles.footer}>
           <View style={{flex: 1}}>
             <View style={{flex: 1, justifyContent: 'flex-start'}}>
               <Text style={styles.text_header}>SMS Verification</Text>

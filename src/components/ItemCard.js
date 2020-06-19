@@ -67,6 +67,7 @@ class ItemCard extends Component {
 
     return (
       <Animatable.View
+        useNativeDriver
         animation="fadeInUp"
         duration={500}
         style={{
