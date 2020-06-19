@@ -17,6 +17,10 @@ import {styles} from '../../assets/styles';
 class ItemCard extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      counter: 0,
+    };
   }
 
   @observable url = null;
@@ -50,6 +54,22 @@ class ItemCard extends Component {
     }
   }
 
+  handleIncreaseQuantity() {
+    const {counter} = this.state;
+
+    this.setState({counter: counter + 1}, () => {
+      this.state.counter === 1 && this.buttonCounterView.fadeInRightBig(400);
+    });
+  }
+
+  handleDecreaseQuantity() {
+    const {counter} = this.state;
+
+    this.setState({counter: counter - 1}, () => {
+      this.state.counter === 0 && this.buttonCounterView.fadeOutRightBig(400);
+    });
+  }
+
   render() {
     const {
       name,
@@ -64,6 +84,7 @@ class ItemCard extends Component {
     } = this.props;
 
     const timeStamp = moment(createdAt, ISO_8601).fromNow();
+    const {counter} = this.state;
 
     return (
       <Animatable.View
@@ -148,8 +169,49 @@ class ItemCard extends Component {
               />
             )}
           </CardItem>
-          <View style={{position: 'absolute', bottom: 10, right: 10}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'absolute',
+              bottom: 10,
+              right: 10,
+            }}>
+            <Animatable.View
+              ref={(buttonCounterView) =>
+                (this.buttonCounterView = buttonCounterView)
+              }
+              animation="slideInRight"
+              duration={200}
+              useNativeDriver
+              style={{flexDirection: 'row', opacity: 0}}>
+              <Button
+                onPress={() => this.handleDecreaseQuantity()}
+                type="clear"
+                color={colors.icons}
+                icon={<Icon name="minus" color={colors.primary} />}
+                containerStyle={[
+                  styles.buttonContainer,
+                  {
+                    borderRadius: 24,
+                    backgroundColor: '#fff',
+                    height: 40,
+                  },
+                ]}
+              />
+              <Text
+                style={{
+                  backgroundColor: '#fff',
+                  height: 40,
+                  width: 40,
+                  textAlign: 'center',
+                }}>
+                {counter}
+              </Text>
+            </Animatable.View>
             <Button
+              onPress={() => this.handleIncreaseQuantity()}
               type="clear"
               color={colors.icons}
               icon={<Icon name="plus" color={colors.primary} />}
