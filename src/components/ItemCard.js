@@ -58,7 +58,7 @@ class ItemCard extends Component {
     const {counter} = this.state;
 
     this.setState({counter: counter + 1}, () => {
-      this.state.counter === 1 && this.buttonCounterView.fadeInRightBig(400);
+      this.state.counter === 1 && this.buttonCounterView.fadeInRight(200);
     });
   }
 
@@ -66,7 +66,7 @@ class ItemCard extends Component {
     const {counter} = this.state;
 
     this.setState({counter: counter - 1}, () => {
-      this.state.counter === 0 && this.buttonCounterView.fadeOutRightBig(400);
+      this.state.counter === 0 && this.buttonCounterView.fadeOutRight(200);
     });
   }
 
