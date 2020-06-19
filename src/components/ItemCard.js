@@ -21,6 +21,17 @@ class ItemCard extends Component {
     this.state = {
       counter: 0,
     };
+
+    Animatable.initializeRegistryWithDefinitions({
+      transformPlusButton: {
+        from: {borderBottomLeftRadius: 30, borderTopLeftRadius: 30},
+        to: {borderBottomLeftRadius: 0, borderTopLeftRadius: 0},
+      },
+      deTransformPlusButton: {
+        from: {borderBottomLeftRadius: 0, borderTopLeftRadius: 0},
+        to: {borderBottomLeftRadius: 30, borderTopLeftRadius: 30},
+      },
+    });
   }
 
   @observable url = null;
@@ -58,7 +69,9 @@ class ItemCard extends Component {
     const {counter} = this.state;
 
     this.setState({counter: counter + 1}, () => {
-      this.state.counter === 1 && this.buttonCounterView.fadeInRight(200);
+      this.state.counter === 1 &&
+        this.buttonCounterView.fadeInRight(200) &&
+        this.plusButton.transformPlusButton(300);
     });
   }
 
@@ -66,7 +79,9 @@ class ItemCard extends Component {
     const {counter} = this.state;
 
     this.setState({counter: counter - 1}, () => {
-      this.state.counter === 0 && this.buttonCounterView.fadeOutRight(200);
+      this.state.counter === 0 &&
+        this.buttonCounterView.fadeOutRight(200) &&
+        this.plusButton.deTransformPlusButton(300);
     });
   }
 
@@ -182,10 +197,14 @@ class ItemCard extends Component {
               ref={(buttonCounterView) =>
                 (this.buttonCounterView = buttonCounterView)
               }
-              animation="slideInRight"
-              duration={200}
               useNativeDriver
-              style={{flexDirection: 'row', opacity: 0}}>
+              style={{
+                flexDirection: 'row',
+                opacity: 0,
+                backgroundColor: '#fff',
+                borderTopLeftRadius: 24,
+                borderBottomLeftRadius: 24,
+              }}>
               <Button
                 onPress={() => this.handleDecreaseQuantity()}
                 type="clear"
@@ -194,9 +213,10 @@ class ItemCard extends Component {
                 containerStyle={[
                   styles.buttonContainer,
                   {
-                    borderRadius: 24,
                     backgroundColor: '#fff',
                     height: 40,
+                    borderRadius: 24,
+                    elevation: 3,
                   },
                 ]}
               />
@@ -210,20 +230,27 @@ class ItemCard extends Component {
                 {counter}
               </Text>
             </Animatable.View>
-            <Button
-              onPress={() => this.handleIncreaseQuantity()}
-              type="clear"
-              color={colors.icons}
-              icon={<Icon name="plus" color={colors.primary} />}
-              containerStyle={[
+            <Animatable.View
+              ref={(plusButton) => (this.plusButton = plusButton)}
+              useNativeDriver
+              style={[
                 styles.buttonContainer,
                 {
                   borderRadius: 24,
                   backgroundColor: '#fff',
                   height: 40,
                 },
-              ]}
-            />
+              ]}>
+              <Button
+                onPress={() => this.handleIncreaseQuantity()}
+                type="clear"
+                color={colors.icons}
+                icon={<Icon name="plus" color={colors.primary} />}
+                containerStyle={{
+                  borderRadius: 24,
+                }}
+              />
+            </Animatable.View>
           </View>
         </Card>
       </Animatable.View>
