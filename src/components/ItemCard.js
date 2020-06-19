@@ -21,6 +21,7 @@ class ItemCard extends Component {
 
     this.state = {
       quantity: 0,
+      buttonDisabled: false,
     };
 
     Animatable.initializeRegistryWithDefinitions({
@@ -70,18 +71,27 @@ class ItemCard extends Component {
     const {item} = this.props;
     const {quantity} = this.state;
 
-    this.props.shopStore.addCartItem(item);
+    if (quantity < item.stock) {
+      this.props.shopStore.addCartItem(item);
 
-    this.setState({quantity: quantity + 1}, () => {
-      this.state.quantity === 1 &&
-        this.buttonCounterView.fadeInRight(200) &&
-        this.plusButton.transformPlusButton(300);
-    });
+      this.setState({quantity: quantity + 1}, () => {
+        this.state.quantity === parseInt(item.stock, 10) &&
+          this.setState({buttonDisabled: true});
+
+        this.state.quantity === 1 &&
+          this.buttonCounterView.fadeInRight(200) &&
+          this.plusButton.transformPlusButton(300);
+      });
+    }
   }
 
   handleDecreaseQuantity() {
     const {item} = this.props;
     const {quantity} = this.state;
+
+    if (quantity === item.stock) {
+      this.setState({buttonDisabled: false});
+    }
 
     this.props.shopStore.removeCartItem(item);
 
@@ -104,7 +114,7 @@ class ItemCard extends Component {
       createdAt,
     } = this.props.item;
 
-    const {quantity} = this.state;
+    const {quantity, buttonDisabled} = this.state;
 
     return (
       <Animatable.View
@@ -298,9 +308,17 @@ class ItemCard extends Component {
                 }}>
                 <Button
                   onPress={() => this.handleIncreaseQuantity()}
+                  disabled={buttonDisabled}
                   type="clear"
                   color={colors.icons}
-                  icon={<Icon name="plus" color={colors.primary} />}
+                  icon={
+                    <Icon
+                      name="plus"
+                      color={
+                        buttonDisabled ? colors.text_secondary : colors.primary
+                      }
+                    />
+                  }
                   containerStyle={[
                     styles.buttonContainer,
                     {
