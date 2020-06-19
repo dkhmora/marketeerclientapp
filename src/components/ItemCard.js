@@ -222,6 +222,7 @@ class ItemCard extends Component {
                 },
                 shadowOpacity: 0.25,
                 shadowRadius: 1.84,
+                elevation: 2,
               }}>
               <View
                 style={{
@@ -278,6 +279,7 @@ class ItemCard extends Component {
                   borderRadius: 24,
                   backgroundColor: '#fff',
                   height: 40,
+                  elevation: 2,
                 },
               ]}>
               <View
