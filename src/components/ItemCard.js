@@ -215,33 +215,59 @@ class ItemCard extends Component {
                 backgroundColor: '#fff',
                 borderTopLeftRadius: 24,
                 borderBottomLeftRadius: 24,
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.25,
+                shadowRadius: 1.84,
               }}>
-              <Button
-                onPress={() => this.handleDecreaseQuantity()}
-                type="clear"
-                color={colors.icons}
-                icon={<Icon name="minus" color={colors.primary} />}
-                containerStyle={[
-                  styles.buttonContainer,
-                  {
-                    backgroundColor: '#fff',
-                    height: 40,
-                    borderRadius: 24,
-                    elevation: 3,
+              <View
+                style={{
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 2,
                   },
-                ]}
-              />
-              <Text
+                  shadowOpacity: 0.25,
+                  shadowRadius: 1.84,
+                  paddingRight: 4,
+                }}>
+                <Button
+                  onPress={() => this.handleDecreaseQuantity()}
+                  type="clear"
+                  color={colors.icons}
+                  icon={<Icon name="minus" color={colors.primary} />}
+                  containerStyle={[
+                    styles.buttonContainer,
+                    {
+                      backgroundColor: '#fff',
+                      height: 40,
+                      borderRadius: 24,
+                      elevation: 3,
+                    },
+                  ]}
+                />
+              </View>
+
+              <View
                 style={{
                   backgroundColor: '#fff',
                   height: 40,
                   width: 40,
-                  textAlign: 'center',
-                  textAlignVertical: 'center',
-                  fontFamily: 'ProductSans-Black',
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}>
-                {counter}
-              </Text>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontFamily: 'ProductSans-Black',
+                    paddingRight: 4,
+                  }}>
+                  {counter}
+                </Text>
+              </View>
             </Animatable.View>
             <Animatable.View
               ref={(plusButton) => (this.plusButton = plusButton)}
@@ -254,21 +280,32 @@ class ItemCard extends Component {
                   height: 40,
                 },
               ]}>
-              <Button
-                onPress={() => this.handleIncreaseQuantity()}
-                type="clear"
-                color={colors.icons}
-                icon={<Icon name="plus" color={colors.primary} />}
-                containerStyle={[
-                  styles.buttonContainer,
-                  {
-                    backgroundColor: '#fff',
-                    height: 40,
-                    borderRadius: 24,
-                    elevation: 3,
+              <View
+                style={{
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 2,
                   },
-                ]}
-              />
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
+                }}>
+                <Button
+                  onPress={() => this.handleIncreaseQuantity()}
+                  type="clear"
+                  color={colors.icons}
+                  icon={<Icon name="plus" color={colors.primary} />}
+                  containerStyle={[
+                    styles.buttonContainer,
+                    {
+                      backgroundColor: '#fff',
+                      height: 40,
+                      borderRadius: 24,
+                      elevation: 3,
+                    },
+                  ]}
+                />
+              </View>
             </Animatable.View>
           </View>
         </Card>
