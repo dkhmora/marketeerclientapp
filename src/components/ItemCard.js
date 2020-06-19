@@ -13,13 +13,14 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 
 @inject('authStore')
+@inject('shopStore')
 @observer
 class ItemCard extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      counter: 0,
+      quantity: 0,
     };
 
     Animatable.initializeRegistryWithDefinitions({
@@ -37,7 +38,7 @@ class ItemCard extends Component {
   @observable url = null;
 
   getImage = async () => {
-    const ref = storage().ref(this.props.image);
+    const ref = storage().ref(this.props.item.image);
     const link = await ref.getDownloadURL();
     this.url = link;
   };
@@ -60,26 +61,32 @@ class ItemCard extends Component {
   }
 
   componentDidMount() {
-    if (this.props.image) {
+    if (this.props.item.image) {
       this.getImage();
     }
   }
 
   handleIncreaseQuantity() {
-    const {counter} = this.state;
+    const {item} = this.props;
+    const {quantity} = this.state;
 
-    this.setState({counter: counter + 1}, () => {
-      this.state.counter === 1 &&
+    this.props.shopStore.addCartItem(item);
+
+    this.setState({quantity: quantity + 1}, () => {
+      this.state.quantity === 1 &&
         this.buttonCounterView.fadeInRight(200) &&
         this.plusButton.transformPlusButton(300);
     });
   }
 
   handleDecreaseQuantity() {
-    const {counter} = this.state;
+    const {item} = this.props;
+    const {quantity} = this.state;
 
-    this.setState({counter: counter - 1}, () => {
-      this.state.counter === 0 &&
+    this.props.shopStore.removeCartItem(item);
+
+    this.setState({quantity: quantity - 1}, () => {
+      this.state.quantity === 0 &&
         this.buttonCounterView.fadeOutRight(200) &&
         this.plusButton.deTransformPlusButton(300);
     });
@@ -95,11 +102,9 @@ class ItemCard extends Component {
       sales,
       unit,
       createdAt,
-      ...otherProps
-    } = this.props;
+    } = this.props.item;
 
-    const timeStamp = moment(createdAt, ISO_8601).fromNow();
-    const {counter} = this.state;
+    const {quantity} = this.state;
 
     return (
       <Animatable.View
@@ -113,7 +118,6 @@ class ItemCard extends Component {
           marginVertical: 3,
         }}>
         <Card
-          {...otherProps}
           style={{
             borderRadius: 10,
             overflow: 'hidden',
@@ -266,7 +270,7 @@ class ItemCard extends Component {
                     fontFamily: 'ProductSans-Black',
                     paddingRight: 4,
                   }}>
-                  {counter}
+                  {quantity}
                 </Text>
               </View>
             </Animatable.View>

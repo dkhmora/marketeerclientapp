@@ -134,6 +134,7 @@ class StoreScreen extends Component {
                   borderColor: '#fff',
                   marginHorizontal: 5,
                   padding: 5,
+                  backgroundColor: 'rgba(0,0,0,0.45)',
                 }}>
                 <Text
                   adjustsFontSizeToFit

@@ -48,18 +48,7 @@ class ItemsList extends Component {
                   key={index}
                 />
               ) : (
-                <ItemCard
-                  category={item.category}
-                  name={item.name}
-                  image={item.image}
-                  description={item.description}
-                  price={item.price}
-                  stock={item.stock}
-                  sales={item.sales}
-                  unit={item.unit}
-                  createdAt={item.createdAt}
-                  key={index}
-                />
+                <ItemCard item={item} key={index} />
               )
             }
             keyExtractor={(item, index) => `${item.name}${index.toString()}`}

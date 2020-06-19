@@ -1,11 +1,50 @@
 import {observable, action} from 'mobx';
 import firestore from '@react-native-firebase/firestore';
+import {observer} from 'mobx-react';
+import {ThemeConsumer} from 'react-native-elements';
 
 class shopStore {
+  @observable cartItems = [];
   @observable storeList = [];
   @observable allStoreItems = [];
   @observable itemCategories = [];
   @observable categoryItems = new Map();
+
+  @action async addCartItem(item) {
+    const itemIndex =
+      this.cartItems.length > 0
+        ? this.cartItems.findIndex((cartItem) => cartItem.name === item.name)
+        : -1;
+
+    if (itemIndex >= 0) {
+      this.cartItems[itemIndex].quantity += 1;
+    } else {
+      item.quantity = 1;
+      this.cartItems.push(item);
+    }
+
+    console.log(this.cartItems);
+  }
+
+  @action async removeCartItem(item) {
+    const itemIndex =
+      this.cartItems.length > 0
+        ? this.cartItems.findIndex((cartItem) => cartItem.name === item.name)
+        : -1;
+
+    if (itemIndex >= 0) {
+      const selectedItem = this.cartItems[itemIndex];
+      const currentItemQuantity = selectedItem.quantity;
+
+      if (currentItemQuantity === 1) {
+        this.cartItems.remove(selectedItem);
+      } else {
+        this.cartItems[itemIndex].quantity -= 1;
+      }
+    }
+
+    console.log(this.cartItems);
+  }
 
   @action async getShopList() {
     await firestore()
