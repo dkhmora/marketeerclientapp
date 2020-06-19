@@ -24,12 +24,12 @@ class ItemCard extends Component {
 
     Animatable.initializeRegistryWithDefinitions({
       transformPlusButton: {
-        from: {borderBottomLeftRadius: 30, borderTopLeftRadius: 30},
+        from: {borderBottomLeftRadius: 24, borderTopLeftRadius: 24},
         to: {borderBottomLeftRadius: 0, borderTopLeftRadius: 0},
       },
       deTransformPlusButton: {
         from: {borderBottomLeftRadius: 0, borderTopLeftRadius: 0},
-        to: {borderBottomLeftRadius: 30, borderTopLeftRadius: 30},
+        to: {borderBottomLeftRadius: 24, borderTopLeftRadius: 24},
       },
     });
   }
@@ -248,6 +248,7 @@ class ItemCard extends Component {
                 icon={<Icon name="plus" color={colors.primary} />}
                 containerStyle={{
                   borderRadius: 24,
+                  height: 40,
                 }}
               />
             </Animatable.View>
