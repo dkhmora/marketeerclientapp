@@ -69,7 +69,7 @@ class ItemCard extends Component {
       <Animatable.View
         useNativeDriver
         animation="fadeInUp"
-        duration={500}
+        duration={350}
         style={{
           flex: 1,
           flexDirection: 'column',
