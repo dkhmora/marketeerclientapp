@@ -124,7 +124,7 @@ class ItemCard extends Component {
             style={{
               backgroundColor: '#fff',
             }}>
-            <View style={{flex: 1}}>
+            <View style={{flex: 1, justifyContent: 'flex-start', padding: 0}}>
               <View
                 style={{
                   flexDirection: 'row',
@@ -134,27 +134,38 @@ class ItemCard extends Component {
                 <View style={{flexDirection: 'column'}}>
                   <Text
                     style={{
-                      color: colors.text_primary,
-                      fontFamily: 'ProductSans-Black',
+                      color: colors.text_secondary,
+                      fontFamily: 'ProductSans-Regular',
                     }}>
                     {name}
                   </Text>
                   <Text
                     style={{
-                      color: colors.text_secondary,
-                      fontFamily: 'ProductSans-Regular',
+                      color: colors.text_primary,
+                      fontFamily: 'ProductSans-Black',
                     }}>
                     ₱{price}/{unit}
                   </Text>
                 </View>
-                <Text
-                  note
+                <View
                   style={{
-                    color: colors.text_secondary,
-                    fontFamily: 'ProductSans-Light',
+                    borderRadius: 10,
+                    borderWidth: 1,
+                    borderColor: colors.text_secondary,
+                    padding: 5,
+                    alignItems: 'center',
                   }}>
-                  Left Stock: {stock}
-                </Text>
+                  <Text>{stock}</Text>
+                  <Text
+                    numberOfLines={2}
+                    style={{
+                      textAlign: 'center',
+                      color: colors.text_secondary,
+                      fontFamily: 'ProductSans-Light',
+                    }}>
+                    Left
+                  </Text>
+                </View>
               </View>
             </View>
           </CardItem>
@@ -226,6 +237,8 @@ class ItemCard extends Component {
                   height: 40,
                   width: 40,
                   textAlign: 'center',
+                  textAlignVertical: 'center',
+                  fontFamily: 'ProductSans-Black',
                 }}>
                 {counter}
               </Text>
@@ -246,10 +259,15 @@ class ItemCard extends Component {
                 type="clear"
                 color={colors.icons}
                 icon={<Icon name="plus" color={colors.primary} />}
-                containerStyle={{
-                  borderRadius: 24,
-                  height: 40,
-                }}
+                containerStyle={[
+                  styles.buttonContainer,
+                  {
+                    backgroundColor: '#fff',
+                    height: 40,
+                    borderRadius: 24,
+                    elevation: 3,
+                  },
+                ]}
               />
             </Animatable.View>
           </View>
