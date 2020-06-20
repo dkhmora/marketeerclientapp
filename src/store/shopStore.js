@@ -1,4 +1,4 @@
-import {observable, action} from 'mobx';
+import {observable, action, computed} from 'mobx';
 import firestore from '@react-native-firebase/firestore';
 
 class shopStore {
@@ -6,6 +6,28 @@ class shopStore {
   @observable storeList = [];
   @observable itemCategories = [];
   @observable storeCategoryItems = new Map();
+
+  @computed get cartStores() {
+    const stores = [...this.storeCartItems.keys()];
+    console.log('stores', stores);
+
+    return stores;
+  }
+
+  @action getCartItemQuantity(item, storeName) {
+    if (this.storeCartItems.get(storeName)) {
+      console.log(this.storeCartItems.get('BURATTT', storeName));
+      const cartItem = this.storeCartItems
+        .get(storeName)
+        .find((items) => items.name === item.name);
+
+      if (cartItem) {
+        return cartItem.quantity;
+      }
+    }
+
+    return 0;
+  }
 
   @action async addCartItem(item, storeName) {
     if (!this.storeCartItems.get(storeName)) {
@@ -25,8 +47,6 @@ class shopStore {
       item.quantity = 1;
       this.storeCartItems.get(storeName).push(item);
     }
-
-    console.log('Map Objects', ...this.storeCartItems.keys());
 
     console.log('addCartItem', this.storeCartItems.get(storeName));
   }

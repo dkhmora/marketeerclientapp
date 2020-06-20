@@ -22,6 +22,7 @@ import {Item} from 'native-base';
 import ItemsList from '../components/ItemsList';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import Animated from 'react-native-reanimated';
+import CartStoreList from '../components/CartStoreList';
 
 @inject('shopStore')
 @observer
@@ -314,6 +315,10 @@ class StoreScreen extends Component {
                 </View>
               </View>
             </TouchableOpacity>
+
+            <View style={{flex: 1, width: '100%', marginTop: 20}}>
+              <CartStoreList />
+            </View>
           </View>
         </SlidingUpPanel>
       </View>

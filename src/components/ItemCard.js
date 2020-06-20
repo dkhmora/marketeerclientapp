@@ -65,6 +65,21 @@ class ItemCard extends Component {
     if (this.props.item.image) {
       this.getImage();
     }
+
+    const {item, storeName} = this.props;
+
+    const itemQuantity = this.props.shopStore.getCartItemQuantity(
+      item,
+      storeName,
+    );
+
+    this.setState({quantity: itemQuantity}, () => {
+      this.state.quantity >= 1 &&
+        this.buttonCounterView.fadeInRight(200) &&
+        this.plusButton.transformPlusButton(300);
+    });
+
+    console.log('itemquantity', itemQuantity);
   }
 
   handleIncreaseQuantity() {
