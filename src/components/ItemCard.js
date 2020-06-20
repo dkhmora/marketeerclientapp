@@ -68,11 +68,11 @@ class ItemCard extends Component {
   }
 
   handleIncreaseQuantity() {
-    const {item} = this.props;
+    const {item, storeName} = this.props;
     const {quantity} = this.state;
 
     if (quantity < item.stock) {
-      this.props.shopStore.addCartItem(item);
+      this.props.shopStore.addCartItem(item, storeName);
 
       this.setState({quantity: quantity + 1}, () => {
         this.state.quantity === parseInt(item.stock, 10) &&
@@ -86,14 +86,14 @@ class ItemCard extends Component {
   }
 
   handleDecreaseQuantity() {
-    const {item} = this.props;
+    const {item, storeName} = this.props;
     const {quantity} = this.state;
 
     if (quantity === item.stock) {
       this.setState({buttonDisabled: false});
     }
 
-    this.props.shopStore.removeCartItem(item);
+    this.props.shopStore.removeCartItem(item, storeName);
 
     this.setState({quantity: quantity - 1}, () => {
       this.state.quantity === 0 &&

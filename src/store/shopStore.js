@@ -1,49 +1,58 @@
 import {observable, action} from 'mobx';
 import firestore from '@react-native-firebase/firestore';
-import {observer} from 'mobx-react';
-import {ThemeConsumer} from 'react-native-elements';
 
 class shopStore {
-  @observable cartItems = [];
+  @observable storeCartItems = new Map();
   @observable storeList = [];
-  @observable allStoreItems = [];
   @observable itemCategories = [];
-  @observable categoryItems = new Map();
+  @observable storeCategoryItems = new Map();
 
-  @action async addCartItem(item) {
-    const itemIndex =
-      this.cartItems.length > 0
-        ? this.cartItems.findIndex((cartItem) => cartItem.name === item.name)
-        : -1;
-
-    if (itemIndex >= 0) {
-      this.cartItems[itemIndex].quantity += 1;
-    } else {
-      item.quantity = 1;
-      this.cartItems.push(item);
+  @action async addCartItem(item, storeName) {
+    if (!this.storeCartItems.get(storeName)) {
+      this.storeCartItems.set(storeName, []);
     }
 
-    console.log(this.cartItems);
-  }
-
-  @action async removeCartItem(item) {
     const itemIndex =
-      this.cartItems.length > 0
-        ? this.cartItems.findIndex((cartItem) => cartItem.name === item.name)
+      this.storeCartItems.get(storeName).length > 0
+        ? this.storeCartItems
+            .get(storeName)
+            .findIndex((cartItem) => cartItem.name === item.name)
         : -1;
 
     if (itemIndex >= 0) {
-      const selectedItem = this.cartItems[itemIndex];
+      this.storeCartItems.get(storeName)[itemIndex].quantity += 1;
+    } else {
+      item.quantity = 1;
+      this.storeCartItems.get(storeName).push(item);
+    }
+
+    console.log('addCartItem', this.storeCartItems.get(storeName));
+  }
+
+  @action async removeCartItem(item, storeName) {
+    const itemIndex =
+      this.storeCartItems.get(storeName).length > 0
+        ? this.storeCartItems
+            .get(storeName)
+            .findIndex((cartItem) => cartItem.name === item.name)
+        : -1;
+
+    if (itemIndex >= 0) {
+      const selectedItem = this.storeCartItems.get(storeName)[itemIndex];
       const currentItemQuantity = selectedItem.quantity;
 
       if (currentItemQuantity === 1) {
-        this.cartItems.remove(selectedItem);
+        this.storeCartItems.get(storeName).remove(selectedItem);
       } else {
-        this.cartItems[itemIndex].quantity -= 1;
+        this.storeCartItems.get(storeName)[itemIndex].quantity -= 1;
       }
     }
 
-    console.log(this.cartItems);
+    if (this.storeCartItems.get(storeName).length <= 0) {
+      this.storeCartItems.delete(storeName);
+    }
+
+    console.log('removeCartItem', this.storeCartItems.get(storeName));
   }
 
   @action async getShopList() {
@@ -66,7 +75,7 @@ class shopStore {
       .catch((err) => console.log(err));
   }
 
-  @action async setStoreItems(merchantId) {
+  @action async setStoreItems(merchantId, storeName) {
     await firestore()
       .collection('merchant_items')
       .doc(merchantId)
@@ -75,15 +84,31 @@ class shopStore {
         const itemCategories = documentSnapshot.data().itemCategories.sort();
         const allItems = documentSnapshot.data().items;
 
-        this.categoryItems.set('All', allItems);
+        allItems.forEach((element) => {
+          element.storeName = storeName;
+        });
+
+        return {allItems, itemCategories};
+      })
+      .then(({allItems, itemCategories}) => {
+        const categoryItems = new Map();
+        categoryItems.set('All', allItems);
 
         itemCategories.map((category) => {
           const items = allItems.filter((item) => item.category === category);
 
-          this.categoryItems.set(category, items);
+          categoryItems.set(category, items);
         });
+
+        return categoryItems;
       })
-      .then(() => console.log(this.categoryItems))
+      .then((categoryItems) => {
+        this.storeCategoryItems.set(storeName, categoryItems);
+      })
+      .then(
+        () => console.log(this.categoryItems),
+        console.log('store', this.storeCategoryItems.get(storeName)),
+      )
       .then(() => console.log('Items successfully set'))
       .catch((err) => console.log(err));
   }

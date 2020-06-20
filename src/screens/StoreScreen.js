@@ -29,14 +29,29 @@ class StoreScreen extends Component {
 
     this.state = {
       allStoreItems: [],
+      ready: false,
     };
 
+    const {store} = this.props.route.params;
+
     this.props.shopStore
-      .setStoreItems(this.props.route.params.store.merchantId)
+      .setStoreItems(
+        this.props.route.params.store.merchantId,
+        this.props.route.params.store.storeName,
+      )
       .then(() => {
-        console.log(this.props.shopStore.categoryItems.get('All'));
+        console.log(store.storeName);
+        console.log(
+          'yessss',
+          store.storeName,
+          this.props.shopStore.storeCategoryItems
+            .get(store.storeName)
+            .get('All'),
+        );
         this.setState({
-          allStoreItems: this.props.shopStore.categoryItems.get('All'),
+          allStoreItems: this.props.shopStore.storeCategoryItems
+            .get(store.storeName)
+            .get('All'),
         });
       });
   }
@@ -190,7 +205,7 @@ class StoreScreen extends Component {
               <ItemTab.Screen
                 name="All"
                 component={ItemsList}
-                initialParams={{allStoreItems}}
+                initialParams={{allStoreItems, storeName: store.storeName}}
               />
             </ItemTab.Navigator>
           )}

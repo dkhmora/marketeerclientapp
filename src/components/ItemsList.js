@@ -4,7 +4,6 @@ import {Container, View, Fab, Icon, Button} from 'native-base';
 import {observer, inject} from 'mobx-react';
 // Custom Components
 import ItemCard from './ItemCard';
-
 @observer
 class ItemsList extends Component {
   constructor(props) {
@@ -27,11 +26,8 @@ class ItemsList extends Component {
   }
 
   render() {
-    const {allStoreItems} = this.props.route.params;
-    const {navigation} = this.props;
+    const {allStoreItems, storeName} = this.props.route.params;
     const dataSource = allStoreItems;
-
-    console.log('Lahat ng items', dataSource);
 
     const numColumns = 2;
 
@@ -48,7 +44,7 @@ class ItemsList extends Component {
                   key={index}
                 />
               ) : (
-                <ItemCard item={item} key={index} />
+                <ItemCard item={item} storeName={storeName} key={index} />
               )
             }
             keyExtractor={(item, index) => `${item.name}${index.toString()}`}
