@@ -26,6 +26,8 @@ class shopStore {
       this.storeCartItems.get(storeName).push(item);
     }
 
+    console.log('Map Objects', ...this.storeCartItems.keys());
+
     console.log('addCartItem', this.storeCartItems.get(storeName));
   }
 
