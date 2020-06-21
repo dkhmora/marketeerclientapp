@@ -19,8 +19,10 @@ class ItemCard extends Component {
   constructor(props) {
     super(props);
 
+    const {item, storeName} = this.props;
+
     this.state = {
-      quantity: 0,
+      quantity: this.props.shopStore.getCartItemQuantity(item, storeName),
       buttonDisabled: false,
     };
 
@@ -66,20 +68,12 @@ class ItemCard extends Component {
       this.getImage();
     }
 
-    const {item, storeName} = this.props;
-
-    const itemQuantity = this.props.shopStore.getCartItemQuantity(
-      item,
-      storeName,
-    );
-
-    this.setState({quantity: itemQuantity}, () => {
-      this.state.quantity >= 1 &&
-        this.buttonCounterView.fadeInRight(200) &&
+    if (this.state.quantity >= 1) {
+      this.buttonCounterView.fadeInRight(200) &&
         this.plusButton.transformPlusButton(300);
-    });
+    }
 
-    console.log('itemquantity', itemQuantity);
+    console.log('itemQuantity', this.state.quantity);
   }
 
   handleIncreaseQuantity() {

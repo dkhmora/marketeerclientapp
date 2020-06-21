@@ -40,7 +40,6 @@ class shopStore {
       .doc(userId)
       .onSnapshot((documentSnapshot) => {
         this.storeCartItems = documentSnapshot.data();
-        console.log(this.storeCartItems['Amazing Palengke Yessssssss']);
       });
   }
 
@@ -52,15 +51,10 @@ class shopStore {
         (storeCartItem) => storeCartItem.name === item.name,
       );
 
-      const newStoreCartItems = [...this.storeCartItems[storeName]];
-      console.log('cartItemIndex', cartItemIndex);
-
-      console.log('1');
-
       if (cartItemIndex >= 0) {
+        const newStoreCartItems = [...this.storeCartItems[storeName]];
         newStoreCartItems[cartItemIndex].quantity += 1;
-
-        console.log('2');
+        newStoreCartItems[cartItemIndex].updatedAt = new Date().toISOString();
 
         await userCartCollection
           .doc(userId)
@@ -71,6 +65,10 @@ class shopStore {
 
         const newItem = {...item};
         newItem.quantity = 1;
+        delete newItem.stock;
+        delete newItem.sales;
+        newItem.createdAt = new Date().toISOString();
+        newItem.updatedAt = new Date().toISOString();
 
         await userCartCollection
           .doc(userId)
@@ -80,15 +78,16 @@ class shopStore {
     } else {
       const newItem = {...item};
       newItem.quantity = 1;
-
-      console.log('3');
+      delete newItem.stock;
+      delete newItem.sales;
+      newItem.createdAt = new Date().toISOString();
+      newItem.updatedAt = new Date().toISOString();
 
       await userCartCollection
         .doc(userId)
         .update({[storeName]: firestore.FieldValue.arrayUnion(newItem)})
         .catch((err) => console.log(err));
     }
-    console.log('4');
   }
 
   @action async removeCartItem(item, storeName) {
@@ -100,25 +99,30 @@ class shopStore {
         (storeCartItem) => storeCartItem.name === item.name,
       );
 
-      console.log('1');
-
       if (cartItemIndex >= 0) {
-        console.log('dapat dito');
         const storeCartItem = storeCart[cartItemIndex];
 
         if (storeCartItem.quantity === 1) {
-          console.log('dapat dito din', storeCartItem);
           await userCartCollection
             .doc(userId)
             .update({
               [storeName]: firestore.FieldValue.arrayRemove(storeCartItem),
             })
+            .then(() => {
+              console.log('test', this.storeCartItems[storeName]);
+              if (!this.storeCartItems[storeName].length) {
+                console.log('gumana');
+
+                userCartCollection
+                  .doc(userId)
+                  .update({[storeName]: firestore.FieldValue.delete()});
+              }
+            })
             .catch((err) => console.log(err));
         } else {
           const newStoreCartItems = [...storeCart];
           newStoreCartItems[cartItemIndex].quantity -= 1;
-
-          console.log('2');
+          newStoreCartItems[cartItemIndex].updatedAt = new Date().toISOString();
 
           await userCartCollection
             .doc(userId)
@@ -129,7 +133,6 @@ class shopStore {
         console.log('item cannot be found in store!');
       }
     }
-    console.log('4');
   }
 
   @action async getShopList() {
@@ -158,10 +161,6 @@ class shopStore {
       .then((documentSnapshot) => {
         const itemCategories = documentSnapshot.data().itemCategories.sort();
         const allItems = documentSnapshot.data().items;
-
-        allItems.forEach((element) => {
-          element.storeName = storeName;
-        });
 
         return {allItems, itemCategories};
       })
