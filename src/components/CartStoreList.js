@@ -18,9 +18,9 @@ class CartStoreList extends Component {
     return (
       <ScrollView style={{flex: 1}}>
         {dataSource.map((storeName, index) => {
-          const cartItems = this.props.shopStore.storeCartItems
-            .get(storeName)
-            .slice();
+          const cartItems = this.props.shopStore.storeCartItems[
+            storeName
+          ].slice();
 
           return (
             <Card
