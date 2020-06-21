@@ -20,13 +20,33 @@ import AuthStore from './src/store/authStore';
 import ShopStore from './src/store/shopStore';
 
 import Setup from './src/boot/setup';
+import {AppState} from 'react-native';
 
 const generalStore = (window.store = new GeneralStore());
 const authStore = (window.store = new AuthStore());
 const shopStore = (window.store = new ShopStore());
 export default class App extends React.Component {
   componentDidMount() {
-    SplashScreen.hide();
+    authStore
+      .checkAuthStatus()
+      .then(() => {
+        AppState.addEventListener('change', (state) => {
+          if (state === 'active') {
+            shopStore.getCartItems();
+          } else if (state === 'background') {
+            if (shopStore.unsubscribeToGetCartItems) {
+              shopStore.unsubscribeToGetCartItems();
+            }
+          } else if (state === 'inactive') {
+            if (shopStore.unsubscribeToGetCartItems) {
+              shopStore.unsubscribeToGetCartItems();
+            }
+          }
+        });
+      })
+      .then(() => {
+        SplashScreen.hide();
+      });
   }
 
   render() {

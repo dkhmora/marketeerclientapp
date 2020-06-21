@@ -12,8 +12,10 @@ import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 import auth from '@react-native-firebase/auth';
+import firebase from '@react-native-firebase/app';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
+import { Toast } from 'native-base';
 
 @inject('generalStore')
 @inject('authStore')
@@ -23,8 +25,7 @@ class PhoneVerificationScreen extends Component {
     super(props);
 
     this.state = {
-      code: null,
-      confirm: null,
+      verificationId: null,
     };
   }
 
@@ -35,25 +36,65 @@ class PhoneVerificationScreen extends Component {
   }
 
   async signInWithPhoneNumber(phoneNumber) {
-    const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+    await auth()
+      .verifyPhoneNumber(phoneNumber)
+      .on(
+        'state_changed',
+        (phoneAuthSnapshot) => {
+          switch (phoneAuthSnapshot.state) {
+            case firebase.auth.PhoneAuthState.CODE_SENT:
+              Toast.show({
+                text: 'Verification Code Sent',
+                type: 'success',
+                duration: 3000,
+                style: {margin: 20, borderRadius: 16},
+              });
 
-    this.setState({confirm: confirmation});
+              this.setState({verificationId: phoneAuthSnapshot.verificationId});
+
+              break;
+            case firebase.auth.PhoneAuthState.ERROR:
+              Toast.show({
+                text: 'Error, something went wrong. Please try again later.',
+                type: 'danger',
+                duration: 3000,
+                style: {margin: 20, borderRadius: 16},
+              });
+
+              console.log(
+                'Verification error: ' + JSON.stringify(phoneAuthSnapshot),
+              );
+              break;
+          }
+        },
+        (error) => {
+          console.log('Error verifying phone number: ' + error);
+        },
+      );
   }
 
   async confirmCode(code) {
-    const {name, email, password} = this.props.route.params;
-    await this.state.confirm
-      .confirm(code)
-      .then(() => {
-        this.props.authStore.createUser(name, email, password);
-        console.log('phone success');
-      })
-      .catch((err) => console.log('unsuccessful phone auth', err));
+    const {navigation} = this.props;
+    const {name, email, password, phoneNumber} = this.props.route.params;
+    const {verificationId} = this.state;
+
+    const credential = firebase.auth.PhoneAuthProvider.credential(
+      verificationId,
+      code,
+    );
+
+    this.props.authStore.createUser(
+      name,
+      email,
+      password,
+      phoneNumber,
+      credential,
+      navigation,
+    );
   }
 
   render() {
-    const {iconPrefix} = this.props.generalStore;
-    const {phoneNumber, email, password} = this.props.route.params;
+    const {phoneNumber} = this.props.route.params;
 
     return (
       <View style={styles.container}>
@@ -69,7 +110,7 @@ class PhoneVerificationScreen extends Component {
             }}
           />
         </View>
-        <Animatable.View animation="fadeInUpBig" style={styles.footer}>
+        <Animatable.View useNativeDriver animation="fadeInUpBig" style={styles.footer}>
           <View style={{flex: 1}}>
             <View style={{flex: 1, justifyContent: 'flex-start'}}>
               <Text style={styles.text_header}>SMS Verification</Text>

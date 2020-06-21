@@ -14,14 +14,13 @@ import {
   ListItem,
   Button,
   Icon,
-  Card,
   Image,
+  Badge,
 } from 'react-native-elements';
 import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
 import {inject} from 'mobx-react';
 import StoreCard from '../components/StoreCard';
-import StoreList from '../components/StoreList';
 
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
 const pixelsFromTop = getStatusBarHeight() + headerHeight;
@@ -31,7 +30,7 @@ class MainScreen extends Component {
     super(props);
 
     this.state = {
-      showLocation: false,
+      locationMenuOpen: false,
       initialPosition: -200,
       ready: false,
       image: '',
@@ -66,13 +65,19 @@ class MainScreen extends Component {
     });
   }
 
-  menuIcon = () => {
+  menuButton = () => {
     const {navigation} = this.props;
+    const {locationMenuOpen} = this.state;
 
     if (navigation) {
       return (
         <Button
-          onPress={() => navigation.openDrawer()}
+          onPress={() => {
+            if (locationMenuOpen) {
+              this.hideLocationMenu();
+            }
+            navigation.openDrawer();
+          }}
           type="clear"
           color={colors.icons}
           icon={<Icon name="menu" color={colors.icons} />}
@@ -86,25 +91,54 @@ class MainScreen extends Component {
   };
 
   rightComponent = () => {
-    const {rightComponent} = this.props;
+    const {navigation} = this.props;
+    const {locationMenuOpen} = this.state;
 
-    if (rightComponent) {
-      return <View style={{flex: 1}}></View>;
-    }
+    return (
+      <View>
+        <Button
+          onPress={() => {
+            if (locationMenuOpen) {
+              this.hideLocationMenu();
+            }
+            navigation.openDrawer();
+          }}
+          type="clear"
+          color={colors.icons}
+          icon={
+            <Image
+              source={require('../../assets/images/logo_cart.png')}
+              style={{width: 30, height: 30, resizeMode: 'center'}}
+              textStyle={{fontFamily: 'ProductSans-Light'}}
+            />
+          }
+          containerStyle={styles.buttonContainer}
+          titleStyle={{color: colors.icons}}
+        />
 
-    return <View style={{flex: 1}}></View>;
+        <Badge
+          value={0}
+          badgeStyle={{backgroundColor: colors.accent}}
+          containerStyle={{position: 'absolute', top: 8, right: 2}}
+        />
+      </View>
+    );
   };
 
   centerComponent = () => {
     const {centerComponent, title} = this.props;
-    const {showLocation} = this.state;
+    const {locationMenuOpen} = this.state;
 
     return (
       <TouchableOpacity
-        style={{flex: 1, flexDirection: 'row'}}
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          marginHorizontal: -10,
+        }}
         onPress={() => {
           this.setState({initialPosition: 0});
-          if (!showLocation) {
+          if (!locationMenuOpen) {
             this.revealLocationMenu();
           } else {
             this.hideLocationMenu();
@@ -174,7 +208,7 @@ class MainScreen extends Component {
           opacity: 0,
           backgroundColor: '#000',
         }}>
-        {this.state.showLocation && (
+        {this.state.locationMenuOpen && (
           <TouchableOpacity
             style={{flex: 1}}
             onPress={() => this.hideLocationMenu()}
@@ -185,7 +219,7 @@ class MainScreen extends Component {
   };
 
   revealLocationMenu() {
-    this.setState({showLocation: true}, () => {
+    this.setState({locationMenuOpen: true}, () => {
       this.drawer.animate('slideIn');
       this.overlay.animate('fadeIn');
     });
@@ -194,7 +228,7 @@ class MainScreen extends Component {
   hideLocationMenu() {
     this.drawer.animate('slideOut');
     this.overlay.animate('fadeOut').then(() => {
-      this.setState({showLocation: false});
+      this.setState({locationMenuOpen: false});
     });
   }
 
@@ -204,9 +238,8 @@ class MainScreen extends Component {
 
   render() {
     const {navigation} = this.props;
-    const {showLocation, ready} = this.state;
-    const dataSource = this.props.shopStore.shopList.slice();
-    console.log('yes', dataSource);
+    const {locationMenuOpen, ready} = this.state;
+    const dataSource = this.props.shopStore.storeList.slice();
 
     if (ready) {
       return (
@@ -227,7 +260,11 @@ class MainScreen extends Component {
                         Stores Delivering To You
                       </Text>
                     )}
-                    <StoreCard store={item} key={index} />
+                    <StoreCard
+                      store={item}
+                      key={index}
+                      navigation={navigation}
+                    />
                   </View>
                 )}
                 keyExtractor={(item) => item.merchantId}
@@ -235,11 +272,11 @@ class MainScreen extends Component {
               />
             )}
           </View>
-          {showLocation && <this.Overlay />}
+          {locationMenuOpen && <this.Overlay />}
           <this.SlideDownDrawer />
           <Header
             placement={Platform.OS === 'ios' ? 'center' : 'left'}
-            leftComponent={this.menuIcon}
+            leftComponent={this.menuButton}
             centerComponent={this.centerComponent}
             rightComponent={this.rightComponent}
             statusBarProps={{

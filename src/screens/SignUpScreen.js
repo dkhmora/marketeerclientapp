@@ -174,7 +174,10 @@ class SignUpScreen extends Component {
             }}
           />
         </View>
-        <Animatable.View animation="fadeInUpBig" style={styles.footer}>
+        <Animatable.View
+          useNativeDriver
+          animation="fadeInUpBig"
+          style={styles.footer}>
           <ScrollView>
             <Text style={styles.text_header}>Sign Up</Text>
             <Text style={[styles.text_subtext]}>
@@ -208,7 +211,7 @@ class SignUpScreen extends Component {
                 onChangeText={(value) => this.handleNameChange(value)}
               />
               {nameCheck ? (
-                <Animatable.View animation="bounceIn">
+                <Animatable.View useNativeDriver animation="bounceIn">
                   <Icon
                     name="check-circle"
                     color="#388e3c"
@@ -232,7 +235,7 @@ class SignUpScreen extends Component {
                 onChangeText={(value) => this.handleEmailChange(value)}
               />
               {emailCheck ? (
-                <Animatable.View animation="bounceIn">
+                <Animatable.View useNativeDriver animation="bounceIn">
                   <Icon
                     name="check-circle"
                     color="#388e3c"
@@ -264,7 +267,7 @@ class SignUpScreen extends Component {
                 onChangeText={(value) => this.handlePhoneChange(value)}
               />
               {phoneCheck ? (
-                <Animatable.View animation="bounceIn">
+                <Animatable.View useNativeDriver animation="bounceIn">
                   <Icon
                     name="check-circle"
                     color="#388e3c"
@@ -289,7 +292,7 @@ class SignUpScreen extends Component {
                 onChangeText={(value) => this.handlePasswordChange(value)}
               />
               {passwordCheck ? (
-                <Animatable.View animation="bounceIn">
+                <Animatable.View useNativeDriver animation="bounceIn">
                   <Icon
                     name="check-circle"
                     color="#388e3c"
@@ -323,7 +326,7 @@ class SignUpScreen extends Component {
                 }
               />
               {confirmPasswordCheck ? (
-                <Animatable.View animation="bounceIn">
+                <Animatable.View useNativeDriver animation="bounceIn">
                   <Icon
                     name="check-circle"
                     color="#388e3c"
@@ -371,9 +374,9 @@ class SignUpScreen extends Component {
               containerStyle={{
                 borderRadius: 24,
                 borderWidth: 1,
-                borderColor: colors.primary,
                 marginTop: 40,
                 height: 50,
+                borderColor: emailCheck ? colors.primary : 'grey',
               }}
               buttonStyle={{height: 50}}
             />

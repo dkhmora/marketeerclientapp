@@ -64,11 +64,12 @@ class LoginScreen extends Component {
   handleSignIn() {
     const {email, password} = this.state;
 
-    this.props.authStore.signIn(email, password);
+    this.props.authStore.signIn(email, password, this.props.navigation);
   }
 
   render() {
     const {navigation} = this.props;
+    const {emailCheck} = this.state;
 
     return (
       <View style={styles.container}>
@@ -84,7 +85,10 @@ class LoginScreen extends Component {
             }}
           />
         </View>
-        <Animatable.View animation="fadeInUpBig" style={styles.footer}>
+        <Animatable.View
+          useNativeDriver
+          animation="fadeInUpBig"
+          style={styles.footer}>
           <ScrollView>
             <Text style={styles.text_header}>Login</Text>
 
@@ -101,7 +105,7 @@ class LoginScreen extends Component {
                 onChangeText={(value) => this.handleEmailChange(value)}
               />
               {this.state.emailCheck ? (
-                <Animatable.View animation="bounceIn">
+                <Animatable.View useNativeDriver animation="bounceIn">
                   <Icon
                     name="check-circle"
                     color="#388e3c"
@@ -146,12 +150,13 @@ class LoginScreen extends Component {
               onPress={() => this.handleSignIn()}
               title="Login"
               type="outline"
+              disabled={!emailCheck}
               containerStyle={{
                 borderRadius: 24,
                 borderWidth: 1,
-                borderColor: colors.primary,
                 marginTop: 40,
                 height: 50,
+                borderColor: emailCheck ? colors.primary : 'grey',
               }}
               buttonStyle={{height: 50}}
             />
