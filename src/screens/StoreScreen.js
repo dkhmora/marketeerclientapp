@@ -222,6 +222,10 @@ class StoreScreen extends Component {
           ref={(c) => (this._panel = c)}
           minimumVelocityThreshold={0.6}
           minimumDistanceThreshold={3}
+          snappingPoints={[
+            SLIDING_MENU_EXTENDED_HEIGHT / 2,
+            SLIDING_MENU_EXTENDED_HEIGHT,
+          ]}
           allowMomentum
           draggableRange={{
             top: SLIDING_MENU_EXTENDED_HEIGHT,
