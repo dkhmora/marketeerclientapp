@@ -20,10 +20,16 @@ class ItemCard extends Component {
     super(props);
 
     const {item, storeName} = this.props;
+    const itemQuantity = this.props.shopStore.getCartItemQuantity(
+      item,
+      storeName,
+    );
+    const itemStock = item.stock;
 
     this.state = {
-      quantity: this.props.shopStore.getCartItemQuantity(item, storeName),
-      buttonDisabled: false,
+      quantity: itemQuantity,
+      addButtonDisabled: itemQuantity >= itemStock ? true : false,
+      minusButtonShown: itemQuantity > 0 ? true : false,
     };
 
     Animatable.initializeRegistryWithDefinitions({
@@ -78,36 +84,45 @@ class ItemCard extends Component {
 
   handleIncreaseQuantity() {
     const {item, storeName} = this.props;
-    const {quantity} = this.state;
 
-    if (quantity < item.stock) {
-      this.props.shopStore.addCartItem(item, storeName);
+    if (this.state.quantity < item.stock) {
+      this.props.shopStore.addCartItem(item, storeName).then(() => {
+        this.setState(
+          {quantity: this.props.shopStore.getCartItemQuantity(item, storeName)},
+          () => {
+            this.state.quantity === parseInt(item.stock, 10) &&
+              this.setState({addButtonDisabled: true});
 
-      this.setState({quantity: quantity + 1}, () => {
-        this.state.quantity === parseInt(item.stock, 10) &&
-          this.setState({buttonDisabled: true});
-
-        this.state.quantity === 1 &&
-          this.buttonCounterView.fadeInRight(200) &&
-          this.plusButton.transformPlusButton(300);
+            !this.state.minusButtonShown &&
+              this.setState({minusButtonShown: true}, () => {
+                this.state.quantity >= 1 &&
+                  this.buttonCounterView.fadeInRight(200) &&
+                  this.plusButton.transformPlusButton(300);
+              });
+          },
+        );
       });
     }
   }
 
   handleDecreaseQuantity() {
     const {item, storeName} = this.props;
-    const {quantity} = this.state;
 
-    if (quantity === item.stock) {
-      this.setState({buttonDisabled: false});
-    }
+    this.props.shopStore.removeCartItem(item, storeName).then(() => {
+      this.setState(
+        {quantity: this.props.shopStore.getCartItemQuantity(item, storeName)},
+        () => {
+          this.state.quantity <= 0 &&
+            this.state.minusButtonShown &&
+            this.setState({minusButtonShown: false}, () => {
+              this.buttonCounterView.fadeOutRight(200) &&
+                this.plusButton.deTransformPlusButton(300);
+            });
 
-    this.props.shopStore.removeCartItem(item, storeName);
-
-    this.setState({quantity: quantity - 1}, () => {
-      this.state.quantity === 0 &&
-        this.buttonCounterView.fadeOutRight(200) &&
-        this.plusButton.deTransformPlusButton(300);
+          this.state.quantity <= item.stock &&
+            this.setState({addButtonDisabled: false});
+        },
+      );
     });
   }
 
@@ -123,7 +138,7 @@ class ItemCard extends Component {
       createdAt,
     } = this.props.item;
 
-    const {quantity, buttonDisabled} = this.state;
+    const {quantity, addButtonDisabled} = this.state;
 
     return (
       <Animatable.View
@@ -317,14 +332,16 @@ class ItemCard extends Component {
                 }}>
                 <Button
                   onPress={() => this.handleIncreaseQuantity()}
-                  disabled={buttonDisabled}
+                  disabled={addButtonDisabled}
                   type="clear"
                   color={colors.icons}
                   icon={
                     <Icon
                       name="plus"
                       color={
-                        buttonDisabled ? colors.text_secondary : colors.primary
+                        addButtonDisabled
+                          ? colors.text_secondary
+                          : colors.primary
                       }
                     />
                   }
