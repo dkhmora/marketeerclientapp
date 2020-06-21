@@ -34,8 +34,17 @@ class CartListItem extends Component {
     const {item} = this.props;
 
     return (
-      <View style={{flexDirection: 'row', marginVertical: 10}}>
-        <Image source={this.url} style={{height: 50, width: 50}} />
+      <View style={{flexDirection: 'row', marginVertical: 8}}>
+        <Image
+          source={this.url}
+          style={{
+            height: 55,
+            width: 55,
+            borderColor: colors.primary,
+            borderWidth: 1,
+            borderRadius: 10,
+          }}
+        />
         <View
           style={{
             flex: 1,
