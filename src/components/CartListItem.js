@@ -15,7 +15,6 @@ class CartListItem extends Component {
   @observable url = null;
 
   getImage = async () => {
-    console.log(this.props.item.image);
     const ref = storage().ref(this.props.item.image);
     const link = await ref.getDownloadURL();
     this.url = {uri: link};

@@ -44,14 +44,6 @@ class StoreScreen extends Component {
         this.props.route.params.store.storeName,
       )
       .then(() => {
-        console.log(store.storeName);
-        console.log(
-          'yessss',
-          store.storeName,
-          this.props.shopStore.storeCategoryItems
-            .get(store.storeName)
-            .get('All'),
-        );
         this.setState({
           allStoreItems: this.props.shopStore.storeCategoryItems
             .get(store.storeName)

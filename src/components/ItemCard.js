@@ -1,13 +1,10 @@
 import React, {Component} from 'react';
-import {Card, CardItem, Left, Body, Text, Right, View} from 'native-base';
-import {Image, ActionSheetIOS, Platform} from 'react-native';
+import {Card, CardItem, Text, View} from 'native-base';
+import {Image} from 'react-native';
 import {Button, Icon} from 'react-native-elements';
-import moment, {ISO_8601} from 'moment';
 import storage from '@react-native-firebase/storage';
 import {inject, observer} from 'mobx-react';
 import {observable} from 'mobx';
-import {ScrollView} from 'react-native-gesture-handler';
-import BaseOptionsMenu from './BaseOptionsMenu';
 import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
@@ -52,23 +49,6 @@ class ItemCard extends Component {
     this.url = link;
   };
 
-  openOptions() {
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        options: ['Cancel', 'Delete'],
-        destructiveIndex: 1,
-        cancelButtonIndex: 0,
-      },
-      (buttonIndex) => {
-        if (buttonIndex === 0) {
-          // cancel action
-        } else {
-          this.handleDelete();
-        }
-      },
-    );
-  }
-
   componentDidMount() {
     if (this.props.item.image) {
       this.getImage();
@@ -78,8 +58,6 @@ class ItemCard extends Component {
       this.buttonCounterView.fadeInRight(200) &&
         this.plusButton.transformPlusButton(300);
     }
-
-    console.log('itemQuantity', this.state.quantity);
   }
 
   handleIncreaseQuantity() {
@@ -127,16 +105,7 @@ class ItemCard extends Component {
   }
 
   render() {
-    const {
-      name,
-      image,
-      description,
-      price,
-      stock,
-      sales,
-      unit,
-      createdAt,
-    } = this.props.item;
+    const {name, price, stock, unit} = this.props.item;
 
     const {quantity, addButtonDisabled} = this.state;
 

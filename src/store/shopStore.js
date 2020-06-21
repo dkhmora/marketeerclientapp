@@ -14,7 +14,6 @@ class shopStore {
 
   @computed get cartStores() {
     const stores = [...Object.keys(this.storeCartItems)];
-    console.log('cartStores', stores);
 
     return stores;
   }
@@ -109,10 +108,7 @@ class shopStore {
               [storeName]: firestore.FieldValue.arrayRemove(storeCartItem),
             })
             .then(() => {
-              console.log('test', this.storeCartItems[storeName]);
               if (!this.storeCartItems[storeName].length) {
-                console.log('gumana');
-
                 userCartCollection
                   .doc(userId)
                   .update({[storeName]: firestore.FieldValue.delete()});
@@ -179,10 +175,6 @@ class shopStore {
       .then((categoryItems) => {
         this.storeCategoryItems.set(storeName, categoryItems);
       })
-      .then(
-        () => console.log(this.categoryItems),
-        console.log('store', this.storeCategoryItems.get(storeName)),
-      )
       .then(() => console.log('Items successfully set'))
       .catch((err) => console.log(err));
   }
