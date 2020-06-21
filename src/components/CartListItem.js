@@ -5,6 +5,8 @@ import {observable} from 'mobx';
 import storage from '@react-native-firebase/storage';
 import {View} from 'react-native';
 import {observer} from 'mobx-react';
+import {styles} from '../../assets/styles';
+import {colors} from '../../assets/colors';
 
 @observer
 class CartListItem extends Component {
@@ -32,14 +34,55 @@ class CartListItem extends Component {
     const {item} = this.props;
 
     return (
-      <View>
-        <ListItem
-          title={item.name}
-          leftAvatar={
-            <Image source={this.url} style={{height: 30, width: 30}} />
-          }
-          bottomDivider
-        />
+      <View style={{flexDirection: 'row', marginVertical: 10}}>
+        <Image source={this.url} style={{height: 50, width: 50}} />
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'column',
+            paddingHorizontal: 10,
+          }}>
+          <Text style={{fontFamily: 'ProductSans-Regular', fontSize: 18}}>
+            {item.name}
+          </Text>
+          <Text
+            numberOfLines={2}
+            style={{
+              fontFamily: 'ProductSans-Light',
+              fontSize: 14,
+              color: colors.text_secondary,
+            }}>
+            {item.description}
+          </Text>
+        </View>
+        <View
+          style={{
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            justifyContent: 'flex-start',
+          }}>
+          <Text
+            style={{
+              fontFamily: 'ProductSans-Black',
+              fontSize: 16,
+              color: colors.text_secondary,
+            }}>
+            ₱ {item.price}
+          </Text>
+          <Text
+            style={{
+              color: colors.text_secondary,
+              borderBottomColor: '#000',
+              borderBottomWidth: 1,
+              textAlign: 'right',
+              width: '100%',
+            }}>
+            x {item.quantity}
+          </Text>
+          <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
+            ₱ {item.price * item.quantity}
+          </Text>
+        </View>
       </View>
     );
   }
