@@ -12,6 +12,16 @@ class shopStore {
   @observable storeCategoryItems = new Map();
   @observable unsubscribeToGetCartItems = null;
 
+  @computed get totalCartItemQuantity() {
+    let quantity = 0;
+
+    Object.keys(this.storeCartItems).map((storeName) => {
+      quantity = this.storeCartItems[storeName].length + quantity;
+    });
+
+    return quantity;
+  }
+
   @computed get cartStores() {
     const stores = [...Object.keys(this.storeCartItems)];
 

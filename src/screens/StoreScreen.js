@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
-import {Icon, SocialIcon, Button} from 'react-native-elements';
+import {Icon, SocialIcon, Button, Badge} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
@@ -280,9 +280,11 @@ class StoreScreen extends Component {
                       marginRight: 10,
                     }}
                   />
-                  <Text style={{fontSize: 17, fontFamily: 'ProductSans-Black'}}>
-                    15 Items{' '}
-                  </Text>
+                  <Badge
+                    value={this.props.shopStore.totalCartItemQuantity}
+                    badgeStyle={{backgroundColor: colors.accent}}
+                    containerStyle={{position: 'absolute', top: 4, right: 2}}
+                  />
                 </View>
                 <View
                   style={{
