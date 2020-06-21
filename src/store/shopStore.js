@@ -1,25 +1,29 @@
 import {observable, action, computed} from 'mobx';
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 
+const userCartCollection = firestore().collection('user_carts');
+const merchantsCollection = firestore().collection('merchants');
+const merchantItemsCollection = firestore().collection('merchant_items');
 class shopStore {
-  @observable storeCartItems = new Map();
+  @observable storeCartItems = {};
   @observable storeList = [];
   @observable itemCategories = [];
   @observable storeCategoryItems = new Map();
+  @observable unsubscribeToGetCartItems = null;
 
   @computed get cartStores() {
-    const stores = [...this.storeCartItems.keys()];
-    console.log('stores', stores);
+    const stores = [...Object.keys(this.storeCartItems)];
+    console.log('cartStores', stores);
 
     return stores;
   }
 
   @action getCartItemQuantity(item, storeName) {
-    if (this.storeCartItems.get(storeName)) {
-      console.log(this.storeCartItems.get('BURATTT', storeName));
-      const cartItem = this.storeCartItems
-        .get(storeName)
-        .find((items) => items.name === item.name);
+    if (this.storeCartItems[storeName]) {
+      const cartItem = this.storeCartItems[storeName].find(
+        (storeCartItem) => storeCartItem.name === item.name,
+      );
 
       if (cartItem) {
         return cartItem.quantity;
@@ -29,57 +33,110 @@ class shopStore {
     return 0;
   }
 
+  @action getCartItems() {
+    const userId = auth().currentUser.uid;
+
+    this.unsubscribeToGetCartItems = userCartCollection
+      .doc(userId)
+      .onSnapshot((documentSnapshot) => {
+        this.storeCartItems = documentSnapshot.data();
+      });
+  }
+
   @action async addCartItem(item, storeName) {
-    if (!this.storeCartItems.get(storeName)) {
-      this.storeCartItems.set(storeName, []);
-    }
+    const userId = auth().currentUser.uid;
 
-    const itemIndex =
-      this.storeCartItems.get(storeName).length > 0
-        ? this.storeCartItems
-            .get(storeName)
-            .findIndex((cartItem) => cartItem.name === item.name)
-        : -1;
+    if (this.storeCartItems[storeName]) {
+      const cartItemIndex = this.storeCartItems[storeName].findIndex(
+        (storeCartItem) => storeCartItem.name === item.name,
+      );
 
-    if (itemIndex >= 0) {
-      this.storeCartItems.get(storeName)[itemIndex].quantity += 1;
+      if (cartItemIndex >= 0) {
+        const newStoreCartItems = [...this.storeCartItems[storeName]];
+        newStoreCartItems[cartItemIndex].quantity += 1;
+        newStoreCartItems[cartItemIndex].updatedAt = new Date().toISOString();
+
+        await userCartCollection
+          .doc(userId)
+          .update({[storeName]: newStoreCartItems})
+          .catch((err) => console.log(err));
+      } else {
+        console.log('item cannot be found in store! Creating new item.');
+
+        const newItem = {...item};
+        newItem.quantity = 1;
+        delete newItem.stock;
+        delete newItem.sales;
+        newItem.createdAt = new Date().toISOString();
+        newItem.updatedAt = new Date().toISOString();
+
+        await userCartCollection
+          .doc(userId)
+          .update(storeName, firestore.FieldValue.arrayUnion(newItem))
+          .catch((err) => console.log(err));
+      }
     } else {
-      item.quantity = 1;
-      this.storeCartItems.get(storeName).push(item);
-    }
+      const newItem = {...item};
+      newItem.quantity = 1;
+      delete newItem.stock;
+      delete newItem.sales;
+      newItem.createdAt = new Date().toISOString();
+      newItem.updatedAt = new Date().toISOString();
 
-    console.log('addCartItem', this.storeCartItems.get(storeName));
+      await userCartCollection
+        .doc(userId)
+        .update({[storeName]: firestore.FieldValue.arrayUnion(newItem)})
+        .catch((err) => console.log(err));
+    }
   }
 
   @action async removeCartItem(item, storeName) {
-    const itemIndex =
-      this.storeCartItems.get(storeName).length > 0
-        ? this.storeCartItems
-            .get(storeName)
-            .findIndex((cartItem) => cartItem.name === item.name)
-        : -1;
+    const userId = auth().currentUser.uid;
+    const storeCart = this.storeCartItems[storeName];
 
-    if (itemIndex >= 0) {
-      const selectedItem = this.storeCartItems.get(storeName)[itemIndex];
-      const currentItemQuantity = selectedItem.quantity;
+    if (storeCart) {
+      const cartItemIndex = storeCart.findIndex(
+        (storeCartItem) => storeCartItem.name === item.name,
+      );
 
-      if (currentItemQuantity === 1) {
-        this.storeCartItems.get(storeName).remove(selectedItem);
+      if (cartItemIndex >= 0) {
+        const storeCartItem = storeCart[cartItemIndex];
+
+        if (storeCartItem.quantity === 1) {
+          await userCartCollection
+            .doc(userId)
+            .update({
+              [storeName]: firestore.FieldValue.arrayRemove(storeCartItem),
+            })
+            .then(() => {
+              console.log('test', this.storeCartItems[storeName]);
+              if (!this.storeCartItems[storeName].length) {
+                console.log('gumana');
+
+                userCartCollection
+                  .doc(userId)
+                  .update({[storeName]: firestore.FieldValue.delete()});
+              }
+            })
+            .catch((err) => console.log(err));
+        } else {
+          const newStoreCartItems = [...storeCart];
+          newStoreCartItems[cartItemIndex].quantity -= 1;
+          newStoreCartItems[cartItemIndex].updatedAt = new Date().toISOString();
+
+          await userCartCollection
+            .doc(userId)
+            .update({[storeName]: newStoreCartItems})
+            .catch((err) => console.log(err));
+        }
       } else {
-        this.storeCartItems.get(storeName)[itemIndex].quantity -= 1;
+        console.log('item cannot be found in store!');
       }
     }
-
-    if (this.storeCartItems.get(storeName).length <= 0) {
-      this.storeCartItems.delete(storeName);
-    }
-
-    console.log('removeCartItem', this.storeCartItems.get(storeName));
   }
 
   @action async getShopList() {
-    await firestore()
-      .collection('merchants')
+    await merchantsCollection
       .where('visibleToPublic', '==', true)
       .limit(10)
       .get()
@@ -98,17 +155,12 @@ class shopStore {
   }
 
   @action async setStoreItems(merchantId, storeName) {
-    await firestore()
-      .collection('merchant_items')
+    await merchantItemsCollection
       .doc(merchantId)
       .get()
       .then((documentSnapshot) => {
         const itemCategories = documentSnapshot.data().itemCategories.sort();
         const allItems = documentSnapshot.data().items;
-
-        allItems.forEach((element) => {
-          element.storeName = storeName;
-        });
 
         return {allItems, itemCategories};
       })

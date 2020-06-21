@@ -8,6 +8,7 @@ class authStore {
   @observable userAuthenticated = false;
   @observable guest = false;
   @observable userName = '';
+  @observable userId = null;
 
   @computed get authenticationButtonText() {
     return this.guest ? 'Log In' : 'Log Out';
@@ -146,12 +147,17 @@ class authStore {
         .then(() => {
           this.guest = true;
           this.userAuthenticated = true;
+          this.userId = this.getUserId();
         })
         .catch((err) => console.log(err));
     } else {
       console.log('User is not authenticated');
       this.userAuthenticated = false;
     }
+  }
+
+  @action async getUserId() {
+    return auth().currentUser.uid;
   }
 }
 
