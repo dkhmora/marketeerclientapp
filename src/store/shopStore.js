@@ -40,6 +40,7 @@ class shopStore {
       .doc(userId)
       .onSnapshot((documentSnapshot) => {
         this.storeCartItems = documentSnapshot.data();
+        console.log(this.storeCartItems['Amazing Palengke Yessssssss']);
       });
   }
 
@@ -51,10 +52,12 @@ class shopStore {
         (storeCartItem) => storeCartItem.name === item.name,
       );
 
+      const newStoreCartItems = [...this.storeCartItems[storeName]];
+      console.log('cartItemIndex', cartItemIndex);
+
       console.log('1');
 
       if (cartItemIndex >= 0) {
-        const newStoreCartItems = [...this.storeCartItems[storeName]];
         newStoreCartItems[cartItemIndex].quantity += 1;
 
         console.log('2');
@@ -64,7 +67,15 @@ class shopStore {
           .update({[storeName]: newStoreCartItems})
           .catch((err) => console.log(err));
       } else {
-        console.log('item cannot be found in store!');
+        console.log('item cannot be found in store! Creating new item.');
+
+        const newItem = {...item};
+        newItem.quantity = 1;
+
+        await userCartCollection
+          .doc(userId)
+          .update(storeName, firestore.FieldValue.arrayUnion(newItem))
+          .catch((err) => console.log(err));
       }
     } else {
       const newItem = {...item};
@@ -80,7 +91,46 @@ class shopStore {
     console.log('4');
   }
 
-  @action async removeCartItem(item, storeName) {}
+  @action async removeCartItem(item, storeName) {
+    const userId = auth().currentUser.uid;
+    const storeCart = this.storeCartItems[storeName];
+
+    if (storeCart) {
+      const cartItemIndex = storeCart.findIndex(
+        (storeCartItem) => storeCartItem.name === item.name,
+      );
+
+      console.log('1');
+
+      if (cartItemIndex >= 0) {
+        console.log('dapat dito');
+        const storeCartItem = storeCart[cartItemIndex];
+
+        if (storeCartItem.quantity === 1) {
+          console.log('dapat dito din', storeCartItem);
+          await userCartCollection
+            .doc(userId)
+            .update({
+              [storeName]: firestore.FieldValue.arrayRemove(storeCartItem),
+            })
+            .catch((err) => console.log(err));
+        } else {
+          const newStoreCartItems = [...storeCart];
+          newStoreCartItems[cartItemIndex].quantity -= 1;
+
+          console.log('2');
+
+          await userCartCollection
+            .doc(userId)
+            .update({[storeName]: newStoreCartItems})
+            .catch((err) => console.log(err));
+        }
+      } else {
+        console.log('item cannot be found in store!');
+      }
+    }
+    console.log('4');
+  }
 
   @action async getShopList() {
     await merchantsCollection
