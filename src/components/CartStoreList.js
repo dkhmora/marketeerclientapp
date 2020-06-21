@@ -1,11 +1,14 @@
 import React, {Component} from 'react';
 import {FlatList, View, ScrollView} from 'react-native';
-import {Card, Text, ListItem} from 'react-native-elements';
+import {Card, Text, ListItem, Image} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
 import FastImage from 'react-native-fast-image';
 import CartListItem from './CartListItem';
+import {colors} from '../../assets/colors';
+import CartStoreCard from './CartStoreCard';
 
 @inject('shopStore')
+@inject('generalStore')
 @observer
 class CartStoreList extends Component {
   constructor(props) {
@@ -18,24 +21,7 @@ class CartStoreList extends Component {
     return (
       <ScrollView style={{flex: 1}}>
         {dataSource.map((storeName, index) => {
-          const cartItems = this.props.shopStore.storeCartItems[
-            storeName
-          ].slice();
-
-          return (
-            <Card
-              containerStyle={{margin: 0, borderRadius: 10, elevation: 5}}
-              key={index}>
-              <View>
-                <Text>{storeName}</Text>
-              </View>
-              <View>
-                {cartItems.map((item, cartIndex) => {
-                  return <CartListItem item={item} key={cartIndex} />;
-                })}
-              </View>
-            </Card>
-          );
+          return <CartStoreCard storeName={storeName} key={index} />;
         })}
       </ScrollView>
     );

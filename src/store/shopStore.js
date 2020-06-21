@@ -18,6 +18,14 @@ class shopStore {
     return stores;
   }
 
+  @action getStoreDetails(storeName) {
+    const store = this.storeList.find(
+      (element) => element.storeName === storeName,
+    );
+
+    return store;
+  }
+
   @action getCartItemQuantity(item, storeName) {
     if (this.storeCartItems[storeName]) {
       const cartItem = this.storeCartItems[storeName].find(

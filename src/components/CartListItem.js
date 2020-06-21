@@ -81,7 +81,7 @@ class CartListItem extends Component {
           <Text
             style={{
               color: colors.text_secondary,
-              borderBottomColor: '#000',
+              borderBottomColor: colors.divider,
               borderBottomWidth: 1,
               textAlign: 'right',
               width: '100%',
