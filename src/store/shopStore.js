@@ -24,6 +24,22 @@ class shopStore {
     return quantity;
   }
 
+  @computed get totalCartSubTotal() {
+    let amount = 0;
+
+    if (this.storeCartItems) {
+      Object.keys(this.storeCartItems).map((storeName) => {
+        this.storeCartItems[storeName].map((item) => {
+          const itemTotal = item.quantity * item.price;
+
+          amount = itemTotal + amount;
+        });
+      });
+    }
+
+    return amount;
+  }
+
   @computed get cartStores() {
     if (this.storeCartItems) {
       const stores = [...Object.keys(this.storeCartItems)];

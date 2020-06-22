@@ -308,7 +308,7 @@ class StoreScreen extends Component {
                       fontFamily: 'ProductSans-Black',
                       textAlignVertical: 'bottom',
                     }}>
-                    ₱10921
+                    ₱ {this.props.shopStore.totalCartSubTotal}
                   </Text>
                 </View>
               </View>
