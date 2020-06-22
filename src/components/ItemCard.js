@@ -89,11 +89,11 @@ class ItemCard extends Component {
 
         this.state.quantity === parseInt(item.stock, 10) &&
           this.setState({addButtonDisabled: true});
-      });
 
-      if (!this.state.minusButtonShown && this.state.quantity >= 1) {
-        this.showMinusButton();
-      }
+        if (!this.state.minusButtonShown && this.state.quantity >= 1) {
+          this.showMinusButton();
+        }
+      });
     }
   }
 
