@@ -305,7 +305,7 @@ class StoreScreen extends Component {
                     numberOfLines={1}
                     style={{
                       fontSize: 25,
-                      fontFamily: 'ProductSans_Black',
+                      fontFamily: 'ProductSans-Black',
                       textAlignVertical: 'bottom',
                     }}>
                     ₱10921

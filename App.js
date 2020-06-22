@@ -30,8 +30,10 @@ export default class App extends React.Component {
     authStore
       .checkAuthStatus()
       .then(() => {
+        shopStore.getCartItems();
         AppState.addEventListener('change', (state) => {
           if (state === 'active') {
+            console.log('active state');
             shopStore.getCartItems();
           } else if (state === 'background') {
             if (shopStore.unsubscribeToGetCartItems) {
@@ -45,8 +47,13 @@ export default class App extends React.Component {
         });
       })
       .then(() => {
-        SplashScreen.hide();
+        this.splashScreenTimer = setInterval(this.hideSplashScreen, 1000);
       });
+  }
+
+  hideSplashScreen() {
+    SplashScreen.hide();
+    clearInterval(this.splashScreenTimer);
   }
 
   render() {

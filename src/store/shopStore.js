@@ -15,17 +15,22 @@ class shopStore {
   @computed get totalCartItemQuantity() {
     let quantity = 0;
 
-    Object.keys(this.storeCartItems).map((storeName) => {
-      quantity = this.storeCartItems[storeName].length + quantity;
-    });
+    if (this.storeCartItems) {
+      Object.keys(this.storeCartItems).map((storeName) => {
+        quantity = this.storeCartItems[storeName].length + quantity;
+      });
+    }
 
     return quantity;
   }
 
   @computed get cartStores() {
-    const stores = [...Object.keys(this.storeCartItems)];
+    if (this.storeCartItems) {
+      const stores = [...Object.keys(this.storeCartItems)];
 
-    return stores;
+      return stores;
+    }
+    return [];
   }
 
   @action getStoreDetails(storeName) {
@@ -37,13 +42,15 @@ class shopStore {
   }
 
   @action getCartItemQuantity(item, storeName) {
-    if (this.storeCartItems[storeName]) {
-      const cartItem = this.storeCartItems[storeName].find(
-        (storeCartItem) => storeCartItem.name === item.name,
-      );
+    if (this.storeCartItems) {
+      if (this.storeCartItems[storeName]) {
+        const cartItem = this.storeCartItems[storeName].find(
+          (storeCartItem) => storeCartItem.name === item.name,
+        );
 
-      if (cartItem) {
-        return cartItem.quantity;
+        if (cartItem) {
+          return cartItem.quantity;
+        }
       }
     }
 
@@ -60,7 +67,7 @@ class shopStore {
       });
   }
 
-  @action async addCartItem(item, storeName) {
+  @action async addCartItem(item, storeName, quantity) {
     const userId = auth().currentUser.uid;
 
     if (this.storeCartItems[storeName]) {
@@ -70,7 +77,7 @@ class shopStore {
 
       if (cartItemIndex >= 0) {
         const newStoreCartItems = [...this.storeCartItems[storeName]];
-        newStoreCartItems[cartItemIndex].quantity += 1;
+        newStoreCartItems[cartItemIndex].quantity = quantity;
         newStoreCartItems[cartItemIndex].updatedAt = new Date().toISOString();
 
         await userCartCollection
@@ -81,7 +88,7 @@ class shopStore {
         console.log('item cannot be found in store! Creating new item.');
 
         const newItem = {...item};
-        newItem.quantity = 1;
+        newItem.quantity = quantity;
         delete newItem.stock;
         delete newItem.sales;
         newItem.createdAt = new Date().toISOString();
@@ -94,7 +101,7 @@ class shopStore {
       }
     } else {
       const newItem = {...item};
-      newItem.quantity = 1;
+      newItem.quantity = quantity;
       delete newItem.stock;
       delete newItem.sales;
       newItem.createdAt = new Date().toISOString();
@@ -107,7 +114,7 @@ class shopStore {
     }
   }
 
-  @action async removeCartItem(item, storeName) {
+  @action async removeCartItem(item, storeName, quantity) {
     const userId = auth().currentUser.uid;
     const storeCart = this.storeCartItems[storeName];
 
@@ -119,7 +126,7 @@ class shopStore {
       if (cartItemIndex >= 0) {
         const storeCartItem = storeCart[cartItemIndex];
 
-        if (storeCartItem.quantity === 1) {
+        if (quantity <= 0) {
           await userCartCollection
             .doc(userId)
             .update({
@@ -135,7 +142,7 @@ class shopStore {
             .catch((err) => console.log(err));
         } else {
           const newStoreCartItems = [...storeCart];
-          newStoreCartItems[cartItemIndex].quantity -= 1;
+          newStoreCartItems[cartItemIndex].quantity = quantity;
           newStoreCartItems[cartItemIndex].updatedAt = new Date().toISOString();
 
           await userCartCollection
