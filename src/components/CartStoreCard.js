@@ -85,7 +85,7 @@ class CartStoreCard extends Component {
             }}
           />
 
-          <Text style={{fontSize: 16, fontFamily: 'ProductSans-Black'}}>
+          <Text style={{fontSize: 20, fontFamily: 'ProductSans-Light'}}>
             {storeName}
           </Text>
         </View>
