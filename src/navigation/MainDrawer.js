@@ -13,6 +13,7 @@ import {color} from 'react-native-reanimated';
 import {observable, computed} from 'mobx';
 
 @inject('authStore')
+@inject('shopStore')
 @observer
 class MainDrawer extends Component {
   constructor(props) {
@@ -30,6 +31,9 @@ class MainDrawer extends Component {
       navigation.closeDrawer();
       this.props.navigation.navigate('Auth');
     } else if (this.props.authStore.userAuthenticated) {
+      this.props.shopStore.unsubscribeToGetCartItems &&
+        this.props.shopStore.unsubscribeToGetCartItems();
+
       signOut()
         .then(() => navigation.closeDrawer())
         .then(() => this.props.authStore.checkAuthStatus());

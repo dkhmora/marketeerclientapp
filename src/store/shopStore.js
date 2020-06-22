@@ -15,17 +15,22 @@ class shopStore {
   @computed get totalCartItemQuantity() {
     let quantity = 0;
 
-    Object.keys(this.storeCartItems).map((storeName) => {
-      quantity = this.storeCartItems[storeName].length + quantity;
-    });
+    if (this.storeCartItems) {
+      Object.keys(this.storeCartItems).map((storeName) => {
+        quantity = this.storeCartItems[storeName].length + quantity;
+      });
+    }
 
     return quantity;
   }
 
   @computed get cartStores() {
-    const stores = [...Object.keys(this.storeCartItems)];
+    if (this.storeCartItems) {
+      const stores = [...Object.keys(this.storeCartItems)];
 
-    return stores;
+      return stores;
+    }
+    return [];
   }
 
   @action getStoreDetails(storeName) {
@@ -37,13 +42,15 @@ class shopStore {
   }
 
   @action getCartItemQuantity(item, storeName) {
-    if (this.storeCartItems[storeName]) {
-      const cartItem = this.storeCartItems[storeName].find(
-        (storeCartItem) => storeCartItem.name === item.name,
-      );
+    if (this.storeCartItems) {
+      if (this.storeCartItems[storeName]) {
+        const cartItem = this.storeCartItems[storeName].find(
+          (storeCartItem) => storeCartItem.name === item.name,
+        );
 
-      if (cartItem) {
-        return cartItem.quantity;
+        if (cartItem) {
+          return cartItem.quantity;
+        }
       }
     }
 
