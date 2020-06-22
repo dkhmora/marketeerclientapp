@@ -123,6 +123,10 @@ class shopStore {
       if (cartItemIndex >= 0) {
         if (quantity <= 0) {
           storeCart.splice(cartItemIndex, 1);
+
+          if (!this.storeCartItems[storeName].length) {
+            delete this.storeCartItems[storeName];
+          }
         } else {
           storeCart[cartItemIndex].quantity = quantity;
           storeCart[cartItemIndex].updatedAt = new Date().toISOString();
