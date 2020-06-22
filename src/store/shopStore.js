@@ -73,15 +73,32 @@ class shopStore {
 
   @action async addCartItemToStorage(item, storeName, quantity) {
     const storeCartItems = this.storeCartItems[storeName];
-    const cartItemIndex = storeCartItems.findIndex(
-      (storeCartItem) => storeCartItem.name === item.name,
-    );
 
-    if (cartItemIndex >= 0) {
-      storeCartItems[cartItemIndex].quantity = quantity;
-      storeCartItems[cartItemIndex].updatedAt = new Date().toISOString();
+    if (storeCartItems) {
+      console.log('pasok');
+      const cartItemIndex = storeCartItems.findIndex(
+        (storeCartItem) => storeCartItem.name === item.name,
+      );
+
+      if (cartItemIndex >= 0) {
+        storeCartItems[cartItemIndex].quantity = quantity;
+        storeCartItems[cartItemIndex].updatedAt = new Date().toISOString();
+      } else {
+        console.log('item cannot be found in store! Creating new item.');
+
+        const newItem = {...item};
+        newItem.quantity = quantity;
+        delete newItem.stock;
+        delete newItem.sales;
+        newItem.createdAt = new Date().toISOString();
+        newItem.updatedAt = new Date().toISOString();
+
+        storeCartItems.push(newItem);
+
+        console.log(storeCartItems);
+      }
     } else {
-      console.log('item cannot be found in store! Creating new item.');
+      console.log('Store not found! Creating new store.');
 
       const newItem = {...item};
       newItem.quantity = quantity;
@@ -90,8 +107,9 @@ class shopStore {
       newItem.createdAt = new Date().toISOString();
       newItem.updatedAt = new Date().toISOString();
 
-      storeCartItems.push(newItem);
+      this.storeCartItems[storeName] = [{...newItem}];
     }
+    console.log(storeCartItems);
   }
 
   @action async deleteCartItemInStorage(item, storeName, quantity) {

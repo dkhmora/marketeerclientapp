@@ -78,6 +78,7 @@ class ItemCard extends Component {
     if (this.state.quantity < item.stock) {
       this.setState({quantity: this.state.quantity + 1}, () => {
         if (this.props.authStore.guest) {
+          console.log('increase storage');
           this.props.shopStore.addCartItemToStorage(
             item,
             storeName,

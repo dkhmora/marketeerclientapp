@@ -14,15 +14,12 @@ import {observable} from 'mobx';
 class CartStoreCard extends Component {
   constructor(props) {
     super(props);
-
-    const {storeName} = this.props;
-
-    this.state = {
-      cartItems: this.props.shopStore.storeCartItems[storeName].slice(),
-    };
   }
 
   @observable url = null;
+  @observable cartItems = this.props.shopStore.storeCartItems[
+    this.props.storeName
+  ];
 
   getImage = async (imageRef) => {
     const ref = storage().ref(imageRef);
@@ -43,7 +40,6 @@ class CartStoreCard extends Component {
   }
 
   render() {
-    const {cartItems} = this.state;
     const {storeName} = this.props;
 
     return (
@@ -80,7 +76,7 @@ class CartStoreCard extends Component {
           </Text>
         </View>
         <View>
-          {cartItems.map((item, index) => {
+          {this.cartItems.map((item, index) => {
             return <CartListItem item={item} key={index} />;
           })}
         </View>
