@@ -49,7 +49,7 @@ class CartListItem extends Component {
             borderWidth: 1,
             borderRadius: 10,
           }}
-          resizeMode={FastImage.resizeMode.center}
+          resizeMode={FastImage.resizeMode.cover}
         />
         <View
           style={{
