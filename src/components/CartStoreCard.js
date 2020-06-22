@@ -35,6 +35,18 @@ class CartStoreCard extends Component {
     return amount;
   }
 
+  @computed get totalItemQuantity() {
+    let quantity = 0;
+
+    if (this.cartItems) {
+      this.cartItems.map((item) => {
+        quantity = item.quantity + quantity;
+      });
+    }
+
+    return quantity;
+  }
+
   getImage = async (imageRef) => {
     const ref = storage().ref(imageRef);
     const link = await ref.getDownloadURL();
@@ -118,7 +130,14 @@ class CartStoreCard extends Component {
             justifyContent: 'space-between',
             marginTop: 5,
           }}>
-          <Text style={{fontSize: 17}}>Store Subtotal</Text>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Text style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
+              Store Subtotal
+            </Text>
+            <Text style={{fontSize: 13, paddingLeft: 5}}>
+              ({this.totalItemQuantity} Items)
+            </Text>
+          </View>
           <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
             ₱ {this.subTotal}
           </Text>
