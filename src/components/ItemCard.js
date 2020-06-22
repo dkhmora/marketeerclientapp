@@ -77,15 +77,23 @@ class ItemCard extends Component {
 
     if (this.state.quantity < item.stock) {
       this.setState({quantity: this.state.quantity + 1}, () => {
-        clearTimeout(this.timeout);
-
-        this.timeout = setTimeout(() => {
-          this.props.shopStore.addCartItem(
+        if (this.props.authStore.guest) {
+          this.props.shopStore.addCartItemToStorage(
             item,
             storeName,
             this.state.quantity,
           );
-        }, 1000);
+        } else {
+          clearTimeout(this.timeout);
+
+          this.timeout = setTimeout(() => {
+            this.props.shopStore.addCartItem(
+              item,
+              storeName,
+              this.state.quantity,
+            );
+          }, 1000);
+        }
 
         this.state.quantity === parseInt(item.stock, 10) &&
           this.setState({addButtonDisabled: true});
@@ -101,15 +109,23 @@ class ItemCard extends Component {
     const {item, storeName} = this.props;
 
     this.setState({quantity: this.state.quantity - 1}, () => {
-      clearTimeout(this.timeout);
-
-      this.timeout = setTimeout(() => {
-        this.props.shopStore.removeCartItem(
+      if (this.props.authStore.guest) {
+        this.props.shopStore.deleteCartItemInStorage(
           item,
           storeName,
           this.state.quantity,
         );
-      }, 1000);
+      } else {
+        clearTimeout(this.timeout);
+
+        this.timeout = setTimeout(() => {
+          this.props.shopStore.removeCartItem(
+            item,
+            storeName,
+            this.state.quantity,
+          );
+        }, 1000);
+      }
 
       if (this.state.quantity <= 0 && this.state.minusButtonShown) {
         this.hideMinusButton();

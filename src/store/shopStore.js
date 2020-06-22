@@ -63,8 +63,56 @@ class shopStore {
     this.unsubscribeToGetCartItems = userCartCollection
       .doc(userId)
       .onSnapshot((documentSnapshot) => {
-        this.storeCartItems = documentSnapshot.data();
+        if (documentSnapshot.data()) {
+          this.storeCartItems = documentSnapshot.data();
+        } else {
+          console.log('no data');
+        }
       });
+  }
+
+  @action async addCartItemToStorage(item, storeName, quantity) {
+    const storeCartItems = this.storeCartItems[storeName];
+    const cartItemIndex = storeCartItems.findIndex(
+      (storeCartItem) => storeCartItem.name === item.name,
+    );
+
+    if (cartItemIndex >= 0) {
+      storeCartItems[cartItemIndex].quantity = quantity;
+      storeCartItems[cartItemIndex].updatedAt = new Date().toISOString();
+    } else {
+      console.log('item cannot be found in store! Creating new item.');
+
+      const newItem = {...item};
+      newItem.quantity = quantity;
+      delete newItem.stock;
+      delete newItem.sales;
+      newItem.createdAt = new Date().toISOString();
+      newItem.updatedAt = new Date().toISOString();
+
+      storeCartItems.push(newItem);
+    }
+  }
+
+  @action async deleteCartItemInStorage(item, storeName, quantity) {
+    const storeCart = this.storeCartItems[storeName];
+
+    if (storeCart) {
+      const cartItemIndex = storeCart.findIndex(
+        (storeCartItem) => storeCartItem.name === item.name,
+      );
+
+      if (cartItemIndex >= 0) {
+        if (quantity <= 0) {
+          storeCart.splice(cartItemIndex, 1);
+        } else {
+          storeCart[cartItemIndex].quantity = quantity;
+          storeCart[cartItemIndex].updatedAt = new Date().toISOString();
+        }
+      } else {
+        console.log('item cannot be found in store!');
+      }
+    }
   }
 
   @action async addCartItem(item, storeName, quantity) {

@@ -25,21 +25,27 @@ class MainDrawer extends Component {
   }
 
   handleAuthentication(navigation) {
-    const {signOut} = this.props.authStore;
-
     if (this.props.authStore.guest && this.props.authStore.userAuthenticated) {
       navigation.closeDrawer();
       this.props.navigation.navigate('Auth');
     } else if (this.props.authStore.userAuthenticated) {
-      this.props.shopStore.unsubscribeToGetCartItems &&
-        this.props.shopStore.unsubscribeToGetCartItems();
-
-      signOut()
-        .then(() => navigation.closeDrawer())
-        .then(() => this.props.authStore.checkAuthStatus());
+      this.signOutUser(navigation, () => {
+        this.props.shopStore.unsubscribeToGetCartItems &&
+          this.props.shopStore.unsubscribeToGetCartItems();
+      });
     } else {
       console.log('Failed to authenticate');
     }
+  }
+
+  signOutUser(navigation, callback) {
+    const {signOut} = this.props.authStore;
+
+    signOut()
+      .then(() => navigation.closeDrawer())
+      .then(() => this.props.authStore.checkAuthStatus());
+
+    callback();
   }
 
   customDrawer = (props) => {
