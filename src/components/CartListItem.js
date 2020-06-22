@@ -38,7 +38,11 @@ class CartListItem extends Component {
     const {url} = this.state;
 
     return (
-      <View style={{flexDirection: 'row', marginVertical: 8}}>
+      <View
+        style={{
+          flexDirection: 'row',
+          marginVertical: 8,
+        }}>
         <FastImage
           key={item.name}
           source={url}

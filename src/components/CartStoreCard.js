@@ -6,7 +6,7 @@ import FastImage from 'react-native-fast-image';
 import CartListItem from './CartListItem';
 import {colors} from '../../assets/colors';
 import storage from '@react-native-firebase/storage';
-import {observable} from 'mobx';
+import {observable, computed} from 'mobx';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -20,6 +20,20 @@ class CartStoreCard extends Component {
   @observable cartItems = this.props.shopStore.storeCartItems[
     this.props.storeName
   ];
+
+  @computed get subTotal() {
+    let amount = 0;
+
+    if (this.cartItems) {
+      this.cartItems.map((item) => {
+        const itemTotal = item.quantity * item.price;
+
+        amount = itemTotal + amount;
+      });
+    }
+
+    return amount;
+  }
 
   getImage = async (imageRef) => {
     const ref = storage().ref(imageRef);
@@ -57,7 +71,7 @@ class CartStoreCard extends Component {
             alignItems: 'center',
             paddingBottom: 5,
             borderBottomWidth: 1,
-            borderBottomColor: colors.divider,
+            borderBottomColor: colors.primary,
           }}>
           <Image
             source={this.url}
@@ -77,8 +91,30 @@ class CartStoreCard extends Component {
         </View>
         <View>
           {this.cartItems.map((item) => {
-            return <CartListItem item={item} key={`${item.name}`} />;
+            return (
+              <View key={item.name} style={{flex: 1, alignItems: 'center'}}>
+                <CartListItem item={item} />
+                <View
+                  style={{
+                    width: '100%',
+                    height: 1,
+                    backgroundColor: colors.divider,
+                  }}
+                />
+              </View>
+            );
           })}
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginTop: 5,
+          }}>
+          <Text style={{fontSize: 17}}>Store Subtotal</Text>
+          <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
+            ₱ {this.subTotal}
+          </Text>
         </View>
       </Card>
     );
