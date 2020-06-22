@@ -30,18 +30,23 @@ export default class App extends React.Component {
     authStore
       .checkAuthStatus()
       .then(() => {
-        shopStore.getCartItems();
+        if (!authStore.guest) {
+          shopStore.getCartItems();
+        }
+
         AppState.addEventListener('change', (state) => {
-          if (state === 'active') {
-            console.log('active state');
-            shopStore.getCartItems();
-          } else if (state === 'background') {
-            if (shopStore.unsubscribeToGetCartItems) {
-              shopStore.unsubscribeToGetCartItems();
-            }
-          } else if (state === 'inactive') {
-            if (shopStore.unsubscribeToGetCartItems) {
-              shopStore.unsubscribeToGetCartItems();
+          if (!authStore.guest) {
+            if (state === 'active') {
+              console.log('active state');
+              shopStore.getCartItems();
+            } else if (state === 'background') {
+              if (shopStore.unsubscribeToGetCartItems) {
+                shopStore.unsubscribeToGetCartItems();
+              }
+            } else if (state === 'inactive') {
+              if (shopStore.unsubscribeToGetCartItems) {
+                shopStore.unsubscribeToGetCartItems();
+              }
             }
           }
         });
