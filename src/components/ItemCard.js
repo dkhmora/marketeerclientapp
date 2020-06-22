@@ -27,6 +27,7 @@ class ItemCard extends Component {
       quantity: itemQuantity,
       addButtonDisabled: itemQuantity >= itemStock ? true : false,
       minusButtonShown: itemQuantity > 0 ? true : false,
+      writeTimer: null,
     };
 
     Animatable.initializeRegistryWithDefinitions({
@@ -64,21 +65,26 @@ class ItemCard extends Component {
     const {item, storeName} = this.props;
 
     if (this.state.quantity < item.stock) {
-      this.props.shopStore.addCartItem(item, storeName).then(() => {
-        this.setState(
-          {quantity: this.props.shopStore.getCartItemQuantity(item, storeName)},
-          () => {
-            this.state.quantity === parseInt(item.stock, 10) &&
-              this.setState({addButtonDisabled: true});
+      this.setState({quantity: this.state.quantity + 1}, () => {
+        clearTimeout(this.timeout);
 
-            !this.state.minusButtonShown &&
-              this.setState({minusButtonShown: true}, () => {
-                this.state.quantity >= 1 &&
-                  this.buttonCounterView.fadeInRight(200) &&
-                  this.plusButton.transformPlusButton(300);
-              });
-          },
-        );
+        this.timeout = setTimeout(() => {
+          this.props.shopStore.addCartItem(
+            item,
+            storeName,
+            this.state.quantity,
+          );
+        }, 1000);
+
+        this.state.quantity === parseInt(item.stock, 10) &&
+          this.setState({addButtonDisabled: true});
+
+        !this.state.minusButtonShown &&
+          this.setState({minusButtonShown: true}, () => {
+            this.state.quantity >= 1 &&
+              this.buttonCounterView.fadeInRight(200) &&
+              this.plusButton.transformPlusButton(300);
+          });
       });
     }
   }

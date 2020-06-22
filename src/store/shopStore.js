@@ -60,7 +60,7 @@ class shopStore {
       });
   }
 
-  @action async addCartItem(item, storeName) {
+  @action async addCartItem(item, storeName, quantity) {
     const userId = auth().currentUser.uid;
 
     if (this.storeCartItems[storeName]) {
@@ -70,7 +70,7 @@ class shopStore {
 
       if (cartItemIndex >= 0) {
         const newStoreCartItems = [...this.storeCartItems[storeName]];
-        newStoreCartItems[cartItemIndex].quantity += 1;
+        newStoreCartItems[cartItemIndex].quantity = quantity;
         newStoreCartItems[cartItemIndex].updatedAt = new Date().toISOString();
 
         await userCartCollection
@@ -81,7 +81,7 @@ class shopStore {
         console.log('item cannot be found in store! Creating new item.');
 
         const newItem = {...item};
-        newItem.quantity = 1;
+        newItem.quantity = quantity;
         delete newItem.stock;
         delete newItem.sales;
         newItem.createdAt = new Date().toISOString();
@@ -94,7 +94,7 @@ class shopStore {
       }
     } else {
       const newItem = {...item};
-      newItem.quantity = 1;
+      newItem.quantity = quantity;
       delete newItem.stock;
       delete newItem.sales;
       newItem.createdAt = new Date().toISOString();
