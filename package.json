@@ -7,8 +7,8 @@
     "clean": "cd android && gradlew clean",
     "android": "cd android && gradlew clean && cd .. && react-native run-android",
     "ios": "react-native run-ios",
-    "iPhone8": "react-native run-ios --simulator='iPhone 8'",
-    "iPhoneSE": "react-native run-ios --simulator='iPhone SE (2nd generation)'",
+    "iphone8": "react-native run-ios --simulator='iPhone 8'",
+    "iphonese": "react-native run-ios --simulator='iPhone SE (2nd generation)'",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint ."
