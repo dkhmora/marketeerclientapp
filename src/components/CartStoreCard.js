@@ -85,7 +85,14 @@ class CartStoreCard extends Component {
             }}
           />
 
-          <Text style={{fontSize: 20, fontFamily: 'ProductSans-Light'}}>
+          <Text
+            numberOfLines={2}
+            style={{
+              width: '85%',
+              fontSize: 20,
+              fontFamily: 'ProductSans-Light',
+              flexWrap: 'wrap',
+            }}>
             {storeName}
           </Text>
         </View>
