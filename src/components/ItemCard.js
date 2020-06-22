@@ -56,9 +56,20 @@ class ItemCard extends Component {
     }
 
     if (this.state.quantity >= 1) {
-      this.buttonCounterView.fadeInRight(200) &&
-        this.plusButton.transformPlusButton(300);
+      this.showMinusButton();
     }
+  }
+
+  showMinusButton() {
+    this.setState({minusButtonShown: true});
+    this.buttonCounterView.fadeInRight(200) &&
+      this.plusButton.transformPlusButton(300);
+  }
+
+  hideMinusButton() {
+    this.setState({minusButtonShown: false});
+    this.buttonCounterView.fadeOutRight(200) &&
+      this.plusButton.deTransformPlusButton(300);
   }
 
   handleIncreaseQuantity() {
@@ -78,35 +89,34 @@ class ItemCard extends Component {
 
         this.state.quantity === parseInt(item.stock, 10) &&
           this.setState({addButtonDisabled: true});
-
-        !this.state.minusButtonShown &&
-          this.setState({minusButtonShown: true}, () => {
-            this.state.quantity >= 1 &&
-              this.buttonCounterView.fadeInRight(200) &&
-              this.plusButton.transformPlusButton(300);
-          });
       });
+
+      if (!this.state.minusButtonShown && this.state.quantity >= 1) {
+        this.showMinusButton();
+      }
     }
   }
 
   handleDecreaseQuantity() {
     const {item, storeName} = this.props;
 
-    this.props.shopStore.removeCartItem(item, storeName).then(() => {
-      this.setState(
-        {quantity: this.props.shopStore.getCartItemQuantity(item, storeName)},
-        () => {
-          this.state.quantity <= 0 &&
-            this.state.minusButtonShown &&
-            this.setState({minusButtonShown: false}, () => {
-              this.buttonCounterView.fadeOutRight(200) &&
-                this.plusButton.deTransformPlusButton(300);
-            });
+    this.setState({quantity: this.state.quantity - 1}, () => {
+      clearTimeout(this.timeout);
 
-          this.state.quantity <= item.stock &&
-            this.setState({addButtonDisabled: false});
-        },
-      );
+      this.timeout = setTimeout(() => {
+        this.props.shopStore.removeCartItem(
+          item,
+          storeName,
+          this.state.quantity,
+        );
+      }, 1000);
+
+      if (this.state.quantity <= 0 && this.state.minusButtonShown) {
+        this.hideMinusButton();
+      }
+
+      this.state.quantity <= item.stock &&
+        this.setState({addButtonDisabled: false});
     });
   }
 

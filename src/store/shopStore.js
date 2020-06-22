@@ -107,7 +107,7 @@ class shopStore {
     }
   }
 
-  @action async removeCartItem(item, storeName) {
+  @action async removeCartItem(item, storeName, quantity) {
     const userId = auth().currentUser.uid;
     const storeCart = this.storeCartItems[storeName];
 
@@ -119,7 +119,7 @@ class shopStore {
       if (cartItemIndex >= 0) {
         const storeCartItem = storeCart[cartItemIndex];
 
-        if (storeCartItem.quantity === 1) {
+        if (quantity <= 0) {
           await userCartCollection
             .doc(userId)
             .update({
@@ -135,7 +135,7 @@ class shopStore {
             .catch((err) => console.log(err));
         } else {
           const newStoreCartItems = [...storeCart];
-          newStoreCartItems[cartItemIndex].quantity -= 1;
+          newStoreCartItems[cartItemIndex].quantity = quantity;
           newStoreCartItems[cartItemIndex].updatedAt = new Date().toISOString();
 
           await userCartCollection
