@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import FastImage from 'react-native-fast-image';
-import {Card, Text, ListItem, Image} from 'react-native-elements';
+import {Card, Text, ListItem} from 'react-native-elements';
 import {observable} from 'mobx';
 import storage from '@react-native-firebase/storage';
-import {View} from 'react-native';
+import {View, Image} from 'react-native';
 import {observer} from 'mobx-react';
 import {styles} from '../../assets/styles';
 import {colors} from '../../assets/colors';
@@ -12,6 +12,10 @@ import {colors} from '../../assets/colors';
 class CartListItem extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      url: require('../../assets/images/placeholder.jpg'),
+    };
   }
 
   @observable url = null;
@@ -19,24 +23,25 @@ class CartListItem extends Component {
   getImage = async () => {
     const ref = storage().ref(this.props.item.image);
     const link = await ref.getDownloadURL();
-    this.url = {uri: link};
+    this.setState({url: {uri: link}});
   };
 
   componentDidMount() {
     if (this.props.item.image) {
+      console.log(this.props.item.name, this.props.item.image);
       this.getImage();
-    } else {
-      this.url = require('../../assets/images/placeholder.jpg');
     }
   }
 
   render() {
     const {item} = this.props;
+    const {url} = this.state;
 
     return (
       <View style={{flexDirection: 'row', marginVertical: 8}}>
-        <Image
-          source={this.url}
+        <FastImage
+          key={item.name}
+          source={url}
           style={{
             height: 55,
             width: 55,
@@ -44,6 +49,7 @@ class CartListItem extends Component {
             borderWidth: 1,
             borderRadius: 10,
           }}
+          resizeMode={FastImage.resizeMode.center}
         />
         <View
           style={{

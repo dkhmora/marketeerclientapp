@@ -76,8 +76,8 @@ class CartStoreCard extends Component {
           </Text>
         </View>
         <View>
-          {this.cartItems.map((item, index) => {
-            return <CartListItem item={item} key={index} />;
+          {this.cartItems.map((item) => {
+            return <CartListItem item={item} key={`${item.name}`} />;
           })}
         </View>
       </Card>
