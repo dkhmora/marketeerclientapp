@@ -223,7 +223,7 @@ class StoreScreen extends Component {
           minimumVelocityThreshold={0.6}
           minimumDistanceThreshold={3}
           snappingPoints={[
-            SLIDING_MENU_EXTENDED_HEIGHT / 2,
+            SLIDING_MENU_INITIAL_HEIGHT,
             SLIDING_MENU_EXTENDED_HEIGHT,
           ]}
           allowMomentum
