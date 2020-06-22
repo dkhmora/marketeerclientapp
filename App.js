@@ -47,8 +47,13 @@ export default class App extends React.Component {
         });
       })
       .then(() => {
-        SplashScreen.hide();
+        this.splashScreenTimer = setInterval(this.hideSplashScreen, 1000);
       });
+  }
+
+  hideSplashScreen() {
+    SplashScreen.hide();
+    clearInterval(this.splashScreenTimer);
   }
 
   render() {
