@@ -73,49 +73,42 @@ class SlidingCartPanel extends Component {
               flexDirection: 'row',
               justifyContent: 'space-between',
             }}>
-            <View style={{flexDirection: 'row'}}>
-              <View
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'flex-end',
+                justifyContent: 'flex-end',
+              }}>
+              <Image
+                source={require('../../assets/images/logo_cart.png')}
                 style={{
-                  flexDirection: 'row',
-                  alignItems: 'flex-end',
-                  justifyContent: 'flex-end',
-                }}>
-                <Image
-                  source={require('../../assets/images/logo_cart.png')}
-                  style={{
-                    height: 35,
-                    width: 40,
-                    resizeMode: 'center',
-                    tintColor: colors.primary,
-                    marginRight: 10,
-                  }}
-                />
+                  height: 35,
+                  width: 40,
+                  resizeMode: 'center',
+                  tintColor: colors.primary,
+                  marginRight: 10,
+                }}
+              />
 
-                <Badge
-                  value={this.props.shopStore.totalCartItemQuantity}
-                  badgeStyle={{backgroundColor: colors.accent}}
-                  containerStyle={{position: 'absolute', top: 4, right: 2}}
-                />
-              </View>
-
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'flex-end',
-                  justifyContent: 'flex-end',
-                }}>
-                <Text
-                  adjustsFontSizeToFit
-                  numberOfLines={1}
-                  style={{
-                    fontSize: 25,
-                    fontFamily: 'ProductSans-Black',
-                    textAlignVertical: 'bottom',
-                  }}>
-                  ₱ {this.props.shopStore.totalCartSubTotal}
-                </Text>
-              </View>
+              <Badge
+                value={this.props.shopStore.totalCartItemQuantity}
+                badgeStyle={{backgroundColor: colors.accent}}
+                containerStyle={{position: 'absolute', top: 4, right: 2}}
+              />
             </View>
+
+            <Text
+              adjustsFontSizeToFit
+              numberOfLines={1}
+              style={{
+                flex: 1,
+                fontSize: 26,
+                fontFamily: 'ProductSans-Black',
+                textAlignVertical: 'bottom',
+              }}>
+              ₱ {this.props.shopStore.totalCartSubTotal}
+            </Text>
+
             <Button
               raised
               icon={<Icon name="arrow-right" color={colors.icons} />}
