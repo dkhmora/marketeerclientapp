@@ -73,7 +73,7 @@ class LoginScreen extends Component {
 
     return (
       <View style={styles.container}>
-        <StatusBar backgroundColor={colors.primary} />
+        <StatusBar animated backgroundColor={colors.primary} />
 
         <View style={styles.header}>
           <Image

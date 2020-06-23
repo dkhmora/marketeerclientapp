@@ -29,7 +29,7 @@ class CartScreen extends Component {
 
     return (
       <View style={styles.container}>
-        <StatusBar translucent backgroundColor="rgba(0, 0, 0, 0.10)" />
+        <StatusBar animated translucent backgroundColor="rgba(0, 0, 0, 0.10)" />
 
         <Animatable.View
           animation="fadeInUp"

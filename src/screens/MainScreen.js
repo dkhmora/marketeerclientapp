@@ -286,6 +286,7 @@ class MainScreen extends Component {
               barStyle: 'light-content',
               backgroundColor: 'rgba(0, 0, 0, 0.10)',
               translucent: true,
+              animated: true,
             }}
             containerStyle={styles.header}
             centerContainerStyle={{
