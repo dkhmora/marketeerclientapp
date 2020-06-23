@@ -123,14 +123,14 @@ class CheckoutScreen extends Component {
             raised
             icon={<Icon name="arrow-right" color={colors.icons} />}
             iconRight
-            title="Checkout"
+            title="Place Order"
             titleStyle={{
               color: colors.icons,
               fontFamily: 'ProductSans-Black',
               fontSize: 22,
               marginRight: '20%',
             }}
-            buttonStyle={{height: '100%'}}
+            buttonStyle={{height: '100%', backgroundColor: colors.accent}}
             containerStyle={{
               height: '100%',
               flex: 1,

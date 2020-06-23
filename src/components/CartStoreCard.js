@@ -160,7 +160,18 @@ class CartStoreCard extends Component {
             <Text style={{fontSize: 16, fontFamily: 'ProductSans-Light'}}>
               Shipping Method:
             </Text>
-            <Picker mode="dropdown" style={{flex: 1}}>
+            <Picker
+              mode="dropdown"
+              style={{flex: 1}}
+              selectedValue={
+                this.props.shopStore.storeSelectedShipping[storeName]
+              }
+              onValueChange={(value) => {
+                this.props.shopStore.storeSelectedShipping[storeName] = value;
+                console.log(
+                  this.props.shopStore.storeSelectedShipping[storeName],
+                );
+              }}>
               <Picker.Item label="Grab (₱150-₱250)" value="Grab" />
               <Picker.Item label="Lalamove (₱100-₱200)" value="Lalamove" />
               <Picker.Item label="Mr. Speedy (₱80-₱180)" value="Mr. Speedy" />

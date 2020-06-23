@@ -129,7 +129,7 @@ class CartScreen extends Component {
               fontSize: 22,
               marginRight: '20%',
             }}
-            buttonStyle={{height: '100%'}}
+            buttonStyle={{height: '100%', backgroundColor: colors.accent}}
             containerStyle={{
               height: '100%',
               flex: 1,

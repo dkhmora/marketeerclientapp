@@ -7,6 +7,7 @@ const merchantsCollection = firestore().collection('merchants');
 const merchantItemsCollection = firestore().collection('merchant_items');
 class shopStore {
   @observable storeCartItems = {};
+  @observable storeSelectedShipping = {};
   @observable storeList = [];
   @observable itemCategories = [];
   @observable storeCategoryItems = new Map();
