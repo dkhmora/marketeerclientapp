@@ -203,7 +203,9 @@ class StoreScreen extends Component {
 
         {Platform.OS === 'ios' ? (
           <SafeAreaView>
-            <SlidingCartPanel />
+            <SafeAreaView>
+              <SlidingCartPanel />
+            </SafeAreaView>
           </SafeAreaView>
         ) : (
           <SlidingCartPanel />
