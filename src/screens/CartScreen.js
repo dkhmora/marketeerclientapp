@@ -97,25 +97,30 @@ class CartScreen extends Component {
           }}>
           <View
             style={{
+              width: '30%',
               marginRight: 10,
               borderRadius: 24,
               borderWidth: 1,
               borderColor: colors.icons,
               padding: 10,
+              alignItems: 'center',
             }}>
             <Text
+              adjustsFontSizeToFit
+              numberOfLines={1}
               style={{
+                width: '100%',
+                textAlign: 'center',
                 fontFamily: 'ProductSans-Black',
                 color: colors.icons,
                 fontSize: 26,
               }}>
-              P 123123
+              ₱ {this.props.shopStore.totalCartSubTotal}
             </Text>
             <Text
               style={{
                 color: colors.icons,
                 fontSize: 16,
-                alignSelf: 'center',
               }}>
               {this.props.shopStore.totalCartItemQuantity} Items
             </Text>
