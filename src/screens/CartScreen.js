@@ -25,19 +25,38 @@ class CartScreen extends Component {
   }
 
   render() {
+    const {navigation} = this.props;
+
     return (
       <View style={styles.container}>
         <StatusBar translucent backgroundColor="rgba(0, 0, 0, 0.10)" />
 
-        <View
+        <Animatable.View
+          animation="fadeInUp"
+          useNativeDriver
+          duration={800}
           style={{
             height: 80,
             flexDirection: 'row',
-            alignItems: 'flex-end',
+            alignItems: 'center',
             justifyContent: 'center',
             paddingHorizontal: 20,
             paddingBottom: 10,
           }}>
+          <Button
+            onPress={() => navigation.goBack()}
+            type="clear"
+            icon={<Icon name="arrow-left" color={colors.icons} size={30} />}
+            buttonStyle={{borderRadius: 30}}
+            containerStyle={[
+              styles.buttonContainer,
+              {
+                position: 'absolute',
+                left: 10,
+                top: '25%',
+              },
+            ]}
+          />
           <Image
             source={require('../../assets/images/logo_cart.png')}
             style={{
@@ -48,7 +67,8 @@ class CartScreen extends Component {
             }}
           />
           <Text style={{color: colors.icons, fontSize: 30}}>Cart</Text>
-        </View>
+        </Animatable.View>
+
         <Animatable.View
           useNativeDriver
           animation="fadeInUpBig"
