@@ -9,6 +9,7 @@ import {
   ScrollView,
   StatusBar,
   Image,
+  SafeAreaView,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -28,7 +29,7 @@ class CartScreen extends Component {
     const {navigation} = this.props;
 
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <StatusBar animated translucent backgroundColor="rgba(0, 0, 0, 0.10)" />
 
         <Animatable.View
@@ -36,7 +37,6 @@ class CartScreen extends Component {
           useNativeDriver
           duration={800}
           style={{
-            height: 80,
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
@@ -60,9 +60,9 @@ class CartScreen extends Component {
           <Image
             source={require('../../assets/images/logo_cart.png')}
             style={{
-              height: 60,
+              height: 65,
               width: 80,
-              resizeMode: 'center',
+              resizeMode: 'cover',
               marginRight: 10,
             }}
           />
@@ -135,18 +135,19 @@ class CartScreen extends Component {
             titleStyle={{
               color: colors.icons,
               fontFamily: 'ProductSans-Black',
-              fontSize: 25,
+              fontSize: 22,
               marginRight: '20%',
             }}
-            buttonStyle={{flex: 1}}
+            buttonStyle={{height: '100%'}}
             containerStyle={{
+              height: '100%',
               flex: 1,
               borderRadius: 24,
               padding: 0,
             }}
           />
         </Animatable.View>
-      </View>
+      </SafeAreaView>
     );
   }
 }
