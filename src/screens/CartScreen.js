@@ -29,7 +29,7 @@ class CartScreen extends Component {
     const {navigation} = this.props;
 
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} forceInset={{top: 'never'}}>
         <StatusBar animated translucent backgroundColor="rgba(0, 0, 0, 0.10)" />
 
         <Animatable.View

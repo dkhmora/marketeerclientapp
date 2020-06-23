@@ -17,6 +17,7 @@ import {styles} from '../../assets/styles';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import ItemsList from '../components/ItemsList';
 import SlidingCartPanel from '../components/SlidingCartPanel';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -200,7 +201,9 @@ class StoreScreen extends Component {
           )}
         </Animatable.View>
 
-        <SlidingCartPanel />
+        <SafeAreaView>
+          <SlidingCartPanel />
+        </SafeAreaView>
       </View>
     );
   }

@@ -5,6 +5,7 @@ import {Icon, Badge} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import CartStoreList from '../components/CartStoreList';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 @inject('shopStore')
 @observer
@@ -28,107 +29,109 @@ class SlidingCartPanel extends Component {
       SCREEN_HEIGHT - SLIDING_MENU_INITIAL_HEIGHT;
 
     return (
-      <SlidingUpPanel
-        ref={(c) => (this._panel = c)}
-        minimumVelocityThreshold={0.6}
-        minimumDistanceThreshold={3}
-        snappingPoints={[
-          SLIDING_MENU_INITIAL_HEIGHT,
-          SLIDING_MENU_EXTENDED_HEIGHT,
-        ]}
-        allowMomentum
-        draggableRange={{
-          top: SLIDING_MENU_EXTENDED_HEIGHT,
-          bottom: SLIDING_MENU_INITIAL_HEIGHT,
-        }}
-        containerStyle={{
-          backgroundColor: '#fff',
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
-          borderWidth: 1,
-          borderColor: 'rgba(0,0,0,0.3)',
-          elevation: 20,
-        }}>
-        <View
-          style={{
-            flex: 1,
-            alignItems: 'flex-start',
-            justifyContent: 'flex-start',
+      <SafeAreaView>
+        <SlidingUpPanel
+          ref={(c) => (this._panel = c)}
+          minimumVelocityThreshold={0.6}
+          minimumDistanceThreshold={3}
+          snappingPoints={[
+            SLIDING_MENU_INITIAL_HEIGHT,
+            SLIDING_MENU_EXTENDED_HEIGHT,
+          ]}
+          allowMomentum
+          draggableRange={{
+            top: SLIDING_MENU_EXTENDED_HEIGHT,
+            bottom: SLIDING_MENU_INITIAL_HEIGHT,
+          }}
+          containerStyle={{
+            backgroundColor: '#fff',
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,
-            backgroundColor: '#fff',
-            paddingTop: 25,
-            paddingBottom: 10,
-            paddingHorizontal: 15,
+            borderWidth: 1,
+            borderColor: 'rgba(0,0,0,0.3)',
+            elevation: 20,
           }}>
-          <TouchableOpacity
-            onPress={() => this._panel.show()}
-            style={{position: 'absolute', top: 0, right: 0, left: 0}}>
-            <Icon name="chevron-up" color="black" />
-          </TouchableOpacity>
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'flex-start',
+              justifyContent: 'flex-start',
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              backgroundColor: '#fff',
+              paddingTop: 25,
+              paddingBottom: 10,
+              paddingHorizontal: 15,
+            }}>
+            <TouchableOpacity
+              onPress={() => this._panel.show()}
+              style={{position: 'absolute', top: 0, right: 0, left: 0}}>
+              <Icon name="chevron-up" color="black" />
+            </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => this._panel.show()}>
-            <View
-              style={{
-                width: '100%',
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-              }}>
+            <TouchableOpacity onPress={() => this._panel.show()}>
               <View
                 style={{
+                  width: '100%',
                   flexDirection: 'row',
-                  alignItems: 'flex-end',
-                  justifyContent: 'flex-end',
+                  justifyContent: 'space-between',
                 }}>
-                <Image
-                  source={require('../../assets/images/logo_cart.png')}
+                <View
                   style={{
-                    height: 35,
-                    width: 40,
-                    resizeMode: 'center',
-                    tintColor: colors.primary,
-                    marginRight: 10,
-                  }}
-                />
-                <Badge
-                  value={this.props.shopStore.totalCartItemQuantity}
-                  badgeStyle={{backgroundColor: colors.accent}}
-                  containerStyle={{position: 'absolute', top: 4, right: 2}}
-                />
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'flex-end',
-                  justifyContent: 'flex-end',
-                }}>
-                <Text
-                  style={{
-                    textAlignVertical: 'bottom',
-                    color: colors.text_secondary,
-                    paddingBottom: 3,
+                    flexDirection: 'row',
+                    alignItems: 'flex-end',
+                    justifyContent: 'flex-end',
                   }}>
-                  Subtotal:{' '}
-                </Text>
-                <Text
-                  adjustsFontSizeToFit
-                  numberOfLines={1}
+                  <Image
+                    source={require('../../assets/images/logo_cart.png')}
+                    style={{
+                      height: 35,
+                      width: 40,
+                      resizeMode: 'center',
+                      tintColor: colors.primary,
+                      marginRight: 10,
+                    }}
+                  />
+                  <Badge
+                    value={this.props.shopStore.totalCartItemQuantity}
+                    badgeStyle={{backgroundColor: colors.accent}}
+                    containerStyle={{position: 'absolute', top: 4, right: 2}}
+                  />
+                </View>
+                <View
                   style={{
-                    fontSize: 25,
-                    fontFamily: 'ProductSans-Black',
-                    textAlignVertical: 'bottom',
+                    flexDirection: 'row',
+                    alignItems: 'flex-end',
+                    justifyContent: 'flex-end',
                   }}>
-                  ₱ {this.props.shopStore.totalCartSubTotal}
-                </Text>
+                  <Text
+                    style={{
+                      textAlignVertical: 'bottom',
+                      color: colors.text_secondary,
+                      paddingBottom: 3,
+                    }}>
+                    Subtotal:{' '}
+                  </Text>
+                  <Text
+                    adjustsFontSizeToFit
+                    numberOfLines={1}
+                    style={{
+                      fontSize: 25,
+                      fontFamily: 'ProductSans-Black',
+                      textAlignVertical: 'bottom',
+                    }}>
+                    ₱ {this.props.shopStore.totalCartSubTotal}
+                  </Text>
+                </View>
               </View>
+            </TouchableOpacity>
+
+            <View style={{flex: 1, width: '100%', marginTop: 20}}>
+              <CartStoreList emptyCartText="Your cart is empty" />
             </View>
-          </TouchableOpacity>
-
-          <View style={{flex: 1, width: '100%', marginTop: 20}}>
-            <CartStoreList emptyCartText="Your cart is empty" />
           </View>
-        </View>
-      </SlidingUpPanel>
+        </SlidingUpPanel>
+      </SafeAreaView>
     );
   }
 }
