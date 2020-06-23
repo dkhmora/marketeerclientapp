@@ -11,7 +11,8 @@ import {colors} from '../../assets/colors';
 import {inject, observer, Observer} from 'mobx-react';
 import {color} from 'react-native-reanimated';
 import {observable, computed} from 'mobx';
-
+import CartScreen from '../screens/CartScreen';
+import LoginScreen from '../screens/LoginScreen';
 @inject('authStore')
 @inject('shopStore')
 @observer

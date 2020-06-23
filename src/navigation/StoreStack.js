@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-import StoreScreen from '../screens/StoreScreen';
+import MainDrawer from './MainDrawer';
+import CartScreen from '../screens/CartScreen';
 import AuthStack from './AuthStack';
-import StoreStack from './StoreStack';
 
-class MainStack extends Component {
+class StoreStack extends Component {
   constructor(props) {
     super(props);
   }
@@ -14,12 +14,12 @@ class MainStack extends Component {
 
     return (
       <StackMain.Navigator initialRouteName="Home" headerMode="none">
+        <StackMain.Screen name="Home" component={MainDrawer} />
         <StackMain.Screen name="Auth" component={AuthStack} />
-        <StackMain.Screen name="Home" component={StoreStack} />
-        <StackMain.Screen name="Store" component={StoreScreen} />
+        <StackMain.Screen name="Cart" component={CartScreen} />
       </StackMain.Navigator>
     );
   }
 }
 
-export default MainStack;
+export default StoreStack;

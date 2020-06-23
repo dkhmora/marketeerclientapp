@@ -101,7 +101,7 @@ class MainScreen extends Component {
             if (locationMenuOpen) {
               this.hideLocationMenu();
             }
-            navigation.openDrawer();
+            navigation.navigate('Cart');
           }}
           type="clear"
           color={colors.icons}
