@@ -204,11 +204,11 @@ class StoreScreen extends Component {
         {Platform.OS === 'ios' ? (
           <SafeAreaView>
             <SafeAreaView>
-              <SlidingCartPanel />
+              <SlidingCartPanel navigation={navigation} />
             </SafeAreaView>
           </SafeAreaView>
         ) : (
-          <SlidingCartPanel />
+          <SlidingCartPanel navigation={navigation} />
         )}
       </View>
     );

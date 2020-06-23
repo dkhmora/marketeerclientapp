@@ -19,6 +19,7 @@ const SLIDING_MENU_INITIAL_HEIGHT = 75;
 const SLIDING_MENU_EXTENDED_HEIGHT =
   SCREEN_HEIGHT - SLIDING_MENU_INITIAL_HEIGHT;
 @inject('shopStore')
+@inject('authStore')
 @observer
 class SlidingCartPanel extends Component {
   constructor(props) {
@@ -31,6 +32,19 @@ class SlidingCartPanel extends Component {
 
   openPanel() {
     this._panel.show();
+  }
+
+  handleCheckout() {
+    const {navigation} = this.props;
+
+    this.props.authStore.checkAuthStatus().then(() => {
+      if (this.props.authStore.guest) {
+        console.log('Please login');
+        navigation.navigate('Auth', {checkout: true});
+      } else {
+        console.log('Continue to checkout');
+      }
+    });
   }
 
   render() {
@@ -118,6 +132,7 @@ class SlidingCartPanel extends Component {
             </Text>
 
             <Button
+              onPress={() => this.handleCheckout()}
               raised
               icon={<Icon name="arrow-right" color={colors.icons} />}
               iconRight
@@ -143,26 +158,28 @@ class SlidingCartPanel extends Component {
             }}>
             <CartStoreList emptyCartText="Your cart is empty" />
           </View>
+
+          <Button
+            onPress={() => this.handleCheckout()}
+            raised
+            icon={<Icon name="arrow-right" color={colors.icons} />}
+            iconRight
+            title="Checkout"
+            titleStyle={{
+              color: colors.icons,
+              fontFamily: 'ProductSans-Black',
+              fontSize: 18,
+              marginRight: '20%',
+            }}
+            buttonStyle={{height: 50}}
+            containerStyle={{
+              borderRadius: 24,
+              padding: 0,
+              marginBottom: Platform.OS === 'ios' ? 80 : 50,
+              width: '100%',
+            }}
+          />
         </View>
-        <Button
-          raised
-          icon={<Icon name="arrow-right" color={colors.icons} />}
-          iconRight
-          title="Checkout"
-          titleStyle={{
-            color: colors.icons,
-            fontFamily: 'ProductSans-Black',
-            fontSize: 18,
-            marginRight: '20%',
-          }}
-          buttonStyle={{height: 50}}
-          containerStyle={{
-            borderRadius: 24,
-            padding: 0,
-            marginBottom: Platform.OS === 'ios' ? 80 : 50,
-            marginHorizontal: 10,
-          }}
-        />
       </SlidingUpPanel>
     );
   }

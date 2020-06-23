@@ -72,6 +72,8 @@ class LoginScreen extends Component {
   render() {
     const {navigation} = this.props;
     const {emailCheck} = this.state;
+    const {checkout} = this.props.route.params;
+    const titleText = checkout ? 'Login to Checkout' : 'Login';
 
     return (
       <View style={[styles.container, {paddingTop: 0}]}>
@@ -99,7 +101,7 @@ class LoginScreen extends Component {
           animation="fadeInUpBig"
           style={styles.footer}>
           <ScrollView>
-            <Text style={styles.text_header}>Login</Text>
+            <Text style={styles.text_header}>{titleText}</Text>
 
             <Text style={styles.text_footer}>Email Address</Text>
 
@@ -186,7 +188,12 @@ class LoginScreen extends Component {
                 Don't have an account? You can sign up{' '}
               </Text>
 
-              <TouchableOpacity onPress={() => navigation.navigate('Sign Up')}>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('Sign Up', {
+                    checkout: checkout ? checkout : false,
+                  })
+                }>
                 <Text style={styles.touchable_text}>here</Text>
               </TouchableOpacity>
             </View>

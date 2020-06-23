@@ -27,7 +27,7 @@ export const styles = StyleSheet.create({
     color: colors.text_primary,
     fontWeight: 'normal',
     fontSize: 30,
-    paddingBottom: 20,
+    paddingBottom: 30,
     paddingTop: 10,
   },
   text_subtext: {

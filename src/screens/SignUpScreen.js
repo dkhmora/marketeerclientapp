@@ -158,7 +158,7 @@ class SignUpScreen extends Component {
       secureTextEntry,
       confirm_secureTextEntry,
     } = this.state;
-
+    const {checkout} = this.props.route.params;
     const {navigation} = this.props;
 
     return (
