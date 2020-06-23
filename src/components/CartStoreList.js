@@ -17,14 +17,20 @@ class CartStoreList extends Component {
 
   render() {
     const dataSource = this.props.shopStore.cartStores.slice();
-    const {emptyCartText} = this.props;
+    const {emptyCartText, checkout} = this.props;
 
     return (
       <View style={{flex: 1}}>
         {dataSource.length > 0 ? (
           <ScrollView style={{flex: 1}}>
             {dataSource.map((storeName, index) => {
-              return <CartStoreCard storeName={storeName} key={index} />;
+              return (
+                <CartStoreCard
+                  checkout={checkout}
+                  storeName={storeName}
+                  key={index}
+                />
+              );
             })}
           </ScrollView>
         ) : (

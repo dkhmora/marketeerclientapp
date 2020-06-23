@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View} from 'react-native';
+import {View, Picker} from 'react-native';
 import {Card, Text, Image} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
 import FastImage from 'react-native-fast-image';
@@ -67,7 +67,7 @@ class CartStoreCard extends Component {
   }
 
   render() {
-    const {storeName} = this.props;
+    const {storeName, checkout} = this.props;
 
     return (
       <Card
@@ -143,6 +143,30 @@ class CartStoreCard extends Component {
             ₱ {this.subTotal}
           </Text>
         </View>
+
+        {checkout && (
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              marginTop: 5,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 10,
+              borderWidth: 1,
+              borderColor: colors.divider,
+              paddingHorizontal: 8,
+            }}>
+            <Text style={{fontSize: 16, fontFamily: 'ProductSans-Light'}}>
+              Shipping Method:
+            </Text>
+            <Picker mode="dropdown" style={{flex: 1}}>
+              <Picker.Item label="Grab (₱150-₱250)" value="Grab" />
+              <Picker.Item label="Lalamove (₱100-₱200)" value="Lalamove" />
+              <Picker.Item label="Mr. Speedy (₱80-₱180)" value="Mr. Speedy" />
+            </Picker>
+          </View>
+        )}
       </Card>
     );
   }

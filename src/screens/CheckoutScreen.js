@@ -55,7 +55,7 @@ class CheckoutScreen extends Component {
               marginRight: 10,
             }}
           />
-          <Text style={{color: colors.icons, fontSize: 30}}>Cart</Text>
+          <Text style={{color: colors.icons, fontSize: 30}}>Checkout</Text>
         </Animatable.View>
 
         <Animatable.View
@@ -63,6 +63,7 @@ class CheckoutScreen extends Component {
           animation="fadeInUpBig"
           style={[styles.footer, {paddingBottom: 100}]}>
           <CartStoreList
+            checkout
             emptyCartText={`This seems lonely...${'\n'}
               ${'\n'}Go back and visit a store now and add items to your cart!`}
           />
@@ -114,7 +115,7 @@ class CheckoutScreen extends Component {
                 color: colors.icons,
                 fontSize: 16,
               }}>
-              Total
+              Total Amount
             </Text>
           </View>
 
