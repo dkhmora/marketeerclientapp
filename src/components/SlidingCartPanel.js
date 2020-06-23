@@ -1,5 +1,12 @@
 import React, {Component} from 'react';
-import {View, Text, TouchableOpacity, Image, Dimensions} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+  Platform,
+} from 'react-native';
 import {observer, inject} from 'mobx-react';
 import {Icon, Badge, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
@@ -152,8 +159,7 @@ class SlidingCartPanel extends Component {
           containerStyle={{
             borderRadius: 24,
             padding: 0,
-            marginBottom: 50,
-            marginVertical: 10,
+            marginBottom: Platform.OS === 'ios' ? 80 : 50,
             marginHorizontal: 10,
           }}
         />
