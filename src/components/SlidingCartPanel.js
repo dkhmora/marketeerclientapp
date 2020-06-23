@@ -133,33 +133,30 @@ class SlidingCartPanel extends Component {
               flex: 1,
               width: '100%',
               marginTop: 20,
-              marginBottom: 50 + SLIDING_MENU_INITIAL_HEIGHT,
             }}>
             <CartStoreList emptyCartText="Your cart is empty" />
           </View>
-
-          <View style={{position: 'absolute', bottom: 70, right: 0, left: 0}}>
-            <Button
-              raised
-              icon={<Icon name="arrow-right" color={colors.icons} />}
-              iconRight
-              title="Checkout"
-              titleStyle={{
-                color: colors.icons,
-                fontFamily: 'ProductSans-Black',
-                fontSize: 18,
-                marginRight: '20%',
-              }}
-              buttonStyle={{height: 50}}
-              containerStyle={{
-                borderRadius: 24,
-                padding: 0,
-                marginVertical: 10,
-                marginHorizontal: 10,
-              }}
-            />
-          </View>
         </View>
+        <Button
+          raised
+          icon={<Icon name="arrow-right" color={colors.icons} />}
+          iconRight
+          title="Checkout"
+          titleStyle={{
+            color: colors.icons,
+            fontFamily: 'ProductSans-Black',
+            fontSize: 18,
+            marginRight: '20%',
+          }}
+          buttonStyle={{height: 50}}
+          containerStyle={{
+            borderRadius: 24,
+            padding: 0,
+            marginBottom: 50,
+            marginVertical: 10,
+            marginHorizontal: 10,
+          }}
+        />
       </SlidingUpPanel>
     );
   }
