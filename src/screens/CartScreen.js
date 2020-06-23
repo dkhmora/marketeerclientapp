@@ -17,6 +17,8 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import CartStoreList from '../components/CartStoreList';
 
+@inject('shopStore')
+@observer
 class CartScreen extends Component {
   constructor(props) {
     super(props);
@@ -95,7 +97,7 @@ class CartScreen extends Component {
                 fontSize: 16,
                 alignSelf: 'center',
               }}>
-              20 Items
+              {this.props.shopStore.totalCartItemQuantity} Items
             </Text>
           </View>
           <Button

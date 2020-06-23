@@ -17,7 +17,9 @@ class shopStore {
 
     if (this.storeCartItems) {
       Object.keys(this.storeCartItems).map((storeName) => {
-        quantity = this.storeCartItems[storeName].length + quantity;
+        this.storeCartItems[storeName].map((item) => {
+          quantity = item.quantity + quantity;
+        });
       });
     }
 

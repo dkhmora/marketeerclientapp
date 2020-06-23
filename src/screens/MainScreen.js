@@ -19,12 +19,13 @@ import {
 } from 'react-native-elements';
 import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
-import {inject} from 'mobx-react';
+import {inject, observer} from 'mobx-react';
 import StoreCard from '../components/StoreCard';
 
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
 const pixelsFromTop = getStatusBarHeight() + headerHeight;
 @inject('shopStore')
+@observer
 class MainScreen extends Component {
   constructor(props) {
     super(props);
@@ -90,7 +91,7 @@ class MainScreen extends Component {
     return null;
   };
 
-  rightComponent = () => {
+  rightComponent = ({cartQuantity}) => {
     const {navigation} = this.props;
     const {locationMenuOpen} = this.state;
 
@@ -117,7 +118,7 @@ class MainScreen extends Component {
         />
 
         <Badge
-          value={0}
+          value={cartQuantity}
           badgeStyle={{backgroundColor: colors.accent}}
           containerStyle={{position: 'absolute', top: 8, right: 2}}
         />
@@ -278,7 +279,9 @@ class MainScreen extends Component {
             placement={Platform.OS === 'ios' ? 'center' : 'left'}
             leftComponent={this.menuButton}
             centerComponent={this.centerComponent}
-            rightComponent={this.rightComponent}
+            rightComponent={this.rightComponent({
+              cartQuantity: this.props.shopStore.totalCartItemQuantity,
+            })}
             statusBarProps={{
               barStyle: 'light-content',
               backgroundColor: 'rgba(0, 0, 0, 0.10)',
