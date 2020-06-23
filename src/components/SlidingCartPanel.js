@@ -125,7 +125,7 @@ class SlidingCartPanel extends Component {
           </TouchableOpacity>
 
           <View style={{flex: 1, width: '100%', marginTop: 20}}>
-            <CartStoreList />
+            <CartStoreList emptyCartText="Your cart is empty" />
           </View>
         </View>
       </SlidingUpPanel>
