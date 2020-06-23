@@ -201,9 +201,13 @@ class StoreScreen extends Component {
           )}
         </Animatable.View>
 
-        <SafeAreaView>
+        {Platform.OS === 'ios' ? (
+          <SafeAreaView>
+            <SlidingCartPanel />
+          </SafeAreaView>
+        ) : (
           <SlidingCartPanel />
-        </SafeAreaView>
+        )}
       </View>
     );
   }

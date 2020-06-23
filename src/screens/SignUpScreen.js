@@ -15,6 +15,7 @@ import {observer, inject} from 'mobx-react';
 import {Icon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
+import BackButton from '../components/BackButton';
 @inject('generalStore')
 @inject('authStore')
 @observer
@@ -161,8 +162,8 @@ class SignUpScreen extends Component {
     const {navigation} = this.props;
 
     return (
-      <View style={styles.container}>
-        <StatusBar animated backgroundColor={colors.primary} />
+      <View style={[styles.container, {paddingTop: 0}]}>
+        <StatusBar animated translucent backgroundColor={colors.primary} />
 
         <View style={styles.header}>
           <Image
@@ -173,6 +174,8 @@ class SignUpScreen extends Component {
               resizeMode: 'center',
             }}
           />
+
+          <BackButton navigation={navigation} />
         </View>
         <Animatable.View
           useNativeDriver

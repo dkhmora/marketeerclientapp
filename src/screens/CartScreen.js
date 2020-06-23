@@ -17,6 +17,7 @@ import {Icon, SocialIcon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import CartStoreList from '../components/CartStoreList';
+import BackButton from '../components/BackButton';
 
 @inject('shopStore')
 @observer
@@ -29,7 +30,7 @@ class CartScreen extends Component {
     const {navigation} = this.props;
 
     return (
-      <SafeAreaView style={styles.container} forceInset={{top: 'never'}}>
+      <SafeAreaView style={styles.container}>
         <StatusBar animated translucent backgroundColor="rgba(0, 0, 0, 0.10)" />
 
         <Animatable.View
@@ -43,20 +44,8 @@ class CartScreen extends Component {
             paddingHorizontal: 20,
             paddingBottom: 10,
           }}>
-          <Button
-            onPress={() => navigation.goBack()}
-            type="clear"
-            icon={<Icon name="arrow-left" color={colors.icons} size={30} />}
-            buttonStyle={{borderRadius: 30}}
-            containerStyle={[
-              styles.buttonContainer,
-              {
-                position: 'absolute',
-                left: 10,
-                top: '25%',
-              },
-            ]}
-          />
+          <BackButton navigation={navigation} />
+
           <Image
             source={require('../../assets/images/logo_cart.png')}
             style={{

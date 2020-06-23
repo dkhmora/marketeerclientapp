@@ -15,6 +15,8 @@ import {observer, inject} from 'mobx-react';
 import {Icon, SocialIcon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
+import Animated from 'react-native-reanimated';
+import BackButton from '../components/BackButton';
 
 @inject('generalStore')
 @inject('authStore')
@@ -72,10 +74,16 @@ class LoginScreen extends Component {
     const {emailCheck} = this.state;
 
     return (
-      <View style={styles.container}>
-        <StatusBar animated backgroundColor={colors.primary} />
+      <View style={[styles.container, {paddingTop: 0}]}>
+        <StatusBar animated translucent backgroundColor="rgba(0, 0, 0, 0.10)" />
 
-        <View style={styles.header}>
+        <Animatable.View
+          duration={800}
+          useNativeDriver
+          animation="fadeInUp"
+          style={styles.header}>
+          <BackButton navigation={navigation} />
+
           <Image
             source={require('../../assets/images/logo.png')}
             style={{
@@ -84,7 +92,8 @@ class LoginScreen extends Component {
               resizeMode: 'center',
             }}
           />
-        </View>
+        </Animatable.View>
+
         <Animatable.View
           useNativeDriver
           animation="fadeInUpBig"
