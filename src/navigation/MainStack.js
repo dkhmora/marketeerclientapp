@@ -4,6 +4,7 @@ import StoreScreen from '../screens/StoreScreen';
 import AuthStack from './AuthStack';
 import CartScreen from '../screens/CartScreen';
 import MainDrawer from './MainDrawer';
+import CheckoutScreen from '../screens/CheckoutScreen';
 
 class MainStack extends Component {
   constructor(props) {
@@ -19,6 +20,7 @@ class MainStack extends Component {
         <StackMain.Screen name="Home" component={MainDrawer} />
         <StackMain.Screen name="Store" component={StoreScreen} />
         <StackMain.Screen name="Cart" component={CartScreen} />
+        <StackMain.Screen name="Checkout" component={CheckoutScreen} />
       </StackMain.Navigator>
     );
   }

@@ -17,9 +17,6 @@ class CartStoreCard extends Component {
   }
 
   @observable url = null;
-  @observable cartItems = this.props.shopStore.storeCartItems[
-    this.props.storeName
-  ];
 
   @computed get subTotal() {
     let amount = 0;
@@ -45,6 +42,10 @@ class CartStoreCard extends Component {
     }
 
     return quantity;
+  }
+
+  @computed get cartItems() {
+    return this.props.shopStore.storeCartItems[this.props.storeName];
   }
 
   getImage = async (imageRef) => {

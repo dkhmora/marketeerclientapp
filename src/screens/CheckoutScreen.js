@@ -21,7 +21,7 @@ import BackButton from '../components/BackButton';
 
 @inject('shopStore')
 @observer
-class CartScreen extends Component {
+class CheckoutScreen extends Component {
   constructor(props) {
     super(props);
   }
@@ -114,7 +114,7 @@ class CartScreen extends Component {
                 color: colors.icons,
                 fontSize: 16,
               }}>
-              Subtotal
+              Total
             </Text>
           </View>
 
@@ -143,4 +143,4 @@ class CartScreen extends Component {
   }
 }
 
-export default CartScreen;
+export default CheckoutScreen;

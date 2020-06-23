@@ -42,6 +42,7 @@ class SlidingCartPanel extends Component {
         console.log('Please login');
         navigation.navigate('Auth', {checkout: true});
       } else {
+        navigation.navigate('Checkout');
         console.log('Continue to checkout');
       }
     });
