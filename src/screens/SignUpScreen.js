@@ -384,7 +384,8 @@ class SignUpScreen extends Component {
               style={{
                 flexDirection: 'row',
                 justifyContent: 'center',
-                paddingVertical: 10,
+                paddingTop: 10,
+                paddingBottom: 30,
               }}>
               <Text style={styles.text_subtext}>
                 Already have an account? You can login{' '}
