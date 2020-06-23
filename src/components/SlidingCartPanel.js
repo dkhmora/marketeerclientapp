@@ -52,6 +52,7 @@ class SlidingCartPanel extends Component {
         <View
           style={{
             flex: 1,
+            flexDirection: 'column',
             alignItems: 'flex-start',
             justifyContent: 'flex-start',
             borderTopLeftRadius: 24,
@@ -132,12 +133,12 @@ class SlidingCartPanel extends Component {
               flex: 1,
               width: '100%',
               marginTop: 20,
-              marginBottom: SLIDING_MENU_INITIAL_HEIGHT,
+              marginBottom: 50 + SLIDING_MENU_INITIAL_HEIGHT,
             }}>
             <CartStoreList emptyCartText="Your cart is empty" />
           </View>
 
-          <View style={{width: '100%', marginBottom: 30, height: 50}}>
+          <View style={{position: 'absolute', bottom: 70, right: 0, left: 0}}>
             <Button
               raised
               icon={<Icon name="arrow-right" color={colors.icons} />}
@@ -149,11 +150,12 @@ class SlidingCartPanel extends Component {
                 fontSize: 18,
                 marginRight: '20%',
               }}
-              buttonStyle={{flex: 1}}
+              buttonStyle={{height: 50}}
               containerStyle={{
-                flex: 1,
                 borderRadius: 24,
                 padding: 0,
+                marginVertical: 10,
+                marginHorizontal: 10,
               }}
             />
           </View>
