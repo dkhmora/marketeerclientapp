@@ -108,6 +108,7 @@ class CartScreen extends Component {
               }}>
               ₱ {this.props.shopStore.totalCartSubTotal}
             </Text>
+
             <Text
               style={{
                 color: colors.icons,
@@ -116,6 +117,7 @@ class CartScreen extends Component {
               {this.props.shopStore.totalCartItemQuantity} Items
             </Text>
           </View>
+
           <Button
             raised
             icon={<Icon name="arrow-right" color={colors.icons} />}
