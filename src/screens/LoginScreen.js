@@ -102,10 +102,12 @@ class LoginScreen extends Component {
             <Text style={styles.text_header}>Login</Text>
 
             <Text style={styles.text_footer}>Email Address</Text>
+
             <View style={styles.action}>
               <View style={styles.icon_container}>
                 <Icon name="user" color={colors.primary} size={20} />
               </View>
+
               <TextInput
                 placeholder="myemail@gmail.com"
                 maxLength={256}
@@ -113,6 +115,7 @@ class LoginScreen extends Component {
                 autoCapitalize="none"
                 onChangeText={(value) => this.handleEmailChange(value)}
               />
+
               {this.state.emailCheck ? (
                 <Animatable.View useNativeDriver animation="bounceIn">
                   <Icon
@@ -134,10 +137,12 @@ class LoginScreen extends Component {
               ]}>
               Password
             </Text>
+
             <View style={styles.action}>
               <View style={styles.icon_container}>
                 <Icon name="lock" color={colors.primary} size={20} />
               </View>
+
               <TextInput
                 placeholder="Password"
                 maxLength={32}
@@ -146,6 +151,7 @@ class LoginScreen extends Component {
                 autoCapitalize="none"
                 onChangeText={(value) => this.handlePasswordChange(value)}
               />
+
               <TouchableOpacity onPress={this.updateSecureTextEntry}>
                 {this.state.secureTextEntry ? (
                   <Icon name="eye" color="grey" size={20} />
@@ -179,10 +185,12 @@ class LoginScreen extends Component {
               <Text style={styles.color_textPrivate}>
                 Don't have an account? You can sign up{' '}
               </Text>
+
               <TouchableOpacity onPress={() => navigation.navigate('Sign Up')}>
                 <Text style={styles.touchable_text}>here</Text>
               </TouchableOpacity>
             </View>
+
             <SocialIcon
               title="Sign In With Facebook"
               button

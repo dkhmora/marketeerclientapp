@@ -1,12 +1,16 @@
 import React, {Component} from 'react';
 import {View, Text, TouchableOpacity, Image, Dimensions} from 'react-native';
 import {observer, inject} from 'mobx-react';
-import {Icon, Badge} from 'react-native-elements';
+import {Icon, Badge, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import CartStoreList from '../components/CartStoreList';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+const SLIDING_MENU_INITIAL_HEIGHT = 75;
+const SLIDING_MENU_EXTENDED_HEIGHT =
+  SCREEN_HEIGHT - SLIDING_MENU_INITIAL_HEIGHT;
 @inject('shopStore')
 @observer
 class SlidingCartPanel extends Component {
@@ -15,7 +19,7 @@ class SlidingCartPanel extends Component {
   }
 
   componentDidMount() {
-    this._panel.show({toValue: 65, velocity: 10});
+    this._panel.show({toValue: SLIDING_MENU_INITIAL_HEIGHT, velocity: 10});
   }
 
   openPanel() {
@@ -23,11 +27,6 @@ class SlidingCartPanel extends Component {
   }
 
   render() {
-    const SCREEN_HEIGHT = Dimensions.get('window').height;
-    const SLIDING_MENU_INITIAL_HEIGHT = 65;
-    const SLIDING_MENU_EXTENDED_HEIGHT =
-      SCREEN_HEIGHT - SLIDING_MENU_INITIAL_HEIGHT;
-
     return (
       <SlidingUpPanel
         ref={(c) => (this._panel = c)}
@@ -68,13 +67,13 @@ class SlidingCartPanel extends Component {
             <Icon name="chevron-up" color="black" />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => this._panel.show()}>
-            <View
-              style={{
-                width: '100%',
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-              }}>
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+            <View style={{flexDirection: 'row'}}>
               <View
                 style={{
                   flexDirection: 'row',
@@ -91,26 +90,20 @@ class SlidingCartPanel extends Component {
                     marginRight: 10,
                   }}
                 />
+
                 <Badge
                   value={this.props.shopStore.totalCartItemQuantity}
                   badgeStyle={{backgroundColor: colors.accent}}
                   containerStyle={{position: 'absolute', top: 4, right: 2}}
                 />
               </View>
+
               <View
                 style={{
                   flexDirection: 'row',
                   alignItems: 'flex-end',
                   justifyContent: 'flex-end',
                 }}>
-                <Text
-                  style={{
-                    textAlignVertical: 'bottom',
-                    color: colors.text_secondary,
-                    paddingBottom: 3,
-                  }}>
-                  Subtotal:{' '}
-                </Text>
                 <Text
                   adjustsFontSizeToFit
                   numberOfLines={1}
@@ -123,7 +116,23 @@ class SlidingCartPanel extends Component {
                 </Text>
               </View>
             </View>
-          </TouchableOpacity>
+            <Button
+              raised
+              icon={<Icon name="arrow-right" color={colors.icons} />}
+              iconRight
+              title="Checkout"
+              titleStyle={{
+                color: colors.icons,
+                fontFamily: 'ProductSans-Black',
+                fontSize: 18,
+                marginRight: '20%',
+              }}
+              containerStyle={{
+                borderRadius: 24,
+                padding: 0,
+              }}
+            />
+          </View>
 
           <View style={{flex: 1, width: '100%', marginTop: 20}}>
             <CartStoreList emptyCartText="Your cart is empty" />
