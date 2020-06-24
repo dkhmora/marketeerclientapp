@@ -364,8 +364,4 @@ class ItemCard extends Component {
   }
 }
 
-ItemCard.defaultProps = {
-  editable: false,
-};
-
 export default ItemCard;

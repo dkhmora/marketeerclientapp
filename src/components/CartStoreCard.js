@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import {View, Picker} from 'react-native';
+import {View} from 'react-native';
+import {Picker} from 'native-base';
 import {Card, Text, Image} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
 import FastImage from 'react-native-fast-image';
