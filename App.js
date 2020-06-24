@@ -7,10 +7,11 @@
  */
 import 'react-native-gesture-handler';
 import React from 'react';
-import {Provider} from 'mobx-react';
+import {Provider, observer} from 'mobx-react';
 import SplashScreen from 'react-native-splash-screen';
 import _ from 'lodash';
 import moment from 'moment';
+import auth from '@react-native-firebase/auth';
 
 global._ = _;
 global.moment = moment;
@@ -25,50 +26,66 @@ import {AppState} from 'react-native';
 const generalStore = (window.store = new GeneralStore());
 const authStore = (window.store = new AuthStore());
 const shopStore = (window.store = new ShopStore());
-export default class App extends React.Component {
+@observer
+class App extends React.Component {
   componentDidMount() {
-    authStore
-      .checkAuthStatus()
-      .then(() => {
-        if (!authStore.guest) {
-          shopStore.getCartItems();
-        }
-
-        AppState.addEventListener('change', (state) => {
+    this.authState = auth().onAuthStateChanged((user) => {
+      authStore
+        .checkAuthStatus(user)
+        .then(() => {
           if (!authStore.guest) {
-            if (state === 'active') {
-              console.log('active state');
-              shopStore.getCartItems();
-            } else if (state === 'background') {
-              if (shopStore.unsubscribeToGetCartItems) {
-                shopStore.unsubscribeToGetCartItems();
-              }
-            } else if (state === 'inactive') {
-              if (shopStore.unsubscribeToGetCartItems) {
-                shopStore.unsubscribeToGetCartItems();
+            shopStore.getCartItems();
+          }
+
+          AppState.addEventListener('change', (state) => {
+            if (!authStore.guest) {
+              if (state === 'active') {
+                console.log('active state');
+                shopStore.getCartItems();
+              } else if (state === 'background') {
+                if (shopStore.unsubscribeToGetCartItems) {
+                  shopStore.unsubscribeToGetCartItems();
+                }
+              } else if (state === 'inactive') {
+                if (shopStore.unsubscribeToGetCartItems) {
+                  shopStore.unsubscribeToGetCartItems();
+                }
               }
             }
-          }
+          });
+        })
+        .then(() => {
+          this.splashScreenTimer = setTimeout(
+            this.hideSplashScreen.bind(this),
+            1000,
+          );
         });
-      })
-      .then(() => {
-        this.splashScreenTimer = setInterval(this.hideSplashScreen, 1000);
-      });
+    });
+  }
+
+  componentWillUnmount() {
+    this.authState();
   }
 
   hideSplashScreen() {
     SplashScreen.hide();
-    clearInterval(this.splashScreenTimer);
+    this.splashScreenTimer && clearTimeout(this.splashScreenTimer);
   }
 
   render() {
-    return (
-      <Provider
-        generalStore={generalStore}
-        authStore={authStore}
-        shopStore={shopStore}>
-        <Setup />
-      </Provider>
-    );
+    if (authStore.userAuthenticated) {
+      return (
+        <Provider
+          generalStore={generalStore}
+          authStore={authStore}
+          shopStore={shopStore}>
+          <Setup />
+        </Provider>
+      );
+    } else {
+      return null;
+    }
   }
 }
+
+export default App;
