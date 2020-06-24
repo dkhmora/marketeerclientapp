@@ -19,6 +19,10 @@ class CartStoreCard extends Component {
 
   @observable url = null;
 
+  @observable storeDetails = this.props.shopStore.getStoreDetails(
+    this.props.storeName,
+  );
+
   @computed get subTotal() {
     let amount = 0;
 
@@ -56,9 +60,7 @@ class CartStoreCard extends Component {
   };
 
   componentDidMount() {
-    const {storeName} = this.props;
-    const storeDetails = this.props.shopStore.getStoreDetails(storeName);
-    const displayImage = storeDetails.displayImage;
+    const {displayImage} = this.storeDetails;
 
     if (displayImage) {
       this.getImage(displayImage);
@@ -69,6 +71,7 @@ class CartStoreCard extends Component {
 
   render() {
     const {storeName, checkout} = this.props;
+    const {shippingMethods} = this.storeDetails;
 
     return (
       <Card
@@ -173,9 +176,9 @@ class CartStoreCard extends Component {
                   this.props.shopStore.storeSelectedShipping[storeName],
                 );
               }}>
-              <Picker.Item label="Grab (₱150-₱250)" value="Grab" />
-              <Picker.Item label="Lalamove (₱100-₱200)" value="Lalamove" />
-              <Picker.Item label="Mr. Speedy (₱80-₱180)" value="Mr. Speedy" />
+              {shippingMethods.map((method) => {
+                return <Picker.Item label={method} value={method} />;
+              })}
             </Picker>
           </View>
         )}
