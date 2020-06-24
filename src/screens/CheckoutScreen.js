@@ -20,10 +20,42 @@ import CartStoreList from '../components/CartStoreList';
 import BackButton from '../components/BackButton';
 
 @inject('shopStore')
+@inject('authStore')
 @observer
 class CheckoutScreen extends Component {
   constructor(props) {
     super(props);
+  }
+
+  handlePlaceOrder() {
+    const cartStores = this.props.shopStore.cartStores.slice();
+    console.log('Place Order');
+    console.log(cartStores);
+    cartStores.map((store) => {
+      const items = this.props.shopStore.storeCartItems[store];
+      const shipping = this.props.shopStore.storeSelectedShipping[store];
+      let quantity = 0;
+      let totalAmount = 0;
+
+      this.props.shopStore.storeCartItems[store].map((item) => {
+        quantity = item.quantity + quantity;
+        totalAmount = item.price * item.quantity + totalAmount;
+      });
+
+      const orderStatus = {};
+      const reviewed = false;
+      const userCoordinates = null;
+      const userAddress = null;
+      const userId = this.getUserId();
+      const createdAt = new Date().toISOString();
+
+      console.log(`Items for ${store}`, items);
+      console.log(`Shipping method for ${store}: ${shipping}`);
+      console.log(`Quantity of items for ${store}: ${quantity}`);
+      console.log(`Total Amount for ${store}: ${totalAmount}`);
+      console.log(`Order Status for ${store}: ${orderStatus}`);
+      console.log(`Review Status for ${store}: ${reviewed}`);
+    });
   }
 
   render() {
@@ -120,6 +152,7 @@ class CheckoutScreen extends Component {
           </View>
 
           <Button
+            onPress={() => this.handlePlaceOrder()}
             raised
             icon={<Icon name="arrow-right" color={colors.icons} />}
             iconRight

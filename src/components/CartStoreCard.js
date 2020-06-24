@@ -176,8 +176,10 @@ class CartStoreCard extends Component {
                   this.props.shopStore.storeSelectedShipping[storeName],
                 );
               }}>
-              {shippingMethods.map((method) => {
-                return <Picker.Item label={method} value={method} />;
+              {shippingMethods.map((method, index) => {
+                return (
+                  <Picker.Item label={method} value={method} key={index} />
+                );
               })}
             </Picker>
           </View>

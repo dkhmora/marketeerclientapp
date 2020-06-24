@@ -29,19 +29,23 @@ const shopStore = (window.store = new ShopStore());
 @observer
 class App extends React.Component {
   componentDidMount() {
+    if (!auth().currentUser) {
+      authStore.signInAnonymously();
+    }
+
     this.authState = auth().onAuthStateChanged((user) => {
       authStore
         .checkAuthStatus(user)
         .then(() => {
           if (!authStore.guest) {
-            shopStore.getCartItems();
+            shopStore.getCartItems(user);
           }
 
           AppState.addEventListener('change', (state) => {
             if (!authStore.guest) {
               if (state === 'active') {
                 console.log('active state');
-                shopStore.getCartItems();
+                shopStore.getCartItems(user);
               } else if (state === 'background') {
                 if (shopStore.unsubscribeToGetCartItems) {
                   shopStore.unsubscribeToGetCartItems();

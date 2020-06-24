@@ -138,17 +138,18 @@ class authStore {
       this.userName = auth().currentUser.displayName;
       this.guest = user.isAnonymous;
       this.userAuthenticated = true;
-    } else {
-      console.log('User is not authenticated, signing in anonymously');
-      auth()
-        .signInAnonymously()
-        .then(() => {
-          this.guest = true;
-          this.userAuthenticated = true;
-          this.userId = this.getUserId();
-        })
-        .catch((err) => console.log(err));
     }
+  }
+
+  @action async signInAnonymously() {
+    await auth()
+      .signInAnonymously()
+      .then(() => {
+        this.guest = true;
+        this.userAuthenticated = true;
+        this.userId = this.getUserId();
+      })
+      .catch((err) => console.log(err));
   }
 
   @action async getUserId() {

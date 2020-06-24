@@ -76,8 +76,9 @@ class shopStore {
     return 0;
   }
 
-  @action getCartItems() {
-    const userId = auth().currentUser.uid;
+  @action getCartItems(user) {
+    const userId = user.uid;
+    console.log(userId);
 
     this.unsubscribeToGetCartItems = userCartCollection
       .doc(userId)
