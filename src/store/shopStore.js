@@ -52,6 +52,13 @@ class shopStore {
     return [];
   }
 
+  @action resetData() {
+    console.log('reset');
+    this.storeCartItems = {};
+    this.storeSelectedShipping = {};
+    this.itemCategories = [];
+  }
+
   @action getStoreDetails(storeName) {
     const store = this.storeList.find(
       (element) => element.storeName === storeName,
@@ -77,16 +84,17 @@ class shopStore {
   }
 
   @action getCartItems(user) {
+    console.log(user);
     const userId = user.uid;
-    console.log(userId);
 
     this.unsubscribeToGetCartItems = userCartCollection
       .doc(userId)
       .onSnapshot((documentSnapshot) => {
-        if (documentSnapshot.data()) {
+        if (documentSnapshot) {
           this.storeCartItems = documentSnapshot.data();
         } else {
-          console.log('no data');
+          this.resetData();
+          return;
         }
       });
   }

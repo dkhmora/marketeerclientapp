@@ -185,7 +185,7 @@ class LoginScreen extends Component {
                 paddingTop: 10,
               }}>
               <Text style={styles.color_textPrivate}>
-                Don't have an account? You can sign up{' '}
+                Don't have an account? Sign up
               </Text>
 
               <TouchableOpacity
@@ -194,7 +194,7 @@ class LoginScreen extends Component {
                     checkout: checkout ? checkout : false,
                   })
                 }>
-                <Text style={styles.touchable_text}>here</Text>
+                <Text style={styles.touchable_text}> here</Text>
               </TouchableOpacity>
             </View>
 
