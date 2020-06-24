@@ -8,6 +8,7 @@ import {observable} from 'mobx';
 import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
+import FastImage from 'react-native-fast-image';
 
 @inject('authStore')
 @inject('shopStore')
@@ -211,10 +212,7 @@ class ItemCard extends Component {
           </CardItem>
           <CardItem cardBody>
             {this.url ? (
-              <Image
-                loadingIndicatorSource={
-                  (require('../../assets/images/placeholder.jpg'), 2)
-                }
+              <FastImage
                 source={{uri: this.url}}
                 style={{
                   height: 150,
