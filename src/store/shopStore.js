@@ -52,6 +52,27 @@ class shopStore {
     return [];
   }
 
+  @action async placeOrder(userId, merchantId, orderDetails, orderItems) {
+    console.log(merchantId);
+    const userOrdersRef = firestore()
+      .collection('users')
+      .doc(userId)
+      .collection('orders');
+    const merchantOrdersRef = firestore()
+      .collection('merchants')
+      .doc(merchantId)
+      .collection('orders');
+    const orderItemsRef = firestore().collection('order_items');
+    const batch = firestore().batch();
+    const id = userOrdersRef.doc().id;
+
+    batch.set(orderItemsRef.doc(id), {orderItems});
+    batch.set(userOrdersRef.doc(id), {...orderDetails});
+    batch.set(merchantOrdersRef.doc(id), {...orderDetails});
+
+    return batch.commit();
+  }
+
   @action resetData() {
     console.log('reset');
     this.storeCartItems = {};
@@ -63,6 +84,8 @@ class shopStore {
     const store = this.storeList.find(
       (element) => element.storeName === storeName,
     );
+
+    console.log('TAE', this.storeList.storeName, storeName);
 
     return store;
   }

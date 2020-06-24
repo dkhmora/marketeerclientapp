@@ -72,6 +72,7 @@ class CartStoreCard extends Component {
   render() {
     const {storeName, checkout} = this.props;
     const {shippingMethods} = this.storeDetails;
+    console.log(this.storeDetails);
 
     return (
       <Card

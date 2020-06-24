@@ -29,32 +29,64 @@ class CheckoutScreen extends Component {
 
   handlePlaceOrder() {
     const cartStores = this.props.shopStore.cartStores.slice();
-    console.log('Place Order');
-    console.log(cartStores);
-    cartStores.map((store) => {
-      const items = this.props.shopStore.storeCartItems[store];
-      const shipping = this.props.shopStore.storeSelectedShipping[store];
+
+    cartStores.map(async (storeName) => {
       let quantity = 0;
       let totalAmount = 0;
 
-      this.props.shopStore.storeCartItems[store].map((item) => {
+      const orderItems = this.props.shopStore.storeCartItems[storeName];
+      const shipping = this.props.shopStore.storeSelectedShipping[storeName];
+      const reviewed = false;
+      const userCoordinates = null;
+      const userAddress = null;
+      const createdAt = new Date().toISOString();
+      const orderStatus = {
+        pending: {
+          status: true,
+          updatedAt: new Date().toISOString(),
+        },
+        accepted: {
+          status: false,
+        },
+        paymentProcessing: {
+          status: false,
+        },
+        shipped: {
+          status: false,
+        },
+        completed: {
+          status: false,
+        },
+        cancelled: {
+          status: false,
+        },
+      };
+
+      await this.props.shopStore.storeCartItems[storeName].map((item) => {
         quantity = item.quantity + quantity;
         totalAmount = item.price * item.quantity + totalAmount;
       });
 
-      const orderStatus = {};
-      const reviewed = false;
-      const userCoordinates = null;
-      const userAddress = null;
-      const userId = this.getUserId();
-      const createdAt = new Date().toISOString();
+      const orderDetails = {
+        reviewed,
+        userCoordinates,
+        userAddress,
+        userId,
+        createdAt,
+        orderStatus,
+        quantity,
+        totalAmount,
+        shipping,
+      };
 
-      console.log(`Items for ${store}`, items);
-      console.log(`Shipping method for ${store}: ${shipping}`);
-      console.log(`Quantity of items for ${store}: ${quantity}`);
-      console.log(`Total Amount for ${store}: ${totalAmount}`);
-      console.log(`Order Status for ${store}: ${orderStatus}`);
-      console.log(`Review Status for ${store}: ${reviewed}`);
+      const userId = await this.props.authStore.getUserId();
+      const merchantId = await this.props.shopStore.getStoreDetails(storeName)
+        .merchantId;
+
+      this.props.shopStore
+        .placeOrder(userId, merchantId, orderDetails, orderItems)
+        .then(() => console.log(`Order Placed for ${storeName}!`))
+        .catch((err) => console.log(err));
     });
   }
 
