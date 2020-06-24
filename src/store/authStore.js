@@ -96,7 +96,14 @@ class authStore {
   @action async signIn(email, password, navigation) {
     await auth()
       .signInWithEmailAndPassword(email, password)
-      .then(() => console.log('signed in succesfully'))
+      .then(() =>
+        Toast.show({
+          text: 'Signed in successfully',
+          type: 'success',
+          duration: 3500,
+          style: {margin: 20, borderRadius: 16},
+        }),
+      )
       .then(() => {
         this.name = auth().currentUser.displayName;
         this.guest = false;
@@ -120,7 +127,14 @@ class authStore {
   @action async signOut() {
     await auth()
       .signOut()
-      .then(() => console.log('signed out successfully'))
+      .then(() =>
+        Toast.show({
+          text: 'Signed out successfully',
+          type: 'success',
+          duration: 3500,
+          style: {margin: 20, borderRadius: 16},
+        }),
+      )
       .then(() =>
         auth()
           .signInAnonymously()

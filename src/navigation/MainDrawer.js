@@ -2,17 +2,14 @@ import React, {Component} from 'react';
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
-  DrawerItemList,
 } from '@react-navigation/drawer';
 import MainScreen from '../screens/MainScreen';
-import {Button, Text, Icon, ListItem, Avatar} from 'react-native-elements';
-import {View, Platform, Image} from 'react-native';
+import {Text, Icon, ListItem, Avatar} from 'react-native-elements';
+import {View, Image} from 'react-native';
 import {colors} from '../../assets/colors';
-import {inject, observer, Observer} from 'mobx-react';
-import {color} from 'react-native-reanimated';
-import {observable, computed} from 'mobx';
-import CartScreen from '../screens/CartScreen';
-import LoginScreen from '../screens/LoginScreen';
+import {inject, observer} from 'mobx-react';
+import {computed} from 'mobx';
+
 @inject('authStore')
 @inject('shopStore')
 @observer
@@ -73,7 +70,6 @@ class MainDrawer extends Component {
         }}>
         <View
           style={{
-            flex: 1,
             width: '100%',
             flexDirection: 'column',
             paddingHorizontal: 20,
@@ -82,8 +78,8 @@ class MainDrawer extends Component {
           <Image
             source={require('../../assets/images/logo.png')}
             style={{
-              height: 100,
-              width: 100,
+              height: 150,
+              width: 150,
               resizeMode: 'center',
               alignSelf: 'center',
             }}
@@ -115,7 +111,7 @@ class MainDrawer extends Component {
         </View>
         <View
           style={{
-            flex: 3,
+            flex: 1,
             backgroundColor: '#fff',
             width: '100%',
           }}>

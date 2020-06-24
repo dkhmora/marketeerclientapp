@@ -20,10 +20,25 @@ import CartStoreList from '../components/CartStoreList';
 import BackButton from '../components/BackButton';
 
 @inject('shopStore')
+@inject('authStore')
 @observer
 class CartScreen extends Component {
   constructor(props) {
     super(props);
+  }
+
+  handleCheckout() {
+    const {navigation} = this.props;
+
+    this.props.authStore.checkAuthStatus().then(() => {
+      if (this.props.authStore.guest) {
+        console.log('Please login');
+        navigation.navigate('Auth', {checkout: true});
+      } else {
+        navigation.navigate('Checkout');
+        console.log('Continue to checkout');
+      }
+    });
   }
 
   render() {
@@ -119,6 +134,7 @@ class CartScreen extends Component {
           </View>
 
           <Button
+            onPress={() => this.handleCheckout()}
             raised
             icon={<Icon name="arrow-right" color={colors.icons} />}
             iconRight
