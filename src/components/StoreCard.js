@@ -256,13 +256,3 @@ class StoreCard extends Component {
 }
 
 export default StoreCard;
-
-const platformStyle = StyleSheet.create({
-  storeDescriptionText: {
-    flexWrap: Platform.OS === 'android' ? 'wrap' : 'nowrap',
-    flexShrink: Platform.OS === 'android' ? 1 : 0,
-  },
-  storeDescriptionContainer: {
-    paddingBottom: Platform.OS === 'android' ? 10 : 0,
-  },
-});

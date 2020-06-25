@@ -15,6 +15,10 @@ import {observable, computed} from 'mobx';
 class CartStoreCard extends Component {
   constructor(props) {
     super(props);
+
+    this.props.shopStore.storeSelectedShipping[
+      this.props.storeName
+    ] = this.storeDetails.shippingMethods[0];
   }
 
   @observable url = null;
@@ -177,11 +181,15 @@ class CartStoreCard extends Component {
                   this.props.shopStore.storeSelectedShipping[storeName],
                 );
               }}>
-              {shippingMethods.map((method, index) => {
-                return (
-                  <Picker.Item label={method} value={method} key={index} />
-                );
-              })}
+              {shippingMethods.length > 0 ? (
+                shippingMethods.map((method, index) => {
+                  return (
+                    <Picker.Item label={method} value={method} key={index} />
+                  );
+                })
+              ) : (
+                <Text>No shipping method available for your location</Text>
+              )}
             </Picker>
           </View>
         )}

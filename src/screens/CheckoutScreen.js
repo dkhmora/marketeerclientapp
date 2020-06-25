@@ -27,10 +27,11 @@ class CheckoutScreen extends Component {
     super(props);
   }
 
-  handlePlaceOrder() {
+  async handlePlaceOrder() {
+    const {navigation} = this.props;
     const cartStores = this.props.shopStore.cartStores.slice();
 
-    cartStores.map(async (storeName) => {
+    await cartStores.map(async (storeName) => {
       let quantity = 0;
       let totalAmount = 0;
 
@@ -86,8 +87,11 @@ class CheckoutScreen extends Component {
       this.props.shopStore
         .placeOrder(userId, merchantId, orderDetails, orderItems)
         .then(() => console.log(`Order Placed for ${storeName}!`))
+        .then(() => this.props.shopStore.deleteCartStore(storeName, userId))
         .catch((err) => console.log(err));
     });
+
+    navigation.navigate('Home');
   }
 
   render() {

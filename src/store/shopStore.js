@@ -73,6 +73,14 @@ class shopStore {
     return batch.commit();
   }
 
+  @action async deleteCartStore(storeName, userId) {
+    firestore()
+      .collection('user_carts')
+      .doc(userId)
+      .update({[storeName]: firestore.FieldValue.delete()})
+      .then(() => console.log(`Successfully deleted ${storeName} in cart!`));
+  }
+
   @action resetData() {
     console.log('reset');
     this.storeCartItems = {};
