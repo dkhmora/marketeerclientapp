@@ -8,10 +8,17 @@ class authStore {
   @observable userAuthenticated = false;
   @observable guest = false;
   @observable userName = '';
-  @observable userId = null;
 
   @computed get authenticationButtonText() {
     return this.guest ? 'Log In' : 'Log Out';
+  }
+
+  @computed get userId() {
+    if (auth().currentUser) {
+      return auth().currentUser.uid;
+    }
+
+    return null;
   }
 
   @action async createUser(
@@ -52,7 +59,6 @@ class authStore {
   @action async createUserDocuments(name, email, phoneNumber) {
     const userId = await auth().currentUser.uid;
 
-    await firestore().collection('user_carts').doc(userId).set({items: []});
     await firestore()
       .collection('users')
       .doc(userId)
@@ -154,14 +160,9 @@ class authStore {
       .then(() => {
         this.guest = true;
         this.userAuthenticated = true;
-        this.userId = this.getUserId();
         console.log('anonymous', this.userId);
       })
       .catch((err) => console.log(err));
-  }
-
-  @action async getUserId() {
-    return auth().currentUser.uid;
   }
 }
 

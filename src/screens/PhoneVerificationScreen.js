@@ -18,6 +18,7 @@ import {styles} from '../../assets/styles';
 import Toast from '../components/Toast';
 
 @inject('generalStore')
+@inject('shopStore')
 @inject('authStore')
 @observer
 class PhoneVerificationScreen extends Component {
@@ -89,8 +90,14 @@ class PhoneVerificationScreen extends Component {
     this.props.authStore
       .createUser(name, email, password, phoneNumber, credential, navigation)
       .then(() => {
+        this.props.shopStore.getCartItems(this.props.authStore.userId);
+
         if (checkout) {
-          navigation.dangerouslyGetParent().navigate('Checkout');
+          this.props.shopStore
+            .setCartItems(this.props.authStore.userId)
+            .then(() => {
+              navigation.dangerouslyGetParent().navigate('Checkout');
+            });
         } else {
           navigation.dangerouslyGetParent().navigate('Home');
         }

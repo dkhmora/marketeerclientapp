@@ -52,6 +52,18 @@ class shopStore {
     return [];
   }
 
+  @action async setCartItems(userId) {
+    firestore()
+      .collection('user_carts')
+      .doc(userId)
+      .set({
+        ...this.storeCartItems,
+      })
+      .then(() => {
+        console.log('Successfully updated cart!');
+      });
+  }
+
   @action async placeOrder(userId, merchantId, orderDetails, orderItems) {
     console.log(merchantId);
     const userOrdersRef = firestore()
@@ -114,10 +126,7 @@ class shopStore {
     return 0;
   }
 
-  @action getCartItems(user) {
-    console.log(user);
-    const userId = user.uid;
-
+  @action getCartItems(userId) {
     this.unsubscribeToGetCartItems = userCartCollection
       .doc(userId)
       .onSnapshot((documentSnapshot) => {

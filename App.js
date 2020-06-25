@@ -42,15 +42,19 @@ class App extends React.Component {
       authStore
         .checkAuthStatus()
         .then(() => {
-          if (!authStore.guest) {
-            shopStore.getCartItems(user);
+          const userId = user.uid;
+
+          if (!authStore.guest && user) {
+            shopStore.getCartItems(userId);
           }
 
           AppState.addEventListener('change', (state) => {
             if (!authStore.guest) {
               if (state === 'active') {
                 console.log('active state');
-                shopStore.getCartItems(user);
+                if (!authStore.guest && user) {
+                  shopStore.getCartItems(userId);
+                }
               } else if (state === 'background') {
                 if (shopStore.unsubscribeToGetCartItems) {
                   shopStore.unsubscribeToGetCartItems();

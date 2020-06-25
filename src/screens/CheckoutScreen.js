@@ -81,7 +81,7 @@ class CheckoutScreen extends Component {
         shipping,
       };
 
-      const userId = await this.props.authStore.getUserId();
+      const userId = this.props.authStore.userId;
       const merchantId = await this.props.shopStore.getStoreDetails(storeName)
         .merchantId;
 
