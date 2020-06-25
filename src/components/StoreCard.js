@@ -187,9 +187,8 @@ class StoreCard extends Component {
             }}>
             <View
               style={{
-                alignSelf: 'flex-start',
-                flexDirection: 'row',
-                flexWrap: 'wrap',
+                width: '100%',
+                flexDirection: 'column',
               }}>
               <Text
                 numberOfLines={1}
@@ -197,16 +196,13 @@ class StoreCard extends Component {
                   styles.text_footer,
                   {
                     fontFamily: 'ProductSans-Regular',
-                    flex: 1,
                     textAlign: 'left',
                     alignSelf: 'flex-start',
                   },
                 ]}>
                 {store.storeName}
               </Text>
-            </View>
 
-            <View>
               <Text
                 numberOfLines={2}
                 style={[
@@ -215,22 +211,21 @@ class StoreCard extends Component {
                     fontFamily: 'ProductSans-light',
                     textAlign: 'left',
                     alignSelf: 'flex-start',
-                    flex: 1,
+                    height: 32,
                   },
                 ]}>
                 {store.storeDescription}
               </Text>
-            </View>
 
-            <View
-              style={{
-                width: '100%',
-                flexDirection: 'row',
-                justifyContent: 'flex-start',
-                alignItems: 'flex-end',
-                marginTop: 5,
-              }}>
-              <this.PaymentMethods />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'flex-start',
+                  alignItems: 'flex-end',
+                  marginTop: 5,
+                }}>
+                <this.PaymentMethods />
+              </View>
             </View>
           </CardItem>
           {{displayImageUrl} && (
