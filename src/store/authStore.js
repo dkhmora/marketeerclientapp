@@ -27,7 +27,6 @@ class authStore {
       .then(() => this.createUserDocuments(name, email, phoneNumber))
       .then(() => console.log('Successfully created user documents'))
       .then(() => this.checkAuthStatus())
-      .then(() => navigation.navigate('Home'))
       .then(() => {
         Toast({
           text: 'Welcome to Marketeer!',
@@ -90,7 +89,7 @@ class authStore {
       );
   }
 
-  @action async signIn(email, password, navigation) {
+  @action async signIn(email, password) {
     await auth()
       .signInWithEmailAndPassword(email, password)
       .then(() =>
@@ -103,7 +102,6 @@ class authStore {
         this.name = auth().currentUser.displayName;
         this.guest = false;
         this.userAuthenticated = true;
-        navigation.dangerouslyGetParent().navigate('Home');
       })
       .catch((err) => {
         if (err.code === 'auth/user-not-found') {

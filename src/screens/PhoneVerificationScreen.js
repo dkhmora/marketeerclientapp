@@ -72,7 +72,13 @@ class PhoneVerificationScreen extends Component {
 
   async confirmCode(code) {
     const {navigation} = this.props;
-    const {name, email, password, phoneNumber} = this.props.route.params;
+    const {
+      name,
+      email,
+      password,
+      phoneNumber,
+      checkout,
+    } = this.props.route.params;
     const {verificationId} = this.state;
 
     const credential = firebase.auth.PhoneAuthProvider.credential(
@@ -80,14 +86,15 @@ class PhoneVerificationScreen extends Component {
       code,
     );
 
-    this.props.authStore.createUser(
-      name,
-      email,
-      password,
-      phoneNumber,
-      credential,
-      navigation,
-    );
+    this.props.authStore
+      .createUser(name, email, password, phoneNumber, credential, navigation)
+      .then(() => {
+        if (checkout) {
+          navigation.dangerouslyGetParent().navigate('Checkout');
+        } else {
+          navigation.dangerouslyGetParent().navigate('Home');
+        }
+      });
   }
 
   render() {

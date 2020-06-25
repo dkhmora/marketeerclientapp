@@ -137,12 +137,14 @@ class SignUpScreen extends Component {
 
   handleSignUp() {
     const {name, email, password, phoneNumber} = this.state;
+    const {checkout} = this.props.route.params;
 
     this.props.navigation.navigate('Phone Verification', {
       name,
       email,
       password,
       phoneNumber,
+      checkout,
     });
   }
 

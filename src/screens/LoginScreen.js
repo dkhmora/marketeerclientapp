@@ -65,8 +65,16 @@ class LoginScreen extends Component {
 
   handleSignIn() {
     const {email, password} = this.state;
+    const {checkout} = this.props.route.params;
+    const {navigation} = this.props;
 
-    this.props.authStore.signIn(email, password, this.props.navigation);
+    this.props.authStore.signIn(email, password).then(() => {
+      if (checkout) {
+        navigation.dangerouslyGetParent().navigate('Checkout');
+      } else {
+        navigation.dangerouslyGetParent().navigate('Home');
+      }
+    });
   }
 
   render() {
