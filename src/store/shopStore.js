@@ -79,8 +79,8 @@ class shopStore {
     const id = userOrdersRef.doc().id;
 
     batch.set(orderItemsRef.doc(id), {orderItems});
-    batch.set(userOrdersRef.doc(id), {...orderDetails});
-    batch.set(merchantOrdersRef.doc(id), {...orderDetails});
+    batch.set(userOrdersRef.doc(id), {...orderDetails, merchantId});
+    batch.set(merchantOrdersRef.doc(id), {...orderDetails, userId});
 
     return batch.commit();
   }

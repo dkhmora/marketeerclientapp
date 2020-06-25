@@ -73,7 +73,6 @@ class CheckoutScreen extends Component {
         reviewed,
         userCoordinates,
         userAddress,
-        userId,
         createdAt,
         orderStatus,
         quantity,
