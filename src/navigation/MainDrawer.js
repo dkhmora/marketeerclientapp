@@ -22,41 +22,52 @@ class MainDrawer extends Component {
     return this.props.authStore.guest ? 'Log In' : 'Log Out';
   }
 
+  @computed get authenticationIcon() {
+    return this.props.authStore.guest ? (
+      <Icon name="log-in" color={colors.primary} size={18} />
+    ) : (
+      <Icon name="log-out" color={colors.primary} size={18} />
+    );
+  }
+
+  @computed get userNameText() {
+    const {userName} = this.props.authStore;
+
+    return userName ? userName : 'Guest Account';
+  }
+
+  @computed get userInitial() {
+    return this.userNameText.charAt(0);
+  }
+
   handleAuthentication(navigation) {
     if (this.props.authStore.guest && this.props.authStore.userAuthenticated) {
       navigation.closeDrawer();
+
       this.props.navigation.navigate('Auth');
     } else if (this.props.authStore.userAuthenticated) {
-      this.signOutUser(navigation);
+      navigation.closeDrawer();
+
+      this.props.authStore
+        .signOut()
+        .then(() => this.props.authStore.checkAuthStatus())
+        .then(() => {
+          this.props.shopStore.unsubscribeToGetCartItems &&
+            this.props.shopStore.unsubscribeToGetCartItems() &&
+            this.props.shopStore.resetData();
+        });
     } else {
       console.log('Failed to authenticate');
     }
   }
 
-  signOutUser(navigation) {
-    const {signOut} = this.props.authStore;
-
-    signOut()
-      .then(() => navigation.closeDrawer())
-      .then(() => this.props.authStore.checkAuthStatus())
-      .then(() => {
-        this.props.shopStore.unsubscribeToGetCartItems &&
-          this.props.shopStore.unsubscribeToGetCartItems() &&
-          this.props.shopStore.resetData();
-      });
-  }
-
   customDrawer = (props) => {
-    const {userName} = this.props.authStore;
-
-    const authenticationIcon = this.props.authStore.guest ? (
-      <Icon name="log-in" color={colors.primary} size={18} />
-    ) : (
-      <Icon name="log-out" color={colors.primary} size={18} />
-    );
-
-    const userNameText = userName ? userName : 'Guest Account';
-    let userInitial = userNameText.charAt(0);
+    const {
+      authenticationIcon,
+      authenticationButtonText,
+      userNameText,
+      userInitial,
+    } = this;
 
     return (
       <DrawerContentScrollView
@@ -147,7 +158,7 @@ class MainDrawer extends Component {
             onPress={() => console.log('yes')}
           />
           <ListItem
-            title={this.authenticationButtonText}
+            title={authenticationButtonText}
             leftIcon={authenticationIcon}
             onPress={() => this.handleAuthentication(props.navigation)}
           />
