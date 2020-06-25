@@ -2,7 +2,7 @@ import {observable, action, computed} from 'mobx';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import firestore from '@react-native-firebase/firestore';
-import {Toast} from 'native-base';
+import Toast from '../components/Toast';
 
 class authStore {
   @observable userAuthenticated = false;
@@ -29,22 +29,19 @@ class authStore {
       .then(() => this.checkAuthStatus())
       .then(() => navigation.navigate('Home'))
       .then(() => {
-        Toast.show({
+        Toast({
           text: 'Welcome to Marketeer!',
-          type: 'success',
           duration: 4000,
-          style: {margin: 20, borderRadius: 16},
         });
       })
       .catch((err) => {
         this.userAuthenticated = false;
         if (err.code === 'auth/credential-already-in-use') {
-          Toast.show({
+          Toast({
             text:
               'Error: Phone number is already linked to another account, please use another mobile phone number',
             type: 'danger',
             duration: 6000,
-            style: {margin: 20, borderRadius: 16},
           });
         }
         navigation.goBack();
@@ -97,11 +94,9 @@ class authStore {
     await auth()
       .signInWithEmailAndPassword(email, password)
       .then(() =>
-        Toast.show({
+        Toast({
           text: 'Signed in successfully',
-          type: 'success',
           duration: 3500,
-          style: {margin: 20, borderRadius: 16},
         }),
       )
       .then(() => {
@@ -112,12 +107,11 @@ class authStore {
       })
       .catch((err) => {
         if (err.code === 'auth/user-not-found') {
-          Toast.show({
+          Toast({
             text:
               'Wrong username or password. Please create an account or try again.',
             type: 'danger',
             duration: 6000,
-            style: {margin: 20, borderRadius: 16},
           });
         }
         console.log(err);
@@ -128,11 +122,9 @@ class authStore {
     await auth()
       .signOut()
       .then(() =>
-        Toast.show({
+        Toast({
           text: 'Signed out successfully',
-          type: 'success',
           duration: 3500,
-          style: {margin: 20, borderRadius: 16},
         }),
       )
       .then(() =>

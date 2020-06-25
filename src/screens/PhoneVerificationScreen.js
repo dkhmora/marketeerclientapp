@@ -15,7 +15,7 @@ import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
-import { Toast } from 'native-base';
+import Toast from '../components/Toast';
 
 @inject('generalStore')
 @inject('authStore')
@@ -43,22 +43,19 @@ class PhoneVerificationScreen extends Component {
         (phoneAuthSnapshot) => {
           switch (phoneAuthSnapshot.state) {
             case firebase.auth.PhoneAuthState.CODE_SENT:
-              Toast.show({
+              Toast({
                 text: 'Verification Code Sent',
-                type: 'success',
                 duration: 3000,
-                style: {margin: 20, borderRadius: 16},
               });
 
               this.setState({verificationId: phoneAuthSnapshot.verificationId});
 
               break;
             case firebase.auth.PhoneAuthState.ERROR:
-              Toast.show({
+              Toast({
                 text: 'Error, something went wrong. Please try again later.',
                 type: 'danger',
                 duration: 3000,
-                style: {margin: 20, borderRadius: 16},
               });
 
               console.log(
@@ -110,7 +107,10 @@ class PhoneVerificationScreen extends Component {
             }}
           />
         </View>
-        <Animatable.View useNativeDriver animation="fadeInUpBig" style={styles.footer}>
+        <Animatable.View
+          useNativeDriver
+          animation="fadeInUpBig"
+          style={styles.footer}>
           <View style={{flex: 1}}>
             <View style={{flex: 1, justifyContent: 'flex-start'}}>
               <Text style={styles.text_header}>SMS Verification</Text>
