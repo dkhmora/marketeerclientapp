@@ -18,6 +18,7 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import CartStoreList from '../components/CartStoreList';
 import BackButton from '../components/BackButton';
+import Toast from '../components/Toast';
 
 @inject('shopStore')
 @inject('authStore')
@@ -90,6 +91,8 @@ class CheckoutScreen extends Component {
         .then(() => this.props.shopStore.deleteCartStore(storeName, userId))
         .catch((err) => console.log(err));
     });
+
+    Toast({text: 'Successfully placed orders!'});
 
     navigation.navigate('Home');
   }
