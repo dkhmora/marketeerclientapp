@@ -89,7 +89,13 @@ class CheckoutScreen extends Component {
         .placeOrder(userId, merchantId, orderDetails, orderItems)
         .then(() => console.log(`Order Placed for ${storeName}!`))
         .then(() => this.props.shopStore.deleteCartStore(storeName, userId))
-        .catch((err) => console.log(err));
+        .catch((err) =>
+          Toast({
+            text: `Error placing order for ${storeName}: ${err}`,
+            duration: 5000,
+            type: 'danger',
+          }),
+        );
     });
 
     Toast({text: 'Successfully placed orders!'});
