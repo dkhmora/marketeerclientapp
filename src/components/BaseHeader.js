@@ -8,7 +8,7 @@ class BaseHeader extends Component {
     super(props);
   }
 
-  menuIcon = () => {
+  menuButton = () => {
     const {navigation} = this.props;
 
     if (navigation) {
@@ -24,6 +24,34 @@ class BaseHeader extends Component {
     }
 
     return null;
+  };
+
+  backButton = () => {
+    const {navigation} = this.props;
+
+    if (navigation) {
+      return (
+        <Button
+          onPress={() => navigation.goBack()}
+          type="clear"
+          color={colors.icons}
+          icon={<Icon name="arrow-left" color={colors.icons} />}
+          containerStyle={styles.buttonContainer}
+        />
+      );
+    }
+
+    return null;
+  };
+
+  leftComponent = () => {
+    const {backButton} = this.props;
+
+    if (backButton) {
+      return this.backButton();
+    }
+
+    return this.menuButton();
   };
 
   centerComponent = () => {
@@ -51,7 +79,7 @@ class BaseHeader extends Component {
       <View>
         <Header
           placement={Platform.OS === 'ios' ? 'center' : 'left'}
-          leftComponent={this.menuIcon}
+          leftComponent={this.leftComponent}
           centerComponent={this.centerComponent}
           rightComponent={this.rightComponent}
           statusBarProps={{

@@ -69,6 +69,8 @@ class MainDrawer extends Component {
       userInitial,
     } = this;
 
+    const {navigation} = props;
+
     return (
       <DrawerContentScrollView
         {...props}
@@ -131,7 +133,7 @@ class MainDrawer extends Component {
             leftIcon={
               <Icon name="clipboard" color={colors.primary} size={18} />
             }
-            onPress={() => console.log('yes')}
+            onPress={() => navigation.navigate('Orders')}
           />
           <ListItem
             title="Account"
@@ -160,7 +162,7 @@ class MainDrawer extends Component {
           <ListItem
             title={authenticationButtonText}
             leftIcon={authenticationIcon}
-            onPress={() => this.handleAuthentication(props.navigation)}
+            onPress={() => this.handleAuthentication(navigation)}
           />
         </View>
       </DrawerContentScrollView>
