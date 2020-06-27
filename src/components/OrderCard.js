@@ -5,9 +5,7 @@ import {
   Left,
   Body,
   Text,
-  Button,
   Right,
-  Icon,
   Toast,
   View,
   Item,
@@ -22,7 +20,7 @@ import Modal from 'react-native-modal';
 import {observable, action, computed} from 'mobx';
 import BaseOptionsMenu from './BaseOptionsMenu';
 import FastImage from 'react-native-fast-image';
-import {Image} from 'react-native-elements';
+import {Button, Icon} from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 import {colors} from '../../assets/colors';
 
@@ -165,6 +163,7 @@ class OrderCard extends Component {
 
       return (
         <CardItem
+          button
           header
           bordered
           onPress={() =>
@@ -176,7 +175,12 @@ class OrderCard extends Component {
               orderStatus,
             })
           }>
-          <Body>
+          <Body
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
             <View
               style={{
                 flexDirection: 'row',
@@ -201,6 +205,7 @@ class OrderCard extends Component {
                 </Text>
               </View>
             </View>
+            <Icon name="message-square" color={colors.primary} />
           </Body>
         </CardItem>
       );
@@ -309,12 +314,15 @@ class OrderCard extends Component {
           <CardItem>
             <Body>
               <Button
-                full
-                bordered
+                title="View Full Order"
+                type="clear"
                 onPress={this.handleViewOrderItems.bind(this)}
-                style={{borderRadius: 24}}>
-                <Text>View Full Order</Text>
-              </Button>
+                containerStyle={{
+                  borderRadius: 24,
+                  borderWidth: 1,
+                  borderColor: colors.primary,
+                }}
+              />
             </Body>
           </CardItem>
           <CardFooter />
