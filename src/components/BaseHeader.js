@@ -84,7 +84,7 @@ class BaseHeader extends Component {
           rightComponent={this.rightComponent}
           statusBarProps={{
             barStyle: 'light-content',
-            backgroundColor: colors.primary,
+            backgroundColor: colors.statusBar,
             translucent: true,
           }}
           containerStyle={styles.header}

@@ -85,7 +85,7 @@ class LoginScreen extends Component {
 
     return (
       <View style={[styles.container, {paddingTop: 0}]}>
-        <StatusBar animated translucent backgroundColor="rgba(0, 0, 0, 0.10)" />
+        <StatusBar animated translucent backgroundColor={colors.statusBar} />
 
         <Animatable.View
           duration={800}

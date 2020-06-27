@@ -107,7 +107,7 @@ class CheckoutScreen extends Component {
 
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar animated translucent backgroundColor="rgba(0, 0, 0, 0.10)" />
+        <StatusBar animated translucent backgroundColor={colors.statusBar} />
 
         <Animatable.View
           animation="fadeInUp"

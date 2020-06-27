@@ -284,7 +284,7 @@ class MainScreen extends Component {
             })}
             statusBarProps={{
               barStyle: 'light-content',
-              backgroundColor: 'rgba(0, 0, 0, 0.10)',
+              backgroundColor: colors.statusBar,
               translucent: true,
               animated: true,
             }}

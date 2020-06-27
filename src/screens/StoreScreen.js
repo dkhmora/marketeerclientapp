@@ -58,7 +58,7 @@ class StoreScreen extends Component {
 
     return (
       <View style={{flex: 1, backgroundColor: colors.text_primary}}>
-        <StatusBar animated translucent backgroundColor="rgba(0,0,0,0.3)" />
+        <StatusBar animated translucent backgroundColor={colors.statusBar} />
 
         <Animatable.View
           useNativeDriver
