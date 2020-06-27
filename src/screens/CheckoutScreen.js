@@ -33,6 +33,12 @@ class CheckoutScreen extends Component {
     const cartStores = this.props.shopStore.cartStores.slice();
 
     await cartStores.map(async (storeName) => {
+      const storeDetails = await this.props.shopStore.getStoreDetails(
+        storeName,
+      );
+
+      delete storeDetails.orderNumber;
+
       let quantity = 0;
       let totalAmount = 0;
 
@@ -41,6 +47,7 @@ class CheckoutScreen extends Component {
       const reviewed = false;
       const userCoordinates = null;
       const userAddress = null;
+      const {userName} = this.props.authStore;
       const createdAt = new Date().toISOString();
       const orderStatus = {
         pending: {
@@ -73,19 +80,19 @@ class CheckoutScreen extends Component {
         reviewed,
         userCoordinates,
         userAddress,
+        userName,
         createdAt,
         orderStatus,
         quantity,
         totalAmount,
         shipping,
+        storeDetails,
       };
 
       const userId = this.props.authStore.userId;
-      const merchantId = await this.props.shopStore.getStoreDetails(storeName)
-        .merchantId;
 
       this.props.shopStore
-        .placeOrder(userId, merchantId, orderDetails, orderItems)
+        .placeOrder(userId, orderDetails, orderItems)
         .then(() => console.log(`Order Placed for ${storeName}!`))
         .then(() => this.props.shopStore.deleteCartStore(storeName, userId))
         .catch((err) =>

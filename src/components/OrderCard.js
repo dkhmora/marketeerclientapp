@@ -19,14 +19,22 @@ import {ActionSheetIOS, Platform} from 'react-native';
 import moment, {ISO_8601} from 'moment';
 import {observer, inject} from 'mobx-react';
 import Modal from 'react-native-modal';
-import {observable, action} from 'mobx';
+import {observable, action, computed} from 'mobx';
 import BaseOptionsMenu from './BaseOptionsMenu';
+import FastImage from 'react-native-fast-image';
+import {Image} from 'react-native-elements';
+import storage from '@react-native-firebase/storage';
+import {colors} from '../../assets/colors';
 
 @inject('generalStore')
 @observer
 class OrderCard extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      url: require('../../assets/images/placeholder.jpg'),
+    };
   }
 
   @observable confirmationModal = false;
@@ -38,6 +46,18 @@ class OrderCard extends Component {
 
   @action closeConfirmationModal() {
     this.confirmationModal = false;
+  }
+
+  getImage = async () => {
+    const ref = storage().ref(this.props.storeDetails.displayImage);
+    const link = await ref.getDownloadURL();
+    this.setState({url: {uri: link}});
+  };
+
+  componentDidMount() {
+    if (this.props.storeDetails.displayImage) {
+      this.getImage();
+    }
   }
 
   handleChangeOrderStatus() {
@@ -124,7 +144,7 @@ class OrderCard extends Component {
   render() {
     const {
       orderNumber,
-      userName,
+      storeDetails,
       orderStatus,
       numberOfItems,
       totalAmount,
@@ -136,35 +156,60 @@ class OrderCard extends Component {
       ...otherProps
     } = this.props;
 
-    const CardHeader = () => {
+    const {storeName} = storeDetails;
+
+    const {url} = this.state;
+
+    const CardHeader = (image) => {
+      console.log(image.image, 'image to');
+
       return (
         <CardItem
           header
           bordered
           onPress={() =>
             navigation.navigate('Order Chat', {
-              userName,
+              storeName,
               userAddress,
               orderId,
               orderNumber,
               orderStatus,
             })
-          }
-          style={{backgroundColor: '#E91E63'}}>
-          <Left style={{flex: 3}}>
-            <Body>
-              <Text style={{color: '#fff'}}>{userName}</Text>
-              <Text note style={{color: '#ddd'}}>
-                Order # {orderNumber}
-              </Text>
-            </Body>
-          </Left>
+          }>
+          <Body>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <FastImage
+                source={url}
+                style={{
+                  height: 35,
+                  width: 35,
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: colors.primary,
+                  marginRight: 10,
+                }}
+                resizeMode={FastImage.resizeMode.cover}
+              />
+              <View>
+                <Text style={{color: colors.text_primary}}>{storeName}</Text>
+                <Text note style={{color: colors.text_secondary}}>
+                  Order # {orderNumber}
+                </Text>
+              </View>
+            </View>
+          </Body>
         </CardItem>
       );
     };
 
     const CardFooter = () => {
-      const timeStamp = moment(createdAt, ISO_8601).fromNow();
+      const timeStamp = moment(createdAt, ISO_8601).format(
+        'MM-DD-YYYY, hh:MM A',
+      );
 
       return (
         <CardItem footer bordered>
@@ -238,8 +283,8 @@ class OrderCard extends Component {
           </Modal>
         </View>
 
-        <Card {...otherProps} style={{borderRadius: 16, overflow: 'hidden'}}>
-          <CardHeader />
+        <Card {...otherProps} style={{borderRadius: 8, overflow: 'hidden'}}>
+          <CardHeader image={url} />
           <CardItem bordered>
             <Left>
               <Text>Address:</Text>

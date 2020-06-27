@@ -7,7 +7,6 @@ import Toast from '../components/Toast';
 class authStore {
   @observable userAuthenticated = false;
   @observable guest = false;
-  @observable userName = '';
 
   @computed get authenticationButtonText() {
     return this.guest ? 'Log In' : 'Log Out';
@@ -16,6 +15,14 @@ class authStore {
   @computed get userId() {
     if (auth().currentUser) {
       return auth().currentUser.uid;
+    }
+
+    return null;
+  }
+
+  @computed get userName() {
+    if (auth().currentUser) {
+      return auth().currentUser.displayName;
     }
 
     return null;
@@ -145,7 +152,6 @@ class authStore {
   @action async checkAuthStatus() {
     if (auth().currentUser) {
       console.log('User is authenticated');
-      this.userName = auth().currentUser.displayName;
       this.guest = auth().currentUser.isAnonymous;
       this.userAuthenticated = true;
     } else {

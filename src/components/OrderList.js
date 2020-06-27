@@ -33,7 +33,7 @@ class OrderList extends Component {
                 orderNumber={item.orderNumber}
                 orderStatus={item.orderStatus}
                 coordinates={item.coordinates}
-                userName={`${item.userName}`}
+                storeDetails={item.storeDetails}
                 numberOfItems={item.numberOfItems}
                 shippingPrice={item.shippingPrice}
                 totalAmount={item.totalAmount}

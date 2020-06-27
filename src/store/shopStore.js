@@ -64,8 +64,7 @@ class shopStore {
       });
   }
 
-  @action async placeOrder(userId, merchantId, orderDetails, orderItems) {
-    console.log(merchantId);
+  @action async placeOrder(userId, orderDetails, orderItems) {
     const userOrdersRef = firestore()
       .collection('users')
       .doc(userId)
@@ -75,7 +74,7 @@ class shopStore {
     const id = userOrdersRef.doc().id;
 
     batch.set(orderItemsRef.doc(id), {orderItems});
-    batch.set(userOrdersRef.doc(id), {...orderDetails, merchantId});
+    batch.set(userOrdersRef.doc(id), {...orderDetails});
 
     return batch.commit();
   }
