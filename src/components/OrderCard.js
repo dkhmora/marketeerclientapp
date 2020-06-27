@@ -4,7 +4,6 @@ import {
   CardItem,
   Left,
   Body,
-  Text,
   Right,
   Toast,
   View,
@@ -20,7 +19,7 @@ import Modal from 'react-native-modal';
 import {observable, action, computed} from 'mobx';
 import BaseOptionsMenu from './BaseOptionsMenu';
 import FastImage from 'react-native-fast-image';
-import {Button, Icon} from 'react-native-elements';
+import {Button, Icon, Text} from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 import {colors} from '../../assets/colors';
 
@@ -37,6 +36,16 @@ class OrderCard extends Component {
 
   @observable confirmationModal = false;
   @observable cancelReason = '';
+
+  @computed get orderStatus() {
+    const {orderStatus} = this.props;
+
+    return Object.entries(orderStatus).map(([key, value]) => {
+      if (value.status) {
+        return key.toUpperCase();
+      }
+    });
+  }
 
   @action openConfirmationModal() {
     this.confirmationModal = true;
@@ -143,8 +152,8 @@ class OrderCard extends Component {
     const {
       orderNumber,
       storeDetails,
+      quantity,
       orderStatus,
-      numberOfItems,
       totalAmount,
       orderId,
       userAddress,
@@ -199,13 +208,25 @@ class OrderCard extends Component {
                 resizeMode={FastImage.resizeMode.cover}
               />
               <View>
-                <Text style={{color: colors.text_primary}}>{storeName}</Text>
-                <Text note style={{color: colors.text_secondary}}>
-                  Order # {orderNumber}
+                <Text style={{color: colors.text_primary, fontSize: 18}}>
+                  {storeName}
                 </Text>
+                <View style={{flexDirection: 'row'}}>
+                  <Text
+                    note
+                    style={{color: colors.text_secondary, marginRight: 8}}>
+                    Order # {orderNumber}
+                  </Text>
+                  <Text style={{color: colors.primary}}>
+                    {this.orderStatus}
+                  </Text>
+                </View>
               </View>
             </View>
-            <Icon name="message-square" color={colors.primary} />
+            <View>
+              <Icon name="message-square" color={colors.primary} />
+              <Text style={{color: colors.primary}}>Chat</Text>
+            </View>
           </Body>
         </CardItem>
       );
@@ -213,15 +234,28 @@ class OrderCard extends Component {
 
     const CardFooter = () => {
       const timeStamp = moment(createdAt, ISO_8601).format(
-        'MM-DD-YYYY, hh:MM A',
+        'MM-DD-YYYY hh:MM A',
       );
 
       return (
-        <CardItem footer bordered>
-          <Left>
-            <Text note>{timeStamp}</Text>
-          </Left>
-        </CardItem>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 15,
+            paddingBottom: 5,
+          }}>
+          <Text note>{timeStamp}</Text>
+          <Button
+            title="Pay Now"
+            type="clear"
+            onPress={this.handleViewOrderItems.bind(this)}
+            titleStyle={{color: colors.primary}}
+            containerStyle={{borderRadius: 24}}
+          />
+        </View>
       );
     };
 
@@ -290,41 +324,47 @@ class OrderCard extends Component {
 
         <Card {...otherProps} style={{borderRadius: 8, overflow: 'hidden'}}>
           <CardHeader image={url} />
-          <CardItem bordered>
-            <Left>
-              <Text>Address:</Text>
-            </Left>
-            <Right>
-              <Text style={{color: '#E91E63', fontWeight: 'bold'}}>
-                {userAddress}
-              </Text>
-            </Right>
-          </CardItem>
-          <CardItem bordered>
-            <Left>
-              <Text>Total Amount:</Text>
-            </Left>
-            <Right>
-              <Text style={{color: '#E91E63', fontWeight: 'bold'}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingHorizontal: 15,
+              paddingVertical: 5,
+            }}>
+            <Button
+              title={`View Full Order (${quantity} items)`}
+              onPress={this.handleViewOrderItems.bind(this)}
+              titleStyle={{color: colors.icons}}
+              buttonStyle={{backgroundColor: colors.accent}}
+              containerStyle={{
+                borderRadius: 24,
+                marginRight: 10,
+                flex: 1,
+              }}
+            />
+            <View
+              style={{
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: colors.text_secondary,
+                padding: 5,
+              }}>
+              <Text
+                style={{
+                  color: colors.primary,
+                  fontSize: 16,
+                  fontFamily: 'ProductSans-Bold',
+                  textAlign: 'center',
+                }}>
                 ₱{totalAmount}
               </Text>
-              <Text note>{numberOfItems} items</Text>
-            </Right>
-          </CardItem>
-          <CardItem>
-            <Body>
-              <Button
-                title="View Full Order"
-                type="clear"
-                onPress={this.handleViewOrderItems.bind(this)}
-                containerStyle={{
-                  borderRadius: 24,
-                  borderWidth: 1,
-                  borderColor: colors.primary,
-                }}
-              />
-            </Body>
-          </CardItem>
+              <Text>Total Amount</Text>
+            </View>
+          </View>
           <CardFooter />
         </Card>
       </View>
