@@ -70,17 +70,12 @@ class shopStore {
       .collection('users')
       .doc(userId)
       .collection('orders');
-    const merchantOrdersRef = firestore()
-      .collection('merchants')
-      .doc(merchantId)
-      .collection('orders');
     const orderItemsRef = firestore().collection('order_items');
     const batch = firestore().batch();
     const id = userOrdersRef.doc().id;
 
     batch.set(orderItemsRef.doc(id), {orderItems});
     batch.set(userOrdersRef.doc(id), {...orderDetails, merchantId});
-    batch.set(merchantOrdersRef.doc(id), {...orderDetails, userId});
 
     return batch.commit();
   }
