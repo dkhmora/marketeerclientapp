@@ -7,7 +7,7 @@ import {View} from 'react-native';
 
 @inject('authStore')
 @observer
-class OrderScreen extends Component {
+class OrdersScreen extends Component {
   constructor(props) {
     super(props);
   }
@@ -25,4 +25,4 @@ class OrderScreen extends Component {
   }
 }
 
-export default OrderScreen;
+export default OrdersScreen;
