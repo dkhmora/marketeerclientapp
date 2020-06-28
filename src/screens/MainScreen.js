@@ -157,6 +157,8 @@ class MainScreen extends Component {
   };
 
   SlideDownDrawer = () => {
+    const {navigation} = this.props;
+
     return (
       <Animatable.View
         ref={(drawer) => (this.drawer = drawer)}
@@ -176,7 +178,7 @@ class MainScreen extends Component {
           leftIcon={<Icon name="map-pin" color={colors.primary} />}
           bottomDivider
           chevron
-          onPress={() => console.log('yes')}
+          onPress={() => navigation.navigate('Set Location')}
         />
         <ListItem
           title="Last Delivery Location"

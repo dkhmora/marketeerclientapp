@@ -8,6 +8,7 @@ import CheckoutScreen from '../screens/CheckoutScreen';
 import OrdersScreen from '../screens/OrdersScreen';
 import OrderDetailsScreen from '../screens/OrderDetailsScreen';
 import OrderChatScreen from '../screens/OrderChatScreen';
+import SetLocationScreen from '../screens/SetLocationScreen';
 
 class MainStack extends Component {
   constructor(props) {
@@ -27,6 +28,7 @@ class MainStack extends Component {
         <StackMain.Screen name="Orders" component={OrdersScreen} />
         <StackMain.Screen name="Order Details" component={OrderDetailsScreen} />
         <StackMain.Screen name="Order Chat" component={OrderChatScreen} />
+        <StackMain.Screen name="Set Location" component={SetLocationScreen} />
       </StackMain.Navigator>
     );
   }
