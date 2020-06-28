@@ -52,7 +52,6 @@ class App extends React.Component {
             AppState.addEventListener('change', (state) => {
               if (!authStore.guest) {
                 if (state === 'active') {
-                  console.log('active state');
                   if (!authStore.guest && user) {
                     shopStore.getCartItems(userId);
                   }

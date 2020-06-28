@@ -88,7 +88,6 @@ class shopStore {
   }
 
   @action resetData() {
-    console.log('reset');
     this.storeCartItems = {};
     this.storeSelectedShipping = {};
     this.itemCategories = [];
@@ -98,8 +97,6 @@ class shopStore {
     const store = this.storeList.find(
       (element) => element.storeName === storeName,
     );
-
-    console.log('TAE', this.storeList.storeName, storeName);
 
     return store;
   }
@@ -137,7 +134,6 @@ class shopStore {
     const storeCartItems = this.storeCartItems[storeName];
 
     if (storeCartItems) {
-      console.log('pasok');
       const cartItemIndex = storeCartItems.findIndex(
         (storeCartItem) => storeCartItem.name === item.name,
       );
@@ -156,8 +152,6 @@ class shopStore {
         newItem.updatedAt = new Date().toISOString();
 
         storeCartItems.push(newItem);
-
-        console.log(storeCartItems);
       }
     } else {
       console.log('Store not found! Creating new store.');
@@ -171,7 +165,6 @@ class shopStore {
 
       this.storeCartItems[storeName] = [{...newItem}];
     }
-    console.log(storeCartItems);
   }
 
   @action async deleteCartItemInStorage(item, storeName, quantity) {

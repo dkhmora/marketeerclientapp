@@ -3,7 +3,7 @@ import {View, Image} from 'react-native';
 import {Container, Text, Input, Item} from 'native-base';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import BaseHeader from '../components/BaseHeader';
-import {Button, Icon} from 'react-native-elements';
+import {Button, Icon, Avatar} from 'react-native-elements';
 import {
   GiftedChat,
   Bubble,
@@ -146,6 +146,22 @@ class OrderChatScreen extends Component {
     );
   }
 
+  renderAvatar(props) {
+    const userInitial = props.user.name.charAt(0);
+
+    return (
+      <Avatar
+        size="small"
+        rounded
+        overlayContainerStyle={{backgroundColor: colors.primary}}
+        titleStyle={{color: colors.icons}}
+        title={userInitial}
+        onPress={() => console.log('Works!')}
+        activeOpacity={0.7}
+      />
+    );
+  }
+
   render() {
     const {navigation} = this.props;
     const {
@@ -168,6 +184,8 @@ class OrderChatScreen extends Component {
         <View style={{flex: 1}}>
           <GiftedChat
             textStyle={{color: colors.primary}}
+            showAvatarForEveryMessage
+            renderAvatar={this.renderAvatar}
             renderBubble={this.renderBubble}
             renderComposer={this.renderComposer.bind(this)}
             maxComposerHeight={150}

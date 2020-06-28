@@ -21,7 +21,6 @@ class OrderItemCard extends Component {
 
   componentDidMount() {
     if (this.props.image) {
-      console.log(this.props.image);
       this.getImage();
     }
   }

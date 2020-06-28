@@ -76,7 +76,6 @@ class CartStoreCard extends Component {
   render() {
     const {storeName, checkout} = this.props;
     const {shippingMethods} = this.storeDetails;
-    console.log(this.storeDetails);
 
     return (
       <Card
@@ -177,9 +176,6 @@ class CartStoreCard extends Component {
               }
               onValueChange={(value) => {
                 this.props.shopStore.storeSelectedShipping[storeName] = value;
-                console.log(
-                  this.props.shopStore.storeSelectedShipping[storeName],
-                );
               }}>
               {shippingMethods.length > 0 ? (
                 shippingMethods.map((method, index) => {

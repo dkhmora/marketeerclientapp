@@ -14,7 +14,6 @@ class generalStore {
     if (imageRef) {
       const ref = storage().ref(imageRef);
       const link = await ref.getDownloadURL();
-      console.log(link);
       return link;
     }
     return 0;
@@ -37,7 +36,6 @@ class generalStore {
             documentSnapshot.data().messages.length <= 0 &&
             this.orderMessages.length > 0
           ) {
-            console.log('orderMessages', this.orderMessages);
             this.orderMessages = GiftedChat.append(
               this.orderMessages,
               documentSnapshot.data().messages,

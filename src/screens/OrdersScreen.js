@@ -15,7 +15,6 @@ class OrdersScreen extends Component {
   render() {
     const {name} = this.props.route;
     const {navigation} = this.props;
-    console.log('navi', navigation);
 
     return (
       <View style={{flex: 1}}>

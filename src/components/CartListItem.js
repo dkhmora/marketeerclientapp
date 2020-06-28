@@ -28,7 +28,6 @@ class CartListItem extends Component {
 
   componentDidMount() {
     if (this.props.item.image) {
-      console.log(this.props.item.name, this.props.item.image);
       this.getImage();
     }
   }

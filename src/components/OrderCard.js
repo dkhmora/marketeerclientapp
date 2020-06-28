@@ -168,8 +168,6 @@ class OrderCard extends Component {
     const {url} = this.state;
 
     const CardHeader = (image) => {
-      console.log(image.image, 'image to');
-
       return (
         <CardItem
           button

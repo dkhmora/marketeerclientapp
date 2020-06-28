@@ -99,8 +99,6 @@ class authStore {
   }
 
   @action async linkCurrentUserWithPhoneNumber(phoneCredential) {
-    console.log('UID', await auth().currentUser.uid);
-
     await auth()
       .currentUser.linkWithCredential(phoneCredential)
       .then(() =>
@@ -167,7 +165,6 @@ class authStore {
       .signInAnonymously()
       .then(() => {
         this.userAuthenticated = true;
-        console.log('anonymous', this.userId);
       })
       .catch((err) => console.log(err));
   }
