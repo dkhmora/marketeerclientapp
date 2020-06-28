@@ -222,16 +222,23 @@ class SetLocationScreen extends Component {
         <SafeAreaView
           style={{
             position: 'absolute',
-            paddingTop: 50,
-            paddingLeft: 50,
           }}>
-          <Button
-            type="clear"
-            icon={<Icon name="arrow-left" color={colors.primary} />}
-            buttonStyle={{backgroundColor: colors.icons}}
-            containerStyle={{borderRadius: 24, elevation: 5}}
-            onPress={() => navigation.goBack()}
-          />
+          <SafeAreaView>
+            <Button
+              type="clear"
+              icon={<Icon name="arrow-left" color={colors.primary} />}
+              buttonStyle={{
+                backgroundColor: colors.icons,
+              }}
+              containerStyle={{
+                borderRadius: 24,
+                elevation: 5,
+                marginLeft: 20,
+                marginTop: 20,
+              }}
+              onPress={() => navigation.goBack()}
+            />
+          </SafeAreaView>
         </SafeAreaView>
         <View
           style={{
