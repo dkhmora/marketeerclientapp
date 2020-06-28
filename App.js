@@ -42,30 +42,32 @@ class App extends React.Component {
       authStore
         .checkAuthStatus()
         .then(() => {
-          const userId = user.uid;
+          if (user) {
+            const userId = user.uid;
 
-          if (!authStore.guest && user) {
-            shopStore.getCartItems(userId);
-          }
-
-          AppState.addEventListener('change', (state) => {
             if (!authStore.guest) {
-              if (state === 'active') {
-                console.log('active state');
-                if (!authStore.guest && user) {
-                  shopStore.getCartItems(userId);
-                }
-              } else if (state === 'background') {
-                if (shopStore.unsubscribeToGetCartItems) {
-                  shopStore.unsubscribeToGetCartItems();
-                }
-              } else if (state === 'inactive') {
-                if (shopStore.unsubscribeToGetCartItems) {
-                  shopStore.unsubscribeToGetCartItems();
+              shopStore.getCartItems(userId);
+            }
+
+            AppState.addEventListener('change', (state) => {
+              if (!authStore.guest) {
+                if (state === 'active') {
+                  console.log('active state');
+                  if (!authStore.guest && user) {
+                    shopStore.getCartItems(userId);
+                  }
+                } else if (state === 'background') {
+                  if (shopStore.unsubscribeToGetCartItems) {
+                    shopStore.unsubscribeToGetCartItems();
+                  }
+                } else if (state === 'inactive') {
+                  if (shopStore.unsubscribeToGetCartItems) {
+                    shopStore.unsubscribeToGetCartItems();
+                  }
                 }
               }
-            }
-          });
+            });
+          }
         })
         .then(() => {
           this.splashScreenTimer = setTimeout(

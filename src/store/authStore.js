@@ -6,7 +6,13 @@ import Toast from '../components/Toast';
 
 class authStore {
   @observable userAuthenticated = false;
-  @observable guest = false;
+
+  @computed get guest() {
+    if (auth().currentUser) {
+      return auth().currentUser.isAnonymous;
+    }
+    return false;
+  }
 
   @computed get authenticationButtonText() {
     return this.guest ? 'Log In' : 'Log Out';
@@ -112,8 +118,6 @@ class authStore {
         }),
       )
       .then(() => {
-        this.name = auth().currentUser.displayName;
-        this.guest = false;
         this.userAuthenticated = true;
       })
       .catch((err) => {
@@ -142,7 +146,6 @@ class authStore {
         auth()
           .signInAnonymously()
           .then(() => {
-            this.guest = true;
             this.userAuthenticated = true;
           }),
       )
@@ -152,7 +155,6 @@ class authStore {
   @action async checkAuthStatus() {
     if (auth().currentUser) {
       console.log('User is authenticated');
-      this.guest = auth().currentUser.isAnonymous;
       this.userAuthenticated = true;
     } else {
       console.log('signinanonymous');
@@ -164,7 +166,6 @@ class authStore {
     await auth()
       .signInAnonymously()
       .then(() => {
-        this.guest = true;
         this.userAuthenticated = true;
         console.log('anonymous', this.userId);
       })

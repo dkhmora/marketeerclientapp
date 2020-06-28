@@ -55,6 +55,8 @@ class OrderChatScreen extends Component {
     ImagePicker.openCamera({
       width: 1280,
       height: 720,
+      mediaType: 'photo',
+      compressImageQuality: 0.8,
     })
       .then((image) => {
         this.imagePath = image.path;
@@ -75,6 +77,8 @@ class OrderChatScreen extends Component {
     ImagePicker.openPicker({
       width: 1280,
       height: 720,
+      mediaType: 'photo',
+      compressImageQuality: 0.8,
     })
       .then((image) => {
         this.imagePath = image.path;
