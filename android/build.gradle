@@ -3,7 +3,7 @@
 buildscript {
     ext {
         buildToolsVersion = "28.0.3"
-        minSdkVersion = 16
+        minSdkVersion = 27
         compileSdkVersion = 28
         targetSdkVersion = 28
     }
@@ -34,5 +34,8 @@ allprojects {
         google()
         jcenter()
         maven { url 'https://www.jitpack.io' }
+
+        // react-native-image-crop-picker
+        maven { url 'https://maven.google.com' }
     }
 }
