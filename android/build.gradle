@@ -6,6 +6,9 @@ buildscript {
         minSdkVersion = 27
         compileSdkVersion = 28
         targetSdkVersion = 28
+        playServicesVersion = "17.0.0"
+        supportLibVersion   = "20.0.0"
+        androidMapsUtilsVersion = "+0.5"
     }
     repositories {
         google()
@@ -38,4 +41,14 @@ allprojects {
         // react-native-image-crop-picker
         maven { url 'https://maven.google.com' }
     }
+}
+
+ext {
+    buildToolsVersion = "28.0.3"
+    minSdkVersion = 27
+    compileSdkVersion = 28
+    targetSdkVersion = 28
+    playServicesVersion = "17.0.0"
+    supportLibVersion   = "20.0.0"
+    androidMapsUtilsVersion = "+0.5"
 }
