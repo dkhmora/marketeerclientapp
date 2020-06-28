@@ -73,7 +73,7 @@ class shopStore {
     const batch = firestore().batch();
     const id = userOrdersRef.doc().id;
 
-    batch.set(orderItemsRef.doc(id), {orderItems});
+    batch.set(orderItemsRef.doc(id), {items: orderItems});
     batch.set(userOrdersRef.doc(id), {...orderDetails});
 
     return batch.commit();

@@ -14,23 +14,11 @@ import {View, Platform, Linking} from 'react-native';
 import BaseHeader from '../components/BaseHeader';
 import {FlatList, ScrollView} from 'react-native-gesture-handler';
 import OrderItemCard from '../components/OrderItemCard';
-import { colors } from '../../assets/colors';
+import {colors} from '../../assets/colors';
 
 class OrderDetailsScreen extends Component {
   constructor(props) {
     super(props);
-  }
-
-  componentDidMount() {
-    this.props.navigation
-      .dangerouslyGetParent()
-      .setOptions({gestureEnabled: false});
-  }
-
-  componentWillUnmount() {
-    this.props.navigation
-      .dangerouslyGetParent()
-      .setOptions({gestureEnabled: true});
   }
 
   openInMaps() {
@@ -92,49 +80,7 @@ class OrderDetailsScreen extends Component {
           }}>
           <Card
             style={{
-              borderRadius: 16,
-              overflow: 'hidden',
-            }}>
-            <CardItem header bordered style={{backgroundColor: colors.primary}}>
-              <Text style={{color: '#fff'}}>Customer Details</Text>
-            </CardItem>
-            <CardItem bordered>
-              <Left>
-                <Text>Customer Name:</Text>
-              </Left>
-              <Right>
-                <Text>{userName}</Text>
-              </Right>
-            </CardItem>
-            <CardItem bordered>
-              <Left>
-                <Text>User Address:</Text>
-              </Left>
-              <Right>
-                <Text>{userAddress}</Text>
-                <Text note>
-                  {coordinates._latitude}, {coordinates._longitude}
-                </Text>
-              </Right>
-            </CardItem>
-            <CardItem bordered>
-              <Body>
-                <Button
-                  iconRight
-                  full
-                  bordered
-                  onPress={() => this.openInMaps()}
-                  style={{borderRadius: 24}}>
-                  <Text>{mapButtonText}</Text>
-                  <Icon name="map" />
-                </Button>
-              </Body>
-            </CardItem>
-          </Card>
-
-          <Card
-            style={{
-              borderRadius: 16,
+              borderRadius: 10,
               overflow: 'hidden',
             }}>
             <CardItem header bordered style={{backgroundColor: colors.primary}}>
@@ -175,7 +121,7 @@ class OrderDetailsScreen extends Component {
 
           <Card
             style={{
-              borderRadius: 16,
+              borderRadius: 10,
               overflow: 'hidden',
             }}>
             <CardItem header bordered style={{backgroundColor: colors.primary}}>

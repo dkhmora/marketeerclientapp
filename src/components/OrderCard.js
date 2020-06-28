@@ -87,7 +87,7 @@ class OrderCard extends Component {
       coordinates,
       orderId,
       orderStatus,
-      userName,
+      storeName,
       orderNumber,
       numberOfItems,
       shippingPrice,
@@ -100,12 +100,12 @@ class OrderCard extends Component {
       orderStatus.cancelled.status && orderStatus.cancelled.reason;
 
     this.props.generalStore.setOrderItems(orderId).then(() => {
-      navigation.dangerouslyGetParent().navigate('Order Details', {
+      navigation.navigate('Order Details', {
         orderId,
         orderItems: this.props.generalStore.orderItems,
         coordinates,
         cancelReason,
-        userName,
+        storeName,
         orderNumber,
         numberOfItems,
         shippingPrice,

@@ -46,7 +46,7 @@ class OrderItemCard extends Component {
                 style={{
                   height: 80,
                   aspectRatio: 1,
-                  borderRadius: 24,
+                  borderRadius: 10,
                   borderWidth: 1,
                   borderColor: '#BDBDBD',
                   width: null,
@@ -59,7 +59,7 @@ class OrderItemCard extends Component {
                 style={{
                   height: 80,
                   aspectRatio: 1,
-                  borderRadius: 24,
+                  borderRadius: 10,
                   borderWidth: 1,
                   borderColor: '#BDBDBD',
                   width: null,
