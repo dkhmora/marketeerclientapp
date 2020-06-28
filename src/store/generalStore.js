@@ -2,7 +2,8 @@ import {observable, action} from 'mobx';
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 import GiftedChat from 'react-native-gifted-chat';
-
+import 'react-native-get-random-values';
+import {v4 as uuidv4} from 'uuid';
 class generalStore {
   @observable orders = [];
   @observable orderItems = [];
@@ -17,6 +18,13 @@ class generalStore {
       return link;
     }
     return 0;
+  }
+
+  @action async getImageUrl(imageRef) {
+    const ref = storage().ref(imageRef);
+    const link = await ref.getDownloadURL();
+
+    return link;
   }
 
   @action getMessages(orderId) {

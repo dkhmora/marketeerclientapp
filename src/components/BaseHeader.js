@@ -18,7 +18,7 @@ class BaseHeader extends Component {
           type="clear"
           color={colors.icons}
           icon={<Icon name="menu" color={colors.icons} />}
-          containerStyle={styles.buttonContainer}
+          containerStyle={{borderRadius: 24}}
         />
       );
     }
@@ -36,7 +36,7 @@ class BaseHeader extends Component {
           type="clear"
           color={colors.icons}
           icon={<Icon name="arrow-left" color={colors.icons} />}
-          containerStyle={styles.buttonContainer}
+          containerStyle={{borderRadius: 24}}
         />
       );
     }
