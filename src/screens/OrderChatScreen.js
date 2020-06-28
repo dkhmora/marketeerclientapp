@@ -104,23 +104,30 @@ class OrderChatScreen extends Component {
 
   renderComposer(props) {
     return (
-      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 10,
+        }}>
         <Button
           type="clear"
           onPress={() => this.handleSelectImage()}
           color={colors.primary}
+          containerStyle={{borderRadius: 24}}
           icon={<Icon name="image" color={colors.primary} />}
         />
         <Button
           type="clear"
           onPress={() => this.handleTakePhoto()}
           color={colors.primary}
+          containerStyle={{borderRadius: 24}}
           icon={<Icon name="camera" color={colors.primary} />}
         />
         <View
           style={{
             flex: 1,
-            marginRight: 15,
+            marginLeft: 5,
             marginVertical: 10,
             borderWidth: 1,
             borderColor: colors.primary,
@@ -128,12 +135,8 @@ class OrderChatScreen extends Component {
           }}>
           <Composer {...props} />
         </View>
-        <Send {...props}>
-          <Icon
-            name="send"
-            color={colors.primary}
-            style={{marginBottom: 8, marginRight: 20}}
-          />
+        <Send {...props} containerStyle={{paddingHorizontal: 10}}>
+          <Icon name="send" color={colors.primary} style={{marginBottom: 8}} />
         </Send>
       </View>
     );
