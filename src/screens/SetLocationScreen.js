@@ -8,11 +8,12 @@ import {
   Platform,
   Dimensions,
 } from 'react-native';
-import {Button, Text, Item, Input, Card, CardItem} from 'native-base';
-import {Icon} from 'react-native-elements';
-import {Slider} from 'react-native-elements';
+import {Text, Item, Input, Card, CardItem} from 'native-base';
+import {Icon, Button} from 'react-native-elements';
 import {observer, inject} from 'mobx-react';
 import Geolocation from '@react-native-community/geolocation';
+import {colors} from '../../assets/colors';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 @inject('authStore')
 @inject('generalStore')
@@ -25,8 +26,6 @@ class SetLocationScreen extends Component {
       mapReady: false,
       mapData: null,
       editMode: false,
-      radius: 0,
-      initialRadius: 0,
       newMarkerPosition: null,
       centerOfScreen: (Dimensions.get('window').height - 17) / 2,
     };
@@ -70,6 +69,50 @@ class SetLocationScreen extends Component {
     );
   }
 
+  handleSetLocation() {
+    const {newMarkerPosition} = this.state;
+
+    /*
+    updateCoordinates(
+      merchantId,
+      newMarkerPosition.latitude,
+      newMarkerPosition.longitude,
+      radius,
+    );
+    */
+
+    this.setState({
+      editMode: false,
+      markerPosition: newMarkerPosition,
+    });
+  }
+
+  panMapToMarker() {
+    if (Platform.OS === 'ios') {
+      this.map.animateCamera(
+        {
+          center: this.state.markerPosition,
+          pitch: 2,
+          heading: 20,
+          altitude: 6000,
+          zoom: 5,
+        },
+        150,
+      );
+    } else {
+      this.map.animateCamera(
+        {
+          center: this.state.markerPosition,
+          pitch: 2,
+          heading: 1,
+          altitude: 500,
+          zoom: 15,
+        },
+        150,
+      );
+    }
+  }
+
   _onMapReady = () => {
     if (Platform.OS === 'android') {
       PermissionsAndroid.request(
@@ -80,12 +123,51 @@ class SetLocationScreen extends Component {
     }
   };
 
+  handleEditDeliveryArea() {
+    this.setState({
+      mapData: {
+        ...this.state.markerPosition,
+        latitudeDelta: 0.04,
+        longitudeDelta: 0.05,
+      },
+      newMarkerPosition: this.state.markerPosition,
+      initialRadius: this.state.radius,
+      editMode: true,
+    });
+
+    this.panMapToMarker();
+  }
+
+  handleCancelChanges() {
+    const {markerPosition} = this.state;
+
+    this.setState({
+      mapData: {...markerPosition, latitudeDelta: 0.04, longitudeDelta: 0.05},
+      newMarkerPosition: null,
+      editMode: false,
+    });
+
+    this.panMapToMarker();
+  }
+
+  handleRegionChange = (mapData) => {
+    const {editMode} = this.state;
+    const {latitude, longitude} = mapData;
+
+    if (editMode) {
+      this.setState({
+        newMarkerPosition: {
+          latitude,
+          longitude,
+        },
+      });
+    }
+  };
+
   render() {
     const {navigation} = this.props;
     const {
       markerPosition,
-      radius,
-      circlePosition,
       centerOfScreen,
       mapData,
       mapReady,
@@ -94,7 +176,7 @@ class SetLocationScreen extends Component {
 
     return (
       <View style={{flex: 1}}>
-        <StatusBar translucent backgroundColor="transparent" />
+        <StatusBar animated translucent backgroundColor="rgba(0,0,0,0.3)" />
 
         {mapReady && (
           <MapView
@@ -117,25 +199,10 @@ class SetLocationScreen extends Component {
                 tracksViewChanges={false}
                 coordinate={markerPosition}>
                 <View>
-                  <Icon
-                    style={{
-                      color: '#B11C01',
-                      fontSize: 34,
-                    }}
-                    name="pin"
-                    solid
-                  />
+                  <Icon color={colors.primary} name="map-pin" />
                 </View>
               </Marker>
             )}
-            <Circle
-              center={circlePosition}
-              radius={radius * 1000}
-              fillColor="rgba(233, 30, 99, 0.3)"
-              strokeColor="rgba(0,0,0,0.5)"
-              zIndex={2}
-              strokeWidth={2}
-            />
           </MapView>
         )}
         {editMode && (
@@ -149,30 +216,23 @@ class SetLocationScreen extends Component {
               top: centerOfScreen,
               alignItems: 'center',
             }}>
-            <Icon
-              style={{
-                color: '#B11C01',
-                fontSize: 34,
-              }}
-              name="pin"
-              solid
-            />
+            <Icon color={colors.primary} name="map-pin" />
           </View>
         )}
-        <View
+        <SafeAreaView
           style={{
             position: 'absolute',
-            alignSelf: 'flex-start',
-            justifyContent: 'flex-start',
-            top: '-7%',
+            paddingTop: 50,
+            paddingLeft: 50,
           }}>
           <Button
-            transparent
+            type="clear"
+            icon={<Icon name="arrow-left" color={colors.primary} />}
+            buttonStyle={{backgroundColor: colors.icons}}
+            containerStyle={{borderRadius: 24, elevation: 5}}
             onPress={() => navigation.goBack()}
-            style={{marginTop: 100}}>
-            <Icon name="arrow-left" style={{fontSize: 32}} />
-          </Button>
-        </View>
+          />
+        </SafeAreaView>
         <View
           style={{
             position: 'absolute',
@@ -184,30 +244,41 @@ class SetLocationScreen extends Component {
             <View style={{flexDirection: 'row'}}>
               <Button
                 iconLeft
-                rounded
-                danger
+                icon={<Icon name="x" color={colors.icons} />}
                 onPress={() => this.handleCancelChanges()}
-                style={{marginRight: 20}}>
-                <Icon name="close" />
-                <Text>Cancel Changes</Text>
-              </Button>
+                buttonStyle={{backgroundColor: 'red'}}
+                containerStyle={{
+                  borderRadius: 24,
+                  marginRight: 10,
+                  overflow: 'hidden',
+                }}
+              />
               <Button
+                title="Save Changes"
                 iconLeft
-                rounded
-                success
-                onPress={() => this.handleSetStoreLocation()}>
-                <Icon name="save" />
-                <Text>Save Changes</Text>
-              </Button>
+                icon={<Icon name="save" color={colors.icons} />}
+                onPress={() => this.handleSetLocation()}
+                titleStyle={{color: colors.icons, marginLeft: 5}}
+                buttonStyle={{backgroundColor: colors.accent}}
+                containerStyle={{
+                  borderRadius: 24,
+                  overflow: 'hidden',
+                }}
+              />
             </View>
           ) : (
             <Button
+              title="Change Delivery Location"
               iconLeft
+              icon={<Icon name="edit" color={colors.icons} />}
               onPress={() => this.handleEditDeliveryArea()}
-              style={{borderRadius: 24, overflow: 'hidden'}}>
-              <Icon name="create" />
-              <Text>Edit Delivery Area</Text>
-            </Button>
+              titleStyle={{color: colors.icons, marginLeft: 5}}
+              buttonStyle={{backgroundColor: colors.primary}}
+              containerStyle={{
+                borderRadius: 24,
+                overflow: 'hidden',
+              }}
+            />
           )}
         </View>
       </View>
