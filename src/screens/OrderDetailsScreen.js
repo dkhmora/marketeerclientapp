@@ -14,6 +14,7 @@ import {View, Platform, Linking} from 'react-native';
 import BaseHeader from '../components/BaseHeader';
 import {FlatList, ScrollView} from 'react-native-gesture-handler';
 import OrderItemCard from '../components/OrderItemCard';
+import { colors } from '../../assets/colors';
 
 class OrderDetailsScreen extends Component {
   constructor(props) {
@@ -94,7 +95,7 @@ class OrderDetailsScreen extends Component {
               borderRadius: 16,
               overflow: 'hidden',
             }}>
-            <CardItem header bordered style={{backgroundColor: '#E91E63'}}>
+            <CardItem header bordered style={{backgroundColor: colors.primary}}>
               <Text style={{color: '#fff'}}>Customer Details</Text>
             </CardItem>
             <CardItem bordered>
@@ -136,7 +137,7 @@ class OrderDetailsScreen extends Component {
               borderRadius: 16,
               overflow: 'hidden',
             }}>
-            <CardItem header bordered style={{backgroundColor: '#E91E63'}}>
+            <CardItem header bordered style={{backgroundColor: colors.primary}}>
               <Text style={{color: '#fff'}}>Order Items</Text>
             </CardItem>
             <FlatList
@@ -177,7 +178,7 @@ class OrderDetailsScreen extends Component {
               borderRadius: 16,
               overflow: 'hidden',
             }}>
-            <CardItem header bordered style={{backgroundColor: '#E91E63'}}>
+            <CardItem header bordered style={{backgroundColor: colors.primary}}>
               <Text style={{color: '#fff'}}>Reason for Cancellation</Text>
             </CardItem>
             <CardItem>

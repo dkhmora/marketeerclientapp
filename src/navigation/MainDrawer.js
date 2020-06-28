@@ -79,7 +79,7 @@ class MainDrawer extends Component {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'space-between',
-          backgroundColor: '#E91E63',
+          backgroundColor: colors.primary,
         }}>
         <View
           style={{

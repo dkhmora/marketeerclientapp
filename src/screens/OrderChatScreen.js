@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import {View, Image} from 'react-native';
-import {Container, Text, Icon, Button, Input, Item} from 'native-base';
+import {Container, Text, Input, Item} from 'native-base';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import BaseHeader from '../components/BaseHeader';
+import {Button, Icon} from 'react-native-elements';
 import {
   GiftedChat,
   Bubble,
@@ -13,6 +14,7 @@ import {
 import {inject, observer} from 'mobx-react';
 import ImagePicker from 'react-native-image-crop-picker';
 import {observable} from 'mobx';
+import {colors} from '../../assets/colors';
 
 @inject('generalStore')
 @inject('authStore')
@@ -93,7 +95,7 @@ class OrderChatScreen extends Component {
         {...props}
         wrapperStyle={{
           right: {
-            backgroundColor: '#E91E63',
+            backgroundColor: colors.primary,
           },
         }}
       />
@@ -103,19 +105,25 @@ class OrderChatScreen extends Component {
   renderComposer(props) {
     return (
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
-        <Button transparent onPress={() => this.handleSelectImage()}>
-          <Icon name="image" />
-        </Button>
-        <Button transparent onPress={() => this.handleTakePhoto()}>
-          <Icon name="camera" />
-        </Button>
+        <Button
+          type="clear"
+          onPress={() => this.handleSelectImage()}
+          color={colors.primary}
+          icon={<Icon name="image" color={colors.primary} />}
+        />
+        <Button
+          type="clear"
+          onPress={() => this.handleTakePhoto()}
+          color={colors.primary}
+          icon={<Icon name="camera" color={colors.primary} />}
+        />
         <View
           style={{
             flex: 1,
             marginRight: 15,
             marginVertical: 10,
             borderWidth: 1,
-            borderColor: '#E91E63',
+            borderColor: colors.primary,
             borderRadius: 24,
           }}>
           <Composer {...props} />
@@ -123,7 +131,8 @@ class OrderChatScreen extends Component {
         <Send {...props}>
           <Icon
             name="send"
-            style={{color: '#E91E63', marginBottom: 8, marginRight: 10}}
+            color={colors.primary}
+            style={{marginBottom: 8, marginRight: 20}}
           />
         </Send>
       </View>
@@ -151,7 +160,7 @@ class OrderChatScreen extends Component {
 
         <View style={{flex: 1}}>
           <GiftedChat
-            textStyle={{color: '#E91E63'}}
+            textStyle={{color: colors.primary}}
             renderBubble={this.renderBubble}
             renderComposer={this.renderComposer.bind(this)}
             maxComposerHeight={150}
