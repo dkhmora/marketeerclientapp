@@ -54,7 +54,10 @@ class CheckoutScreen extends Component {
           status: true,
           updatedAt: new Date().toISOString(),
         },
-        accepted: {
+        unpaid: {
+          status: false,
+        },
+        paid: {
           status: false,
         },
         paymentProcessing: {
