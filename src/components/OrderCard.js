@@ -155,6 +155,7 @@ class OrderCard extends Component {
       quantity,
       orderStatus,
       totalAmount,
+      paymentMethod,
       orderId,
       userAddress,
       createdAt,
@@ -164,6 +165,8 @@ class OrderCard extends Component {
     } = this.props;
 
     const {storeName} = storeDetails;
+
+    console.log(paymentMethod);
 
     const {url} = this.state;
 
@@ -206,9 +209,32 @@ class OrderCard extends Component {
                 resizeMode={FastImage.resizeMode.cover}
               />
               <View>
-                <Text style={{color: colors.text_primary, fontSize: 18}}>
-                  {storeName}
-                </Text>
+                <View style={{flexDirection: 'row'}}>
+                  <Text
+                    numberOfLines={2}
+                    style={{color: colors.text_primary, fontSize: 18}}>
+                    {storeName}
+                  </Text>
+                  <View
+                    key={index}
+                    style={{
+                      borderRadius: 20,
+                      backgroundColor: colors.accent,
+                      padding: 3,
+                      paddingHorizontal: 10,
+                      marginLeft: 2,
+                      alignSelf: 'flex-start',
+                    }}>
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        fontFamily: 'ProductSans-Regular',
+                        color: colors.icons,
+                      }}>
+                      {paymentMethod}
+                    </Text>
+                  </View>
+                </View>
                 <View style={{flexDirection: 'row'}}>
                   <Text
                     note
@@ -246,13 +272,15 @@ class OrderCard extends Component {
             paddingBottom: 5,
           }}>
           <Text note>{timeStamp}</Text>
-          <Button
-            title="Pay Now"
-            type="clear"
-            onPress={this.handleViewOrderItems.bind(this)}
-            titleStyle={{color: colors.primary}}
-            containerStyle={{borderRadius: 24}}
-          />
+          {paymentMethod === 'Online Banking' && (
+            <Button
+              title="Pay Now"
+              type="clear"
+              onPress={this.handleViewOrderItems.bind(this)}
+              titleStyle={{color: colors.primary}}
+              containerStyle={{borderRadius: 24}}
+            />
+          )}
         </View>
       );
     };

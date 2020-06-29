@@ -35,6 +35,7 @@ class OrderList extends Component {
                 coordinates={item.coordinates}
                 storeDetails={item.storeDetails}
                 quantity={item.quantity}
+                paymentMethod={item.paymentMethod}
                 shippingPrice={item.shippingPrice}
                 totalAmount={item.totalAmount}
                 orderId={item.orderId}
