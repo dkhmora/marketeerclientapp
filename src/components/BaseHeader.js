@@ -61,7 +61,7 @@ class BaseHeader extends Component {
       return centerComponent;
     }
 
-    return <Text style={styles.titleText}>{title}</Text>;
+    return <Text style={{fontSize: 20, color: colors.icons}}>{title}</Text>;
   };
 
   rightComponent = () => {

@@ -3,7 +3,6 @@ import {
   Container,
   Card,
   CardItem,
-  Text,
   Left,
   Right,
   Body,
@@ -11,10 +10,11 @@ import {
   Icon,
 } from 'native-base';
 import {View, Platform, Linking} from 'react-native';
+import {Text} from 'react-native-elements';
 import BaseHeader from '../components/BaseHeader';
 import {FlatList, ScrollView} from 'react-native-gesture-handler';
-import OrderItemCard from '../components/OrderItemCard';
 import {colors} from '../../assets/colors';
+import CartListItem from '../components/CartListItem';
 
 class OrderDetailsScreen extends Component {
   constructor(props) {
@@ -39,9 +39,9 @@ class OrderDetailsScreen extends Component {
       coordinates,
       orderId,
       orderItems,
-      cancelReason,
       userName,
       orderNumber,
+      orderStatus,
       quantity,
       shippingPrice,
       totalAmount,
@@ -49,6 +49,8 @@ class OrderDetailsScreen extends Component {
       createdAt,
     } = this.props.route.params;
     const {navigation} = this.props;
+
+    const cancelReason = orderStatus.cancelled.reason;
 
     const mapButtonText =
       Platform.OS === 'ios' ? 'Open in Apple Maps' : 'Open in Google Maps';
@@ -88,57 +90,119 @@ class OrderDetailsScreen extends Component {
                   header
                   bordered
                   style={{backgroundColor: colors.primary}}>
-                  <Text style={{color: '#fff'}}>Order Items</Text>
+                  <Text style={{color: colors.icons, fontSize: 20}}>
+                    Order Items
+                  </Text>
                 </CardItem>
               }
               data={orderItems}
               renderItem={({item, index}) => (
-                <OrderItemCard
-                  name={item.name}
-                  image={item.image}
-                  price={item.price}
-                  unit={item.unit}
-                  quantity={item.quantity}
-                  createdAt={item.createdAt}
-                  key={index}
-                />
+                <View style={{marginHorizontal: 15}}>
+                  <CartListItem item={item} />
+                </View>
               )}
               keyExtractor={(item, index) => `${item.name}${index.toString()}`}
               showsVerticalScrollIndicator={false}
+              ListFooterComponent={
+                <View
+                  style={{
+                    height: 0.5,
+                    flex: 1,
+                    backgroundColor: colors.divider,
+                  }}
+                />
+              }
             />
             <CardItem bordered>
               <Left>
                 <Text note>{quantity} items</Text>
               </Left>
               <Right>
-                <Text>Subtotal: ₱{totalAmount}</Text>
-                <Text>Shipping Price: ₱{shippingPrice}</Text>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      color: colors.text_primary,
+                      fontFamily: 'ProductSans-Light',
+                    }}>
+                    Subtotal:{' '}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      color: colors.primary,
+                      fontFamily: 'ProductSans-Black',
+                    }}>
+                    ₱{totalAmount}
+                  </Text>
+                </View>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      color: colors.text_primary,
+                      fontFamily: 'ProductSans-Light',
+                    }}>
+                    Estimated Shipping Price:{' '}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      color: colors.primary,
+                      fontFamily: 'ProductSans-Black',
+                    }}>
+                    ₱{shippingPrice}130-200
+                  </Text>
+                </View>
               </Right>
             </CardItem>
             <CardItem footer bordered>
               <Left />
               <Right>
-                <Text>Order Total: ₱{totalAmount + shippingPrice}</Text>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      color: colors.text_primary,
+                      fontFamily: 'ProductSans-Light',
+                    }}>
+                    Order Total:{' '}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      color: colors.primary,
+                      fontFamily: 'ProductSans-Black',
+                    }}>
+                    ₱{totalAmount + 130} - ₱{totalAmount + 200}
+                  </Text>
+                </View>
               </Right>
             </CardItem>
           </Card>
-
-          <Card
-            style={{
-              borderRadius: 10,
-              overflow: 'hidden',
-            }}>
-            <CardItem header bordered style={{backgroundColor: colors.primary}}>
-              <Text style={{color: '#fff'}}>Reason for Cancellation</Text>
-            </CardItem>
-            <CardItem>
-              <Body>
-                <Text style={{width: '100%', textAlign: 'justify'}}>
-                  {cancelReason}
+          {orderStatus.cancelled.status && (
+            <Card
+              style={{
+                borderRadius: 10,
+                overflow: 'hidden',
+              }}>
+              <CardItem
+                header
+                bordered
+                style={{backgroundColor: colors.primary}}>
+                <Text style={{color: colors.icons, fontSize: 20}}>
+                  Reason for Cancellation
                 </Text>
-              </Body>
-            </CardItem>
-          </Card>
+              </CardItem>
+              <CardItem>
+                <Body>
+                  <Text style={{width: '100%', textAlign: 'justify'}}>
+                    {cancelReason}
+                  </Text>
+                </Body>
+              </CardItem>
+            </Card>
+          )}
         </View>
       </View>
     );
