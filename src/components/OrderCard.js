@@ -270,8 +270,9 @@ class OrderCard extends Component {
             justifyContent: 'space-between',
             paddingHorizontal: 15,
             paddingBottom: 5,
+            height: 40,
           }}>
-          <Text note>{timeStamp}</Text>
+          <Text>{timeStamp}</Text>
           {paymentMethod === 'Online Banking' && (
             <Button
               title="Pay Now"
