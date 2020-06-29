@@ -147,7 +147,7 @@ class OrderChatScreen extends Component {
   }
 
   renderAvatar(props) {
-    const userInitial = props.user.name.charAt(0);
+    const userInitial = props.currentMessage.user.name.charAt(0);
 
     return (
       <Avatar
@@ -164,12 +164,7 @@ class OrderChatScreen extends Component {
 
   render() {
     const {navigation} = this.props;
-    const {
-      storeName,
-      userAddress,
-      orderNumber,
-      orderId,
-    } = this.props.route.params;
+    const {storeName, orderNumber} = this.props.route.params;
 
     const headerTitle = `${storeName} | Order # ${orderNumber}`;
 

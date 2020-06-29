@@ -18,6 +18,14 @@ class authStore {
     return this.guest ? 'Log In' : 'Log Out';
   }
 
+  @computed get userPhoneNumber() {
+    if (auth().currentUser) {
+      return auth().currentUser.phoneNumber;
+    }
+
+    return null;
+  }
+
   @computed get userId() {
     if (auth().currentUser) {
       return auth().currentUser.uid;

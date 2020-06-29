@@ -50,7 +50,7 @@ class CheckoutScreen extends Component {
       const reviewed = false;
       const userCoordinates = null;
       const userAddress = null;
-      const {userName} = this.props.authStore;
+      const {userName, userPhoneNumber} = this.props.authStore;
       const createdAt = new Date().toISOString();
       const orderStatus = {
         pending: {
@@ -86,6 +86,7 @@ class CheckoutScreen extends Component {
         userCoordinates,
         userAddress,
         userName,
+        userPhoneNumber,
         userId,
         createdAt,
         orderStatus,
