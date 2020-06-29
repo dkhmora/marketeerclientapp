@@ -7,13 +7,13 @@ import {
   PermissionsAndroid,
   Platform,
   Dimensions,
+  SafeAreaView,
 } from 'react-native';
 import {Text, Item, Input, Card, CardItem} from 'native-base';
 import {Icon, Button} from 'react-native-elements';
 import {observer, inject} from 'mobx-react';
 import Geolocation from '@react-native-community/geolocation';
 import {colors} from '../../assets/colors';
-import {SafeAreaView} from 'react-native-safe-area-context';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 
 @inject('authStore')
@@ -270,28 +270,28 @@ class SetLocationScreen extends Component {
 
         <SafeAreaView
           style={{
-            position: 'absolute',
             flexDirection: 'row',
-            top: 0,
-            left: 0,
-            right: 0,
+            paddingHorizontal: 10,
+            paddingBottom: 10,
+            backgroundColor: colors.primary,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingTop:
+              Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 10,
           }}>
-          <SafeAreaView>
-            <Button
-              type="clear"
-              icon={<Icon name="arrow-left" color={colors.primary} />}
-              buttonStyle={{
-                backgroundColor: colors.icons,
-              }}
-              containerStyle={{
-                borderRadius: 24,
-                elevation: 5,
-                marginLeft: 20,
-                marginTop: 20,
-              }}
-              onPress={() => navigation.goBack()}
-            />
-          </SafeAreaView>
+          <Button
+            type="clear"
+            icon={<Icon name="arrow-left" color={colors.primary} />}
+            buttonStyle={{
+              backgroundColor: colors.icons,
+            }}
+            containerStyle={{
+              borderRadius: 24,
+              elevation: 5,
+            }}
+            onPress={() => navigation.goBack()}
+          />
+
           <GooglePlacesAutocomplete
             placeholder="Search"
             fetchDetails
@@ -302,6 +302,37 @@ class SetLocationScreen extends Component {
             query={{
               key: 'AIzaSyDZqSAZvKVizDPaDhtzuzGtfyzCpViZvcs',
               language: 'en',
+              components: 'country:ph',
+            }}
+            styles={{
+              container: {
+                alignSelf: 'flex-start',
+              },
+              textInputContainer: {
+                backgroundColor: 'rgba(0,0,0,0)',
+                borderRadius: 24,
+                marginTop: -7,
+                borderTopWidth: 0,
+                borderBottomWidth: 0,
+              },
+              textInput: {
+                alignSelf: 'flex-start',
+                margin: 0,
+                padding: 0,
+                height: 40,
+                color: '#5d5d5d',
+                fontFamily: 'ProductSans-Light',
+                fontSize: 16,
+                borderRadius: 24,
+              },
+              predefinedPlacesDescription: {
+                color: colors.accent,
+              },
+              listView: {
+                backgroundColor: colors.icons,
+                position: 'absolute',
+                marginTop: 40,
+              },
             }}
             onFail={(error) => console.warn(error)}
           />
