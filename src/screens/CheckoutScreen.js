@@ -60,9 +60,6 @@ class CheckoutScreen extends Component {
         paid: {
           status: false,
         },
-        paymentProcessing: {
-          status: false,
-        },
         shipped: {
           status: false,
         },
