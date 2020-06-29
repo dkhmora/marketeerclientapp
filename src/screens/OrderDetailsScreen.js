@@ -42,7 +42,7 @@ class OrderDetailsScreen extends Component {
       cancelReason,
       userName,
       orderNumber,
-      numberOfItems,
+      quantity,
       shippingPrice,
       totalAmount,
       userAddress,
@@ -108,7 +108,7 @@ class OrderDetailsScreen extends Component {
             />
             <CardItem bordered>
               <Left>
-                <Text note>{numberOfItems} items</Text>
+                <Text note>{quantity} items</Text>
               </Left>
               <Right>
                 <Text>Subtotal: ₱{totalAmount}</Text>
