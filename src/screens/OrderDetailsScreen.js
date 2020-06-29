@@ -61,7 +61,7 @@ class OrderDetailsScreen extends Component {
     ];
 
     return (
-      <Container>
+      <View style={{flex: 1}}>
         <BaseHeader
           title={`Order #${orderNumber} Details`}
           backButton
@@ -70,8 +70,7 @@ class OrderDetailsScreen extends Component {
           navigation={navigation}
         />
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
+        <View
           style={{
             flex: 1,
             flexDirection: 'column',
@@ -83,10 +82,15 @@ class OrderDetailsScreen extends Component {
               borderRadius: 10,
               overflow: 'hidden',
             }}>
-            <CardItem header bordered style={{backgroundColor: colors.primary}}>
-              <Text style={{color: '#fff'}}>Order Items</Text>
-            </CardItem>
             <FlatList
+              ListHeaderComponent={
+                <CardItem
+                  header
+                  bordered
+                  style={{backgroundColor: colors.primary}}>
+                  <Text style={{color: '#fff'}}>Order Items</Text>
+                </CardItem>
+              }
               data={orderItems}
               renderItem={({item, index}) => (
                 <OrderItemCard
@@ -135,8 +139,8 @@ class OrderDetailsScreen extends Component {
               </Body>
             </CardItem>
           </Card>
-        </ScrollView>
-      </Container>
+        </View>
+      </View>
     );
   }
 }

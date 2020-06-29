@@ -33,6 +33,7 @@ import {YellowBox} from 'react-native';
 YellowBox.ignoreWarnings([
   'Animated: `useNativeDriver` was not specified. This is a required option and must be explicitly set to `true` or `false`',
   'Animated.event now requires a second argument for options',
+  'Require cycle: node_modules',
 ]);
 // ------- END OF WARNING SUPPRESSION
 

@@ -64,7 +64,6 @@ class SetLocationScreen extends Component {
       },
       (err) => console.log(err),
       {
-        enableHighAccuracy: true,
         timeout: 20000,
       },
     );
