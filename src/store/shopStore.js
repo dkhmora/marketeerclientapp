@@ -64,11 +64,8 @@ class shopStore {
       });
   }
 
-  @action async placeOrder(userId, orderDetails, orderItems) {
-    const userOrdersRef = firestore()
-      .collection('users')
-      .doc(userId)
-      .collection('orders');
+  @action async placeOrder(orderDetails, orderItems) {
+    const userOrdersRef = firestore().collection('orders');
     const orderItemsRef = firestore().collection('order_items');
     const batch = firestore().batch();
     const id = userOrdersRef.doc().id;

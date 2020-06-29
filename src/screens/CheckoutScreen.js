@@ -76,11 +76,14 @@ class CheckoutScreen extends Component {
         totalAmount = item.price * item.quantity + totalAmount;
       });
 
+      const userId = this.props.authStore.userId;
+
       const orderDetails = {
         reviewed,
         userCoordinates,
         userAddress,
         userName,
+        userId,
         createdAt,
         orderStatus,
         quantity,
@@ -89,10 +92,8 @@ class CheckoutScreen extends Component {
         storeDetails,
       };
 
-      const userId = this.props.authStore.userId;
-
       this.props.shopStore
-        .placeOrder(userId, orderDetails, orderItems)
+        .placeOrder(orderDetails, orderItems)
         .then(() => console.log(`Order Placed for ${storeName}!`))
         .then(() => this.props.shopStore.deleteCartStore(storeName, userId))
         .catch((err) =>

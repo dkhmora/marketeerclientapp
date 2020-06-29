@@ -100,9 +100,8 @@ class generalStore {
 
   @action setOrders(userId) {
     firestore()
-      .collection('users')
-      .doc(userId)
       .collection('orders')
+      .where('userId', '==', userId)
       .get()
       .then((querySnapshot) => {
         const data = [];

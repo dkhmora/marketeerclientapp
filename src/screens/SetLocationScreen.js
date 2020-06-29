@@ -14,6 +14,7 @@ import {observer, inject} from 'mobx-react';
 import Geolocation from '@react-native-community/geolocation';
 import {colors} from '../../assets/colors';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 
 @inject('authStore')
 @inject('generalStore')
@@ -219,27 +220,6 @@ class SetLocationScreen extends Component {
             <Icon color={colors.primary} name="map-pin" />
           </View>
         )}
-        <SafeAreaView
-          style={{
-            position: 'absolute',
-          }}>
-          <SafeAreaView>
-            <Button
-              type="clear"
-              icon={<Icon name="arrow-left" color={colors.primary} />}
-              buttonStyle={{
-                backgroundColor: colors.icons,
-              }}
-              containerStyle={{
-                borderRadius: 24,
-                elevation: 5,
-                marginLeft: 20,
-                marginTop: 20,
-              }}
-              onPress={() => navigation.goBack()}
-            />
-          </SafeAreaView>
-        </SafeAreaView>
         <View
           style={{
             position: 'absolute',
@@ -288,6 +268,45 @@ class SetLocationScreen extends Component {
             />
           )}
         </View>
+
+        <SafeAreaView
+          style={{
+            position: 'absolute',
+            flexDirection: 'row',
+            top: 0,
+            left: 0,
+            right: 0,
+          }}>
+          <SafeAreaView>
+            <Button
+              type="clear"
+              icon={<Icon name="arrow-left" color={colors.primary} />}
+              buttonStyle={{
+                backgroundColor: colors.icons,
+              }}
+              containerStyle={{
+                borderRadius: 24,
+                elevation: 5,
+                marginLeft: 20,
+                marginTop: 20,
+              }}
+              onPress={() => navigation.goBack()}
+            />
+          </SafeAreaView>
+          <GooglePlacesAutocomplete
+            placeholder="Search"
+            fetchDetails
+            onPress={(data, details = null) => {
+              // 'details' is provided when fetchDetails = true
+              console.log(data, details);
+            }}
+            query={{
+              key: 'AIzaSyDZqSAZvKVizDPaDhtzuzGtfyzCpViZvcs',
+              language: 'en',
+            }}
+            onFail={(error) => console.warn(error)}
+          />
+        </SafeAreaView>
       </View>
     );
   }
