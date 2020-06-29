@@ -44,6 +44,9 @@ class CheckoutScreen extends Component {
 
       const orderItems = this.props.shopStore.storeCartItems[storeName];
       const shipping = this.props.shopStore.storeSelectedShipping[storeName];
+      const paymentMethod = this.props.shopStore.storeSelectedPaymentMethod[
+        storeName
+      ];
       const reviewed = false;
       const userCoordinates = null;
       const userAddress = null;
@@ -90,6 +93,7 @@ class CheckoutScreen extends Component {
         totalAmount,
         shipping,
         storeDetails,
+        paymentMethod,
       };
 
       this.props.shopStore

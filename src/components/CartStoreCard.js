@@ -75,7 +75,7 @@ class CartStoreCard extends Component {
 
   render() {
     const {storeName, checkout} = this.props;
-    const {shippingMethods} = this.storeDetails;
+    const {shippingMethods, paymentMethods} = this.storeDetails;
 
     return (
       <Card
@@ -156,37 +156,75 @@ class CartStoreCard extends Component {
           <View
             style={{
               flex: 1,
-              flexDirection: 'row',
-              marginTop: 5,
-              alignItems: 'center',
-              justifyContent: 'center',
               borderRadius: 10,
               borderWidth: 1,
               borderColor: colors.divider,
               paddingHorizontal: 8,
+              flexDirection: 'column',
             }}>
-            <Text style={{fontSize: 16, fontFamily: 'ProductSans-Light'}}>
-              Shipping Method:
-            </Text>
-            <Picker
-              mode="dropdown"
-              style={{flex: 1}}
-              selectedValue={
-                this.props.shopStore.storeSelectedShipping[storeName]
-              }
-              onValueChange={(value) => {
-                this.props.shopStore.storeSelectedShipping[storeName] = value;
+            <View
+              style={{
+                flexDirection: 'row',
+                marginTop: 5,
+                alignItems: 'center',
+                justifyContent: 'center',
               }}>
-              {shippingMethods.length > 0 ? (
-                shippingMethods.map((method, index) => {
-                  return (
-                    <Picker.Item label={method} value={method} key={index} />
-                  );
-                })
-              ) : (
-                <Text>No shipping method available for your location</Text>
-              )}
-            </Picker>
+              <Text style={{fontSize: 16, fontFamily: 'ProductSans-Light'}}>
+                Shipping Method:
+              </Text>
+              <Picker
+                mode="dropdown"
+                style={{flex: 1}}
+                selectedValue={
+                  this.props.shopStore.storeSelectedShipping[storeName]
+                }
+                onValueChange={(value) => {
+                  this.props.shopStore.storeSelectedShipping[storeName] = value;
+                }}>
+                {shippingMethods.length > 0 ? (
+                  shippingMethods.map((method, index) => {
+                    return (
+                      <Picker.Item label={method} value={method} key={index} />
+                    );
+                  })
+                ) : (
+                  <Text>No shipping method available for your location</Text>
+                )}
+              </Picker>
+            </View>
+
+            <View
+              style={{
+                flexDirection: 'row',
+                marginTop: 5,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={{fontSize: 16, fontFamily: 'ProductSans-Light'}}>
+                Payment Method:
+              </Text>
+              <Picker
+                mode="dropdown"
+                style={{flex: 1}}
+                selectedValue={
+                  this.props.shopStore.storeSelectedPaymentMethod[storeName]
+                }
+                onValueChange={(value) => {
+                  this.props.shopStore.storeSelectedPaymentMethod[
+                    storeName
+                  ] = value;
+                }}>
+                {paymentMethods.length > 0 ? (
+                  paymentMethods.map((method, index) => {
+                    return (
+                      <Picker.Item label={method} value={method} key={index} />
+                    );
+                  })
+                ) : (
+                  <Text>No payment method available</Text>
+                )}
+              </Picker>
+            </View>
           </View>
         )}
       </Card>
