@@ -15,10 +15,6 @@ import {observable, computed} from 'mobx';
 class CartStoreCard extends Component {
   constructor(props) {
     super(props);
-
-    this.props.shopStore.storeSelectedShipping[
-      this.props.storeName
-    ] = this.storeDetails.shippingMethods[0];
   }
 
   @observable url = null;
@@ -71,6 +67,14 @@ class CartStoreCard extends Component {
     } else {
       this.url = require('../../assets/images/placeholder.jpg');
     }
+
+    this.props.shopStore.storeSelectedShipping[
+      this.props.storeName
+    ] = this.storeDetails.shippingMethods[0];
+
+    this.props.shopStore.storeSelectedPaymentMethod[
+      this.props.storeName
+    ] = this.storeDetails.paymentMethods[0];
   }
 
   render() {
