@@ -4,8 +4,6 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  Platform,
-  StyleSheet,
   ScrollView,
   StatusBar,
   Image,
@@ -15,10 +13,8 @@ import {observer, inject} from 'mobx-react';
 import {Icon, SocialIcon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
-import Animated from 'react-native-reanimated';
 import BackButton from '../components/BackButton';
 
-@inject('generalStore')
 @inject('authStore')
 @observer
 class LoginScreen extends Component {

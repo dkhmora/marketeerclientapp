@@ -180,6 +180,7 @@ class OrderDetailsScreen extends Component {
               </Right>
             </CardItem>
           </Card>
+
           {orderStatus.cancelled.status && (
             <Card
               style={{
