@@ -282,6 +282,7 @@ class shopStore {
   @action async getShopList() {
     await merchantsCollection
       .where('visibleToPublic', '==', true)
+      .where('vacation', '==', false)
       .limit(10)
       .get()
       .then((querySnapshot) => {
