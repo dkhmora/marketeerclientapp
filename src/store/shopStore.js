@@ -13,6 +13,7 @@ class shopStore {
   @observable itemCategories = [];
   @observable storeCategoryItems = new Map();
   @observable unsubscribeToGetCartItems = null;
+  @observable cartUpdateTimeout = null;
 
   @computed get totalCartItemQuantity() {
     let quantity = 0;

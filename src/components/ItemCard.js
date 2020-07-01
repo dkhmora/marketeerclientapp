@@ -125,19 +125,19 @@ class ItemCard extends Component {
 
     if (this.cartItemQuantity < item.stock) {
       if (!this.props.authStore.guest) {
-        clearTimeout(this.timeout);
+        clearTimeout(this.props.shopStore.cartUpdateTimeout);
 
-        this.timeout = setTimeout(() => {
+        this.props.shopStore.cartUpdateTimeout = setTimeout(() => {
           this.props.shopStore.updateCartItems();
-        }, 1000);
+        }, 3000);
       }
+    }
 
-      this.cartItemQuantity === parseInt(item.stock, 10) &&
-        this.setState({addButtonDisabled: true});
+    this.cartItemQuantity === parseInt(item.stock, 10) &&
+      this.setState({addButtonDisabled: true});
 
-      if (!this.state.minusButtonShown && this.cartItemQuantity >= 1) {
-        this.showMinusButton();
-      }
+    if (!this.state.minusButtonShown && this.cartItemQuantity >= 1) {
+      this.showMinusButton();
     }
   }
 
@@ -147,11 +147,11 @@ class ItemCard extends Component {
     this.props.shopStore.deleteCartItemInStorage(item, storeName);
 
     if (!this.props.authStore.guest) {
-      clearTimeout(this.timeout);
+      clearTimeout(this.props.shopStore.cartUpdateTimeout);
 
-      this.timeout = setTimeout(() => {
+      this.props.shopStore.cartUpdateTimeout = setTimeout(() => {
         this.props.shopStore.updateCartItems();
-      }, 1000);
+      }, 3000);
     }
 
     if (this.cartItemQuantity <= 0 && this.state.minusButtonShown) {
