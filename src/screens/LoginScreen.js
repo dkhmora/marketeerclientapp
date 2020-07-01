@@ -68,7 +68,7 @@ class LoginScreen extends Component {
       if (checkout) {
         navigation.dangerouslyGetParent().navigate('Checkout');
       } else {
-        navigation.dangerouslyGetParent().navigate('Home');
+        navigation.dangerouslyGetParent().replace('Home');
       }
     });
   }
