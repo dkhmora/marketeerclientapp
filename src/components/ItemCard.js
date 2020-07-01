@@ -27,7 +27,6 @@ class ItemCard extends Component {
     const itemStock = item.stock;
 
     this.state = {
-      quantity: itemQuantity,
       addButtonDisabled: itemQuantity >= itemStock ? true : false,
       minusButtonShown: itemQuantity > 0 ? true : false,
       writeTimer: null,
@@ -58,6 +57,10 @@ class ItemCard extends Component {
         );
 
         if (cartItem) {
+          if (cartItem.quantity > 0 && !this.state.minusButtonShown) {
+            this.showMinusButton();
+          }
+
           return cartItem.quantity;
         }
       }
@@ -96,15 +99,17 @@ class ItemCard extends Component {
       this.getImage();
     }
 
-    if (this.state.quantity >= 1) {
+    if (this.cartItemQuantity >= 1) {
       this.showMinusButton();
     }
   }
 
   showMinusButton() {
-    this.setState({minusButtonShown: true});
-    this.buttonCounterView.fadeInRight(200) &&
-      this.plusButton.transformPlusButton(300);
+    if (this.buttonCounterView && this.plusButton) {
+      this.setState({minusButtonShown: true});
+      this.buttonCounterView.fadeInRight(200) &&
+        this.plusButton.transformPlusButton(300);
+    }
   }
 
   hideMinusButton() {
@@ -116,73 +121,45 @@ class ItemCard extends Component {
   handleIncreaseQuantity() {
     const {item, storeName} = this.props;
 
-    if (this.state.quantity < item.stock) {
-      this.setState({quantity: this.state.quantity + 1}, () => {
-        if (this.props.authStore.guest) {
-          this.props.shopStore.addCartItemToStorage(
-            item,
-            storeName,
-            this.state.quantity,
-          );
-        } else {
-          clearTimeout(this.timeout);
+    this.props.shopStore.addCartItemToStorage(item, storeName);
 
-          this.props.shopStore.storeCartItems[storeName][
-            this.cartItemIndex
-          ].quantity += 1;
+    if (this.cartItemQuantity < item.stock) {
+      if (!this.props.authStore.guest) {
+        clearTimeout(this.timeout);
 
-          this.timeout = setTimeout(() => {
-            this.props.shopStore.addCartItem(
-              item,
-              storeName,
-              this.state.quantity,
-            );
-          }, 1000);
-        }
+        this.timeout = setTimeout(() => {
+          this.props.shopStore.updateCartItems();
+        }, 1000);
+      }
 
-        this.state.quantity === parseInt(item.stock, 10) &&
-          this.setState({addButtonDisabled: true});
+      this.cartItemQuantity === parseInt(item.stock, 10) &&
+        this.setState({addButtonDisabled: true});
 
-        if (!this.state.minusButtonShown && this.state.quantity >= 1) {
-          this.showMinusButton();
-        }
-      });
+      if (!this.state.minusButtonShown && this.cartItemQuantity >= 1) {
+        this.showMinusButton();
+      }
     }
   }
 
   handleDecreaseQuantity() {
     const {item, storeName} = this.props;
 
-    this.setState({quantity: this.state.quantity - 1}, () => {
-      if (this.props.authStore.guest) {
-        this.props.shopStore.deleteCartItemInStorage(
-          item,
-          storeName,
-          this.state.quantity,
-        );
-      } else {
-        clearTimeout(this.timeout);
+    this.props.shopStore.deleteCartItemInStorage(item, storeName);
 
-        this.props.shopStore.storeCartItems[storeName][
-          this.cartItemIndex
-        ].quantity -= 1;
+    if (!this.props.authStore.guest) {
+      clearTimeout(this.timeout);
 
-        this.timeout = setTimeout(() => {
-          this.props.shopStore.removeCartItem(
-            item,
-            storeName,
-            this.state.quantity,
-          );
-        }, 1000);
-      }
+      this.timeout = setTimeout(() => {
+        this.props.shopStore.updateCartItems();
+      }, 1000);
+    }
 
-      if (this.state.quantity <= 0 && this.state.minusButtonShown) {
-        this.hideMinusButton();
-      }
+    if (this.cartItemQuantity <= 0 && this.state.minusButtonShown) {
+      this.hideMinusButton();
+    }
 
-      this.state.quantity <= item.stock &&
-        this.setState({addButtonDisabled: false});
-    });
+    this.cartItemQuantity <= item.stock &&
+      this.setState({addButtonDisabled: false});
   }
 
   render() {

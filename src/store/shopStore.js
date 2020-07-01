@@ -128,8 +128,18 @@ class shopStore {
       });
   }
 
-  @action async addCartItemToStorage(item, storeName, quantity) {
+  @action async addCartItemToStorage(item, storeName) {
     const storeCartItems = this.storeCartItems[storeName];
+    const dateNow = new Date().toISOString();
+
+    const newItem = {
+      ...item,
+      quantity: 1,
+      createdAt: dateNow,
+      updatedAt: dateNow,
+    };
+    delete newItem.stock;
+    delete newItem.sales;
 
     if (storeCartItems) {
       const cartItemIndex = storeCartItems.findIndex(
@@ -137,36 +147,23 @@ class shopStore {
       );
 
       if (cartItemIndex >= 0) {
-        storeCartItems[cartItemIndex].quantity = quantity;
-        storeCartItems[cartItemIndex].updatedAt = new Date().toISOString();
+        storeCartItems[cartItemIndex].quantity += 1;
+        storeCartItems[cartItemIndex].updatedAt = dateNow;
       } else {
         console.log('item cannot be found in store! Creating new item.');
-
-        const newItem = {...item};
-        newItem.quantity = quantity;
-        delete newItem.stock;
-        delete newItem.sales;
-        newItem.createdAt = new Date().toISOString();
-        newItem.updatedAt = new Date().toISOString();
 
         storeCartItems.push(newItem);
       }
     } else {
       console.log('Store not found! Creating new store.');
 
-      const newItem = {...item};
-      newItem.quantity = quantity;
-      delete newItem.stock;
-      delete newItem.sales;
-      newItem.createdAt = new Date().toISOString();
-      newItem.updatedAt = new Date().toISOString();
-
       this.storeCartItems[storeName] = [{...newItem}];
     }
   }
 
-  @action async deleteCartItemInStorage(item, storeName, quantity) {
+  @action async deleteCartItemInStorage(item, storeName) {
     const storeCart = this.storeCartItems[storeName];
+    const dateNow = new Date().toISOString();
 
     if (storeCart) {
       const cartItemIndex = storeCart.findIndex(
@@ -174,15 +171,15 @@ class shopStore {
       );
 
       if (cartItemIndex >= 0) {
-        if (quantity <= 0) {
+        storeCart[cartItemIndex].quantity -= 1;
+        storeCart[cartItemIndex].updatedAt = dateNow;
+
+        if (storeCart[cartItemIndex].quantity <= 0) {
           storeCart.splice(cartItemIndex, 1);
 
           if (!this.storeCartItems[storeName].length) {
             delete this.storeCartItems[storeName];
           }
-        } else {
-          storeCart[cartItemIndex].quantity = quantity;
-          storeCart[cartItemIndex].updatedAt = new Date().toISOString();
         }
       } else {
         console.log('item cannot be found in store!');
@@ -190,93 +187,15 @@ class shopStore {
     }
   }
 
-  @action async addCartItem(item, storeName, quantity) {
+  @action async updateCartItems() {
     const userId = auth().currentUser.uid;
 
-    if (this.storeCartItems[storeName]) {
-      const cartItemIndex = this.storeCartItems[storeName].findIndex(
-        (storeCartItem) => storeCartItem.name === item.name,
-      );
+    console.log(this.storeCartItems);
 
-      if (cartItemIndex >= 0) {
-        const newStoreCartItems = [...this.storeCartItems[storeName]];
-        newStoreCartItems[cartItemIndex].quantity = quantity;
-        newStoreCartItems[cartItemIndex].updatedAt = new Date().toISOString();
-
-        await userCartCollection
-          .doc(userId)
-          .update({[storeName]: newStoreCartItems})
-          .catch((err) => console.log(err));
-      } else {
-        console.log('item cannot be found in store! Creating new item.');
-
-        const newItem = {...item};
-        newItem.quantity = quantity;
-        delete newItem.stock;
-        delete newItem.sales;
-        newItem.createdAt = new Date().toISOString();
-        newItem.updatedAt = new Date().toISOString();
-
-        await userCartCollection
-          .doc(userId)
-          .update(storeName, firestore.FieldValue.arrayUnion(newItem))
-          .catch((err) => console.log(err));
-      }
-    } else {
-      const newItem = {...item};
-      newItem.quantity = quantity;
-      delete newItem.stock;
-      delete newItem.sales;
-      newItem.createdAt = new Date().toISOString();
-      newItem.updatedAt = new Date().toISOString();
-
-      await userCartCollection
-        .doc(userId)
-        .update({[storeName]: firestore.FieldValue.arrayUnion(newItem)})
-        .catch((err) => console.log(err));
-    }
-  }
-
-  @action async removeCartItem(item, storeName, quantity) {
-    const userId = auth().currentUser.uid;
-    const storeCart = this.storeCartItems[storeName];
-
-    if (storeCart) {
-      const cartItemIndex = storeCart.findIndex(
-        (storeCartItem) => storeCartItem.name === item.name,
-      );
-
-      if (cartItemIndex >= 0) {
-        const storeCartItem = storeCart[cartItemIndex];
-
-        if (quantity <= 0) {
-          await userCartCollection
-            .doc(userId)
-            .update({
-              [storeName]: firestore.FieldValue.arrayRemove(storeCartItem),
-            })
-            .then(() => {
-              if (!this.storeCartItems[storeName].length) {
-                userCartCollection
-                  .doc(userId)
-                  .update({[storeName]: firestore.FieldValue.delete()});
-              }
-            })
-            .catch((err) => console.log(err));
-        } else {
-          const newStoreCartItems = [...storeCart];
-          newStoreCartItems[cartItemIndex].quantity = quantity;
-          newStoreCartItems[cartItemIndex].updatedAt = new Date().toISOString();
-
-          await userCartCollection
-            .doc(userId)
-            .update({[storeName]: newStoreCartItems})
-            .catch((err) => console.log(err));
-        }
-      } else {
-        console.log('item cannot be found in store!');
-      }
-    }
+    await userCartCollection
+      .doc(userId)
+      .update({...this.storeCartItems})
+      .catch((err) => console.log(err));
   }
 
   @action async getShopList() {
