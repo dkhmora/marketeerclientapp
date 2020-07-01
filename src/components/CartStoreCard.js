@@ -85,6 +85,7 @@ class CartStoreCard extends Component {
       <Card
         containerStyle={{
           margin: 3,
+          marginVertical: 10,
           borderRadius: 10,
           elevation: 3,
           overflow: 'hidden',
