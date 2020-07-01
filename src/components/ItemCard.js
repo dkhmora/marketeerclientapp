@@ -161,6 +161,9 @@ class ItemCard extends Component {
           onBackdropPress={() => this.setState({overlay: false})}
           description={description}
           name={name}
+          price={price}
+          unit={unit}
+          stock={stock}
           url={this.url}
         />
 
