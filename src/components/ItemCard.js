@@ -9,6 +9,7 @@ import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import FastImage from 'react-native-fast-image';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 
 @inject('authStore')
 @inject('shopStore')
@@ -158,20 +159,25 @@ class ItemCard extends Component {
             borderRadius: 10,
             overflow: 'hidden',
           }}>
-          <CardItem
-            header
-            bordered
+          <View
             style={{
-              backgroundColor: '#fff',
+              backgroundColor: colors.icons,
+              paddingHorizontal: 10,
+              paddingVertical: 10,
+              elevation: 2,
+              borderBottomLeftRadius: 10,
+              borderBottomRightRadius: 10,
             }}>
-            <View style={{flex: 1, justifyContent: 'flex-start', padding: 0}}>
+            <TouchableOpacity>
               <View
                 style={{
+                  flex: 1,
                   flexDirection: 'row',
                   justifyContent: 'space-between',
-                  alignItems: 'flex-end',
+                  alignItems: 'center',
+                  padding: 0,
                 }}>
-                <View style={{flexDirection: 'column'}}>
+                <View style={{flex: 1, flexDirection: 'column'}}>
                   <Text
                     style={{
                       color: colors.text_secondary,
@@ -179,6 +185,7 @@ class ItemCard extends Component {
                     }}>
                     {name}
                   </Text>
+
                   <Text
                     style={{
                       color: colors.text_primary,
@@ -187,38 +194,24 @@ class ItemCard extends Component {
                     ₱{price}/{unit}
                   </Text>
                 </View>
-                <View
-                  style={{
-                    borderRadius: 10,
-                    borderWidth: 1,
-                    borderColor: colors.text_secondary,
-                    padding: 5,
-                    alignItems: 'center',
-                  }}>
-                  <Text>{stock}</Text>
-                  <Text
-                    numberOfLines={2}
-                    style={{
-                      textAlign: 'center',
-                      color: colors.text_secondary,
-                      fontFamily: 'ProductSans-Light',
-                    }}>
-                    Left
-                  </Text>
+
+                <View style={{width: 30}}>
+                  <Icon name="info" color={colors.primary} />
                 </View>
               </View>
-            </View>
-          </CardItem>
-          <CardItem cardBody>
+            </TouchableOpacity>
+          </View>
+
+          <CardItem cardBody style={{marginTop: -10}}>
             {this.url ? (
               <FastImage
                 source={{uri: this.url}}
                 style={{
-                  height: 150,
-                  width: null,
+                  aspectRatio: 1,
                   flex: 1,
                   backgroundColor: '#e1e4e8',
                 }}
+                resizeMode={FastImage.resizeMode.contain}
               />
             ) : (
               <Image
@@ -232,6 +225,7 @@ class ItemCard extends Component {
               />
             )}
           </CardItem>
+
           <View
             style={{
               flexDirection: 'row',
@@ -307,6 +301,7 @@ class ItemCard extends Component {
                 </Text>
               </View>
             </Animatable.View>
+
             <Animatable.View
               ref={(plusButton) => (this.plusButton = plusButton)}
               useNativeDriver
@@ -356,6 +351,33 @@ class ItemCard extends Component {
                 />
               </View>
             </Animatable.View>
+          </View>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              position: 'absolute',
+              bottom: 10,
+              left: 10,
+              borderRadius: 10,
+              borderWidth: 1,
+              backgroundColor: colors.icons,
+              opacity: 0.9,
+              borderColor: colors.text_secondary,
+              padding: 5,
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 14}}>{stock}</Text>
+
+            <Text
+              style={{
+                fontSize: 14,
+                textAlign: 'center',
+                color: colors.text_secondary,
+              }}>
+              {' '}
+              Left
+            </Text>
           </View>
         </Card>
       </Animatable.View>
