@@ -6,7 +6,7 @@ import {Text} from 'react-native-elements';
 
 const ItemTab = createMaterialTopTabNavigator();
 
-class ItemTabs extends Component {
+class ItemCategoriesTab extends Component {
   constructor(props) {
     super(props);
   }
@@ -56,4 +56,4 @@ class ItemTabs extends Component {
   }
 }
 
-export default ItemTabs;
+export default ItemCategoriesTab;

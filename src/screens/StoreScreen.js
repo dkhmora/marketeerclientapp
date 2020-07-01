@@ -16,7 +16,7 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import SlidingCartPanel from '../components/SlidingCartPanel';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import ItemTabs from '../navigation/ItemTabs';
+import ItemTabs from '../navigation/ItemCategoriesTab';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
