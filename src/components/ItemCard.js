@@ -4,7 +4,7 @@ import {Image} from 'react-native';
 import {Button, Icon} from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 import {inject, observer} from 'mobx-react';
-import {observable} from 'mobx';
+import {observable, computed} from 'mobx';
 import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
@@ -48,6 +48,43 @@ class ItemCard extends Component {
 
   @observable url = null;
 
+  @computed get cartItemQuantity() {
+    const {item, storeName} = this.props;
+
+    if (this.props.shopStore.storeCartItems) {
+      if (this.props.shopStore.storeCartItems[storeName]) {
+        const cartItem = this.props.shopStore.storeCartItems[storeName].find(
+          (storeCartItem) => storeCartItem.name === item.name,
+        );
+
+        if (cartItem) {
+          return cartItem.quantity;
+        }
+      }
+    }
+
+    return 0;
+  }
+
+  @computed get cartItemIndex() {
+    const {item, storeName} = this.props;
+
+    if (this.props.shopStore.storeCartItems) {
+      if (this.props.shopStore.storeCartItems[storeName]) {
+        const itemIndex = this.props.shopStore.storeCartItems[
+          storeName
+        ].findIndex((storeCartItem) => storeCartItem.name === item.name);
+
+        if (itemIndex >= 0) {
+          console.log('pasok', itemIndex);
+          return itemIndex;
+        }
+      }
+    }
+
+    return 0;
+  }
+
   getImage = async () => {
     const ref = storage().ref(this.props.item.image);
     const link = await ref.getDownloadURL();
@@ -90,6 +127,10 @@ class ItemCard extends Component {
         } else {
           clearTimeout(this.timeout);
 
+          this.props.shopStore.storeCartItems[storeName][
+            this.cartItemIndex
+          ].quantity += 1;
+
           this.timeout = setTimeout(() => {
             this.props.shopStore.addCartItem(
               item,
@@ -122,6 +163,10 @@ class ItemCard extends Component {
       } else {
         clearTimeout(this.timeout);
 
+        this.props.shopStore.storeCartItems[storeName][
+          this.cartItemIndex
+        ].quantity -= 1;
+
         this.timeout = setTimeout(() => {
           this.props.shopStore.removeCartItem(
             item,
@@ -143,7 +188,7 @@ class ItemCard extends Component {
   render() {
     const {name, price, stock, unit, description} = this.props.item;
 
-    const {quantity, addButtonDisabled} = this.state;
+    const {addButtonDisabled} = this.state;
 
     return (
       <Animatable.View
@@ -310,7 +355,7 @@ class ItemCard extends Component {
                     fontFamily: 'ProductSans-Black',
                     paddingRight: 4,
                   }}>
-                  {quantity}
+                  {this.cartItemQuantity}
                 </Text>
               </View>
             </Animatable.View>
