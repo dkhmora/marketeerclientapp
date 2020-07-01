@@ -13,17 +13,18 @@ class StoreList extends Component {
   }
 
   render() {
-    const dataSource = this.props.shopStore.storeList.slice();
+    const {dataSource} = this.props.route.params;
     const {navigation} = this.props;
 
     return (
       <View
         style={{
           flex: 1,
-          paddingHorizontal: 15,
+          justifyContent: 'center',
         }}>
-        {dataSource && (
+        {dataSource.length > 0 ? (
           <FlatList
+            style={{paddingHorizontal: 15}}
             data={dataSource}
             renderItem={({item, index}) => (
               <View>
@@ -38,6 +39,12 @@ class StoreList extends Component {
             keyExtractor={(item) => item.merchantId}
             showsVerticalScrollIndicator={false}
           />
+        ) : (
+          <Text
+            style={{fontSize: 20, textAlign: 'center', paddingHorizontal: 15}}>
+            We are sorry. There are no stores delivering to your area at the
+            moment. Please come back and try again soon!
+          </Text>
         )}
       </View>
     );

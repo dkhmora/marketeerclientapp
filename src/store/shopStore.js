@@ -9,6 +9,7 @@ class shopStore {
   @observable storeCartItems = {};
   @observable storeSelectedShipping = {};
   @observable storeSelectedPaymentMethod = {};
+  @observable storeCategories = [];
   @observable storeList = [];
   @observable itemCategories = [];
   @observable storeCategoryItems = new Map();
@@ -52,6 +53,19 @@ class shopStore {
       return stores;
     }
     return [];
+  }
+
+  @action async setStoreCategories() {
+    await firestore()
+      .collection('application')
+      .doc('client_config')
+      .get()
+      .then((document) => {
+        if (document.exists) {
+          this.storeCategories = document.data().storeCategories;
+        }
+      })
+      .catch((err) => console.log(err));
   }
 
   @action async setCartItems(userId) {
