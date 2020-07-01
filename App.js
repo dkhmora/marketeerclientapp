@@ -33,7 +33,7 @@ import {YellowBox} from 'react-native';
 YellowBox.ignoreWarnings([
   'Animated: `useNativeDriver` was not specified. This is a required option and must be explicitly set to `true` or `false`',
   'Animated.event now requires a second argument for options',
-  'Require cycle: node_modules',
+  'Require cycle: node_modules\\react-native-mapslibcomponentsMapView.js -> node_modules\\react-native-mapslibcomponentsGeojson.js -> node_modules\\react-native-mapslibcomponentsMapView.js',
   "Warning: Can't perform a React state update on an unmounted component.",
 ]);
 // ------- END OF WARNING SUPPRESSION

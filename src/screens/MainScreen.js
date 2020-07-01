@@ -20,7 +20,7 @@ import {
 import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
 import {inject, observer} from 'mobx-react';
-import StoreCard from '../components/StoreCard';
+import StoresTab from '../navigation/StoresTab';
 
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
 const pixelsFromTop = getStatusBarHeight() + headerHeight;
@@ -251,29 +251,8 @@ class MainScreen extends Component {
             style={{
               flex: 1,
               marginTop: pixelsFromTop,
-              paddingHorizontal: 15,
             }}>
-            {dataSource && (
-              <FlatList
-                data={dataSource}
-                renderItem={({item, index}) => (
-                  <View>
-                    {index === 0 && (
-                      <Text style={styles.listTitleText}>
-                        Stores Delivering To You
-                      </Text>
-                    )}
-                    <StoreCard
-                      store={item}
-                      key={index}
-                      navigation={navigation}
-                    />
-                  </View>
-                )}
-                keyExtractor={(item) => item.merchantId}
-                showsVerticalScrollIndicator={false}
-              />
-            )}
+            {dataSource && <StoresTab />}
           </View>
           {locationMenuOpen && <this.Overlay />}
           <this.SlideDownDrawer />
