@@ -163,11 +163,7 @@ class OrderCard extends Component {
       navigation,
       ...otherProps
     } = this.props;
-
     const {storeName} = storeDetails;
-
-    console.log(paymentMethod);
-
     const {url} = this.state;
 
     const CardHeader = (image) => {

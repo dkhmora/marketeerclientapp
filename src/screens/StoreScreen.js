@@ -14,10 +14,9 @@ import {observer, inject} from 'mobx-react';
 import {Icon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
-import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import ItemsList from '../components/ItemsList';
 import SlidingCartPanel from '../components/SlidingCartPanel';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import ItemTabs from '../navigation/ItemTabs';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -29,7 +28,7 @@ class StoreScreen extends Component {
     super(props);
 
     this.state = {
-      allStoreItems: [],
+      storeItemCategories: {},
       ready: false,
     };
 
@@ -42,9 +41,9 @@ class StoreScreen extends Component {
       )
       .then(() => {
         this.setState({
-          allStoreItems: this.props.shopStore.storeCategoryItems
-            .get(store.storeName)
-            .get('All'),
+          storeCategoryItems: this.props.shopStore.storeCategoryItems.get(
+            store.storeName,
+          ),
         });
       });
   }
@@ -52,9 +51,7 @@ class StoreScreen extends Component {
   render() {
     const {store, displayImageUrl, coverImageUrl} = this.props.route.params;
     const {navigation} = this.props;
-    const {allStoreItems} = this.state;
-
-    const ItemTab = createMaterialTopTabNavigator();
+    const {storeCategoryItems} = this.state;
 
     return (
       <View style={{flex: 1, backgroundColor: colors.text_primary}}>
@@ -190,15 +187,10 @@ class StoreScreen extends Component {
               overflow: 'hidden',
             },
           ]}>
-          {allStoreItems.length > 0 && (
-            <ItemTab.Navigator>
-              <ItemTab.Screen
-                name="All"
-                component={ItemsList}
-                initialParams={{allStoreItems, storeName: store.storeName}}
-              />
-            </ItemTab.Navigator>
-          )}
+          <ItemTabs
+            storeCategoryItems={storeCategoryItems}
+            storeName={store.storeName}
+          />
         </Animatable.View>
 
         {Platform.OS === 'ios' ? (
