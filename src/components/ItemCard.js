@@ -10,6 +10,7 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import FastImage from 'react-native-fast-image';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import ItemDescriptionModal from './ItemDescriptionModal';
 
 @inject('authStore')
 @inject('shopStore')
@@ -30,6 +31,7 @@ class ItemCard extends Component {
       addButtonDisabled: itemQuantity >= itemStock ? true : false,
       minusButtonShown: itemQuantity > 0 ? true : false,
       writeTimer: null,
+      overlay: false,
     };
 
     Animatable.initializeRegistryWithDefinitions({
@@ -139,7 +141,7 @@ class ItemCard extends Component {
   }
 
   render() {
-    const {name, price, stock, unit} = this.props.item;
+    const {name, price, stock, unit, description} = this.props.item;
 
     const {quantity, addButtonDisabled} = this.state;
 
@@ -154,6 +156,14 @@ class ItemCard extends Component {
           marginHorizontal: 6,
           marginVertical: 3,
         }}>
+        <ItemDescriptionModal
+          isVisible={this.state.overlay}
+          onBackdropPress={() => this.setState({overlay: false})}
+          description={description}
+          name={name}
+          url={this.url}
+        />
+
         <Card
           style={{
             borderRadius: 10,
@@ -168,7 +178,7 @@ class ItemCard extends Component {
               borderBottomLeftRadius: 10,
               borderBottomRightRadius: 10,
             }}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => this.setState({overlay: true})}>
               <View
                 style={{
                   flex: 1,
