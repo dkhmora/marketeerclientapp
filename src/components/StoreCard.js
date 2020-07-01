@@ -75,18 +75,22 @@ class StoreCard extends Component {
     const {displayImageUrl, coverImageUrl} = this.state;
 
     return (
-      <TouchableOpacity
-        activeOpacity={0.85}
-        onPress={() =>
-          navigation.navigate('Store', {store, displayImageUrl, coverImageUrl})
-        }>
-        <Card
-          style={{
-            padding: 0,
-            margin: 0,
-            borderRadius: 8,
-            elevation: 2,
-          }}>
+      <Card
+        style={{
+          padding: 0,
+          margin: 0,
+          borderRadius: 8,
+          elevation: 2,
+        }}>
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={() =>
+            navigation.navigate('Store', {
+              store,
+              displayImageUrl,
+              coverImageUrl,
+            })
+          }>
           {{coverImageUrl} && (
             <View style={{height: 200}}>
               <FastImage
@@ -244,8 +248,8 @@ class StoreCard extends Component {
               resizeMode={FastImage.resizeMode.cover}
             />
           )}
-        </Card>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </Card>
     );
   }
 }
