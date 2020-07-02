@@ -52,7 +52,10 @@ class StoreCategoryCard extends Component {
               justifyContent: 'flex-end',
               padding: 10,
             }}>
-            <Text style={{fontSize: 18, color: colors.icons}}>{item.name}</Text>
+            <Text
+              style={{fontSize: 20, color: colors.icons, textAlign: 'center'}}>
+              {item.name}
+            </Text>
           </View>
         </TouchableOpacity>
       </Card>
