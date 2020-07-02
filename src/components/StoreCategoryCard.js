@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Text} from 'react-native-elements';
-import {View} from 'react-native';
+import {View, TouchableOpacity} from 'react-native';
 import {Card} from 'native-base';
 import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
@@ -36,22 +36,25 @@ class StoreCategoryCard extends Component {
         style={{
           borderRadius: 10,
           height: 100,
-          flexDirection: 'row',
           backgroundColor: colors.primary,
         }}>
-        <View style={{flex: 3, elevation: 10}}>
-          <FastImage source={url} style={{flex: 1, borderRadius: 10}} />
-        </View>
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={{flex: 1, flexDirection: 'row'}}>
+          <View style={{flex: 3, elevation: 10}}>
+            <FastImage source={url} style={{flex: 1, borderRadius: 10}} />
+          </View>
 
-        <View
-          style={{
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            padding: 10,
-          }}>
-          <Text style={{fontSize: 18, color: colors.icons}}>{item.name}</Text>
-        </View>
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              padding: 10,
+            }}>
+            <Text style={{fontSize: 18, color: colors.icons}}>{item.name}</Text>
+          </View>
+        </TouchableOpacity>
       </Card>
     );
   }
