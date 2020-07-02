@@ -20,7 +20,7 @@ import {
 import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
 import {inject, observer} from 'mobx-react';
-import StoresTab from '../navigation/StoresTab';
+import MainTab from '../navigation/MainTab';
 
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
 const pixelsFromTop = getStatusBarHeight() + headerHeight;
@@ -252,7 +252,7 @@ class MainScreen extends Component {
               flex: 1,
               marginTop: pixelsFromTop,
             }}>
-            {dataSource && <StoresTab />}
+            {dataSource && <MainTab />}
           </View>
           {locationMenuOpen && <this.Overlay />}
           <this.SlideDownDrawer />

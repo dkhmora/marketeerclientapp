@@ -1,13 +1,13 @@
 import React, {Component} from 'react';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import StoreCategoriesScreen from '../screens/StoreCategoriesScreen';
 import StoreList from '../components/StoreList';
 import {inject, observer} from 'mobx-react';
+import StoreCategoryList from '../components/StoreCategoryList';
 
 const TabStores = createMaterialTopTabNavigator();
 @inject('shopStore')
 @observer
-class StoresTab extends Component {
+class MainTab extends Component {
   constructor(props) {
     super(props);
   }
@@ -22,10 +22,10 @@ class StoresTab extends Component {
           component={StoreList}
           initialParams={{dataSource: storeList}}
         />
-        <TabStores.Screen name="Categories" component={StoreCategoriesScreen} />
+        <TabStores.Screen name="Categories" component={StoreCategoryList} />
       </TabStores.Navigator>
     );
   }
 }
 
-export default StoresTab;
+export default MainTab;
