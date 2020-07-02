@@ -13,7 +13,15 @@ class StoreList extends Component {
   }
 
   render() {
-    const {dataSource} = this.props.route.params;
+    let dataSource = '';
+
+    if (!this.props.component) {
+      console.log('yes');
+      dataSource = this.props.route.params.dataSource;
+    } else {
+      dataSource = this.props.dataSource;
+    }
+
     const {navigation} = this.props;
 
     return (

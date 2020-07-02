@@ -14,6 +14,8 @@ class StoreCategoryList extends Component {
     this.props.shopStore.setStoreCategories();
   }
   render() {
+    const {navigation} = this.props;
+
     if (this.props.shopStore.storeCategories) {
       return (
         <View style={{flex: 1}}>
@@ -21,7 +23,11 @@ class StoreCategoryList extends Component {
             style={{paddingHorizontal: 15}}
             data={this.props.shopStore.storeCategories.slice()}
             renderItem={({item, index}) => (
-              <StoreCategoryCard item={item} key={index} />
+              <StoreCategoryCard
+                item={item}
+                navigation={navigation}
+                key={index}
+              />
             )}
             keyExtractor={(item) => item.name}
             showsVerticalScrollIndicator={false}

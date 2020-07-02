@@ -5,7 +5,10 @@ import {Card} from 'native-base';
 import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
 import storage from '@react-native-firebase/storage';
+import {observer, inject} from 'mobx-react';
 
+@inject('shopStore')
+@observer
 class StoreCategoryCard extends Component {
   constructor(props) {
     super(props);
@@ -27,6 +30,28 @@ class StoreCategoryCard extends Component {
     }
   };
 
+  getStores() {
+    const {item} = this.props;
+
+    const categoryStores = this.props.shopStore.storeList.filter(
+      (store) => store.storeCategory === item.name,
+    );
+
+    return categoryStores;
+  }
+
+  async displayStores() {
+    const storeList = await this.getStores();
+    const coverImageUrl = this.state.url;
+    const {item} = this.props;
+
+    this.props.navigation.navigate('Category Stores', {
+      storeList,
+      coverImageUrl,
+      categoryDetails: item,
+    });
+  }
+
   render() {
     const {item} = this.props;
     const {url} = this.state;
@@ -39,6 +64,7 @@ class StoreCategoryCard extends Component {
           backgroundColor: colors.primary,
         }}>
         <TouchableOpacity
+          onPress={() => this.displayStores()}
           activeOpacity={0.85}
           style={{flex: 1, flexDirection: 'row'}}>
           <View style={{flex: 7, elevation: 10}}>
