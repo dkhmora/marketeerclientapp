@@ -12,6 +12,7 @@ import SplashScreen from 'react-native-splash-screen';
 import _ from 'lodash';
 import moment from 'moment';
 import auth from '@react-native-firebase/auth';
+import VersionCheck from 'react-native-version-check';
 
 global._ = _;
 global.moment = moment;
@@ -21,7 +22,7 @@ import AuthStore from './src/store/authStore';
 import ShopStore from './src/store/shopStore';
 
 import Setup from './src/boot/setup';
-import {AppState} from 'react-native';
+import {AppState, Linking} from 'react-native';
 
 const generalStore = (window.store = new GeneralStore());
 const authStore = (window.store = new AuthStore());
@@ -40,7 +41,7 @@ YellowBox.ignoreWarnings([
 
 @observer
 class App extends React.Component {
-  componentDidMount() {
+  executeAuthStateListener() {
     this.authState = auth().onAuthStateChanged((user) => {
       authStore
         .checkAuthStatus()
@@ -78,6 +79,21 @@ class App extends React.Component {
           );
         });
     });
+  }
+
+  componentDidMount() {
+    /* TODO: Remove comments before deploying in Play Store/App Store
+    VersionCheck.needUpdate().then(async (res) => {
+      if (res.isNeeded) {
+        console.log('Update needed', res.isNeeded);
+        // Linking.openURL(res.storeUrl); // open store if update is needed.
+      } else {
+        console.log('No update needed');
+        this.executeAuthStateListener();
+      }
+    }); */
+
+    this.executeAuthStateListener();
   }
 
   componentWillUnmount() {
