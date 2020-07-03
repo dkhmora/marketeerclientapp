@@ -15,6 +15,7 @@ import {observer, inject} from 'mobx-react';
 import {Icon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
+import BackButton from '../components/BackButton';
 @inject('generalStore')
 @inject('authStore')
 @observer
@@ -136,12 +137,14 @@ class SignUpScreen extends Component {
 
   handleSignUp() {
     const {name, email, password, phoneNumber} = this.state;
+    const {checkout} = this.props.route.params;
 
     this.props.navigation.navigate('Phone Verification', {
       name,
       email,
       password,
       phoneNumber,
+      checkout,
     });
   }
 
@@ -157,12 +160,12 @@ class SignUpScreen extends Component {
       secureTextEntry,
       confirm_secureTextEntry,
     } = this.state;
-
+    const {checkout} = this.props.route.params;
     const {navigation} = this.props;
 
     return (
-      <View style={styles.container}>
-        <StatusBar backgroundColor={colors.primary} />
+      <View style={[styles.container, {paddingTop: 0}]}>
+        <StatusBar animated translucent backgroundColor={colors.primary} />
 
         <View style={styles.header}>
           <Image
@@ -173,17 +176,22 @@ class SignUpScreen extends Component {
               resizeMode: 'center',
             }}
           />
+
+          <BackButton navigation={navigation} />
         </View>
+
         <Animatable.View
           useNativeDriver
           animation="fadeInUpBig"
           style={styles.footer}>
           <ScrollView>
             <Text style={styles.text_header}>Sign Up</Text>
+
             <Text style={[styles.text_subtext]}>
               Enjoy the convenience of goods delivered right to your doorstep
               while also supporting your local businesses!
             </Text>
+
             <View
               style={{
                 flexDirection: 'row',
@@ -193,16 +201,19 @@ class SignUpScreen extends Component {
               <Text style={styles.text_subtext}>
                 Are you a merchant? Come and join us! Register
               </Text>
+
               <TouchableOpacity>
                 <Text style={styles.touchable_text}> here</Text>
               </TouchableOpacity>
             </View>
 
             <Text style={styles.text_footer}>Full Name</Text>
+
             <View style={styles.action}>
               <View style={styles.icon_container}>
                 <Icon name="user" color={colors.primary} size={20} />
               </View>
+
               <TextInput
                 placeholder="Gordon Norman"
                 maxLength={100}
@@ -210,6 +221,7 @@ class SignUpScreen extends Component {
                 autoCapitalize="words"
                 onChangeText={(value) => this.handleNameChange(value)}
               />
+
               {nameCheck ? (
                 <Animatable.View useNativeDriver animation="bounceIn">
                   <Icon
@@ -223,10 +235,12 @@ class SignUpScreen extends Component {
             </View>
 
             <Text style={styles.text_footer}>Email Address</Text>
+
             <View style={styles.action}>
               <View style={styles.icon_container}>
                 <Icon name="mail" color={colors.primary} size={20} />
               </View>
+
               <TextInput
                 placeholder="gordon_norman@gmail.com"
                 maxLength={256}
@@ -234,6 +248,7 @@ class SignUpScreen extends Component {
                 autoCapitalize="none"
                 onChangeText={(value) => this.handleEmailChange(value)}
               />
+
               {emailCheck ? (
                 <Animatable.View useNativeDriver animation="bounceIn">
                   <Icon
@@ -247,9 +262,11 @@ class SignUpScreen extends Component {
             </View>
 
             <Text style={styles.text_footer}>Phone Number</Text>
+
             <View style={styles.action}>
               <View style={styles.icon_container}>
                 <Icon name="smartphone" color={colors.primary} size={20} />
+
                 <Text
                   style={[
                     styles.text_subtext,
@@ -258,6 +275,7 @@ class SignUpScreen extends Component {
                   (+63)
                 </Text>
               </View>
+
               <TextInput
                 placeholder="9173456789"
                 keyboardType="numeric"
@@ -266,6 +284,7 @@ class SignUpScreen extends Component {
                 autoCapitalize="none"
                 onChangeText={(value) => this.handlePhoneChange(value)}
               />
+
               {phoneCheck ? (
                 <Animatable.View useNativeDriver animation="bounceIn">
                   <Icon
@@ -279,10 +298,12 @@ class SignUpScreen extends Component {
             </View>
 
             <Text style={styles.text_footer}>Password</Text>
+
             <View style={styles.action}>
               <View style={styles.icon_container}>
                 <Icon name="lock" color={colors.primary} size={20} />
               </View>
+
               <TextInput
                 placeholder="Password"
                 secureTextEntry={secureTextEntry ? true : false}
@@ -291,6 +312,7 @@ class SignUpScreen extends Component {
                 autoCapitalize="none"
                 onChangeText={(value) => this.handlePasswordChange(value)}
               />
+
               {passwordCheck ? (
                 <Animatable.View useNativeDriver animation="bounceIn">
                   <Icon
@@ -301,6 +323,7 @@ class SignUpScreen extends Component {
                   />
                 </Animatable.View>
               ) : null}
+
               <TouchableOpacity onPress={this.updateSecureTextEntry}>
                 {secureTextEntry ? (
                   <Icon name="eye" color="grey" size={20} />
@@ -311,10 +334,12 @@ class SignUpScreen extends Component {
             </View>
 
             <Text style={styles.text_footer}>Confirm Password</Text>
+
             <View style={styles.action}>
               <View style={styles.icon_container}>
                 <Icon name="lock" color={colors.primary} size={20} />
               </View>
+
               <TextInput
                 placeholder="Confirm Password"
                 secureTextEntry={confirm_secureTextEntry ? true : false}
@@ -325,6 +350,7 @@ class SignUpScreen extends Component {
                   this.handleConfirmPasswordChange(value)
                 }
               />
+
               {confirmPasswordCheck ? (
                 <Animatable.View useNativeDriver animation="bounceIn">
                   <Icon
@@ -335,6 +361,7 @@ class SignUpScreen extends Component {
                   />
                 </Animatable.View>
               ) : null}
+
               <TouchableOpacity onPress={this.updateConfirmSecureTextEntry}>
                 {confirm_secureTextEntry ? (
                   <Icon name="eye" color="grey" size={20} />
@@ -343,21 +370,26 @@ class SignUpScreen extends Component {
                 )}
               </TouchableOpacity>
             </View>
+
             <View style={styles.textPrivate}>
               <Text style={[styles.color_textPrivate, styles.text_subtext]}>
                 By signing up you agree to our{' '}
               </Text>
+
               <TouchableOpacity>
                 <Text style={styles.touchable_text}>Terms of service</Text>
               </TouchableOpacity>
+
               <Text style={[styles.color_textPrivate, styles.text_subtext]}>
                 {' '}
                 and{' '}
               </Text>
+
               <TouchableOpacity>
                 <Text style={styles.touchable_text}>Privacy policy</Text>
               </TouchableOpacity>
             </View>
+
             <Button
               onPress={() => this.handleSignUp()}
               disabled={
@@ -380,15 +412,18 @@ class SignUpScreen extends Component {
               }}
               buttonStyle={{height: 50}}
             />
+
             <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'center',
-                paddingVertical: 10,
+                paddingTop: 10,
+                paddingBottom: 30,
               }}>
               <Text style={styles.text_subtext}>
                 Already have an account? You can login{' '}
               </Text>
+
               <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                 <Text style={styles.touchable_text}>here</Text>
               </TouchableOpacity>

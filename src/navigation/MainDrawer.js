@@ -2,17 +2,16 @@ import React, {Component} from 'react';
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
-  DrawerItemList,
 } from '@react-navigation/drawer';
 import MainScreen from '../screens/MainScreen';
-import {Button, Text, Icon, ListItem, Avatar} from 'react-native-elements';
-import {View, Platform, Image} from 'react-native';
+import {Text, Icon, ListItem, Avatar} from 'react-native-elements';
+import {View, Image} from 'react-native';
 import {colors} from '../../assets/colors';
-import {inject, observer, Observer} from 'mobx-react';
-import {color} from 'react-native-reanimated';
-import {observable, computed} from 'mobx';
+import {inject, observer} from 'mobx-react';
+import {computed} from 'mobx';
 
 @inject('authStore')
+@inject('shopStore')
 @observer
 class MainDrawer extends Component {
   constructor(props) {
@@ -23,32 +22,54 @@ class MainDrawer extends Component {
     return this.props.authStore.guest ? 'Log In' : 'Log Out';
   }
 
-  handleAuthentication(navigation) {
-    const {signOut} = this.props.authStore;
+  @computed get authenticationIcon() {
+    return this.props.authStore.guest ? (
+      <Icon name="log-in" color={colors.primary} size={18} />
+    ) : (
+      <Icon name="log-out" color={colors.primary} size={18} />
+    );
+  }
 
+  @computed get userNameText() {
+    const {userName} = this.props.authStore;
+
+    return userName ? userName : 'Guest Account';
+  }
+
+  @computed get userInitial() {
+    return this.userNameText.charAt(0);
+  }
+
+  handleAuthentication(navigation) {
     if (this.props.authStore.guest && this.props.authStore.userAuthenticated) {
       navigation.closeDrawer();
+
       this.props.navigation.navigate('Auth');
     } else if (this.props.authStore.userAuthenticated) {
-      signOut()
-        .then(() => navigation.closeDrawer())
-        .then(() => this.props.authStore.checkAuthStatus());
+      navigation.closeDrawer();
+
+      this.props.authStore
+        .signOut()
+        .then(() => this.props.authStore.checkAuthStatus())
+        .then(() => {
+          this.props.shopStore.unsubscribeToGetCartItems &&
+            this.props.shopStore.unsubscribeToGetCartItems() &&
+            this.props.shopStore.resetData();
+        });
     } else {
       console.log('Failed to authenticate');
     }
   }
 
   customDrawer = (props) => {
-    const {userName} = this.props.authStore;
+    const {
+      authenticationIcon,
+      authenticationButtonText,
+      userNameText,
+      userInitial,
+    } = this;
 
-    const authenticationIcon = this.props.authStore.guest ? (
-      <Icon name="log-in" color={colors.primary} size={18} />
-    ) : (
-      <Icon name="log-out" color={colors.primary} size={18} />
-    );
-
-    const userNameText = userName ? userName : 'Guest Account';
-    let userInitial = userNameText.charAt(0);
+    const {navigation} = props;
 
     return (
       <DrawerContentScrollView
@@ -58,11 +79,10 @@ class MainDrawer extends Component {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'space-between',
-          backgroundColor: '#E91E63',
+          backgroundColor: colors.primary,
         }}>
         <View
           style={{
-            flex: 1,
             width: '100%',
             flexDirection: 'column',
             paddingHorizontal: 20,
@@ -71,8 +91,8 @@ class MainDrawer extends Component {
           <Image
             source={require('../../assets/images/logo.png')}
             style={{
-              height: 100,
-              width: 100,
+              height: 150,
+              width: 150,
               resizeMode: 'center',
               alignSelf: 'center',
             }}
@@ -104,7 +124,7 @@ class MainDrawer extends Component {
         </View>
         <View
           style={{
-            flex: 3,
+            flex: 1,
             backgroundColor: '#fff',
             width: '100%',
           }}>
@@ -113,7 +133,7 @@ class MainDrawer extends Component {
             leftIcon={
               <Icon name="clipboard" color={colors.primary} size={18} />
             }
-            onPress={() => console.log('yes')}
+            onPress={() => navigation.navigate('Orders')}
           />
           <ListItem
             title="Account"
@@ -140,9 +160,9 @@ class MainDrawer extends Component {
             onPress={() => console.log('yes')}
           />
           <ListItem
-            title={this.authenticationButtonText}
+            title={authenticationButtonText}
             leftIcon={authenticationIcon}
-            onPress={() => this.handleAuthentication(props.navigation)}
+            onPress={() => this.handleAuthentication(navigation)}
           />
         </View>
       </DrawerContentScrollView>

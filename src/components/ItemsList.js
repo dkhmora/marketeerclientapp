@@ -26,8 +26,8 @@ class ItemsList extends Component {
   }
 
   render() {
-    const {allStoreItems, storeName} = this.props.route.params;
-    const dataSource = allStoreItems;
+    const {items, storeName} = this.props.route.params;
+    const dataSource = [...items];
 
     const numColumns = 2;
 

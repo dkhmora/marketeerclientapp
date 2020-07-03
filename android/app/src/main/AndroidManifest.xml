@@ -2,6 +2,10 @@
   package="com.marketeerph.marketeerclientapp.android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.front" android:required="false" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
       android:name=".MainApplication"
@@ -10,6 +14,10 @@
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
       android:theme="@style/AppTheme">
+      <meta-data
+        android:name="com.google.android.geo.API_KEY"
+        android:value="AIzaSyDQ2SC2EDaaRxnDKZZCLg9BhuQSblivOFY" />
+      <uses-library android:name="org.apache.http.legacy" android:required="false" />
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"

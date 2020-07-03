@@ -8,7 +8,7 @@ class BaseHeader extends Component {
     super(props);
   }
 
-  menuIcon = () => {
+  menuButton = () => {
     const {navigation} = this.props;
 
     if (navigation) {
@@ -18,12 +18,40 @@ class BaseHeader extends Component {
           type="clear"
           color={colors.icons}
           icon={<Icon name="menu" color={colors.icons} />}
-          containerStyle={styles.buttonContainer}
+          containerStyle={{borderRadius: 24}}
         />
       );
     }
 
     return null;
+  };
+
+  backButton = () => {
+    const {navigation} = this.props;
+
+    if (navigation) {
+      return (
+        <Button
+          onPress={() => navigation.goBack()}
+          type="clear"
+          color={colors.icons}
+          icon={<Icon name="arrow-left" color={colors.icons} />}
+          containerStyle={{borderRadius: 24}}
+        />
+      );
+    }
+
+    return null;
+  };
+
+  leftComponent = () => {
+    const {backButton} = this.props;
+
+    if (backButton) {
+      return this.backButton();
+    }
+
+    return this.menuButton();
   };
 
   centerComponent = () => {
@@ -33,7 +61,7 @@ class BaseHeader extends Component {
       return centerComponent;
     }
 
-    return <Text style={styles.titleText}>{title}</Text>;
+    return <Text style={{fontSize: 20, color: colors.icons}}>{title}</Text>;
   };
 
   rightComponent = () => {
@@ -51,12 +79,12 @@ class BaseHeader extends Component {
       <View>
         <Header
           placement={Platform.OS === 'ios' ? 'center' : 'left'}
-          leftComponent={this.menuIcon}
+          leftComponent={this.leftComponent}
           centerComponent={this.centerComponent}
           rightComponent={this.rightComponent}
           statusBarProps={{
             barStyle: 'light-content',
-            backgroundColor: colors.primary,
+            backgroundColor: colors.statusBar,
             translucent: true,
           }}
           containerStyle={styles.header}

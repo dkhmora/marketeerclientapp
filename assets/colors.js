@@ -7,4 +7,5 @@ export const colors = {
   text_secondary: '#757575',
   icons: '#FFFFFF',
   divider: '#BDBDBD',
+  statusBar: 'rgba(0,0,0,0.1)',
 };

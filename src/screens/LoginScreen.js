@@ -4,8 +4,6 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  Platform,
-  StyleSheet,
   ScrollView,
   StatusBar,
   Image,
@@ -15,8 +13,8 @@ import {observer, inject} from 'mobx-react';
 import {Icon, SocialIcon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
+import BackButton from '../components/BackButton';
 
-@inject('generalStore')
 @inject('authStore')
 @observer
 class LoginScreen extends Component {
@@ -63,19 +61,35 @@ class LoginScreen extends Component {
 
   handleSignIn() {
     const {email, password} = this.state;
+    const {checkout} = this.props.route.params;
+    const {navigation} = this.props;
 
-    this.props.authStore.signIn(email, password, this.props.navigation);
+    this.props.authStore.signIn(email, password).then(() => {
+      if (checkout) {
+        navigation.dangerouslyGetParent().navigate('Checkout');
+      } else {
+        navigation.dangerouslyGetParent().replace('Home');
+      }
+    });
   }
 
   render() {
     const {navigation} = this.props;
     const {emailCheck} = this.state;
+    const {checkout} = this.props.route.params;
+    const titleText = checkout ? 'Login to Checkout' : 'Login';
 
     return (
-      <View style={styles.container}>
-        <StatusBar backgroundColor={colors.primary} />
+      <View style={[styles.container, {paddingTop: 0}]}>
+        <StatusBar animated translucent backgroundColor={colors.statusBar} />
 
-        <View style={styles.header}>
+        <Animatable.View
+          duration={800}
+          useNativeDriver
+          animation="fadeInUp"
+          style={styles.header}>
+          <BackButton navigation={navigation} />
+
           <Image
             source={require('../../assets/images/logo.png')}
             style={{
@@ -84,19 +98,22 @@ class LoginScreen extends Component {
               resizeMode: 'center',
             }}
           />
-        </View>
+        </Animatable.View>
+
         <Animatable.View
           useNativeDriver
           animation="fadeInUpBig"
           style={styles.footer}>
           <ScrollView>
-            <Text style={styles.text_header}>Login</Text>
+            <Text style={styles.text_header}>{titleText}</Text>
 
             <Text style={styles.text_footer}>Email Address</Text>
+
             <View style={styles.action}>
               <View style={styles.icon_container}>
                 <Icon name="user" color={colors.primary} size={20} />
               </View>
+
               <TextInput
                 placeholder="myemail@gmail.com"
                 maxLength={256}
@@ -104,6 +121,7 @@ class LoginScreen extends Component {
                 autoCapitalize="none"
                 onChangeText={(value) => this.handleEmailChange(value)}
               />
+
               {this.state.emailCheck ? (
                 <Animatable.View useNativeDriver animation="bounceIn">
                   <Icon
@@ -125,10 +143,12 @@ class LoginScreen extends Component {
               ]}>
               Password
             </Text>
+
             <View style={styles.action}>
               <View style={styles.icon_container}>
                 <Icon name="lock" color={colors.primary} size={20} />
               </View>
+
               <TextInput
                 placeholder="Password"
                 maxLength={32}
@@ -137,6 +157,7 @@ class LoginScreen extends Component {
                 autoCapitalize="none"
                 onChangeText={(value) => this.handlePasswordChange(value)}
               />
+
               <TouchableOpacity onPress={this.updateSecureTextEntry}>
                 {this.state.secureTextEntry ? (
                   <Icon name="eye" color="grey" size={20} />
@@ -168,12 +189,19 @@ class LoginScreen extends Component {
                 paddingTop: 10,
               }}>
               <Text style={styles.color_textPrivate}>
-                Don't have an account? You can sign up{' '}
+                Don't have an account? Sign up
               </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Sign Up')}>
-                <Text style={styles.touchable_text}>here</Text>
+
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('Sign Up', {
+                    checkout: checkout ? checkout : false,
+                  })
+                }>
+                <Text style={styles.touchable_text}> here</Text>
               </TouchableOpacity>
             </View>
+
             <SocialIcon
               title="Sign In With Facebook"
               button

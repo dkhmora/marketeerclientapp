@@ -2,16 +2,44 @@ import {observable, action, computed} from 'mobx';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import firestore from '@react-native-firebase/firestore';
-import {Toast} from 'native-base';
+import Toast from '../components/Toast';
 
 class authStore {
   @observable userAuthenticated = false;
-  @observable guest = false;
-  @observable userName = '';
-  @observable userId = null;
+
+  @computed get guest() {
+    if (auth().currentUser) {
+      return auth().currentUser.isAnonymous;
+    }
+    return false;
+  }
 
   @computed get authenticationButtonText() {
     return this.guest ? 'Log In' : 'Log Out';
+  }
+
+  @computed get userPhoneNumber() {
+    if (auth().currentUser) {
+      return auth().currentUser.phoneNumber;
+    }
+
+    return null;
+  }
+
+  @computed get userId() {
+    if (auth().currentUser) {
+      return auth().currentUser.uid;
+    }
+
+    return null;
+  }
+
+  @computed get userName() {
+    if (auth().currentUser) {
+      return auth().currentUser.displayName;
+    }
+
+    return null;
   }
 
   @action async createUser(
@@ -27,24 +55,20 @@ class authStore {
       .then(() => this.createUserDocuments(name, email, phoneNumber))
       .then(() => console.log('Successfully created user documents'))
       .then(() => this.checkAuthStatus())
-      .then(() => navigation.navigate('Home'))
       .then(() => {
-        Toast.show({
+        Toast({
           text: 'Welcome to Marketeer!',
-          type: 'success',
           duration: 4000,
-          style: {margin: 20, borderRadius: 16},
         });
       })
       .catch((err) => {
         this.userAuthenticated = false;
         if (err.code === 'auth/credential-already-in-use') {
-          Toast.show({
+          Toast({
             text:
               'Error: Phone number is already linked to another account, please use another mobile phone number',
             type: 'danger',
             duration: 6000,
-            style: {margin: 20, borderRadius: 16},
           });
         }
         navigation.goBack();
@@ -56,7 +80,6 @@ class authStore {
   @action async createUserDocuments(name, email, phoneNumber) {
     const userId = await auth().currentUser.uid;
 
-    await firestore().collection('user_carts').doc(userId).set({items: []});
     await firestore()
       .collection('users')
       .doc(userId)
@@ -84,8 +107,6 @@ class authStore {
   }
 
   @action async linkCurrentUserWithPhoneNumber(phoneCredential) {
-    console.log('UID', await auth().currentUser.uid);
-
     await auth()
       .currentUser.linkWithCredential(phoneCredential)
       .then(() =>
@@ -93,24 +114,25 @@ class authStore {
       );
   }
 
-  @action async signIn(email, password, navigation) {
+  @action async signIn(email, password) {
     await auth()
       .signInWithEmailAndPassword(email, password)
-      .then(() => console.log('signed in succesfully'))
+      .then(() =>
+        Toast({
+          text: 'Signed in successfully',
+          duration: 3500,
+        }),
+      )
       .then(() => {
-        this.name = auth().currentUser.displayName;
-        this.guest = false;
         this.userAuthenticated = true;
-        navigation.dangerouslyGetParent().navigate('Home');
       })
       .catch((err) => {
         if (err.code === 'auth/user-not-found') {
-          Toast.show({
+          Toast({
             text:
               'Wrong username or password. Please create an account or try again.',
             type: 'danger',
             duration: 6000,
-            style: {margin: 20, borderRadius: 16},
           });
         }
         console.log(err);
@@ -120,12 +142,16 @@ class authStore {
   @action async signOut() {
     await auth()
       .signOut()
-      .then(() => console.log('signed out successfully'))
+      .then(() =>
+        Toast({
+          text: 'Signed out successfully',
+          duration: 3500,
+        }),
+      )
       .then(() =>
         auth()
           .signInAnonymously()
           .then(() => {
-            this.guest = true;
             this.userAuthenticated = true;
           }),
       )
@@ -133,31 +159,22 @@ class authStore {
   }
 
   @action async checkAuthStatus() {
-    const user = await auth().currentUser;
-
-    if (user) {
+    if (auth().currentUser) {
       console.log('User is authenticated');
-      console.log(user);
-      this.userName = auth().currentUser.displayName;
-      this.guest = user.isAnonymous;
       this.userAuthenticated = true;
-    } else if (!this.userAuthenticated) {
-      auth()
-        .signInAnonymously()
-        .then(() => {
-          this.guest = true;
-          this.userAuthenticated = true;
-          this.userId = this.getUserId();
-        })
-        .catch((err) => console.log(err));
     } else {
-      console.log('User is not authenticated');
-      this.userAuthenticated = false;
+      console.log('signinanonymous');
+      await this.signInAnonymously();
     }
   }
 
-  @action async getUserId() {
-    return auth().currentUser.uid;
+  @action async signInAnonymously() {
+    await auth()
+      .signInAnonymously()
+      .then(() => {
+        this.userAuthenticated = true;
+      })
+      .catch((err) => console.log(err));
   }
 }
 

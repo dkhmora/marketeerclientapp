@@ -3,10 +3,7 @@ import {
   View,
   Text,
   TouchableOpacity,
-  TextInput,
   Platform,
-  StyleSheet,
-  ScrollView,
   StatusBar,
   Image,
   ImageBackground,
@@ -14,16 +11,16 @@ import {
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
-import {Icon, SocialIcon, Button, Badge} from 'react-native-elements';
+import {Icon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
-import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import {Item} from 'native-base';
-import ItemsList from '../components/ItemsList';
-import SlidingUpPanel from 'rn-sliding-up-panel';
-import Animated from 'react-native-reanimated';
-import CartStoreList from '../components/CartStoreList';
+import SlidingCartPanel from '../components/SlidingCartPanel';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import ItemTabs from '../navigation/ItemCategoriesTab';
 
+const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+const SCREEN_WIDTH = Dimensions.get('window').width;
 @inject('shopStore')
 @observer
 class StoreScreen extends Component {
@@ -31,9 +28,8 @@ class StoreScreen extends Component {
     super(props);
 
     this.state = {
-      allStoreItems: [],
+      storeItemCategories: {},
       ready: false,
-      panel: 'up',
     };
 
     const {store} = this.props.route.params;
@@ -45,37 +41,21 @@ class StoreScreen extends Component {
       )
       .then(() => {
         this.setState({
-          allStoreItems: this.props.shopStore.storeCategoryItems
-            .get(store.storeName)
-            .get('All'),
+          storeCategoryItems: this.props.shopStore.storeCategoryItems.get(
+            store.storeName,
+          ),
         });
       });
-  }
-
-  componentDidMount() {
-    this._panel.show({toValue: 65, velocity: 10});
-  }
-
-  openPanel() {
-    this._panel.show();
   }
 
   render() {
     const {store, displayImageUrl, coverImageUrl} = this.props.route.params;
     const {navigation} = this.props;
-    const {allStoreItems} = this.state;
-
-    const ItemTab = createMaterialTopTabNavigator();
-    const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
-    const SCREEN_HEIGHT = Dimensions.get('window').height;
-    const SCREEN_WIDTH = Dimensions.get('window').width;
-    const SLIDING_MENU_INITIAL_HEIGHT = 65;
-    const SLIDING_MENU_EXTENDED_HEIGHT =
-      SCREEN_HEIGHT - SLIDING_MENU_INITIAL_HEIGHT;
+    const {storeCategoryItems} = this.state;
 
     return (
       <View style={{flex: 1, backgroundColor: colors.text_primary}}>
-        <StatusBar translucent backgroundColor="rgba(0,0,0,0.3)" />
+        <StatusBar animated translucent backgroundColor={colors.statusBar} />
 
         <Animatable.View
           useNativeDriver
@@ -207,118 +187,21 @@ class StoreScreen extends Component {
               overflow: 'hidden',
             },
           ]}>
-          {allStoreItems.length > 0 && (
-            <ItemTab.Navigator>
-              <ItemTab.Screen
-                name="All"
-                component={ItemsList}
-                initialParams={{allStoreItems, storeName: store.storeName}}
-              />
-            </ItemTab.Navigator>
-          )}
+          <ItemTabs
+            storeCategoryItems={storeCategoryItems}
+            storeName={store.storeName}
+          />
         </Animatable.View>
 
-        <SlidingUpPanel
-          ref={(c) => (this._panel = c)}
-          minimumVelocityThreshold={0.6}
-          minimumDistanceThreshold={3}
-          snappingPoints={[
-            SLIDING_MENU_EXTENDED_HEIGHT / 2,
-            SLIDING_MENU_EXTENDED_HEIGHT,
-          ]}
-          allowMomentum
-          draggableRange={{
-            top: SLIDING_MENU_EXTENDED_HEIGHT,
-            bottom: SLIDING_MENU_INITIAL_HEIGHT,
-          }}
-          containerStyle={{
-            backgroundColor: '#fff',
-            borderTopLeftRadius: 24,
-            borderTopRightRadius: 24,
-            borderWidth: 1,
-            borderColor: 'rgba(0,0,0,0.3)',
-            elevation: 20,
-          }}>
-          <View
-            style={{
-              flex: 1,
-              alignItems: 'flex-start',
-              justifyContent: 'flex-start',
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24,
-              backgroundColor: '#fff',
-              paddingTop: 25,
-              paddingBottom: 10,
-              paddingHorizontal: 15,
-            }}>
-            <TouchableOpacity
-              onPress={() => this._panel.show()}
-              style={{position: 'absolute', top: 0, right: 0, left: 0}}>
-              <Icon name="chevron-up" color="black" />
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => this._panel.show()}>
-              <View
-                style={{
-                  width: '100%',
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'flex-end',
-                    justifyContent: 'flex-end',
-                  }}>
-                  <Image
-                    source={require('../../assets/images/logo_cart.png')}
-                    style={{
-                      height: 35,
-                      width: 40,
-                      resizeMode: 'center',
-                      tintColor: colors.primary,
-                      marginRight: 10,
-                    }}
-                  />
-                  <Badge
-                    value={this.props.shopStore.totalCartItemQuantity}
-                    badgeStyle={{backgroundColor: colors.accent}}
-                    containerStyle={{position: 'absolute', top: 4, right: 2}}
-                  />
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'flex-end',
-                    justifyContent: 'flex-end',
-                  }}>
-                  <Text
-                    style={{
-                      textAlignVertical: 'bottom',
-                      color: colors.text_secondary,
-                      paddingBottom: 3,
-                    }}>
-                    Subtotal:{' '}
-                  </Text>
-                  <Text
-                    adjustsFontSizeToFit
-                    numberOfLines={1}
-                    style={{
-                      fontSize: 25,
-                      fontFamily: 'ProductSans_Black',
-                      textAlignVertical: 'bottom',
-                    }}>
-                    ₱10921
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-
-            <View style={{flex: 1, width: '100%', marginTop: 20}}>
-              <CartStoreList />
-            </View>
-          </View>
-        </SlidingUpPanel>
+        {Platform.OS === 'ios' ? (
+          <SafeAreaView>
+            <SafeAreaView>
+              <SlidingCartPanel navigation={navigation} />
+            </SafeAreaView>
+          </SafeAreaView>
+        ) : (
+          <SlidingCartPanel navigation={navigation} />
+        )}
       </View>
     );
   }

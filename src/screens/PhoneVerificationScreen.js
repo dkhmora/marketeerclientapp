@@ -15,9 +15,10 @@ import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
-import { Toast } from 'native-base';
+import Toast from '../components/Toast';
 
 @inject('generalStore')
+@inject('shopStore')
 @inject('authStore')
 @observer
 class PhoneVerificationScreen extends Component {
@@ -43,22 +44,19 @@ class PhoneVerificationScreen extends Component {
         (phoneAuthSnapshot) => {
           switch (phoneAuthSnapshot.state) {
             case firebase.auth.PhoneAuthState.CODE_SENT:
-              Toast.show({
+              Toast({
                 text: 'Verification Code Sent',
-                type: 'success',
                 duration: 3000,
-                style: {margin: 20, borderRadius: 16},
               });
 
               this.setState({verificationId: phoneAuthSnapshot.verificationId});
 
               break;
             case firebase.auth.PhoneAuthState.ERROR:
-              Toast.show({
+              Toast({
                 text: 'Error, something went wrong. Please try again later.',
                 type: 'danger',
                 duration: 3000,
-                style: {margin: 20, borderRadius: 16},
               });
 
               console.log(
@@ -75,7 +73,13 @@ class PhoneVerificationScreen extends Component {
 
   async confirmCode(code) {
     const {navigation} = this.props;
-    const {name, email, password, phoneNumber} = this.props.route.params;
+    const {
+      name,
+      email,
+      password,
+      phoneNumber,
+      checkout,
+    } = this.props.route.params;
     const {verificationId} = this.state;
 
     const credential = firebase.auth.PhoneAuthProvider.credential(
@@ -83,14 +87,21 @@ class PhoneVerificationScreen extends Component {
       code,
     );
 
-    this.props.authStore.createUser(
-      name,
-      email,
-      password,
-      phoneNumber,
-      credential,
-      navigation,
-    );
+    this.props.authStore
+      .createUser(name, email, password, phoneNumber, credential, navigation)
+      .then(() => {
+        this.props.shopStore.getCartItems(this.props.authStore.userId);
+
+        if (checkout) {
+          this.props.shopStore
+            .setCartItems(this.props.authStore.userId)
+            .then(() => {
+              navigation.dangerouslyGetParent().navigate('Checkout');
+            });
+        } else {
+          navigation.dangerouslyGetParent().replace('Home');
+        }
+      });
   }
 
   render() {
@@ -98,7 +109,7 @@ class PhoneVerificationScreen extends Component {
 
     return (
       <View style={styles.container}>
-        <StatusBar backgroundColor={colors.primary} />
+        <StatusBar animated backgroundColor={colors.primary} />
 
         <View style={styles.header}>
           <Image
@@ -110,7 +121,10 @@ class PhoneVerificationScreen extends Component {
             }}
           />
         </View>
-        <Animatable.View useNativeDriver animation="fadeInUpBig" style={styles.footer}>
+        <Animatable.View
+          useNativeDriver
+          animation="fadeInUpBig"
+          style={styles.footer}>
           <View style={{flex: 1}}>
             <View style={{flex: 1, justifyContent: 'flex-start'}}>
               <Text style={styles.text_header}>SMS Verification</Text>

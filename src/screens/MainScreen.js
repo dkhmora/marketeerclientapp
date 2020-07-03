@@ -19,12 +19,13 @@ import {
 } from 'react-native-elements';
 import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
-import {inject} from 'mobx-react';
-import StoreCard from '../components/StoreCard';
+import {inject, observer} from 'mobx-react';
+import MainTab from '../navigation/MainTab';
 
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
 const pixelsFromTop = getStatusBarHeight() + headerHeight;
 @inject('shopStore')
+@observer
 class MainScreen extends Component {
   constructor(props) {
     super(props);
@@ -90,7 +91,7 @@ class MainScreen extends Component {
     return null;
   };
 
-  rightComponent = () => {
+  rightComponent = ({cartQuantity}) => {
     const {navigation} = this.props;
     const {locationMenuOpen} = this.state;
 
@@ -101,7 +102,7 @@ class MainScreen extends Component {
             if (locationMenuOpen) {
               this.hideLocationMenu();
             }
-            navigation.openDrawer();
+            navigation.navigate('Cart');
           }}
           type="clear"
           color={colors.icons}
@@ -117,7 +118,7 @@ class MainScreen extends Component {
         />
 
         <Badge
-          value={0}
+          value={cartQuantity}
           badgeStyle={{backgroundColor: colors.accent}}
           containerStyle={{position: 'absolute', top: 8, right: 2}}
         />
@@ -156,6 +157,8 @@ class MainScreen extends Component {
   };
 
   SlideDownDrawer = () => {
+    const {navigation} = this.props;
+
     return (
       <Animatable.View
         ref={(drawer) => (this.drawer = drawer)}
@@ -175,7 +178,7 @@ class MainScreen extends Component {
           leftIcon={<Icon name="map-pin" color={colors.primary} />}
           bottomDivider
           chevron
-          onPress={() => console.log('yes')}
+          onPress={() => navigation.navigate('Set Location')}
         />
         <ListItem
           title="Last Delivery Location"
@@ -248,29 +251,8 @@ class MainScreen extends Component {
             style={{
               flex: 1,
               marginTop: pixelsFromTop,
-              paddingHorizontal: 15,
             }}>
-            {dataSource && (
-              <FlatList
-                data={dataSource}
-                renderItem={({item, index}) => (
-                  <View>
-                    {index === 0 && (
-                      <Text style={styles.listTitleText}>
-                        Stores Delivering To You
-                      </Text>
-                    )}
-                    <StoreCard
-                      store={item}
-                      key={index}
-                      navigation={navigation}
-                    />
-                  </View>
-                )}
-                keyExtractor={(item) => item.merchantId}
-                showsVerticalScrollIndicator={false}
-              />
-            )}
+            {dataSource && <MainTab />}
           </View>
           {locationMenuOpen && <this.Overlay />}
           <this.SlideDownDrawer />
@@ -278,11 +260,14 @@ class MainScreen extends Component {
             placement={Platform.OS === 'ios' ? 'center' : 'left'}
             leftComponent={this.menuButton}
             centerComponent={this.centerComponent}
-            rightComponent={this.rightComponent}
+            rightComponent={this.rightComponent({
+              cartQuantity: this.props.shopStore.totalCartItemQuantity,
+            })}
             statusBarProps={{
               barStyle: 'light-content',
-              backgroundColor: 'rgba(0, 0, 0, 0.10)',
+              backgroundColor: colors.statusBar,
               translucent: true,
+              animated: true,
             }}
             containerStyle={styles.header}
             centerContainerStyle={{
