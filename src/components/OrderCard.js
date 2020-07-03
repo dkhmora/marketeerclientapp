@@ -22,6 +22,7 @@ import FastImage from 'react-native-fast-image';
 import {Button, Icon, Text} from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 import {colors} from '../../assets/colors';
+import OrderCardLoader from './OrderCardLoader';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -342,7 +343,7 @@ class OrderCard extends Component {
 
         <Card style={{borderRadius: 8, overflow: 'hidden'}}>
           {ready ? (
-            <View>
+            <View style={{height: 175}}>
               <this.CardHeader
                 imageUrl={url}
                 orderNumber={orderNumber}
@@ -401,8 +402,8 @@ class OrderCard extends Component {
               />
             </View>
           ) : (
-            <View>
-              <Text>Placeholder</Text>
+            <View style={{padding: 10, height: 175}}>
+              <OrderCardLoader />
             </View>
           )}
         </Card>
