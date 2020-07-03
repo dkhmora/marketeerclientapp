@@ -55,6 +55,22 @@ class shopStore {
     return [];
   }
 
+  @action async getStoreDetailsFromMerchantId(merchantId) {
+    const storeDetails = await firestore()
+      .collection('merchants')
+      .doc(merchantId)
+      .get()
+      .then((document) => {
+        if (document.exists) {
+          return document.data();
+        }
+      });
+
+    console.log('storedets', storeDetails);
+
+    return storeDetails;
+  }
+
   @action async setStoreCategories() {
     await firestore()
       .collection('application')

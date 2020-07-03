@@ -19,7 +19,6 @@ class OrderList extends Component {
 
   render() {
     const {navigation} = this.props;
-    const {merchantId} = this.props.authStore;
     const dataSource = this.props.generalStore.orders.slice();
 
     return (
@@ -28,22 +27,7 @@ class OrderList extends Component {
           <FlatList
             data={dataSource}
             renderItem={({item, index}) => (
-              <OrderCard
-                merchantId={merchantId}
-                orderNumber={item.orderNumber}
-                orderStatus={item.orderStatus}
-                coordinates={item.coordinates}
-                storeDetails={item.storeDetails}
-                quantity={item.quantity}
-                paymentMethod={item.paymentMethod}
-                shippingPrice={item.shippingPrice}
-                totalAmount={item.totalAmount}
-                orderId={item.orderId}
-                userAddress={item.userAddress}
-                createdAt={item.createdAt}
-                navigation={navigation}
-                key={index}
-              />
+              <OrderCard order={item} navigation={navigation} key={index} />
             )}
             keyExtractor={(item) => item.orderId}
             showsVerticalScrollIndicator={false}

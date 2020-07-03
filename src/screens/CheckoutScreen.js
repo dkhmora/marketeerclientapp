@@ -37,8 +37,6 @@ class CheckoutScreen extends Component {
         storeName,
       );
 
-      delete storeDetails.orderNumber;
-
       let quantity = 0;
       let totalAmount = 0;
 
@@ -79,6 +77,7 @@ class CheckoutScreen extends Component {
         totalAmount = item.price * item.quantity + totalAmount;
       });
 
+      const {merchantId} = storeDetails;
       const userId = this.props.authStore.userId;
 
       const orderDetails = {
@@ -93,7 +92,7 @@ class CheckoutScreen extends Component {
         quantity,
         totalAmount,
         shipping,
-        storeDetails,
+        merchantId,
         paymentMethod,
       };
 

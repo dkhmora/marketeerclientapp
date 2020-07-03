@@ -15,10 +15,19 @@ import BaseHeader from '../components/BaseHeader';
 import {FlatList, ScrollView} from 'react-native-gesture-handler';
 import {colors} from '../../assets/colors';
 import CartListItem from '../components/CartListItem';
+import {inject, observer} from 'mobx-react';
 
+@inject('generalStore')
+@observer
 class OrderDetailsScreen extends Component {
   constructor(props) {
     super(props);
+
+    const {orderId} = this.props.route.params.order;
+
+    this.state = {
+      orderItems: this.props.generalStore.getStoreDetails(orderId),
+    };
   }
 
   openInMaps() {
@@ -35,6 +44,7 @@ class OrderDetailsScreen extends Component {
   }
 
   render() {
+    const {order} = this.props.route.params;
     const {
       coordinates,
       orderId,
@@ -47,7 +57,8 @@ class OrderDetailsScreen extends Component {
       totalAmount,
       userAddress,
       createdAt,
-    } = this.props.route.params;
+    } = order;
+
     const {navigation} = this.props;
 
     const cancelReason = orderStatus.cancelled.reason;

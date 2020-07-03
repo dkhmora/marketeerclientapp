@@ -124,6 +124,22 @@ class generalStore {
         return (this.orderItems = document.data().items);
       });
   }
+
+  @action async getOrderItems(orderId) {
+    const orderItems = await firestore()
+      .collection('order_items')
+      .doc(orderId)
+      .get()
+      .then((document) => {
+        if (document.exists) {
+          return document.data().items;
+        }
+      });
+
+    console.log('order', orderItems);
+
+    return orderItems;
+  }
 }
 
 export default generalStore;
