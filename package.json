@@ -11,7 +11,8 @@
     "iphonese": "react-native run-ios --simulator='iPhone SE (2nd generation)'",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@babel/plugin-proposal-decorators": "^7.10.1",
@@ -68,6 +69,7 @@
     "eslint": "^7.1.0",
     "jest": "^26.0.1",
     "metro-react-native-babel-preset": "^0.59.0",
+    "patch-package": "^6.2.2",
     "react-test-renderer": "16.11.0"
   },
   "jest": {
