@@ -7,6 +7,7 @@ import {Text, Button, Icon, Input, Overlay} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {computed} from 'mobx';
 import Toast from '../components/Toast';
+import {styles} from '../../assets/styles';
 
 @inject('authStore')
 @observer
@@ -124,10 +125,26 @@ class AccountScreen extends Component {
           isVisible={passwordInputModal}
           width="auto"
           height="auto"
-          overlayStyle={{borderRadius: 10, padding: 10}}>
-          <View style={{flexDirection: 'column'}}>
-            <CardItem header bordered>
-              <Text>Confirm Password</Text>
+          onBackdropPress={() =>
+            this.setState({passwordInputModal: false, editMode: false})
+          }
+          overlayStyle={{borderRadius: 10, padding: 2, margin: 20}}>
+          <View style={{borderRadius: 10, flexDirection: 'column'}}>
+            <CardItem
+              header
+              bordered
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text style={{fontSize: 20}}>Confirm Password</Text>
+
+              <Button
+                type="clear"
+                icon={<Icon name="x" color={colors.primary} />}
+                containerStyle={{alignSelf: 'flex-end'}}
+                buttonStyle={{borderRadius: 20}}
+                onPress={() =>
+                  this.setState({passwordInputModal: false, editMode: false})
+                }
+              />
             </CardItem>
             <CardItem style={{flexDirection: 'column'}}>
               <Text>
@@ -136,6 +153,9 @@ class AccountScreen extends Component {
               </Text>
 
               <Input
+                placeholder="Current Password"
+                containerStyle={{paddingTop: 15}}
+                style={[styles.textInput]}
                 secureTextEntry
                 maxLength={32}
                 autoCapitalize="none"
@@ -147,6 +167,8 @@ class AccountScreen extends Component {
               <Button
                 title="Confirm"
                 type="clear"
+                containerStyle={{alignSelf: 'flex-end'}}
+                buttonStyle={{borderRadius: 20}}
                 onPress={() => this.handleSaveAccountDetails()}
               />
             </CardItem>
