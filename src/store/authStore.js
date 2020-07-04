@@ -26,6 +26,14 @@ class authStore {
     return null;
   }
 
+  @computed get noPrefixUserPhoneNumber() {
+    if (auth().currentUser) {
+      return auth().currentUser.phoneNumber.substr(3, 12);
+    }
+
+    return null;
+  }
+
   @computed get userPhoneNumber() {
     if (auth().currentUser) {
       return auth().currentUser.phoneNumber;
@@ -48,6 +56,87 @@ class authStore {
     }
 
     return null;
+  }
+
+  @action async updateEmailAddress(email, currentPassword) {
+    const { currentUser } = auth();
+    const recentCredentials = auth.EmailAuthProvider.credential(
+      currentUser.email,
+      currentPassword,
+    );
+
+    await currentUser
+      .reauthenticateWithCredential(recentCredentials)
+      .then(() => {
+        currentUser.updateEmail(email);
+      })
+      .then(() => {
+        Toast({text: 'Successfully updated contact details!'});
+      })
+      .catch((err) => {
+        if (err.code === 'auth/invalid-password') {
+          Toast({
+            text: 'Error, invalid password. No details have been changed.',
+            type: 'danger',
+          });
+        }
+
+        if (err.code === 'auth/wrong-password') {
+          Toast({
+            text: 'Error, wrong password. Please try again.',
+            type: 'danger',
+          });
+        }
+
+        console.log(err.message);
+      });
+  }
+
+  @action async updateDisplayName(displayName) {
+    const {currentUser} = auth();
+
+    await currentUser.updateProfile({displayName});
+  }
+
+  @action async updatePhoneNumber(credential) {
+    await auth()
+      .currentUser.updatePhoneNumber(credential)
+      .then(() => {
+        Toast({text: 'Successfully updated phone number!'});
+      })
+      .catch((err) => {
+        if (err.code === 'auth/quota-exceeded') {
+          Toast({
+            text:
+              'Error, too many phone code requests. Please try again later.',
+            type: 'danger',
+          });
+        }
+
+        if (err.code === 'auth/missing-verification-code') {
+          Toast({
+            text: 'Error, missing verification code. Please try again.',
+            type: 'danger',
+          });
+        }
+
+        if (err.code === 'auth/invalid-verification-code') {
+          Toast({
+            text: 'Error, invalid verification code. Please try again.',
+            type: 'danger',
+          });
+        }
+
+        if (err.code === 'auth/credential-already-in-use') {
+          Toast({
+            text:
+              'Error, phone number is already in use. Please try again with a different phone number.',
+            type: 'danger',
+          });
+        }
+
+        console.log(err);
+      });
   }
 
   @action async createUser(

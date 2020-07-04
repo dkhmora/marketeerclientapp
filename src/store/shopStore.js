@@ -66,8 +66,6 @@ class shopStore {
         }
       });
 
-    console.log('storedets', storeDetails);
-
     return storeDetails;
   }
 
@@ -220,8 +218,6 @@ class shopStore {
 
   @action async updateCartItems() {
     const userId = auth().currentUser.uid;
-
-    console.log(this.storeCartItems);
 
     await userCartCollection
       .doc(userId)

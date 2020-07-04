@@ -141,16 +141,6 @@ class OrderCard extends Component {
     });
   }
 
-  measureView(event) {
-    console.log('event peroperties: ', event);
-    this.setState({
-      x: event.nativeEvent.layout.x,
-      y: event.nativeEvent.layout.y,
-      width: event.nativeEvent.layout.width,
-      height: event.nativeEvent.layout.height,
-    });
-  }
-
   CardHeader = ({
     imageUrl,
     paymentMethod,

@@ -79,7 +79,6 @@ class ItemCard extends Component {
         ].findIndex((storeCartItem) => storeCartItem.name === item.name);
 
         if (itemIndex >= 0) {
-          console.log('pasok', itemIndex);
           return itemIndex;
         }
       }

@@ -87,21 +87,62 @@ class PhoneVerificationScreen extends Component {
       code,
     );
 
-    this.props.authStore
-      .createUser(name, email, password, phoneNumber, credential, navigation)
-      .then(() => {
-        this.props.shopStore.getCartItems(this.props.authStore.userId);
+    if (this.props.authStore.guest) {
+      this.props.authStore
+        .createUser(name, email, password, phoneNumber, credential, navigation)
+        .then(() => {
+          this.props.shopStore.getCartItems(this.props.authStore.userId);
 
-        if (checkout) {
-          this.props.shopStore
-            .setCartItems(this.props.authStore.userId)
-            .then(() => {
-              navigation.dangerouslyGetParent().navigate('Checkout');
+          if (checkout) {
+            this.props.shopStore
+              .setCartItems(this.props.authStore.userId)
+              .then(() => {
+                navigation.dangerouslyGetParent().navigate('Checkout');
+              });
+          } else {
+            navigation.dangerouslyGetParent().replace('Home');
+          }
+        });
+    } else {
+      this.props.authStore
+        .updatePhoneNumber(credential)
+        .then(() => navigation.replace('Home'))
+        .catch((err) => {
+          if (err.code === 'auth/quota-exceeded') {
+            Toast({
+              text:
+                'Error, too many phone code requests. Please try again later.',
+              type: 'danger',
             });
-        } else {
-          navigation.dangerouslyGetParent().replace('Home');
-        }
-      });
+          }
+
+          if (err.code === 'auth/missing-verification-code') {
+            Toast({
+              text: 'Error, missing verification code. Please try again.',
+              type: 'danger',
+            });
+          }
+
+          if (err.code === 'auth/invalid-verification-code') {
+            Toast({
+              text: 'Error, invalid verification code. Please try again.',
+              type: 'danger',
+            });
+          }
+
+          if (err.code === 'auth/credential-already-in-use') {
+            Toast({
+              text:
+                'Error, phone number is already in use. Please try again with a different phone number.',
+              type: 'danger',
+            });
+          }
+
+          navigation.replace('Home');
+
+          console.log(err);
+        });
+    }
   }
 
   render() {

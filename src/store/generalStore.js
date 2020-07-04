@@ -136,8 +136,6 @@ class generalStore {
         }
       });
 
-    console.log('order', orderItems);
-
     return orderItems;
   }
 }

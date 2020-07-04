@@ -3,8 +3,10 @@ import BaseHeader from '../components/BaseHeader';
 import {View} from 'react-native';
 import {inject, observer} from 'mobx-react';
 import {Card, CardItem} from 'native-base';
-import {Text, Button, Icon, Input} from 'react-native-elements';
+import {Text, Button, Icon, Input, Overlay} from 'react-native-elements';
 import {colors} from '../../assets/colors';
+import {computed} from 'mobx';
+import Toast from '../components/Toast';
 
 @inject('authStore')
 @observer
@@ -12,35 +14,144 @@ class AccountScreen extends Component {
   constructor(props) {
     super(props);
 
-    const {userName, userEmail, userPhoneNumber} = this.props.authStore;
+    const {userName, userEmail, noPrefixUserPhoneNumber} = this.props.authStore;
 
     this.state = {
       editMode: false,
+      passwordInputModal: false,
       newEmail: userEmail,
       newDisplayName: userName,
-      newPhoneNumber: userPhoneNumber,
+      newPhoneNumber: noPrefixUserPhoneNumber,
+      currentPassword: '',
     };
   }
 
-  cancelEditMode() {
+  handleSaveAccountDetails() {
     const {userName, userEmail, userPhoneNumber} = this.props.authStore;
+    const {navigation} = this.props;
+    const {
+      newPhoneNumber,
+      newDisplayName,
+      newEmail,
+      currentPassword,
+    } = this.state;
+    const withPrefixUserPhoneNumber = `+63${newPhoneNumber}`;
+
+    this.setState({passwordInputModal: false, editMode: false});
+
+    if (userName !== newDisplayName) {
+      this.props.authStore.updateDisplayName(newDisplayName).then(() => {
+        Toast({text: 'Successfully updated contact details!'});
+      });
+    }
+
+    if (userEmail !== newEmail) {
+      return this.props.authStore
+        .updateEmailAddress(newEmail, currentPassword)
+        .then(() => {
+          if (userPhoneNumber !== withPrefixUserPhoneNumber) {
+            navigation.navigate('Phone Verification', {
+              phoneNumber: withPrefixUserPhoneNumber,
+            });
+          }
+        })
+        .catch((err) => {
+          if (err.code === 'auth/wrong-password') {
+            Toast({
+              text: 'Error, wrong password. Please try again.',
+              type: 'danger',
+            });
+          }
+        });
+    }
+
+    if (userPhoneNumber !== withPrefixUserPhoneNumber) {
+      return navigation.navigate('Phone Verification', {
+        phoneNumber: withPrefixUserPhoneNumber,
+      });
+    }
+  }
+
+  handleCheckRequirements() {
+    const {userName, userEmail, userPhoneNumber} = this.props.authStore;
+    const {newPhoneNumber, newDisplayName, newEmail} = this.state;
+
+    const withPrefixUserPhoneNumber = `+63${newPhoneNumber}`;
+
+    if (userEmail !== newEmail) {
+      this.setState({passwordInputModal: true});
+    } else if (
+      userName !== newDisplayName ||
+      userPhoneNumber !== withPrefixUserPhoneNumber
+    ) {
+      this.handleSaveAccountDetails();
+    } else {
+      Toast({text: 'Nothing was changed'});
+      this.setState({editMode: false});
+    }
+  }
+
+  resetData() {
+    const {userName, userEmail, noPrefixUserPhoneNumber} = this.props.authStore;
 
     this.setState({
+      passwordInputModal: false,
       editMode: false,
       newEmail: userEmail,
       newDisplayName: userName,
-      newPhoneNumber: userPhoneNumber,
+      newPhoneNumber: noPrefixUserPhoneNumber,
+      currentPassword: '',
     });
   }
 
   render() {
     const {navigation} = this.props;
     const {userName, userEmail, userPhoneNumber} = this.props.authStore;
-    const {editMode, newDisplayName, newEmail, newPhoneNumber} = this.state;
+    const {
+      editMode,
+      newDisplayName,
+      newEmail,
+      newPhoneNumber,
+      passwordInputModal,
+      currentPassword,
+    } = this.state;
 
     return (
       <View style={{flex: 1}}>
         <BaseHeader title={userName} backButton navigation={navigation} />
+
+        <Overlay
+          isVisible={passwordInputModal}
+          width="auto"
+          height="auto"
+          overlayStyle={{borderRadius: 10, padding: 10}}>
+          <View style={{flexDirection: 'column'}}>
+            <CardItem header bordered>
+              <Text>Confirm Password</Text>
+            </CardItem>
+            <CardItem style={{flexDirection: 'column'}}>
+              <Text>
+                Please confirm your password to continue updating your account
+                details.
+              </Text>
+
+              <Input
+                secureTextEntry
+                maxLength={32}
+                autoCapitalize="none"
+                value={currentPassword}
+                onChangeText={(value) =>
+                  this.setState({currentPassword: value})
+                }
+              />
+              <Button
+                title="Confirm"
+                type="clear"
+                onPress={() => this.handleSaveAccountDetails()}
+              />
+            </CardItem>
+          </View>
+        </Overlay>
 
         <View style={{paddingHorizontal: 15, paddingVertical: 10}}>
           <Card style={{borderRadius: 10, overflow: 'hidden'}}>
@@ -73,7 +184,7 @@ class AccountScreen extends Component {
                   type="clear"
                   buttonStyle={{borderRadius: 24}}
                   icon={<Icon name="x" color={colors.primary} />}
-                  onPress={() => this.cancelEditMode()}
+                  onPress={() => this.resetData()}
                 />
               )}
             </CardItem>
@@ -245,7 +356,7 @@ class AccountScreen extends Component {
                       </Text>
 
                       <Input
-                        maxLength={13}
+                        maxLength={10}
                         inputStyle={{
                           textAlign: 'right',
                           fontSize: 16,
@@ -275,7 +386,12 @@ class AccountScreen extends Component {
             {editMode && (
               <CardItem
                 style={{alignItems: 'center', justifyContent: 'flex-end'}}>
-                <Button title="Save" type="clear" />
+                <Button
+                  title="Save"
+                  type="clear"
+                  buttonStyle={{borderRadius: 20}}
+                  onPress={() => this.handleCheckRequirements()}
+                />
               </CardItem>
             )}
           </Card>
