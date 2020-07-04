@@ -10,6 +10,7 @@ import OrderDetailsScreen from '../screens/OrderDetailsScreen';
 import OrderChatScreen from '../screens/OrderChatScreen';
 import SetLocationScreen from '../screens/SetLocationScreen';
 import CategoryStoresScreen from '../screens/CategoryStoresScreen';
+import AccountScreen from '../screens/AccountScreen';
 
 class MainStack extends Component {
   constructor(props) {
@@ -34,6 +35,7 @@ class MainStack extends Component {
           name="Category Stores"
           component={CategoryStoresScreen}
         />
+        <StackMain.Screen name="Account" component={AccountScreen} />
       </StackMain.Navigator>
     );
   }

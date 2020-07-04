@@ -23,7 +23,11 @@ class StoreCategoryCard extends Component {
     const imageSource = `/images/store_categories/${item.name}.jpg`;
 
     const ref = storage().ref(imageSource);
-    const link = await ref.getDownloadURL();
+    const link = await ref.getDownloadURL().catch((err) => {
+      if (err.code === '[storage/object-not-found]') {
+        console.log('No image');
+      }
+    });
 
     if (link) {
       this.setState({url: {uri: link}});

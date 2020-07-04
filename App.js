@@ -81,6 +81,11 @@ class App extends React.Component {
     });
   }
 
+  hideSplashScreen() {
+    SplashScreen.hide();
+    this.splashScreenTimer && clearTimeout(this.splashScreenTimer);
+  }
+
   componentDidMount() {
     /* TODO: Remove comments before deploying in Play Store/App Store
     VersionCheck.needUpdate().then(async (res) => {
@@ -98,11 +103,6 @@ class App extends React.Component {
 
   componentWillUnmount() {
     this.authState();
-  }
-
-  hideSplashScreen() {
-    SplashScreen.hide();
-    this.splashScreenTimer && clearTimeout(this.splashScreenTimer);
   }
 
   render() {

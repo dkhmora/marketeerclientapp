@@ -16,7 +16,6 @@ class StoreList extends Component {
     let dataSource = '';
 
     if (!this.props.component) {
-      console.log('yes');
       dataSource = this.props.route.params.dataSource;
     } else {
       dataSource = this.props.dataSource;
