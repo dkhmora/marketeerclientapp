@@ -8,12 +8,12 @@ import Geolocation from '@react-native-community/geolocation';
 import {Platform} from 'react-native';
 import Geocoder from 'react-native-geocoding';
 
-Geocoder.init(
+const GEOCODE_API_KEY =
   Platform.OS === 'android'
     ? 'AIzaSyC6WexMHM_yaencgJunXCLEmd8tYY3ubEA'
-    : 'AIzaSyBFWGKeYcirMnv648lAp_8UQYg34xxc0n0',
-  {language: 'en'},
-);
+    : 'AIzaSyBFWGKeYcirMnv648lAp_8UQYg34xxc0n0';
+
+Geocoder.init(GEOCODE_API_KEY, {language: 'en'});
 
 class generalStore {
   @observable orders = [];
@@ -21,7 +21,8 @@ class generalStore {
   @observable orderMessages = [];
   @observable unsubscribeGetMessages = null;
   @observable currentLocation = {};
-  @observable deliverToCurrentLocation = false;
+  @observable currentLocationDetails = null;
+  @observable deliverToCurrentLocation = true;
 
   @action setCurrentLocation() {
     Geolocation.getCurrentPosition(

@@ -53,7 +53,11 @@ class App extends React.Component {
 
             if (!authStore.guest) {
               shopStore.getCartItems(userId);
-              authStore.getUserDetails();
+              authStore.getUserDetails().then(() => {
+                if (authStore.userDetails.lastDeliveryLocation) {
+                  generalStore.deliverToCurrentLocation = false;
+                }
+              });
             }
 
             AppState.addEventListener('change', (state) => {

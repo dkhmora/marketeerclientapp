@@ -208,28 +208,30 @@ class MainScreen extends Component {
           }}
         />
 
-        <ListItem
-          title="Last Delivery Location"
-          titleStyle={styles.header_topDrawerTitleText}
-          subtitle={
-            this.props.authStore.userDetails.locationDetails
-              .formatted_address &&
-            this.props.authStore.userDetails.locationDetails.formatted_address
-          }
-          subtitleStyle={styles.subtitleStyle}
-          leftIcon={<Icon name="navigation" color={colors.primary} />}
-          bottomDivider
-          chevron
-          checkmark={
-            !this.props.generalStore.deliverToCurrentLocation && (
-              <Icon name="check" color={colors.primary} />
-            )
-          }
-          onPress={() => {
-            this.props.generalStore.deliverToCurrentLocation = false;
-            this.hideLocationMenu();
-          }}
-        />
+        {this.props.authStore.userDetails.lastDeliveryLocation && (
+          <ListItem
+            title="Last Delivery Location"
+            titleStyle={styles.header_topDrawerTitleText}
+            subtitle={
+              this.props.authStore.userDetails.locationDetails
+                .formatted_address &&
+              this.props.authStore.userDetails.locationDetails.formatted_address
+            }
+            subtitleStyle={styles.subtitleStyle}
+            leftIcon={<Icon name="navigation" color={colors.primary} />}
+            bottomDivider
+            chevron
+            checkmark={
+              !this.props.generalStore.deliverToCurrentLocation && (
+                <Icon name="check" color={colors.primary} />
+              )
+            }
+            onPress={() => {
+              this.props.generalStore.deliverToCurrentLocation = false;
+              this.hideLocationMenu();
+            }}
+          />
+        )}
 
         <ListItem
           title="Edit Current Location"

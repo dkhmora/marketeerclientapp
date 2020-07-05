@@ -48,9 +48,9 @@ class SetLocationScreen extends Component {
   getGeohash = (coordinates) => {
     const {latitude, longitude} = coordinates;
 
-    const geoHash = geohash.encode(latitude, longitude, 20);
+    const coordinateGeohash = geohash.encode(latitude, longitude, 20);
 
-    return geoHash;
+    return coordinateGeohash;
   };
 
   decodeGeohash() {
@@ -79,6 +79,9 @@ class SetLocationScreen extends Component {
         };
 
         this.setState({
+          markerPosition: {
+            ...coords,
+          },
           newMarkerPosition: {
             ...coords,
           },
@@ -109,15 +112,23 @@ class SetLocationScreen extends Component {
       newMarkerPosition.latitude,
       newMarkerPosition.longitude,
     );
-    const geoHash = this.getGeohash(newMarkerPosition);
+    const coordinateGeohash = this.getGeohash(newMarkerPosition);
 
-    updateCoordinates(userId, geoHash, locationDetails).then(() => {
+    /*
+    updateCoordinates(userId, coordinateGeohash, locationDetails).then(() => {
       navigation.navigate('Home');
 
       getUserDetails();
 
       Toast({text: 'Successfully updated current location'});
     });
+    */
+
+    this.props.authStore.setLocationGeohash = coordinateGeohash;
+    this.props.generalStore.currentLocationDetails = locationDetails;
+    this.props.generalStore.currentLocation = newMarkerPosition;
+    navigation.navigate('Home');
+    Toast({text: 'Successfully updated current location'});
 
     this.setState({
       editMode: false,
