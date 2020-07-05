@@ -7,6 +7,7 @@ import {v4 as uuidv4} from 'uuid';
 import Geolocation from '@react-native-community/geolocation';
 import {Platform} from 'react-native';
 import Geocoder from 'react-native-geocoding';
+import geohash from 'ngeohash';
 
 const GEOCODE_API_KEY =
   Platform.OS === 'android'
@@ -23,6 +24,7 @@ class generalStore {
   @observable currentLocation = {};
   @observable currentLocationDetails = null;
   @observable deliverToCurrentLocation = true;
+  @observable setLocationGeohash = null;
 
   @action setCurrentLocation() {
     Geolocation.getCurrentPosition(
@@ -32,18 +34,11 @@ class generalStore {
           longitude: parseFloat(position.coords.longitude),
         };
 
-        /*
-        if (!this.currentLocation.locationDetails) {
-          const locationDetails = this.getLocationDetails(
-            coords.latitude,
-            coords.longitude,
-          );
-
-          this.currentLocation = {locationDetails};
-          console.log('locationDetails', locationDetails);
-          console.log('coords', coords.latitude, coords.longitude);
-        }
-        */
+        this.setLocationGeohash = geohash.encode(
+          coords.latitude,
+          coords.longitude,
+          20,
+        );
 
         this.currentLocation = {...coords};
       },

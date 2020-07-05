@@ -7,7 +7,6 @@ import Toast from '../components/Toast';
 class authStore {
   @observable userAuthenticated = false;
   @observable userDetails = {};
-  @observable setLocationGeohash = null;
 
   @computed get guest() {
     if (auth().currentUser) {

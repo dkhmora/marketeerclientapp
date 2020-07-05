@@ -47,8 +47,6 @@ class App extends React.Component {
         .checkAuthStatus()
         .then(() => {
           if (user) {
-            generalStore.setCurrentLocation();
-
             const userId = user.uid;
 
             if (!authStore.guest) {

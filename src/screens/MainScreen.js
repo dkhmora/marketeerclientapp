@@ -21,6 +21,8 @@ import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
 import {inject, observer} from 'mobx-react';
 import MainTab from '../navigation/MainTab';
+import Geolocation from '@react-native-community/geolocation';
+import geohash from 'ngeohash';
 
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
 const pixelsFromTop = getStatusBarHeight() + headerHeight;
@@ -290,7 +292,30 @@ class MainScreen extends Component {
   }
 
   componentDidMount() {
-    this.props.shopStore.getShopList().then(() => this.setState({ready: true}));
+    Geolocation.getCurrentPosition(
+      (position) => {
+        const coords = {
+          latitude: parseFloat(position.coords.latitude),
+          longitude: parseFloat(position.coords.longitude),
+        };
+
+        const coordinateGeohash = geohash.encode(
+          coords.latitude,
+          coords.longitude,
+          20,
+        );
+
+        this.props.generalStore.currentLocation = {...coords};
+
+        this.props.shopStore
+          .getShopList(coordinateGeohash)
+          .then(() => this.setState({ready: true}));
+      },
+      (err) => console.log(err),
+      {
+        timeout: 20000,
+      },
+    );
   }
 
   render() {
@@ -331,7 +356,7 @@ class MainScreen extends Component {
         </View>
       );
     } else {
-      return null;
+      return <View style={{flex: 1}}></View>;
     }
   }
 }

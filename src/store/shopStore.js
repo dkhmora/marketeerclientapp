@@ -225,10 +225,12 @@ class shopStore {
       .catch((err) => console.log(err));
   }
 
-  @action async getShopList() {
+  @action async getShopList(coordinateGeohash) {
     await merchantsCollection
       .where('visibleToPublic', '==', true)
       .where('vacationMode', '==', false)
+      .where('creditData.creditThresholdReached', '==', false)
+      .where('deliveryCoordinates.upperRange', '>=', coordinateGeohash)
       .limit(10)
       .get()
       .then((querySnapshot) => {
@@ -240,7 +242,15 @@ class shopStore {
           list[index].merchantId = documentSnapshot.id;
         });
 
-        this.storeList = list;
+        return list;
+      })
+      .then((list) => {
+        const finalList = list.filter(
+          (element) =>
+            element.deliveryCoordinates.lowerRange <= coordinateGeohash,
+        );
+
+        this.storeList = finalList;
       })
       .catch((err) => console.log(err));
   }
