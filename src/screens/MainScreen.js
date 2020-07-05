@@ -25,6 +25,8 @@ import MainTab from '../navigation/MainTab';
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
 const pixelsFromTop = getStatusBarHeight() + headerHeight;
 @inject('shopStore')
+@inject('authStore')
+@inject('generalStore')
 @observer
 class MainScreen extends Component {
   constructor(props) {
@@ -128,6 +130,8 @@ class MainScreen extends Component {
 
   centerComponent = () => {
     const {centerComponent, title} = this.props;
+    const {currentLocation, deliverToCurrentLocation} = this.props.generalStore;
+    const {userDetails} = this.props.authStore;
     const {locationMenuOpen} = this.state;
 
     return (
@@ -148,9 +152,24 @@ class MainScreen extends Component {
         <View
           style={{
             flex: 1,
-            justifyContent: 'center',
+            flexDirection: 'row',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
           }}>
           <Text style={styles.header_titleText}>Deliver To: </Text>
+          <Text
+            numberOfLines={1}
+            style={{
+              color: colors.icons,
+              fontSize: 18,
+              fontFamily: 'ProductSans-Black',
+              flexWrap: 'wrap',
+              flexShrink: 1,
+            }}>
+            {userDetails.lastDeliveryLocation && !deliverToCurrentLocation
+              ? userDetails.locationDetails.formatted_address
+              : 'Current Location'}
+          </Text>
         </View>
       </TouchableOpacity>
     );
@@ -173,22 +192,51 @@ class MainScreen extends Component {
         <ListItem
           title="Current Location"
           titleStyle={styles.header_topDrawerTitleText}
-          subtitle="Test Location"
-          subtitleStyle={styles.subtitleStyle}
           leftIcon={<Icon name="map-pin" color={colors.primary} />}
           bottomDivider
           chevron
-          onPress={() => navigation.navigate('Set Location')}
+          checkmark={
+            this.props.generalStore.deliverToCurrentLocation && (
+              <Icon name="check" color={colors.primary} />
+            )
+          }
+          onPress={() => {
+            this.props.generalStore.deliverToCurrentLocation = true;
+            this.hideLocationMenu();
+          }}
         />
+
         <ListItem
           title="Last Delivery Location"
           titleStyle={styles.header_topDrawerTitleText}
-          subtitle="Test Location"
+          subtitle={
+            this.props.authStore.userDetails.locationDetails.formatted_address
+          }
           subtitleStyle={styles.subtitleStyle}
           leftIcon={<Icon name="navigation" color={colors.primary} />}
           bottomDivider
           chevron
-          onPress={() => console.log('yes')}
+          checkmark={
+            !this.props.generalStore.deliverToCurrentLocation && (
+              <Icon name="check" color={colors.primary} />
+            )
+          }
+          onPress={() => {
+            this.props.generalStore.deliverToCurrentLocation = false;
+            this.hideLocationMenu();
+          }}
+        />
+
+        <ListItem
+          title="Edit Current Location"
+          titleStyle={styles.header_topDrawerTitleText}
+          leftIcon={<Icon name="map" color={colors.primary} />}
+          bottomDivider
+          chevron
+          onPress={() => {
+            navigation.navigate('Set Location');
+            this.hideLocationMenu();
+          }}
         />
       </Animatable.View>
     );

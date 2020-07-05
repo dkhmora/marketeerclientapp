@@ -15,6 +15,8 @@ import {observer, inject} from 'mobx-react';
 import Geolocation from '@react-native-community/geolocation';
 import {colors} from '../../assets/colors';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import geohash from 'ngeohash';
+import * as geolib from 'geolib';
 
 @inject('authStore')
 @inject('generalStore')
@@ -33,7 +35,38 @@ class SetLocationScreen extends Component {
   }
 
   componentDidMount() {
-    this.setInitialMarkerPosition();
+    const {lastDeliveryLocation} = this.props.authStore.userDetails;
+
+    if (!lastDeliveryLocation) {
+      this.setInitialMarkerPosition();
+    } else {
+      this.decodeGeohash();
+    }
+  }
+
+  getGeohash = (coordinates) => {
+    const {latitude, longitude} = coordinates;
+
+    const geoHash = geohash.encode(latitude, longitude, 20);
+
+    return geoHash;
+  };
+
+  decodeGeohash() {
+    const {lastDeliveryLocation} = this.props.authStore.userDetails;
+
+    const coordinates = geohash.decode(lastDeliveryLocation);
+
+    this.setState({
+      markerPosition: {...coordinates},
+      circlePosition: {...coordinates},
+      mapData: {
+        ...coordinates,
+        latitudeDelta: 0.04,
+        longitudeDelta: 0.05,
+      },
+      mapReady: true,
+    });
   }
 
   async setInitialMarkerPosition() {
@@ -45,9 +78,6 @@ class SetLocationScreen extends Component {
         };
 
         this.setState({
-          markerPosition: {
-            ...coords,
-          },
           newMarkerPosition: {
             ...coords,
           },
@@ -69,17 +99,17 @@ class SetLocationScreen extends Component {
     );
   }
 
-  handleSetLocation() {
+  async handleSetLocation() {
     const {newMarkerPosition} = this.state;
-
-    /*
-    updateCoordinates(
-      merchantId,
+    const {updateCoordinates, getLocationDetails} = this.props.generalStore;
+    const {userId} = this.props.authStore;
+    const locationDetails = await getLocationDetails(
       newMarkerPosition.latitude,
       newMarkerPosition.longitude,
-      radius,
     );
-    */
+    const geoHash = this.getGeohash(newMarkerPosition);
+
+    updateCoordinates(userId, geoHash, locationDetails);
 
     this.setState({
       editMode: false,
@@ -191,7 +221,7 @@ class SetLocationScreen extends Component {
               this._onMapReady();
             }}
             initialRegion={mapData}>
-            {!editMode && (
+            {!editMode && markerPosition && (
               <Marker
                 ref={(marker) => {
                   this.marker = marker;
@@ -294,7 +324,7 @@ class SetLocationScreen extends Component {
 
           <GooglePlacesAutocomplete
             placeholder="Search"
-            fetchDetails
+            enablePoweredByContainer={false}
             onPress={(data, details = null) => {
               // 'details' is provided when fetchDetails = true
               console.log(data, details);

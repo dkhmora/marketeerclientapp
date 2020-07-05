@@ -47,10 +47,13 @@ class App extends React.Component {
         .checkAuthStatus()
         .then(() => {
           if (user) {
+            generalStore.setCurrentLocation();
+
             const userId = user.uid;
 
             if (!authStore.guest) {
               shopStore.getCartItems(userId);
+              authStore.getUserDetails();
             }
 
             AppState.addEventListener('change', (state) => {

@@ -4,11 +4,79 @@ import storage from '@react-native-firebase/storage';
 import GiftedChat from 'react-native-gifted-chat';
 import 'react-native-get-random-values';
 import {v4 as uuidv4} from 'uuid';
+import Geolocation from '@react-native-community/geolocation';
+import {Platform} from 'react-native';
+import Geocoder from 'react-native-geocoding';
+
+Geocoder.init('AIzaSyC6WexMHM_yaencgJunXCLEmd8tYY3ubEA', {language: 'en'});
+
 class generalStore {
   @observable orders = [];
   @observable orderItems = [];
   @observable orderMessages = [];
   @observable unsubscribeGetMessages = null;
+  @observable currentLocation = {};
+  @observable deliverToCurrentLocation = false;
+
+  @action setCurrentLocation() {
+    Geolocation.getCurrentPosition(
+      (position) => {
+        const coords = {
+          latitude: parseFloat(position.coords.latitude),
+          longitude: parseFloat(position.coords.longitude),
+        };
+
+        /*
+        if (!this.currentLocation.locationDetails) {
+          const locationDetails = this.getLocationDetails(
+            coords.latitude,
+            coords.longitude,
+          );
+
+          this.currentLocation = {locationDetails};
+          console.log('locationDetails', locationDetails);
+          console.log('coords', coords.latitude, coords.longitude);
+        }
+        */
+
+        this.currentLocation = {...coords};
+      },
+      (err) => console.log(err),
+      {
+        timeout: 20000,
+      },
+    );
+  }
+
+  @action async getLocationDetails(latitude, longitude) {
+    const res = await Geocoder.from(latitude, longitude)
+      .then((json) => {
+        const data = json.results;
+
+        return data;
+      })
+      .catch((error) => console.warn(error));
+
+    console.log(res[0].formatted_address);
+
+    return res[0];
+  }
+
+  @action async updateCoordinates(
+    userId,
+    lastDeliveryLocation,
+    locationDetails,
+  ) {
+    await firestore()
+      .collection('users')
+      .doc(userId)
+      .update({
+        lastDeliveryLocation,
+        locationDetails,
+      })
+      .then(() => console.log('Successfully updated user coordinates'))
+      .catch((err) => console.log(err));
+  }
 
   @action async getImageURI(imageRef) {
     if (imageRef) {

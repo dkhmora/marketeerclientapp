@@ -6,6 +6,7 @@ import Toast from '../components/Toast';
 
 class authStore {
   @observable userAuthenticated = false;
+  @observable userDetails = {};
 
   @computed get guest() {
     if (auth().currentUser) {
@@ -58,8 +59,24 @@ class authStore {
     return null;
   }
 
+  @action async getUserDetails() {
+    await firestore()
+      .collection('users')
+      .doc(this.userId)
+      .get()
+      .then((document) => {
+        if (document.exists) {
+          console.log(document.data());
+          this.userDetails = document.data();
+        }
+
+        return null;
+      })
+      .catch((err) => console.log(err));
+  }
+
   @action async updateEmailAddress(email, currentPassword) {
-    const { currentUser } = auth();
+    const {currentUser} = auth();
     const recentCredentials = auth.EmailAuthProvider.credential(
       currentUser.email,
       currentPassword,
