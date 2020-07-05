@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import {View, Image} from 'react-native';
-import {Container, Text, Input, Item} from 'native-base';
+import {Container, Input, Item} from 'native-base';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import BaseHeader from '../components/BaseHeader';
-import {Button, Icon, Avatar} from 'react-native-elements';
+import {Button, Icon, Avatar, Text} from 'react-native-elements';
 import {
   GiftedChat,
   Bubble,
@@ -13,7 +13,7 @@ import {
 } from 'react-native-gifted-chat';
 import {inject, observer} from 'mobx-react';
 import ImagePicker from 'react-native-image-crop-picker';
-import {observable} from 'mobx';
+import {observable, computed} from 'mobx';
 import {colors} from '../../assets/colors';
 
 @inject('generalStore')
@@ -107,41 +107,60 @@ class OrderChatScreen extends Component {
   }
 
   renderComposer(props) {
+    const {orderStatus} = this.props.route.params;
+
     return (
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          paddingHorizontal: 10,
         }}>
-        <Button
-          type="clear"
-          onPress={() => this.handleSelectImage()}
-          color={colors.primary}
-          containerStyle={{borderRadius: 24}}
-          icon={<Icon name="image" color={colors.primary} />}
-        />
-        <Button
-          type="clear"
-          onPress={() => this.handleTakePhoto()}
-          color={colors.primary}
-          containerStyle={{borderRadius: 24}}
-          icon={<Icon name="camera" color={colors.primary} />}
-        />
-        <View
-          style={{
-            flex: 1,
-            marginLeft: 5,
-            marginVertical: 10,
-            borderWidth: 1,
-            borderColor: colors.primary,
-            borderRadius: 24,
-          }}>
-          <Composer {...props} />
-        </View>
-        <Send {...props} containerStyle={{paddingHorizontal: 10}}>
-          <Icon name="send" color={colors.primary} style={{marginBottom: 8}} />
-        </Send>
+        {orderStatus[0] === 'CANCELLED' || orderStatus[0] === 'COMPLETED' ? (
+          <View
+            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <Text>Chat is disabled since order is {orderStatus[0]}</Text>
+          </View>
+        ) : (
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingHorizontal: 10,
+            }}>
+            <Button
+              type="clear"
+              onPress={() => this.handleSelectImage()}
+              color={colors.primary}
+              containerStyle={{borderRadius: 24}}
+              icon={<Icon name="image" color={colors.primary} />}
+            />
+            <Button
+              type="clear"
+              onPress={() => this.handleTakePhoto()}
+              color={colors.primary}
+              containerStyle={{borderRadius: 24}}
+              icon={<Icon name="camera" color={colors.primary} />}
+            />
+            <View
+              style={{
+                flex: 1,
+                marginLeft: 5,
+                marginVertical: 10,
+                borderWidth: 1,
+                borderColor: colors.primary,
+                borderRadius: 24,
+              }}>
+              <Composer {...props} />
+            </View>
+            <Send {...props} containerStyle={{paddingHorizontal: 10}}>
+              <Icon
+                name="send"
+                color={colors.primary}
+                style={{marginBottom: 8}}
+              />
+            </Send>
+          </View>
+        )}
       </View>
     );
   }
@@ -185,7 +204,6 @@ class OrderChatScreen extends Component {
             renderComposer={this.renderComposer.bind(this)}
             maxComposerHeight={150}
             listViewProps={{marginBottom: 20}}
-            alwaysShowSend
             messages={dataSource}
             onSend={(messages) => this.onSend(messages)}
             user={this.state.user}

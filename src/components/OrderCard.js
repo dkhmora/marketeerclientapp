@@ -51,11 +51,15 @@ class OrderCard extends Component {
   @computed get orderStatus() {
     const {orderStatus} = this.props.order;
 
-    return Object.entries(orderStatus).map(([key, value]) => {
+    const statusLabel = Object.entries(orderStatus).map(([key, value]) => {
       if (value.status) {
         return key.toUpperCase();
       }
+
+      return;
     });
+
+    return statusLabel.filter((item) => item != null);
   }
 
   @action openConfirmationModal() {
@@ -129,7 +133,7 @@ class OrderCard extends Component {
 
   openOrderChat() {
     const {navigation, order} = this.props;
-    const {userAddress, orderId, orderNumber, orderStatus} = order;
+    const {userAddress, orderId, orderNumber} = order;
     const {storeName} = this.state.storeDetails;
 
     navigation.navigate('Order Chat', {
@@ -137,7 +141,7 @@ class OrderCard extends Component {
       userAddress,
       orderId,
       orderNumber,
-      orderStatus,
+      orderStatus: this.orderStatus,
     });
   }
 
