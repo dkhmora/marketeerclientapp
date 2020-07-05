@@ -63,8 +63,6 @@ class generalStore {
       })
       .catch((error) => console.warn(error));
 
-    console.log(res[0].formatted_address);
-
     return res[0];
   }
 

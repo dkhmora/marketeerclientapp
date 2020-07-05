@@ -40,7 +40,7 @@ class OrderCard extends Component {
     this.props.shopStore
       .getStoreDetailsFromMerchantId(this.props.order.merchantId)
       .then((storeDetails) => {
-        this.setState({storeDetails, ready: true});
+        this.setState({storeDetails});
         this.getDisplayImageUrl(storeDetails.displayImage);
       });
   }
@@ -74,7 +74,7 @@ class OrderCard extends Component {
     const ref = storage().ref(imageRef);
     const link = await ref.getDownloadURL();
 
-    this.setState({url: {uri: link}});
+    this.setState({url: {uri: link}, ready: true});
   };
 
   handleChangeOrderStatus() {
@@ -94,8 +94,9 @@ class OrderCard extends Component {
 
   handleViewOrderItems() {
     const {navigation, order} = this.props;
+    const {orderStatus} = this;
 
-    navigation.navigate('Order Details', {order});
+    navigation.navigate('Order Details', {order, orderStatus});
   }
 
   handleCancelOrder() {
