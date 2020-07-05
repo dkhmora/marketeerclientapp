@@ -8,6 +8,7 @@ import {
   Platform,
   Dimensions,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import {Text, Item, Input, Card, CardItem} from 'native-base';
 import {Icon, Button} from 'react-native-elements';
@@ -18,6 +19,8 @@ import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
 import geohash from 'ngeohash';
 import * as geolib from 'geolib';
 import Toast from '../components/Toast';
+import BaseHeader from '../components/BaseHeader';
+import RNGooglePlaces from 'react-native-google-places';
 
 @inject('authStore')
 @inject('generalStore')
@@ -30,18 +33,20 @@ class SetLocationScreen extends Component {
       mapReady: false,
       mapData: null,
       editMode: false,
+      loading: false,
+      address: null,
       newMarkerPosition: null,
       centerOfScreen: (Dimensions.get('window').height - 17) / 2,
     };
   }
 
   componentDidMount() {
-    const {lastDeliveryLocation} = this.props.authStore.userDetails;
+    const {currentLocation} = this.props.generalStore;
 
-    if (!lastDeliveryLocation) {
+    if (!currentLocation) {
       this.setInitialMarkerPosition();
     } else {
-      this.decodeGeohash();
+      this.setCoordinates();
     }
   }
 
@@ -53,21 +58,51 @@ class SetLocationScreen extends Component {
     return coordinateGeohash;
   };
 
-  decodeGeohash() {
-    const {lastDeliveryLocation} = this.props.authStore.userDetails;
-
-    const coordinates = geohash.decode(lastDeliveryLocation);
+  setCoordinates() {
+    const {currentLocation} = this.props.generalStore;
 
     this.setState({
-      markerPosition: {...coordinates},
-      circlePosition: {...coordinates},
+      markerPosition: {...currentLocation},
+      circlePosition: {...currentLocation},
       mapData: {
-        ...coordinates,
+        ...currentLocation,
         latitudeDelta: 0.04,
         longitudeDelta: 0.05,
       },
       mapReady: true,
     });
+  }
+
+  async getAddressFromCoordinates({latitude, longitude}) {
+    // TODO: Move to cloud function
+    const HERE_API_KEY = '1VW7QLMp_GdQMOkjyBDpnKd8j6W5g049H7A1mUkpQmY';
+
+    const details = await new Promise((resolve) => {
+      const url = `https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?apiKey=${HERE_API_KEY}&mode=retrieveAddresses&prox=${latitude},${longitude}`;
+      fetch(url)
+        .then((res) => res.json())
+        .then((resJson) => {
+          // the response had a deeply nested structure :/
+          if (
+            resJson &&
+            resJson.Response &&
+            resJson.Response.View &&
+            resJson.Response.View[0] &&
+            resJson.Response.View[0].Result &&
+            resJson.Response.View[0].Result[0]
+          ) {
+            resolve(resJson.Response.View[0].Result[0].Location.Address.Label);
+          } else {
+            resolve();
+          }
+        })
+        .catch((e) => {
+          console.log('Error in getAddressFromCoordinates', e);
+          resolve();
+        });
+    });
+
+    return details;
   }
 
   async setInitialMarkerPosition() {
@@ -104,36 +139,109 @@ class SetLocationScreen extends Component {
   }
 
   async handleSetLocation() {
-    const {newMarkerPosition} = this.state;
+    const {newMarkerPosition, address} = this.state;
     const {navigation} = this.props;
-    const {updateCoordinates, getLocationDetails} = this.props.generalStore;
+    const {updateCoordinates} = this.props.generalStore;
     const {userId, getUserDetails} = this.props.authStore;
-    const locationDetails = await getLocationDetails(
-      newMarkerPosition.latitude,
-      newMarkerPosition.longitude,
-    );
+    const {checkout} = this.props.route.params;
+
     const coordinateGeohash = this.getGeohash(newMarkerPosition);
 
-    /*
-    updateCoordinates(userId, coordinateGeohash, locationDetails).then(() => {
-      navigation.navigate('Home');
+    this.setState({loading: true});
 
-      getUserDetails();
+    if (!address) {
+      this.setState(
+        {
+          address: await this.getAddressFromCoordinates({...newMarkerPosition}),
+        },
+        () => {
+          if (checkout) {
+            updateCoordinates(
+              userId,
+              coordinateGeohash,
+              this.state.address,
+            ).then(() => {
+              navigation.navigate('Home');
 
-      Toast({text: 'Successfully updated current location'});
-    });
-    */
+              getUserDetails();
 
-    this.props.authStore.setLocationGeohash = coordinateGeohash;
-    this.props.generalStore.currentLocationDetails = locationDetails;
-    this.props.generalStore.currentLocation = newMarkerPosition;
-    navigation.navigate('Home');
-    Toast({text: 'Successfully updated current location'});
+              Toast({text: 'Successfully set location!'});
+
+              this.setState({loading: false});
+
+              this.props.generalStore.currentLocationDetails = this.state.address;
+              this.props.authStore.setLocationGeohash = coordinateGeohash;
+              this.props.generalStore.currentLocation = newMarkerPosition;
+            });
+          } else {
+            Toast({text: 'Successfully set location!'});
+
+            this.setState({loading: false});
+
+            this.props.generalStore.currentLocationDetails = this.state.address;
+            this.props.authStore.setLocationGeohash = coordinateGeohash;
+            this.props.generalStore.currentLocation = newMarkerPosition;
+          }
+        },
+      );
+    } else {
+      if (checkout) {
+        updateCoordinates(userId, coordinateGeohash, this.state.address).then(
+          () => {
+            navigation.navigate('Home');
+
+            getUserDetails();
+
+            Toast({text: 'Successfully set location!'});
+
+            this.setState({loading: false});
+
+            this.props.generalStore.currentLocationDetails = this.state.address;
+            this.props.authStore.setLocationGeohash = coordinateGeohash;
+            this.props.generalStore.currentLocation = newMarkerPosition;
+          },
+        );
+      } else {
+        Toast({text: 'Successfully set location!'});
+
+        this.setState({loading: false});
+
+        this.props.generalStore.currentLocationDetails = this.state.address;
+        this.props.authStore.setLocationGeohash = coordinateGeohash;
+        this.props.generalStore.currentLocation = newMarkerPosition;
+      }
+    }
 
     this.setState({
       editMode: false,
       markerPosition: newMarkerPosition,
     });
+  }
+
+  panMapToLocation(position) {
+    if (Platform.OS === 'ios') {
+      this.map.animateCamera(
+        {
+          center: position,
+          pitch: 2,
+          heading: 20,
+          altitude: 6000,
+          zoom: 5,
+        },
+        150,
+      );
+    } else {
+      this.map.animateCamera(
+        {
+          center: position,
+          pitch: 2,
+          heading: 1,
+          altitude: 200,
+          zoom: 18,
+        },
+        150,
+      );
+    }
   }
 
   panMapToMarker() {
@@ -154,8 +262,8 @@ class SetLocationScreen extends Component {
           center: this.state.markerPosition,
           pitch: 2,
           heading: 1,
-          altitude: 500,
-          zoom: 15,
+          altitude: 200,
+          zoom: 18,
         },
         150,
       );
@@ -213,6 +321,28 @@ class SetLocationScreen extends Component {
     }
   };
 
+  openSearchModal() {
+    RNGooglePlaces.openAutocompleteModal({country: 'PH'}, [
+      'address',
+      'location',
+    ])
+      .then((place) => {
+        const address = place.address;
+        const coordinates = place.location;
+
+        this.panMapToLocation(coordinates);
+
+        this.setState({
+          address,
+          newMarkerPosition: {...coordinates},
+          editMode: true,
+        });
+        // place represents user's selection from the
+        // suggestions and it is a simplified Google Place object.
+      })
+      .catch((error) => console.log(error.message)); // error is a Javascript Error object
+  }
+
   render() {
     const {navigation} = this.props;
     const {
@@ -221,6 +351,7 @@ class SetLocationScreen extends Component {
       mapData,
       mapReady,
       editMode,
+      loading,
     } = this.state;
 
     return (
@@ -317,78 +448,39 @@ class SetLocationScreen extends Component {
           )}
         </View>
 
-        <SafeAreaView
-          style={{
-            flexDirection: 'row',
-            paddingHorizontal: 10,
-            paddingBottom: 10,
-            backgroundColor: colors.primary,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingTop:
-              Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 10,
-          }}>
-          <Button
-            type="clear"
-            icon={<Icon name="arrow-left" color={colors.primary} />}
-            buttonStyle={{
-              backgroundColor: colors.icons,
-            }}
-            containerStyle={{
-              borderRadius: 24,
-              elevation: 5,
-            }}
-            onPress={() => navigation.goBack()}
-          />
+        <BaseHeader
+          backButton
+          navigation={navigation}
+          title="Delivery Area"
+          rightComponent={
+            <Button
+              type="clear"
+              icon={<Icon name="search" color={colors.icons} />}
+              titleStyle={{color: colors.icons}}
+              buttonStyle={{borderRadius: 24}}
+              onPress={() => this.openSearchModal()}
+            />
+          }
+        />
 
-          <GooglePlacesAutocomplete
-            placeholder="Search"
-            enablePoweredByContainer={false}
-            onPress={(data, details = null) => {
-              // 'details' is provided when fetchDetails = true
-              console.log(data, details);
-            }}
-            query={{
-              key:
-                Platform.OS === 'android'
-                  ? 'AIzaSyDZqSAZvKVizDPaDhtzuzGtfyzCpViZvcs'
-                  : 'AIzaSyATHEQKHS5d1taeUBbfsP-IYgJWPLcPBTU',
-              language: 'en',
-              components: 'country:ph',
-            }}
-            styles={{
-              container: {
-                alignSelf: 'flex-start',
-              },
-              textInputContainer: {
-                backgroundColor: 'rgba(0,0,0,0)',
-                borderRadius: 24,
-                marginTop: -7,
-                borderTopWidth: 0,
-                borderBottomWidth: 0,
-              },
-              textInput: {
-                alignSelf: 'flex-start',
-                margin: 0,
-                padding: 0,
-                height: 40,
-                color: '#5d5d5d',
-                fontFamily: 'ProductSans-Light',
-                fontSize: 16,
-                borderRadius: 24,
-              },
-              predefinedPlacesDescription: {
-                color: colors.accent,
-              },
-              listView: {
-                backgroundColor: colors.icons,
+        {loading && (
+          <View
+            style={[
+              StyleSheet.absoluteFillObject,
+              {
+                flex: 1,
                 position: 'absolute',
-                marginTop: 40,
+                top: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                alignItems: 'center',
+                justifyContent: 'center',
               },
-            }}
-            onFail={(error) => console.warn(error)}
-          />
-        </SafeAreaView>
+            ]}>
+            <ActivityIndicator animating color={colors.primary} size="large" />
+          </View>
+        )}
       </View>
     );
   }

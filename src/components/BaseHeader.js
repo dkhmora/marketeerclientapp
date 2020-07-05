@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {StyleSheet, Platform, View} from 'react-native';
 import {Header, Icon, Button, Text} from 'react-native-elements';
 import {colors} from '../../assets/colors';
+import BaseOptionsMenu from './BaseOptionsMenu';
 
 class BaseHeader extends Component {
   constructor(props) {
@@ -65,10 +66,21 @@ class BaseHeader extends Component {
   };
 
   rightComponent = () => {
-    const {rightComponent} = this.props;
+    const {actions, options, destructiveIndex, rightComponent} = this.props;
+
+    if (options && actions) {
+      return (
+        <BaseOptionsMenu
+          iconStyle={{color: colors.primary, marginRight: 10}}
+          options={options}
+          actions={actions}
+          destructiveIndex={destructiveIndex}
+        />
+      );
+    }
 
     if (rightComponent) {
-      return <View style={{flex: 1}}></View>;
+      return rightComponent;
     }
 
     return <View style={{flex: 1}}></View>;

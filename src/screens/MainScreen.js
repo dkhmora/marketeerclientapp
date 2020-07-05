@@ -244,7 +244,7 @@ class MainScreen extends Component {
           bottomDivider
           chevron
           onPress={() => {
-            navigation.navigate('Set Location');
+            navigation.navigate('Set Location', {checkout: false});
             this.hideLocationMenu();
           }}
         />

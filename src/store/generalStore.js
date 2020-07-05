@@ -21,7 +21,7 @@ class generalStore {
   @observable orderItems = [];
   @observable orderMessages = [];
   @observable unsubscribeGetMessages = null;
-  @observable currentLocation = {};
+  @observable currentLocation = null;
   @observable currentLocationDetails = null;
   @observable deliverToCurrentLocation = true;
   @observable setLocationGeohash = null;
@@ -47,18 +47,6 @@ class generalStore {
         timeout: 20000,
       },
     );
-  }
-
-  @action async getLocationDetails(latitude, longitude) {
-    const res = await Geocoder.from(latitude, longitude)
-      .then((json) => {
-        const data = json.results;
-
-        return data;
-      })
-      .catch((error) => console.warn(error));
-
-    return res[0];
   }
 
   @action async updateCoordinates(
