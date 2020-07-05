@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   Dimensions,
   FlatList,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 import {
@@ -323,41 +325,44 @@ class MainScreen extends Component {
     const {locationMenuOpen, ready} = this.state;
     const dataSource = this.props.shopStore.storeList.slice();
 
-    if (ready) {
-      return (
-        <View style={styles.container}>
-          <View
-            style={{
-              flex: 1,
-              marginTop: pixelsFromTop,
-            }}>
-            {dataSource && <MainTab />}
-          </View>
-          {locationMenuOpen && <this.Overlay />}
-          <this.SlideDownDrawer />
-          <Header
-            placement={Platform.OS === 'ios' ? 'center' : 'left'}
-            leftComponent={this.menuButton}
-            centerComponent={this.centerComponent}
-            rightComponent={this.rightComponent({
-              cartQuantity: this.props.shopStore.totalCartItemQuantity,
-            })}
-            statusBarProps={{
-              barStyle: 'light-content',
-              backgroundColor: colors.statusBar,
-              translucent: true,
-              animated: true,
-            }}
-            containerStyle={styles.header}
-            centerContainerStyle={{
-              flex: 3,
-            }}
-          />
+    return (
+      <View style={styles.container}>
+        <View
+          style={{
+            flex: 1,
+            marginTop: pixelsFromTop,
+          }}>
+          {ready ? (
+            <MainTab />
+          ) : (
+            <View
+              style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+              <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+          )}
         </View>
-      );
-    } else {
-      return <View style={{flex: 1}}></View>;
-    }
+        {locationMenuOpen && <this.Overlay />}
+        <this.SlideDownDrawer />
+        <Header
+          placement={Platform.OS === 'ios' ? 'center' : 'left'}
+          leftComponent={this.menuButton}
+          centerComponent={this.centerComponent}
+          rightComponent={this.rightComponent({
+            cartQuantity: this.props.shopStore.totalCartItemQuantity,
+          })}
+          statusBarProps={{
+            barStyle: 'light-content',
+            backgroundColor: colors.statusBar,
+            translucent: true,
+            animated: true,
+          }}
+          containerStyle={styles.header}
+          centerContainerStyle={{
+            flex: 3,
+          }}
+        />
+      </View>
+    );
   }
 }
 
