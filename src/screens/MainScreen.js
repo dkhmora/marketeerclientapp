@@ -166,7 +166,9 @@ class MainScreen extends Component {
               flexWrap: 'wrap',
               flexShrink: 1,
             }}>
-            {userDetails.lastDeliveryLocation && !deliverToCurrentLocation
+            {userDetails.lastDeliveryLocation &&
+            userDetails.locationDetails &&
+            !deliverToCurrentLocation
               ? userDetails.locationDetails.formatted_address
               : 'Current Location'}
           </Text>
@@ -210,6 +212,8 @@ class MainScreen extends Component {
           title="Last Delivery Location"
           titleStyle={styles.header_topDrawerTitleText}
           subtitle={
+            this.props.authStore.userDetails.locationDetails
+              .formatted_address &&
             this.props.authStore.userDetails.locationDetails.formatted_address
           }
           subtitleStyle={styles.subtitleStyle}

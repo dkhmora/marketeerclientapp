@@ -8,7 +8,12 @@ import Geolocation from '@react-native-community/geolocation';
 import {Platform} from 'react-native';
 import Geocoder from 'react-native-geocoding';
 
-Geocoder.init('AIzaSyC6WexMHM_yaencgJunXCLEmd8tYY3ubEA', {language: 'en'});
+Geocoder.init(
+  Platform.OS === 'android'
+    ? 'AIzaSyC6WexMHM_yaencgJunXCLEmd8tYY3ubEA'
+    : 'AIzaSyBFWGKeYcirMnv648lAp_8UQYg34xxc0n0',
+  {language: 'en'},
+);
 
 class generalStore {
   @observable orders = [];

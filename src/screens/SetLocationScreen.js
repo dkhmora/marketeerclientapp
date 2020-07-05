@@ -17,6 +17,7 @@ import {colors} from '../../assets/colors';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import geohash from 'ngeohash';
 import * as geolib from 'geolib';
+import Toast from '../components/Toast';
 
 @inject('authStore')
 @inject('generalStore')
@@ -101,15 +102,22 @@ class SetLocationScreen extends Component {
 
   async handleSetLocation() {
     const {newMarkerPosition} = this.state;
+    const {navigation} = this.props;
     const {updateCoordinates, getLocationDetails} = this.props.generalStore;
-    const {userId} = this.props.authStore;
+    const {userId, getUserDetails} = this.props.authStore;
     const locationDetails = await getLocationDetails(
       newMarkerPosition.latitude,
       newMarkerPosition.longitude,
     );
     const geoHash = this.getGeohash(newMarkerPosition);
 
-    updateCoordinates(userId, geoHash, locationDetails);
+    updateCoordinates(userId, geoHash, locationDetails).then(() => {
+      navigation.navigate('Home');
+
+      getUserDetails();
+
+      Toast({text: 'Successfully updated current location'});
+    });
 
     this.setState({
       editMode: false,
@@ -330,7 +338,10 @@ class SetLocationScreen extends Component {
               console.log(data, details);
             }}
             query={{
-              key: 'AIzaSyDZqSAZvKVizDPaDhtzuzGtfyzCpViZvcs',
+              key:
+                Platform.OS === 'android'
+                  ? 'AIzaSyDZqSAZvKVizDPaDhtzuzGtfyzCpViZvcs'
+                  : 'AIzaSyATHEQKHS5d1taeUBbfsP-IYgJWPLcPBTU',
               language: 'en',
               components: 'country:ph',
             }}
