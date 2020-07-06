@@ -5,16 +5,8 @@ import GiftedChat from 'react-native-gifted-chat';
 import 'react-native-get-random-values';
 import {v4 as uuidv4} from 'uuid';
 import Geolocation from '@react-native-community/geolocation';
-import {Platform} from 'react-native';
-import Geocoder from 'react-native-geocoding';
 import geohash from 'ngeohash';
-
-const GEOCODE_API_KEY =
-  Platform.OS === 'android'
-    ? 'AIzaSyC6WexMHM_yaencgJunXCLEmd8tYY3ubEA'
-    : 'AIzaSyBFWGKeYcirMnv648lAp_8UQYg34xxc0n0';
-
-Geocoder.init(GEOCODE_API_KEY, {language: 'en'});
+import functions from '@react-native-firebase/functions';
 
 class generalStore {
   @observable orders = [];
@@ -25,6 +17,14 @@ class generalStore {
   @observable currentLocationDetails = null;
   @observable deliverToCurrentLocation = true;
   @observable setLocationGeohash = null;
+
+  @action async getAddressFromCoordinates({latitude, longitude}) {
+    return await functions()
+      .httpsCallable('getAddressFromCoordinates')({latitude, longitude})
+      .then((response) => {
+        return response.data.locationDetails;
+      });
+  }
 
   @action setCurrentLocation() {
     Geolocation.getCurrentPosition(

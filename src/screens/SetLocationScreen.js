@@ -73,38 +73,6 @@ class SetLocationScreen extends Component {
     });
   }
 
-  async getAddressFromCoordinates({latitude, longitude}) {
-    // TODO: Move to cloud function
-    const HERE_API_KEY = '1VW7QLMp_GdQMOkjyBDpnKd8j6W5g049H7A1mUkpQmY';
-
-    const details = await new Promise((resolve) => {
-      const url = `https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?apiKey=${HERE_API_KEY}&mode=retrieveAddresses&prox=${latitude},${longitude}`;
-      fetch(url)
-        .then((res) => res.json())
-        .then((resJson) => {
-          // the response had a deeply nested structure :/
-          if (
-            resJson &&
-            resJson.Response &&
-            resJson.Response.View &&
-            resJson.Response.View[0] &&
-            resJson.Response.View[0].Result &&
-            resJson.Response.View[0].Result[0]
-          ) {
-            resolve(resJson.Response.View[0].Result[0].Location.Address.Label);
-          } else {
-            resolve();
-          }
-        })
-        .catch((e) => {
-          console.log('Error in getAddressFromCoordinates', e);
-          resolve();
-        });
-    });
-
-    return details;
-  }
-
   async setInitialMarkerPosition() {
     await Geolocation.getCurrentPosition(
       (position) => {
@@ -152,7 +120,9 @@ class SetLocationScreen extends Component {
     if (!address) {
       this.setState(
         {
-          address: await this.getAddressFromCoordinates({...newMarkerPosition}),
+          address: await this.props.generalStore.getAddressFromCoordinates({
+            ...newMarkerPosition,
+          }),
         },
         () => {
           if (checkout) {
