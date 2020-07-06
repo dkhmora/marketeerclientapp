@@ -60,6 +60,28 @@ class authStore {
     return null;
   }
 
+  @action async resetPassword(email) {
+    await auth()
+      .sendPasswordResetEmail(email)
+      .then(() => {
+        Toast({text: 'Password reset email sent!'});
+      })
+      .catch((err) => {
+        err.code === 'auth/invalid-email' &&
+          Toast({
+            type: 'danger',
+            text: 'Error, invalid email. Please try again.',
+          });
+
+        err.code === 'auth/user-not-found' &&
+          Toast({
+            type: 'danger',
+            text:
+              'Error, the user was not found. Please try again or sign up for an account.',
+          });
+      });
+  }
+
   @action async reloadUser() {
     await auth().currentUser.reload();
   }

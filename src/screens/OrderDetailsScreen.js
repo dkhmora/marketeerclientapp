@@ -35,19 +35,6 @@ class OrderDetailsScreen extends Component {
     });
   }
 
-  openInMaps() {
-    const {coordinates, userName} = this.props.route.params;
-    const markerName = `Customer ${userName}'s Location`;
-
-    const latLng = `${coordinates._latitude},${coordinates._longitude}`;
-    const url = Platform.select({
-      ios: `http://maps.apple.com/?q=${markerName}&ll=${latLng}`,
-      android: `https://www.google.com/maps/search/?api=1&query=${latLng}`,
-    });
-
-    Linking.openURL(url);
-  }
-
   render() {
     const {order, orderStatus} = this.props.route.params;
     const {orderNumber, quantity, shippingPrice, totalAmount} = order;

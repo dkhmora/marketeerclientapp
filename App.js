@@ -104,6 +104,9 @@ class App extends React.Component {
       }
     }); */
 
+    shopStore.unsubscribeToGetCartItems &&
+      shopStore.unsubscribeToGetCartItems();
+
     this.executeAuthStateListener();
   }
 

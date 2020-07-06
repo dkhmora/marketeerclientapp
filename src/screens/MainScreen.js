@@ -309,9 +309,9 @@ class MainScreen extends Component {
 
         this.props.generalStore.currentLocation = {...coords};
 
-        this.props.shopStore
-          .getShopList(coordinateGeohash)
-          .then(() => this.setState({ready: true}));
+        this.props.shopStore.getShopList(coordinateGeohash).then(() => {
+            this.setState({ready: true});
+        });
       },
       (err) => console.log(err),
       {

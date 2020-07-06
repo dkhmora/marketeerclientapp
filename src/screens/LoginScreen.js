@@ -11,10 +11,11 @@ import {
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
-import {Icon, SocialIcon, Button} from 'react-native-elements';
+import {Icon, SocialIcon, Button, Overlay} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import BackButton from '../components/BackButton';
+import ForgotPasswordModal from '../components/ForgotPasswordModal';
 
 @inject('authStore')
 @observer
@@ -28,6 +29,7 @@ class LoginScreen extends Component {
       loading: false,
       userCredentialCheck: false,
       secureTextEntry: true,
+      forgotPasswordModal: false,
     };
   }
 
@@ -83,6 +85,11 @@ class LoginScreen extends Component {
       return (
         <View style={[styles.container, {paddingTop: 0}]}>
           <StatusBar animated translucent backgroundColor={colors.statusBar} />
+
+          <ForgotPasswordModal
+            isVisible={this.state.forgotPasswordModal}
+            closeModal={() => this.setState({ forgotPasswordModal: false })}
+          />
 
           <Animatable.View
             duration={800}
@@ -169,6 +176,11 @@ class LoginScreen extends Component {
                   )}
                 </TouchableOpacity>
               </View>
+
+              <TouchableOpacity
+                onPress={() => this.setState({forgotPasswordModal: true})}>
+                <Text style={styles.touchable_text}>Forgot Password?</Text>
+              </TouchableOpacity>
 
               <Button
                 onPress={() => this.handleSignIn()}
