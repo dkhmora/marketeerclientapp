@@ -229,7 +229,7 @@ class authStore {
       );
   }
 
-  @action async signIn(userCredential, password) {
+  @action async signIn(userCredential, password, navigateLocation) {
     const phoneRegexp = new RegExp(/^(09)\d{9}$/);
 
     if (phoneRegexp.test(userCredential)) {
@@ -246,6 +246,7 @@ class authStore {
             .signInWithCustomToken(response.data.t)
             .then(() => {
               this.userAuthenticated = true;
+              navigateLocation;
               Toast({
                 text: 'Signed in successfully',
                 duration: 3500,
@@ -271,14 +272,13 @@ class authStore {
     } else {
       await auth()
         .signInWithEmailAndPassword(userCredential, password)
-        .then(() =>
+        .then(() => {
+          this.userAuthenticated = true;
           Toast({
             text: 'Signed in successfully',
             duration: 3500,
-          }),
-        )
-        .then(() => {
-          this.userAuthenticated = true;
+          });
+          navigateLocation;
         })
         .catch((err) => {
           if (err.code === 'auth/user-not-found') {
