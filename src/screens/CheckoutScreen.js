@@ -78,7 +78,7 @@ class CheckoutScreen extends Component {
       });
 
       const {merchantId} = storeDetails;
-      const userId = this.props.authStore.userId;
+      const {userId} = this.props.authStore;
 
       const orderDetails = {
         reviewed,
@@ -112,6 +112,15 @@ class CheckoutScreen extends Component {
     Toast({text: 'Successfully placed orders!'});
 
     navigation.navigate('Home');
+  }
+
+  componentWillUnmount() {
+    const {userId} = this.props.authStore;
+    const {setCartItems, getCartItems} = this.props.shopStore;
+
+    setCartItems(userId).then(() => {
+      getCartItems(userId);
+    });
   }
 
   render() {

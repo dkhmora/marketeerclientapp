@@ -51,7 +51,11 @@ class App extends React.Component {
 
             if (!authStore.guest) {
               authStore.reloadUser();
-              shopStore.getCartItems(userId);
+
+              if (shopStore.cartStores.length === 0) {
+                shopStore.getCartItems(userId);
+              }
+
               authStore.getUserDetails().then(() => {
                 if (authStore.userDetails.lastDeliveryLocation) {
                   generalStore.deliverToCurrentLocation = false;
