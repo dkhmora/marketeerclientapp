@@ -3,6 +3,7 @@ import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import firestore from '@react-native-firebase/firestore';
 import Toast from '../components/Toast';
+import functions from '@react-native-firebase/functions';
 
 class authStore {
   @observable userAuthenticated = false;
@@ -228,29 +229,69 @@ class authStore {
       );
   }
 
-  @action async signIn(email, password) {
-    await auth()
-      .signInWithEmailAndPassword(email, password)
-      .then(() =>
-        Toast({
-          text: 'Signed in successfully',
-          duration: 3500,
-        }),
-      )
-      .then(() => {
-        this.userAuthenticated = true;
-      })
-      .catch((err) => {
-        if (err.code === 'auth/user-not-found') {
+  @action async signIn(userCredential, password) {
+    const phoneRegexp = new RegExp(/^(09)\d{9}$/);
+
+    if (phoneRegexp.test(userCredential)) {
+      const phoneBody = userCredential.slice(1, 11);
+      const phoneNumber = `+63${phoneBody}`;
+
+      functions()
+        .httpsCallable('signInWithPhoneAndPassword')({
+          phone: phoneNumber,
+          password,
+        })
+        .then((response) => {
+          auth()
+            .signInWithCustomToken(response.data.t)
+            .then(() => {
+              this.userAuthenticated = true;
+              Toast({
+                text: 'Signed in successfully',
+                duration: 3500,
+              });
+            })
+            .catch((err) => {
+              Toast({
+                text: 'Error, something went wrong. Please try again.',
+                duration: 3500,
+              });
+
+              console.log(err);
+            });
+        })
+        .catch((err) => {
           Toast({
-            text:
-              'Wrong username or password. Please create an account or try again.',
-            type: 'danger',
-            duration: 6000,
+            text: 'Error, wrong phone number or password. Please try again.',
+            duration: 3500,
           });
-        }
-        console.log(err);
-      });
+
+          console.log(err);
+        });
+    } else {
+      await auth()
+        .signInWithEmailAndPassword(userCredential, password)
+        .then(() =>
+          Toast({
+            text: 'Signed in successfully',
+            duration: 3500,
+          }),
+        )
+        .then(() => {
+          this.userAuthenticated = true;
+        })
+        .catch((err) => {
+          if (err.code === 'auth/user-not-found') {
+            Toast({
+              text:
+                'Wrong email or password. Please create an account or try again.',
+              type: 'danger',
+              duration: 6000,
+            });
+          }
+          console.log(err);
+        });
+    }
   }
 
   @action async signOut() {

@@ -22,27 +22,27 @@ class LoginScreen extends Component {
     super(props);
 
     this.state = {
-      email: '',
+      userCredential: '',
       password: '',
-      emailCheck: false,
+      userCredentialCheck: false,
       secureTextEntry: true,
     };
   }
 
-  handleEmailChange = (email) => {
+  handleUserCredentialChange = (userCredential) => {
     const regexp = new RegExp(
-      /^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,5})$/,
+      /^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,5})$|^(09)\d{9}$/,
     );
 
-    this.setState({email});
+    this.setState({userCredential});
 
-    if (email.length !== 0 && regexp.test(email)) {
+    if (regexp.test(userCredential)) {
       this.setState({
-        emailCheck: true,
+        userCredentialCheck: true,
       });
     } else {
       this.setState({
-        emailCheck: false,
+        userCredentialCheck: false,
       });
     }
   };
@@ -60,11 +60,11 @@ class LoginScreen extends Component {
   };
 
   handleSignIn() {
-    const {email, password} = this.state;
+    const {userCredential, password} = this.state;
     const {checkout} = this.props.route.params;
     const {navigation} = this.props;
 
-    this.props.authStore.signIn(email, password).then(() => {
+    this.props.authStore.signIn(userCredential, password).then(() => {
       if (checkout) {
         navigation.dangerouslyGetParent().navigate('Checkout');
       } else {
@@ -75,7 +75,7 @@ class LoginScreen extends Component {
 
   render() {
     const {navigation} = this.props;
-    const {emailCheck} = this.state;
+    const {userCredentialCheck} = this.state;
     const {checkout} = this.props.route.params;
     const titleText = checkout ? 'Login to Checkout' : 'Login';
 
@@ -107,7 +107,7 @@ class LoginScreen extends Component {
           <ScrollView>
             <Text style={styles.text_header}>{titleText}</Text>
 
-            <Text style={styles.text_footer}>Email Address</Text>
+            <Text style={styles.text_footer}>Email Address/Phone Number</Text>
 
             <View style={styles.action}>
               <View style={styles.icon_container}>
@@ -115,14 +115,14 @@ class LoginScreen extends Component {
               </View>
 
               <TextInput
-                placeholder="myemail@gmail.com"
+                placeholder="myemail@gmail.com/09991234567"
                 maxLength={256}
                 style={styles.textInput}
                 autoCapitalize="none"
-                onChangeText={(value) => this.handleEmailChange(value)}
+                onChangeText={(value) => this.handleUserCredentialChange(value)}
               />
 
-              {this.state.emailCheck ? (
+              {this.state.userCredentialCheck ? (
                 <Animatable.View useNativeDriver animation="bounceIn">
                   <Icon
                     name="check-circle"
@@ -171,13 +171,13 @@ class LoginScreen extends Component {
               onPress={() => this.handleSignIn()}
               title="Login"
               type="outline"
-              disabled={!emailCheck}
+              disabled={!userCredentialCheck}
               containerStyle={{
                 borderRadius: 24,
                 borderWidth: 1,
                 marginTop: 40,
                 height: 50,
-                borderColor: emailCheck ? colors.primary : 'grey',
+                borderColor: userCredentialCheck ? colors.primary : 'grey',
               }}
               buttonStyle={{height: 50}}
             />
