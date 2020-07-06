@@ -199,6 +199,7 @@ class OrderChatScreen extends Component {
           <GiftedChat
             textStyle={{color: colors.primary}}
             showAvatarForEveryMessage
+            alwaysShowSend
             renderAvatar={this.renderAvatar}
             renderBubble={this.renderBubble}
             renderComposer={this.renderComposer.bind(this)}
