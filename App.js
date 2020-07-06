@@ -50,6 +50,7 @@ class App extends React.Component {
             const userId = user.uid;
 
             if (!authStore.guest) {
+              authStore.reloadUser();
               shopStore.getCartItems(userId);
               authStore.getUserDetails().then(() => {
                 if (authStore.userDetails.lastDeliveryLocation) {

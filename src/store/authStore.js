@@ -60,6 +60,10 @@ class authStore {
     return null;
   }
 
+  @action async reloadUser() {
+    await auth().currentUser.reload();
+  }
+
   @action async getUserDetails() {
     await firestore()
       .collection('users')
