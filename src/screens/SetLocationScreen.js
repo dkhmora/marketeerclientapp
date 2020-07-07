@@ -20,6 +20,7 @@ import * as geolib from 'geolib';
 import Toast from '../components/Toast';
 import BaseHeader from '../components/BaseHeader';
 import RNGooglePlaces from 'react-native-google-places';
+import {computed, observable} from 'mobx';
 
 @inject('authStore')
 @inject('generalStore')
@@ -29,23 +30,38 @@ class SetLocationScreen extends Component {
     super(props);
 
     this.state = {
+      saveChangesLoading: false,
       mapReady: false,
       mapData: null,
       editMode: false,
       loading: false,
-      address: null,
       newMarkerPosition: null,
       centerOfScreen: (Dimensions.get('window').height - 17) / 2,
     };
   }
 
-  componentDidMount() {
-    const {currentLocation} = this.props.generalStore;
+  @observable selectedLocationAddress = null;
 
-    if (!currentLocation) {
-      this.setInitialMarkerPosition();
+  @computed get headerTitle() {
+    const {currentLocationDetails} = this.props.generalStore;
+    const {selectedLocationAddress} = this;
+
+    if (selectedLocationAddress) {
+      return selectedLocationAddress;
+    } else if (currentLocationDetails) {
+      return currentLocationDetails;
     } else {
+      return 'Selected Location';
+    }
+  }
+
+  componentDidMount() {
+    const {currentLocation, setCurrentLocation} = this.props.generalStore;
+
+    if (currentLocation) {
       this.setCoordinates();
+    } else {
+      setCurrentLocation();
     }
   }
 
@@ -72,99 +88,32 @@ class SetLocationScreen extends Component {
     });
   }
 
-  async setInitialMarkerPosition() {
-    await Geolocation.getCurrentPosition(
-      (position) => {
-        const coords = {
-          latitude: parseFloat(position.coords.latitude),
-          longitude: parseFloat(position.coords.longitude),
-        };
-
-        this.setState({
-          markerPosition: {
-            ...coords,
-          },
-          newMarkerPosition: {
-            ...coords,
-          },
-          mapData: {
-            ...coords,
-            latitudeDelta: 0.04,
-            longitudeDelta: 0.05,
-          },
-          circlePosition: {
-            ...coords,
-          },
-          mapReady: true,
-        });
-      },
-      (err) => console.log(err),
-      {
-        timeout: 20000,
-      },
-    );
-  }
-
   async handleSetLocation() {
-    const {newMarkerPosition, address} = this.state;
+    const {newMarkerPosition} = this.state;
     const {navigation} = this.props;
-    const {updateCoordinates, getUserDetails} = this.props.generalStore;
-    const {userId} = this.props.authStore;
     const {checkout} = this.props.route.params;
 
     const coordinatesGeohash = this.getGeohash(newMarkerPosition);
 
     this.setState({loading: true});
 
-    if (!address) {
-      this.setState(
-        {
-          address: await this.props.generalStore.getAddressFromCoordinates({
-            ...newMarkerPosition,
-          }),
-        },
-        () => {
-          if (checkout) {
-            navigation.navigate('Checkout');
+    this.props.generalStore.deliverToCurrentLocation = true;
+    this.props.generalStore.currentLocationDetails = this.selectedLocationAddress;
+    this.props.generalStore.locationGeohash = coordinatesGeohash;
+    this.props.generalStore.currentLocation = newMarkerPosition;
 
-            Toast({text: 'Successfully set location!'});
+    if (checkout) {
+      navigation.navigate('Checkout');
 
-            this.setState({loading: false});
+      Toast({text: 'Successfully set location!'});
 
-            this.props.generalStore.currentLocationDetails = this.state.address;
-            this.props.generalStore.locationGeohash = coordinatesGeohash;
-            this.props.generalStore.currentLocation = newMarkerPosition;
-          } else {
-            Toast({text: 'Successfully set location!'});
-
-            this.setState({loading: false});
-
-            this.props.generalStore.currentLocationDetails = this.state.address;
-            this.props.generalStore.locationGeohash = coordinatesGeohash;
-            this.props.generalStore.currentLocation = newMarkerPosition;
-          }
-        },
-      );
+      this.setState({loading: false});
     } else {
-      if (checkout) {
-        navigation.navigate('Checkout');
+      navigation.navigate('Home');
 
-        Toast({text: 'Successfully set location!'});
+      Toast({text: 'Successfully set location!'});
 
-        this.setState({loading: false});
-
-        this.props.generalStore.currentLocationDetails = this.state.address;
-        this.props.generalStore.locationGeohash = coordinatesGeohash;
-        this.props.generalStore.currentLocation = newMarkerPosition;
-      } else {
-        Toast({text: 'Successfully set location!'});
-
-        this.setState({loading: false});
-
-        this.props.generalStore.currentLocationDetails = this.state.address;
-        this.props.generalStore.locationGeohash = coordinatesGeohash;
-        this.props.generalStore.currentLocation = newMarkerPosition;
-      }
+      this.setState({loading: false});
     }
 
     this.setState({
@@ -261,22 +210,38 @@ class SetLocationScreen extends Component {
       editMode: false,
     });
 
+    this.selectedLocationAddress = null;
+
     this.panMapToMarker();
   }
 
   handleRegionChange = (mapData) => {
     const {editMode} = this.state;
-    const {latitude, longitude} = mapData;
 
     if (editMode) {
       this.setState({
-        newMarkerPosition: {
-          latitude,
-          longitude,
-        },
+        newMarkerPosition: mapData,
       });
+
+      clearTimeout(this.getAddressTimeout);
+
+      this.setSelectedLocationAddress(mapData);
     }
   };
+
+  async setSelectedLocationAddress(mapData) {
+    this.setState({saveChangesLoading: true});
+
+    this.getAddressTimeout = setTimeout(async () => {
+      this.selectedLocationAddress = await this.props.generalStore.getAddressFromCoordinates(
+        {
+          ...mapData,
+        },
+      );
+
+      this.setState({saveChangesLoading: false});
+    }, 1000);
+  }
 
   openSearchModal() {
     RNGooglePlaces.openAutocompleteModal({country: 'PH'}, [
@@ -290,14 +255,13 @@ class SetLocationScreen extends Component {
         this.panMapToLocation(coordinates);
 
         this.setState({
-          address,
           newMarkerPosition: {...coordinates},
           editMode: true,
         });
-        // place represents user's selection from the
-        // suggestions and it is a simplified Google Place object.
+
+        this.props.generalStore.currentLocationDetails = address;
       })
-      .catch((error) => console.log(error.message)); // error is a Javascript Error object
+      .catch((error) => console.log(error.message));
   }
 
   render() {
@@ -309,7 +273,9 @@ class SetLocationScreen extends Component {
       mapReady,
       editMode,
       loading,
+      saveChangesLoading,
     } = this.state;
+    const {headerTitle} = this;
 
     return (
       <View style={{flex: 1}}>
@@ -378,6 +344,9 @@ class SetLocationScreen extends Component {
               />
               <Button
                 title="Save Changes"
+                loading={saveChangesLoading}
+                disabled={saveChangesLoading}
+                disabledStyle={{backgroundColor: colors.accent}}
                 iconLeft
                 icon={<Icon name="save" color={colors.icons} />}
                 onPress={() => this.handleSetLocation()}
@@ -408,7 +377,7 @@ class SetLocationScreen extends Component {
         <BaseHeader
           backButton
           navigation={navigation}
-          title="Delivery Area"
+          title={headerTitle}
           rightComponent={
             <Button
               type="clear"

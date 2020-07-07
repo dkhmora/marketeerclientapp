@@ -23,8 +23,6 @@ import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
 import {inject, observer} from 'mobx-react';
 import MainTab from '../navigation/MainTab';
-import Geolocation from '@react-native-community/geolocation';
-import geohash from 'ngeohash';
 import {computed} from 'mobx';
 
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
@@ -85,12 +83,22 @@ class MainScreen extends Component {
   }
 
   @computed get deliverToText() {
-    const {deliverToCurrentLocation} = this.props.generalStore;
-    const {userDetails} = this.props.generalStore;
+    const {
+      userDetails,
+      currentLocationDetails,
+      deliverToCurrentLocation,
+    } = this.props.generalStore;
 
-    return userDetails.lastDeliveryLocationAddress && !deliverToCurrentLocation
-      ? userDetails.lastDeliveryLocationAddress
-      : 'Current Location';
+    if (deliverToCurrentLocation && currentLocationDetails) {
+      return currentLocationDetails;
+    } else if (
+      userDetails.lastDeliveryLocationAddress &&
+      !deliverToCurrentLocation
+    ) {
+      return userDetails.lastDeliveryLocationAddress;
+    } else {
+      return 'Current Location';
+    }
   }
 
   menuButton = () => {
