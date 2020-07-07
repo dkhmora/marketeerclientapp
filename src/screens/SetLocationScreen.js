@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import MapView, {Circle, Marker} from 'react-native-maps';
+import MapView, {Marker} from 'react-native-maps';
 import {
   View,
   StatusBar,
@@ -7,16 +7,13 @@ import {
   PermissionsAndroid,
   Platform,
   Dimensions,
-  SafeAreaView,
   ActivityIndicator,
 } from 'react-native';
-import {Text, Item, Input, Card, CardItem} from 'native-base';
 import {Icon, Button, Image} from 'react-native-elements';
 import {observer, inject} from 'mobx-react';
 import Geolocation from '@react-native-community/geolocation';
 import {colors} from '../../assets/colors';
 import geohash from 'ngeohash';
-import * as geolib from 'geolib';
 import Toast from '../components/Toast';
 import BaseHeader from '../components/BaseHeader';
 import RNGooglePlaces from 'react-native-google-places';
@@ -32,6 +29,7 @@ class SetLocationScreen extends Component {
 
     this.state = {
       saveChangesLoading: false,
+      previousAddress: this.props.generalStore.currentLocationDetails,
       mapReady: false,
       mapData: null,
       editMode: false,
@@ -82,8 +80,8 @@ class SetLocationScreen extends Component {
       circlePosition: {...currentLocation},
       mapData: {
         ...currentLocation,
-        latitudeDelta: 0.04,
-        longitudeDelta: 0.05,
+        latitudeDelta: 0.009,
+        longitudeDelta: 0.009,
       },
       mapReady: true,
     });
@@ -196,13 +194,16 @@ class SetLocationScreen extends Component {
     this.setState({
       mapData: {
         ...this.state.markerPosition,
-        latitudeDelta: 0.04,
-        longitudeDelta: 0.05,
+        latitudeDelta: 0.009,
+        longitudeDelta: 0.009,
       },
       newMarkerPosition: this.state.markerPosition,
+      previousAddress: this.props.generalStore.currentLocationDetails,
       initialRadius: this.state.radius,
       editMode: true,
     });
+
+    clearTimeout(this.getAddressTimeout);
 
     this.panMapToMarker();
   }
@@ -210,11 +211,15 @@ class SetLocationScreen extends Component {
   handleCancelChanges() {
     const {markerPosition} = this.state;
 
+    this.props.generalStore.currentLocationDetails = this.state.previousAddress;
+
     this.setState({
-      mapData: {...markerPosition, latitudeDelta: 0.04, longitudeDelta: 0.05},
+      mapData: {...markerPosition, latitudeDelta: 0.009, longitudeDelta: 0.009},
       newMarkerPosition: null,
       editMode: false,
     });
+
+    clearTimeout(this.getAddressTimeout);
 
     this.selectedLocationAddress = null;
 
@@ -250,12 +255,8 @@ class SetLocationScreen extends Component {
   }
 
   openSearchModal() {
-    RNGooglePlaces.openAutocompleteModal({country: 'PH'}, [
-      'address',
-      'location',
-    ])
+    RNGooglePlaces.openAutocompleteModal({country: 'PH'}, ['location'])
       .then((place) => {
-        const address = place.address;
         const coordinates = place.location;
 
         this.panMapToLocation(coordinates);
@@ -264,8 +265,6 @@ class SetLocationScreen extends Component {
           newMarkerPosition: {...coordinates},
           editMode: true,
         });
-
-        this.props.generalStore.currentLocationDetails = address;
       })
       .catch((error) => console.log(error.message));
   }
@@ -350,7 +349,7 @@ class SetLocationScreen extends Component {
                 }}
               />
               <Button
-                title="Save Changes"
+                title="Set Location"
                 loading={saveChangesLoading}
                 disabled={saveChangesLoading}
                 disabledStyle={{
