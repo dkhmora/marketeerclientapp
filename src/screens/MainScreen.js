@@ -53,7 +53,7 @@ class MainScreen extends Component {
         from: {translateY: pixelsFromTop},
         to: {translateY: -pixelsFromTop},
       },
-      fadeIn: {
+      fadeInOverlay: {
         from: {
           opacity: 0,
         },
@@ -61,7 +61,7 @@ class MainScreen extends Component {
           opacity: 0.35,
         },
       },
-      fadeOut: {
+      fadeOutOverlay: {
         from: {
           opacity: 0.35,
         },
@@ -283,13 +283,13 @@ class MainScreen extends Component {
   revealLocationMenu() {
     this.setState({locationMenuOpen: true}, () => {
       this.drawer.animate('slideIn');
-      this.overlay.animate('fadeIn');
+      this.overlay.animate('fadeInOverlay');
     });
   }
 
   hideLocationMenu() {
     this.drawer.animate('slideOut');
-    this.overlay.animate('fadeOut').then(() => {
+    this.overlay.animate('fadeOutOverlay').then(() => {
       this.setState({locationMenuOpen: false});
     });
   }

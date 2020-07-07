@@ -46,7 +46,14 @@ class ItemCategoriesTab extends Component {
     }
 
     return (
-      <View style={{flex: 1, paddingHorizontal: 15, paddingVertical: 20}}>
+      <View
+        style={{
+          flex: 1,
+          paddingHorizontal: 15,
+          paddingVertical: 20,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
         <Text style={{fontSize: 18}}>
           Oh no! This store currently has no items yet. Please check back again
           later.
