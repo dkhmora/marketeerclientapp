@@ -231,8 +231,9 @@ class MainScreen extends Component {
           titleStyle={styles.header_topDrawerTitleText}
           subtitle={
             this.props.generalStore.currentLocationDetails &&
-            this.props.generalStore.deliverToCurrentLocation &&
-            this.props.generalStore.currentLocationDetails
+            this.props.generalStore.deliverToCurrentLocation
+              ? this.props.generalStore.currentLocationDetails
+              : null
           }
           leftIcon={<Icon name="map-pin" color={colors.primary} />}
           bottomDivider
@@ -253,8 +254,10 @@ class MainScreen extends Component {
             title="Last Delivery Location"
             titleStyle={styles.header_topDrawerTitleText}
             subtitle={
-              this.props.generalStore.userDetails.lastDeliveryLocationAddress &&
               this.props.generalStore.userDetails.lastDeliveryLocationAddress
+                ? this.props.generalStore.userDetails
+                    .lastDeliveryLocationAddress
+                : null
             }
             subtitleStyle={styles.subtitleStyle}
             leftIcon={<Icon name="navigation" color={colors.primary} />}
@@ -277,8 +280,9 @@ class MainScreen extends Component {
           titleStyle={styles.header_topDrawerTitleText}
           subtitle={
             this.props.generalStore.currentLocationDetails &&
-            this.props.generalStore.deliverToSetLocation &&
-            this.props.generalStore.currentLocationDetails
+            this.props.generalStore.deliverToSetLocation
+              ? this.props.generalStore.currentLocationDetails
+              : null
           }
           leftIcon={<Icon name="map" color={colors.primary} />}
           bottomDivider

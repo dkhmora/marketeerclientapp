@@ -234,7 +234,6 @@ class shopStore {
         .where('vacationMode', '==', false)
         .where('creditData.creditThresholdReached', '==', false)
         .where('deliveryCoordinates.upperRange', '>=', locationGeohash)
-        .limit(10)
         .get()
         .then((querySnapshot) => {
           const list = [];
@@ -245,6 +244,8 @@ class shopStore {
             list[index].merchantId = documentSnapshot.id;
           });
 
+          console.log('list', list);
+
           return list;
         })
         .then((list) => {
@@ -252,6 +253,8 @@ class shopStore {
             (element) =>
               element.deliveryCoordinates.lowerRange <= locationGeohash,
           );
+
+          console.log('finallist', finalList);
 
           this.storeList = finalList;
         })

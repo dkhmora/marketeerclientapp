@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {Text, Item, Input, Card, CardItem} from 'native-base';
-import {Icon, Button} from 'react-native-elements';
+import {Icon, Button, Image} from 'react-native-elements';
 import {observer, inject} from 'mobx-react';
 import Geolocation from '@react-native-community/geolocation';
 import {colors} from '../../assets/colors';
@@ -23,6 +23,7 @@ import RNGooglePlaces from 'react-native-google-places';
 import {computed, observable} from 'mobx';
 
 @inject('authStore')
+@inject('shopStore')
 @inject('generalStore')
 @observer
 class SetLocationScreen extends Component {
@@ -93,7 +94,9 @@ class SetLocationScreen extends Component {
     const {navigation} = this.props;
     const {checkout} = this.props.route.params;
 
-    const coordinatesGeohash = this.getGeohash(newMarkerPosition);
+    const coordinatesGeohash = await this.getGeohash(newMarkerPosition);
+
+    this.props.shopStore.getShopList(coordinatesGeohash);
 
     this.setState({loading: true});
 
@@ -278,6 +281,7 @@ class SetLocationScreen extends Component {
       loading,
       saveChangesLoading,
     } = this.state;
+    const {checkout} = this.props.route.params;
     const {headerTitle} = this;
 
     return (
@@ -367,18 +371,42 @@ class SetLocationScreen extends Component {
               />
             </View>
           ) : (
-            <Button
-              title="Change Delivery Location"
-              iconLeft
-              icon={<Icon name="edit" color={colors.icons} />}
-              onPress={() => this.handleEditDeliveryArea()}
-              titleStyle={{color: colors.icons, marginLeft: 5}}
-              buttonStyle={{backgroundColor: colors.primary}}
-              containerStyle={{
-                borderRadius: 24,
-                overflow: 'hidden',
-              }}
-            />
+            <View>
+              <Button
+                title="Change Delivery Location"
+                iconLeft
+                icon={<Icon name="edit" color={colors.icons} />}
+                onPress={() => this.handleEditDeliveryArea()}
+                titleStyle={{color: colors.icons, marginLeft: 5}}
+                buttonStyle={{backgroundColor: colors.primary}}
+                containerStyle={{
+                  borderRadius: 24,
+                  overflow: 'hidden',
+                }}
+              />
+
+              {checkout && (
+                <Button
+                  title="Proceed to Checkout"
+                  onPress={() => navigation.navigate('Checkout')}
+                  iconLeft
+                  icon={
+                    <Image
+                      source={require('../../assets/images/logo_cart.png')}
+                      style={{width: 27, height: 27, resizeMode: 'center'}}
+                      textStyle={{fontFamily: 'ProductSans-Light'}}
+                    />
+                  }
+                  titleStyle={{color: colors.icons, marginLeft: 5}}
+                  buttonStyle={{backgroundColor: colors.accent}}
+                  containerStyle={{
+                    marginTop: 10,
+                    borderRadius: 24,
+                    overflow: 'hidden',
+                  }}
+                />
+              )}
+            </View>
           )}
         </View>
 

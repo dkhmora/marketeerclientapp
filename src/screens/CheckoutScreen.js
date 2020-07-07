@@ -43,7 +43,48 @@ class CheckoutScreen extends Component {
       currentLocationDetails,
       locationGeohash,
       updateCoordinates,
+      deliverToCurrentLocation,
+      deliverToLastDeliveryLocation,
+      deliverToSetLocation,
+      userDetails,
     } = this.props.generalStore;
+
+    const reviewed = false;
+    const createdAt = new Date().toISOString();
+    const orderStatus = {
+      pending: {
+        status: true,
+        updatedAt: new Date().toISOString(),
+      },
+      unpaid: {
+        status: false,
+      },
+      paid: {
+        status: false,
+      },
+      shipped: {
+        status: false,
+      },
+      completed: {
+        status: false,
+      },
+      cancelled: {
+        status: false,
+      },
+    };
+
+    const {userName, userPhoneNumber} = this.props.authStore;
+
+    let userCoordinates = null;
+    let userAddress = null;
+
+    if (deliverToCurrentLocation || deliverToSetLocation) {
+      userCoordinates = currentLocation;
+      userAddress = currentLocationDetails;
+    } else if (deliverToLastDeliveryLocation) {
+      userCoordinates = userDetails.lastDeliveryLocation;
+      userAddress = userDetails.lastDeliveryLocationAddress;
+    }
 
     this.setState({loading: true});
 
@@ -61,32 +102,6 @@ class CheckoutScreen extends Component {
         const paymentMethod = this.props.shopStore.storeSelectedPaymentMethod[
           storeName
         ];
-        const reviewed = false;
-        const userCoordinates = currentLocation;
-        const userAddress = currentLocationDetails;
-        const {userName, userPhoneNumber} = this.props.authStore;
-        const createdAt = new Date().toISOString();
-        const orderStatus = {
-          pending: {
-            status: true,
-            updatedAt: new Date().toISOString(),
-          },
-          unpaid: {
-            status: false,
-          },
-          paid: {
-            status: false,
-          },
-          shipped: {
-            status: false,
-          },
-          completed: {
-            status: false,
-          },
-          cancelled: {
-            status: false,
-          },
-        };
 
         await this.props.shopStore.storeCartItems[storeName].map((item) => {
           quantity = item.quantity + quantity;
@@ -136,12 +151,10 @@ class CheckoutScreen extends Component {
         );
       })
       .then(() => {
-        this.props.generalStore.deliverToCurrentLocation = false;
-      })
-      .then(() => {
         this.setState({loading: false});
 
-        Toast({text: 'Orders Placed! Thank you for shopping!'});
+        Toast({text: 'Orders Placed! Thank you for shopping at Marketeer!'});
+
         navigation.navigate('Home');
       });
   }
