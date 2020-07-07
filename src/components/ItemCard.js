@@ -33,21 +33,6 @@ class ItemCard extends Component {
       writeTimer: null,
       overlay: false,
     };
-
-    Animatable.initializeRegistryWithDefinitions({
-      transformPlusButton: {
-        from: {borderBottomLeftRadius: 24, borderTopLeftRadius: 24},
-        to: {borderBottomLeftRadius: 0, borderTopLeftRadius: 0},
-      },
-      deTransformPlusButton: {
-        from: {borderBottomLeftRadius: 0, borderTopLeftRadius: 0},
-        to: {borderBottomLeftRadius: 24, borderTopLeftRadius: 24},
-      },
-      fadeIn: {
-        from: {opacity: 0},
-        to: {opacity: 1},
-      },
-    });
   }
 
   @observable url = null;
@@ -102,11 +87,15 @@ class ItemCard extends Component {
     if (this.props.item.image) {
       this.setState({loading: true});
 
-      this.getImage().then(() => this.setState({loading: false}));
-    }
-
-    if (this.cartItemQuantity >= 1) {
-      this.showMinusButton();
+      this.getImage()
+        .then(() => {
+          this.setState({loading: false});
+        })
+        .then(() => {
+          if (this.cartItemQuantity >= 1) {
+            this.showMinusButton();
+          }
+        });
     }
   }
 

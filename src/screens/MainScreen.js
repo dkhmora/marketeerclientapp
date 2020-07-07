@@ -45,6 +45,18 @@ class MainScreen extends Component {
     };
 
     Animatable.initializeRegistryWithDefinitions({
+      transformPlusButton: {
+        from: {borderBottomLeftRadius: 24, borderTopLeftRadius: 24},
+        to: {borderBottomLeftRadius: 0, borderTopLeftRadius: 0},
+      },
+      deTransformPlusButton: {
+        from: {borderBottomLeftRadius: 0, borderTopLeftRadius: 0},
+        to: {borderBottomLeftRadius: 24, borderTopLeftRadius: 24},
+      },
+      fadeIn: {
+        from: {opacity: 0},
+        to: {opacity: 1},
+      },
       slideIn: {
         from: {translateY: -pixelsFromTop},
         to: {translateY: pixelsFromTop},
