@@ -15,7 +15,6 @@ import {Icon, Button} from 'react-native-elements';
 import {observer, inject} from 'mobx-react';
 import Geolocation from '@react-native-community/geolocation';
 import {colors} from '../../assets/colors';
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import geohash from 'ngeohash';
 import * as geolib from 'geolib';
 import Toast from '../components/Toast';
@@ -233,6 +232,8 @@ class SetLocationScreen extends Component {
       ).then((granted) => {
         console.log(granted); // just to ensure that permissions were granted
       });
+    } else {
+      Geolocation.requestAuthorization();
     }
   };
 

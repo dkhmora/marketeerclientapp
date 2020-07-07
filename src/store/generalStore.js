@@ -8,6 +8,7 @@ import Geolocation from '@react-native-community/geolocation';
 import geohash from 'ngeohash';
 import firebase from '@react-native-firebase/app';
 import '@react-native-firebase/functions';
+import {Platform, PermissionsAndroid} from 'react-native';
 
 const functions = firebase.app().functions('asia-northeast1');
 class generalStore {
@@ -36,6 +37,16 @@ class generalStore {
 
   @action setCurrentLocation() {
     return new Promise((resolve, reject) => {
+      if (Platform.OS === 'ios') {
+        Geolocation.requestAuthorization();
+      } else {
+        PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        ).then((granted) => {
+          console.log(granted); // just to ensure that permissions were granted
+        });
+      }
+
       Geolocation.getCurrentPosition(
         (position) => {
           this.deliverToCurrentLocation = true;

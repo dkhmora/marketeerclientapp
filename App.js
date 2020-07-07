@@ -56,10 +56,6 @@ class App extends React.Component {
               generalStore
                 .getUserDetails(userId)
                 .then(() => {
-                  console.log(
-                    'yes',
-                    generalStore.userDetails.lastDeliveryLocation,
-                  );
                   if (generalStore.userDetails.lastDeliveryLocation) {
                     return generalStore.setLastDeliveryLocation();
                   }
@@ -73,6 +69,12 @@ class App extends React.Component {
                       generalStore.appReady = true;
                     });
                 });
+            } else {
+              generalStore.setCurrentLocation().then(() => {
+                shopStore.getShopList(generalStore.locationGeohash).then(() => {
+                  generalStore.appReady = true;
+                });
+              });
             }
 
             AppState.addEventListener('change', (state) => {
