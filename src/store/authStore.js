@@ -3,11 +3,11 @@ import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import firestore from '@react-native-firebase/firestore';
 import Toast from '../components/Toast';
-import functions from '@react-native-firebase/functions';
+import '@react-native-firebase/functions';
 
+const functions = firebase.app().functions('asia-northeast1');
 class authStore {
   @observable userAuthenticated = false;
-  @observable userDetails = {};
 
   @computed get guest() {
     if (auth().currentUser) {
@@ -84,22 +84,6 @@ class authStore {
 
   @action async reloadUser() {
     await auth().currentUser.reload();
-  }
-
-  @action async getUserDetails() {
-    await firestore()
-      .collection('users')
-      .doc(this.userId)
-      .get()
-      .then((document) => {
-        if (document.exists) {
-          console.log(document.data());
-          this.userDetails = document.data();
-        }
-
-        return null;
-      })
-      .catch((err) => console.log(err));
   }
 
   @action async updateEmailAddress(email, currentPassword) {
@@ -262,7 +246,7 @@ class authStore {
       const phoneBody = userCredential.slice(1, 11);
       const phoneNumber = `+63${phoneBody}`;
 
-      functions()
+      functions
         .httpsCallable('signInWithPhoneAndPassword')({
           phone: phoneNumber,
           password,

@@ -53,9 +53,9 @@ class SetLocationScreen extends Component {
   getGeohash = (coordinates) => {
     const {latitude, longitude} = coordinates;
 
-    const coordinateGeohash = geohash.encode(latitude, longitude, 20);
+    const coordinatesGeohash = geohash.encode(latitude, longitude, 20);
 
-    return coordinateGeohash;
+    return coordinatesGeohash;
   };
 
   setCoordinates() {
@@ -109,11 +109,11 @@ class SetLocationScreen extends Component {
   async handleSetLocation() {
     const {newMarkerPosition, address} = this.state;
     const {navigation} = this.props;
-    const {updateCoordinates} = this.props.generalStore;
-    const {userId, getUserDetails} = this.props.authStore;
+    const {updateCoordinates, getUserDetails} = this.props.generalStore;
+    const {userId} = this.props.authStore;
     const {checkout} = this.props.route.params;
 
-    const coordinateGeohash = this.getGeohash(newMarkerPosition);
+    const coordinatesGeohash = this.getGeohash(newMarkerPosition);
 
     this.setState({loading: true});
 
@@ -126,58 +126,44 @@ class SetLocationScreen extends Component {
         },
         () => {
           if (checkout) {
-            updateCoordinates(
-              userId,
-              coordinateGeohash,
-              this.state.address,
-            ).then(() => {
-              navigation.navigate('Home');
+            navigation.navigate('Checkout');
 
-              getUserDetails();
+            Toast({text: 'Successfully set location!'});
 
-              Toast({text: 'Successfully set location!'});
+            this.setState({loading: false});
 
-              this.setState({loading: false});
-
-              this.props.generalStore.currentLocationDetails = this.state.address;
-              this.props.authStore.setLocationGeohash = coordinateGeohash;
-              this.props.generalStore.currentLocation = newMarkerPosition;
-            });
+            this.props.generalStore.currentLocationDetails = this.state.address;
+            this.props.generalStore.locationGeohash = coordinatesGeohash;
+            this.props.generalStore.currentLocation = newMarkerPosition;
           } else {
             Toast({text: 'Successfully set location!'});
 
             this.setState({loading: false});
 
             this.props.generalStore.currentLocationDetails = this.state.address;
-            this.props.authStore.setLocationGeohash = coordinateGeohash;
+            this.props.generalStore.locationGeohash = coordinatesGeohash;
             this.props.generalStore.currentLocation = newMarkerPosition;
           }
         },
       );
     } else {
       if (checkout) {
-        updateCoordinates(userId, coordinateGeohash, this.state.address).then(
-          () => {
-            navigation.navigate('Home');
+        navigation.navigate('Checkout');
 
-            getUserDetails();
+        Toast({text: 'Successfully set location!'});
 
-            Toast({text: 'Successfully set location!'});
+        this.setState({loading: false});
 
-            this.setState({loading: false});
-
-            this.props.generalStore.currentLocationDetails = this.state.address;
-            this.props.authStore.setLocationGeohash = coordinateGeohash;
-            this.props.generalStore.currentLocation = newMarkerPosition;
-          },
-        );
+        this.props.generalStore.currentLocationDetails = this.state.address;
+        this.props.generalStore.locationGeohash = coordinatesGeohash;
+        this.props.generalStore.currentLocation = newMarkerPosition;
       } else {
         Toast({text: 'Successfully set location!'});
 
         this.setState({loading: false});
 
         this.props.generalStore.currentLocationDetails = this.state.address;
-        this.props.authStore.setLocationGeohash = coordinateGeohash;
+        this.props.generalStore.locationGeohash = coordinatesGeohash;
         this.props.generalStore.currentLocation = newMarkerPosition;
       }
     }

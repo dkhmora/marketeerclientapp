@@ -25,6 +25,7 @@ import {inject, observer} from 'mobx-react';
 import MainTab from '../navigation/MainTab';
 import Geolocation from '@react-native-community/geolocation';
 import geohash from 'ngeohash';
+import {computed} from 'mobx';
 
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
 const pixelsFromTop = getStatusBarHeight() + headerHeight;
@@ -39,7 +40,6 @@ class MainScreen extends Component {
     this.state = {
       locationMenuOpen: false,
       initialPosition: -200,
-      ready: false,
       image: '',
       url: '',
     };
@@ -70,6 +70,15 @@ class MainScreen extends Component {
         },
       },
     });
+  }
+
+  @computed get deliverToText() {
+    const {deliverToCurrentLocation} = this.props.generalStore;
+    const {userDetails} = this.props.generalStore;
+
+    return userDetails.lastDeliveryLocationAddress && !deliverToCurrentLocation
+      ? userDetails.lastDeliveryLocationAddress
+      : 'Current Location';
   }
 
   menuButton = () => {
@@ -132,10 +141,7 @@ class MainScreen extends Component {
     );
   };
 
-  centerComponent = () => {
-    const {centerComponent, title} = this.props;
-    const {currentLocation, deliverToCurrentLocation} = this.props.generalStore;
-    const {userDetails} = this.props.authStore;
+  centerComponent = ({deliverToText}) => {
     const {locationMenuOpen} = this.state;
 
     return (
@@ -170,11 +176,7 @@ class MainScreen extends Component {
               flexWrap: 'wrap',
               flexShrink: 1,
             }}>
-            {userDetails.lastDeliveryLocation &&
-            userDetails.locationDetails &&
-            !deliverToCurrentLocation
-              ? userDetails.locationDetails.formatted_address
-              : 'Current Location'}
+            {deliverToText}
           </Text>
         </View>
       </TouchableOpacity>
@@ -207,19 +209,18 @@ class MainScreen extends Component {
             )
           }
           onPress={() => {
-            this.props.generalStore.deliverToCurrentLocation = true;
+            this.props.generalStore.setCurrentLocation();
             this.hideLocationMenu();
           }}
         />
 
-        {this.props.authStore.userDetails.lastDeliveryLocation && (
+        {this.props.generalStore.userDetails.lastDeliveryLocation && (
           <ListItem
             title="Last Delivery Location"
             titleStyle={styles.header_topDrawerTitleText}
             subtitle={
-              this.props.authStore.userDetails.locationDetails
-                .formatted_address &&
-              this.props.authStore.userDetails.locationDetails.formatted_address
+              this.props.generalStore.userDetails.lastDeliveryLocationAddress &&
+              this.props.generalStore.userDetails.lastDeliveryLocationAddress
             }
             subtitleStyle={styles.subtitleStyle}
             leftIcon={<Icon name="navigation" color={colors.primary} />}
@@ -231,7 +232,7 @@ class MainScreen extends Component {
               )
             }
             onPress={() => {
-              this.props.generalStore.deliverToCurrentLocation = false;
+              this.props.generalStore.setLastDeliveryLocation();
               this.hideLocationMenu();
             }}
           />
@@ -293,37 +294,10 @@ class MainScreen extends Component {
     });
   }
 
-  componentDidMount() {
-    Geolocation.getCurrentPosition(
-      (position) => {
-        const coords = {
-          latitude: parseFloat(position.coords.latitude),
-          longitude: parseFloat(position.coords.longitude),
-        };
-
-        const coordinateGeohash = geohash.encode(
-          coords.latitude,
-          coords.longitude,
-          20,
-        );
-
-        this.props.generalStore.currentLocation = {...coords};
-
-        this.props.shopStore.getShopList(coordinateGeohash).then(() => {
-            this.setState({ready: true});
-        });
-      },
-      (err) => console.log(err),
-      {
-        timeout: 20000,
-      },
-    );
-  }
-
   render() {
-    const {navigation} = this.props;
-    const {locationMenuOpen, ready} = this.state;
-    const dataSource = this.props.shopStore.storeList.slice();
+    const {locationMenuOpen} = this.state;
+    const {appReady} = this.props.generalStore;
+    const {deliverToText} = this;
 
     return (
       <View style={styles.container}>
@@ -332,7 +306,7 @@ class MainScreen extends Component {
             flex: 1,
             marginTop: pixelsFromTop,
           }}>
-          {ready ? (
+          {appReady ? (
             <MainTab />
           ) : (
             <View
@@ -346,7 +320,7 @@ class MainScreen extends Component {
         <Header
           placement={Platform.OS === 'ios' ? 'center' : 'left'}
           leftComponent={this.menuButton}
-          centerComponent={this.centerComponent}
+          centerComponent={this.centerComponent({deliverToText})}
           rightComponent={this.rightComponent({
             cartQuantity: this.props.shopStore.totalCartItemQuantity,
           })}

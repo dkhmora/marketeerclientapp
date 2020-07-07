@@ -225,34 +225,38 @@ class shopStore {
       .catch((err) => console.log(err));
   }
 
-  @action async getShopList(coordinateGeohash) {
-    await merchantsCollection
-      .where('visibleToPublic', '==', true)
-      .where('vacationMode', '==', false)
-      .where('creditData.creditThresholdReached', '==', false)
-      .where('deliveryCoordinates.upperRange', '>=', coordinateGeohash)
-      .limit(10)
-      .get()
-      .then((querySnapshot) => {
-        const list = [];
+  @action async getShopList(locationGeohash) {
+    console.log('getshoplist', locationGeohash);
 
-        querySnapshot.forEach((documentSnapshot, index) => {
-          list.push(documentSnapshot.data());
+    if (locationGeohash) {
+      await merchantsCollection
+        .where('visibleToPublic', '==', true)
+        .where('vacationMode', '==', false)
+        .where('creditData.creditThresholdReached', '==', false)
+        .where('deliveryCoordinates.upperRange', '>=', locationGeohash)
+        .limit(10)
+        .get()
+        .then((querySnapshot) => {
+          const list = [];
 
-          list[index].merchantId = documentSnapshot.id;
-        });
+          querySnapshot.forEach((documentSnapshot, index) => {
+            list.push(documentSnapshot.data());
 
-        return list;
-      })
-      .then((list) => {
-        const finalList = list.filter(
-          (element) =>
-            element.deliveryCoordinates.lowerRange <= coordinateGeohash,
-        );
+            list[index].merchantId = documentSnapshot.id;
+          });
 
-        this.storeList = finalList;
-      })
-      .catch((err) => console.log(err));
+          return list;
+        })
+        .then((list) => {
+          const finalList = list.filter(
+            (element) =>
+              element.deliveryCoordinates.lowerRange <= locationGeohash,
+          );
+
+          this.storeList = finalList;
+        })
+        .catch((err) => console.log(err));
+    }
   }
 
   @action async setStoreItems(merchantId, storeName) {

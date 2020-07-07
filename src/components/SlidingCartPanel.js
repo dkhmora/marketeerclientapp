@@ -41,7 +41,7 @@ class SlidingCartPanel extends Component {
       if (this.props.authStore.guest) {
         navigation.navigate('Auth', {checkout: true});
       } else {
-        navigation.navigate('Checkout');
+        navigation.navigate('Set Location', {checkout: true});
       }
     });
   }

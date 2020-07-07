@@ -53,11 +53,26 @@ class App extends React.Component {
                 shopStore.getCartItems(userId);
               }
 
-              authStore.getUserDetails().then(() => {
-                if (authStore.userDetails.lastDeliveryLocation) {
-                  generalStore.deliverToCurrentLocation = false;
-                }
-              });
+              generalStore
+                .getUserDetails(userId)
+                .then(() => {
+                  console.log(
+                    'yes',
+                    generalStore.userDetails.lastDeliveryLocation,
+                  );
+                  if (generalStore.userDetails.lastDeliveryLocation) {
+                    return generalStore.setLastDeliveryLocation();
+                  }
+
+                  return generalStore.setCurrentLocation();
+                })
+                .then(() => {
+                  shopStore
+                    .getShopList(generalStore.locationGeohash)
+                    .then(() => {
+                      generalStore.appReady = true;
+                    });
+                });
             }
 
             AppState.addEventListener('change', (state) => {
