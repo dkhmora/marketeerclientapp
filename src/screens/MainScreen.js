@@ -87,13 +87,17 @@ class MainScreen extends Component {
       userDetails,
       currentLocationDetails,
       deliverToCurrentLocation,
+      deliverToSetLocation,
+      deliverToLastDeliveryLocation,
     } = this.props.generalStore;
 
     if (deliverToCurrentLocation && currentLocationDetails) {
       return currentLocationDetails;
+    } else if (deliverToSetLocation && currentLocationDetails) {
+      return currentLocationDetails;
     } else if (
       userDetails.lastDeliveryLocationAddress &&
-      !deliverToCurrentLocation
+      deliverToLastDeliveryLocation
     ) {
       return userDetails.lastDeliveryLocationAddress;
     } else {
@@ -187,17 +191,22 @@ class MainScreen extends Component {
             alignItems: 'center',
           }}>
           <Text style={styles.header_titleText}>Deliver To: </Text>
-          <Text
-            numberOfLines={1}
-            style={{
-              color: colors.icons,
-              fontSize: 18,
-              fontFamily: 'ProductSans-Black',
-              flexWrap: 'wrap',
-              flexShrink: 1,
-            }}>
-            {deliverToText}
-          </Text>
+
+          {!this.props.generalStore.addressLoading ? (
+            <Text
+              numberOfLines={1}
+              style={{
+                color: colors.icons,
+                fontSize: 18,
+                fontFamily: 'ProductSans-Black',
+                flexWrap: 'wrap',
+                flexShrink: 1,
+              }}>
+              {deliverToText}
+            </Text>
+          ) : (
+            <ActivityIndicator size="small" color={colors.icons} />
+          )}
         </View>
       </TouchableOpacity>
     );
@@ -220,6 +229,11 @@ class MainScreen extends Component {
         <ListItem
           title="Current Location"
           titleStyle={styles.header_topDrawerTitleText}
+          subtitle={
+            this.props.generalStore.currentLocationDetails &&
+            this.props.generalStore.deliverToCurrentLocation &&
+            this.props.generalStore.currentLocationDetails
+          }
           leftIcon={<Icon name="map-pin" color={colors.primary} />}
           bottomDivider
           chevron
@@ -247,7 +261,7 @@ class MainScreen extends Component {
             bottomDivider
             chevron
             checkmark={
-              !this.props.generalStore.deliverToCurrentLocation && (
+              this.props.generalStore.deliverToLastDeliveryLocation && (
                 <Icon name="check" color={colors.primary} />
               )
             }
@@ -259,11 +273,21 @@ class MainScreen extends Component {
         )}
 
         <ListItem
-          title="Edit Current Location"
+          title="Set Location"
           titleStyle={styles.header_topDrawerTitleText}
+          subtitle={
+            this.props.generalStore.currentLocationDetails &&
+            this.props.generalStore.deliverToSetLocation &&
+            this.props.generalStore.currentLocationDetails
+          }
           leftIcon={<Icon name="map" color={colors.primary} />}
           bottomDivider
           chevron
+          checkmark={
+            this.props.generalStore.deliverToSetLocation && (
+              <Icon name="check" color={colors.primary} />
+            )
+          }
           onPress={() => {
             navigation.navigate('Set Location', {checkout: false});
             this.hideLocationMenu();

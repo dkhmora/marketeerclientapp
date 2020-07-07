@@ -19,9 +19,12 @@ class generalStore {
   @observable unsubscribeGetMessages = null;
   @observable currentLocation = null;
   @observable currentLocationDetails = null;
-  @observable deliverToCurrentLocation = true;
+  @observable deliverToCurrentLocation = false;
+  @observable deliverToLastDeliveryLocation = true;
+  @observable deliverToSetLocation = false;
   @observable locationGeohash = null;
   @observable userDetails = {};
+  @observable addressLoading = false;
 
   @action async getAddressFromCoordinates({latitude, longitude}) {
     return await functions
@@ -35,7 +38,7 @@ class generalStore {
       });
   }
 
-  @action setCurrentLocation() {
+  @action async setCurrentLocation() {
     return new Promise((resolve, reject) => {
       if (Platform.OS === 'ios') {
         Geolocation.requestAuthorization();
@@ -47,9 +50,13 @@ class generalStore {
         });
       }
 
+      this.addressLoading = true;
+
       Geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           this.deliverToCurrentLocation = true;
+          this.deliverToSetLocation = false;
+          this.deliverToLastDeliveryLocation = false;
 
           const coords = {
             latitude: parseFloat(position.coords.latitude),
@@ -61,6 +68,10 @@ class generalStore {
             coords.longitude,
             20,
           );
+
+          this.currentLocationDetails = await this.getAddressFromCoordinates({
+            ...coords,
+          });
 
           this.currentLocation = {...coords};
 
@@ -74,11 +85,15 @@ class generalStore {
           timeout: 20000,
         },
       );
+    }).then(() => {
+      this.addressLoading = false;
     });
   }
 
   @action async setLastDeliveryLocation() {
     this.deliverToCurrentLocation = false;
+    this.deliverToSetLocation = false;
+    this.deliverToLastDeliveryLocation = true;
 
     this.locationGeohash = this.userDetails.lastDeliveryLocationGeohash;
     this.currentLocation = this.userDetails.lastDeliveryLocation;

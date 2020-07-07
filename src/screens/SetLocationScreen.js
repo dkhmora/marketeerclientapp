@@ -97,7 +97,10 @@ class SetLocationScreen extends Component {
 
     this.setState({loading: true});
 
-    this.props.generalStore.deliverToCurrentLocation = true;
+    this.props.generalStore.deliverToCurrentLocation = false;
+    this.props.generalStore.deliverToLastDeliveryLocation = false;
+    this.props.generalStore.deliverToSetLocation = true;
+
     this.props.generalStore.currentLocationDetails = this.selectedLocationAddress;
     this.props.generalStore.locationGeohash = coordinatesGeohash;
     this.props.generalStore.currentLocation = newMarkerPosition;
@@ -346,7 +349,12 @@ class SetLocationScreen extends Component {
                 title="Save Changes"
                 loading={saveChangesLoading}
                 disabled={saveChangesLoading}
-                disabledStyle={{backgroundColor: colors.accent}}
+                disabledStyle={{
+                  backgroundColor: colors.accent,
+                  borderRadius: 24,
+                  width: 40,
+                  overflow: 'hidden',
+                }}
                 iconLeft
                 icon={<Icon name="save" color={colors.icons} />}
                 onPress={() => this.handleSetLocation()}
