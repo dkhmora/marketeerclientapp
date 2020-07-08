@@ -38,6 +38,33 @@ class generalStore {
       });
   }
 
+  @action async getUserLocation() {
+    return new Promise((resolve, reject) => {
+      if (Platform.OS === 'ios') {
+        Geolocation.requestAuthorization();
+      } else {
+        PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        ).then((granted) => {
+          console.log(granted); // just to ensure that permissions were granted
+        });
+      }
+
+      Geolocation.getCurrentPosition(
+        async (position) => {
+          resolve(position.coords);
+        },
+        (err) => {
+          console.log(err);
+          reject();
+        },
+        {
+          timeout: 20000,
+        },
+      );
+    });
+  }
+
   @action async setCurrentLocation() {
     return new Promise((resolve, reject) => {
       if (Platform.OS === 'ios') {
@@ -107,7 +134,6 @@ class generalStore {
       .get()
       .then((document) => {
         if (document.exists) {
-          console.log(document.data());
           this.userDetails = document.data();
         }
 

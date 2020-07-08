@@ -1,6 +1,11 @@
 import {observable, action, computed} from 'mobx';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import firebase from '@react-native-firebase/app';
+import '@react-native-firebase/functions';
+import Toast from '../components/Toast';
+
+const functions = firebase.app().functions('asia-northeast1');
 
 const userCartCollection = firestore().collection('user_carts');
 const merchantsCollection = firestore().collection('merchants');
@@ -94,24 +99,32 @@ class shopStore {
       });
   }
 
-  @action async placeOrder(orderDetails, orderItems) {
-    const userOrdersRef = firestore().collection('orders');
-    const orderItemsRef = firestore().collection('order_items');
-    const batch = firestore().batch();
-    const id = userOrdersRef.doc().id;
-
-    batch.set(orderItemsRef.doc(id), {items: orderItems});
-    batch.set(userOrdersRef.doc(id), {...orderDetails});
-
-    return batch.commit();
-  }
-
-  @action async deleteCartStore(storeName, userId) {
-    firestore()
-      .collection('user_carts')
-      .doc(userId)
-      .update({[storeName]: firestore.FieldValue.delete()})
-      .then(() => console.log(`Successfully deleted ${storeName} in cart!`));
+  @action async placeOrder({
+    deliveryCoordinates,
+    deliveryAddress,
+    userCoordinates,
+    userName,
+    userPhoneNumber,
+    userId,
+    storeCartItems,
+    storeSelectedShipping,
+    storeSelectedPaymentMethod,
+    orderStoreList,
+  }) {
+    return await functions.httpsCallable('placeOrder')({
+      orderInfo: JSON.stringify({
+        deliveryCoordinates,
+        deliveryAddress,
+        userCoordinates,
+        userName,
+        userPhoneNumber,
+        userId,
+        storeCartItems,
+        storeSelectedShipping,
+        storeSelectedPaymentMethod,
+        orderStoreList,
+      }),
+    });
   }
 
   @action resetData() {
@@ -226,8 +239,6 @@ class shopStore {
   }
 
   @action async getShopList(locationGeohash) {
-    console.log('getshoplist', locationGeohash);
-
     if (locationGeohash) {
       await merchantsCollection
         .where('visibleToPublic', '==', true)
@@ -244,8 +255,6 @@ class shopStore {
             list[index].merchantId = documentSnapshot.id;
           });
 
-          console.log('list', list);
-
           return list;
         })
         .then((list) => {
@@ -253,8 +262,6 @@ class shopStore {
             (element) =>
               element.deliveryCoordinates.lowerRange <= locationGeohash,
           );
-
-          console.log('finallist', finalList);
 
           this.storeList = finalList;
         })
