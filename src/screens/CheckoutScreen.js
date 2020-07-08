@@ -100,14 +100,21 @@ class CheckoutScreen extends Component {
       .then(() => {
         this.setState({loading: false});
 
-        Toast({text: 'Orders Placed! Thank you for shopping at Marketeer!'});
+        Toast({
+          text: 'Orders Placed! Thank you for shopping at Marketeer!',
+          duration: 5000,
+        });
 
         navigation.navigate('Home');
       })
       .catch((err) => {
         navigation.navigate('Home');
 
-        Toast({text: `Error, something went wrong. (${err})`, type: 'danger'});
+        Toast({
+          text: `Error, something went wrong. (${err})`,
+          type: 'danger',
+          duration: 8000,
+        });
       });
   }
 

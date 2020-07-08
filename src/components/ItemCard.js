@@ -27,7 +27,7 @@ class ItemCard extends Component {
     const itemStock = item.stock;
 
     this.state = {
-      loading: false,
+      loading: this.props.item.image ? true : false,
       addButtonDisabled: itemQuantity >= itemStock ? true : false,
       minusButtonShown: itemQuantity > 0 ? true : false,
       writeTimer: null,
@@ -85,8 +85,6 @@ class ItemCard extends Component {
 
   componentDidMount() {
     if (this.props.item.image) {
-      this.setState({loading: true});
-
       this.getImage()
         .then(() => {
           this.setState({loading: false});
@@ -124,7 +122,7 @@ class ItemCard extends Component {
 
         this.props.shopStore.cartUpdateTimeout = setTimeout(() => {
           this.props.shopStore.updateCartItems();
-        }, 3000);
+        }, 2500);
       }
     }
 
@@ -146,7 +144,7 @@ class ItemCard extends Component {
 
       this.props.shopStore.cartUpdateTimeout = setTimeout(() => {
         this.props.shopStore.updateCartItems();
-      }, 3000);
+      }, 2500);
     }
 
     if (this.cartItemQuantity <= 0 && this.state.minusButtonShown) {

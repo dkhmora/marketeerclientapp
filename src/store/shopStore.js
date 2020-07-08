@@ -111,20 +111,30 @@ class shopStore {
     storeSelectedPaymentMethod,
     orderStoreList,
   }) {
-    return await functions.httpsCallable('placeOrder')({
-      orderInfo: JSON.stringify({
-        deliveryCoordinates,
-        deliveryAddress,
-        userCoordinates,
-        userName,
-        userPhoneNumber,
-        userId,
-        storeCartItems,
-        storeSelectedShipping,
-        storeSelectedPaymentMethod,
-        orderStoreList,
-      }),
-    });
+    this.cartUpdateTimeout ? clearTimeout(this.cartUpdateTimeout) : null;
+
+    return await functions
+      .httpsCallable('placeOrder')({
+        orderInfo: JSON.stringify({
+          deliveryCoordinates,
+          deliveryAddress,
+          userCoordinates,
+          userName,
+          userPhoneNumber,
+          userId,
+          storeCartItems,
+          storeSelectedShipping,
+          storeSelectedPaymentMethod,
+          orderStoreList,
+        }),
+      })
+      .then(() => {
+        console.log('reset');
+        this.resetData();
+      })
+      .then(() => {
+        console.log(this.storeCartItems);
+      });
   }
 
   @action resetData() {
@@ -232,10 +242,17 @@ class shopStore {
   @action async updateCartItems() {
     const userId = auth().currentUser.uid;
 
-    await userCartCollection
-      .doc(userId)
-      .update({...this.storeCartItems})
-      .catch((err) => console.log(err));
+    if (Object.keys(this.storeCartItems).length > 0) {
+      await userCartCollection
+        .doc(userId)
+        .update({...this.storeCartItems})
+        .catch((err) => console.log(err));
+    } else {
+      await userCartCollection
+        .doc(userId)
+        .set({})
+        .catch((err) => console.log(err));
+    }
   }
 
   @action async getShopList(locationGeohash) {
