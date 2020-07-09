@@ -108,10 +108,10 @@ class CheckoutScreen extends Component {
         navigation.navigate('Home');
       })
       .catch((err) => {
-        navigation.navigate('Home');
+        navigation.navigate('Cart');
 
         Toast({
-          text: `Error, something went wrong. (${err})`,
+          text: `Error, something went wrong. Please check your cart if all items have stock left, then re-order.`,
           type: 'danger',
           duration: 8000,
         });

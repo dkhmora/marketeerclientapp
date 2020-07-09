@@ -248,10 +248,12 @@ class generalStore {
       .catch((err) => console.log(err));
   }
 
-  @action setOrders(userId) {
-    firestore()
+  @action async setOrders(userId, limit) {
+    return await firestore()
       .collection('orders')
       .where('userId', '==', userId)
+      .orderBy('userOrderNumber', 'desc')
+      .limit(limit)
       .get()
       .then((querySnapshot) => {
         const data = [];
@@ -260,7 +262,31 @@ class generalStore {
           data.push(doc.data());
           data[index].orderId = doc.id;
         });
+
         this.orders = data;
+      })
+      .catch((err) => console.log(err));
+  }
+
+  @action async retrieveMoreOrders(userId, limit, lastVisible) {
+    console.log('retrieve limit', limit);
+    console.log('retrieve lastVisible', lastVisible);
+    return await firestore()
+      .collection('orders')
+      .where('userId', '==', userId)
+      .orderBy('userOrderNumber', 'desc')
+      .startAfter(lastVisible)
+      .limit(limit)
+      .get()
+      .then((querySnapshot) => {
+        const data = [];
+
+        querySnapshot.forEach((doc, index) => {
+          data.push(doc.data());
+          data[index].orderId = doc.id;
+        });
+
+        this.orders = [...this.orders, ...data];
       })
       .catch((err) => console.log(err));
   }

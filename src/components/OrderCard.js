@@ -77,21 +77,6 @@ class OrderCard extends Component {
     this.setState({url: {uri: link}, ready: true});
   };
 
-  handleChangeOrderStatus() {
-    const {merchantId, orderId, orderNumber} = this.props.order;
-
-    this.props.generalStore.setOrderStatus(merchantId, orderId).then(() => {
-      Toast.show({
-        text: `Successfully changed Order # ${orderNumber} status!`,
-        buttonText: 'Okay',
-        type: 'success',
-        duration: 3500,
-        style: {margin: 20, borderRadius: 16},
-      });
-    });
-    this.closeConfirmationModal();
-  }
-
   handleViewOrderItems() {
     const {navigation, order} = this.props;
     const {orderStatus} = this;
@@ -100,13 +85,13 @@ class OrderCard extends Component {
   }
 
   handleCancelOrder() {
-    const {merchantId, orderId, orderNumber} = this.props.order;
+    const {merchantId, orderId, userOrderNumber} = this.props.order;
 
     this.props.generalStore
       .cancelOrder(merchantId, orderId, this.cancelReason)
       .then(() => {
         Toast.show({
-          text: `Order # ${orderNumber} successfully cancelled!`,
+          text: `Order # ${userOrderNumber} successfully cancelled!`,
           buttonText: 'Okay',
           type: 'success',
           duration: 3500,
@@ -134,14 +119,14 @@ class OrderCard extends Component {
 
   openOrderChat() {
     const {navigation, order} = this.props;
-    const {userAddress, orderId, orderNumber} = order;
+    const {userAddress, orderId, userOrderNumber} = order;
     const {storeName} = this.state.storeDetails;
 
     navigation.navigate('Order Chat', {
       storeName,
       userAddress,
       orderId,
-      orderNumber,
+      userOrderNumber,
       orderStatus: this.orderStatus,
     });
   }
@@ -149,7 +134,7 @@ class OrderCard extends Component {
   CardHeader = ({
     imageUrl,
     paymentMethod,
-    orderNumber,
+    userOrderNumber,
     orderStatus,
     storeDetails,
   }) => {
@@ -208,7 +193,7 @@ class OrderCard extends Component {
                 <Text
                   note
                   style={{color: colors.text_secondary, marginRight: 8}}>
-                  Order # {orderNumber}
+                  Order # {userOrderNumber}
                 </Text>
                 <Text style={{color: colors.primary}}>{orderStatus}</Text>
               </View>
@@ -255,7 +240,7 @@ class OrderCard extends Component {
     const {navigation, order} = this.props;
 
     const {
-      orderNumber,
+      userOrderNumber,
       quantity,
       orderStatus,
       totalAmount,
@@ -341,7 +326,7 @@ class OrderCard extends Component {
             <View style={{height: 175}}>
               <this.CardHeader
                 imageUrl={url}
-                orderNumber={orderNumber}
+                userOrderNumber={userOrderNumber}
                 paymentMethod={paymentMethod}
                 orderStatus={this.orderStatus}
                 storeDetails={this.state.storeDetails}
