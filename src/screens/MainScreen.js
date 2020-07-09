@@ -354,17 +354,13 @@ class MainScreen extends Component {
             flex: 1,
             marginTop: pixelsFromTop,
           }}>
-          {appReady ? (
-            <MainTab />
-          ) : (
-            <View
-              style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-              <ActivityIndicator size="large" color={colors.primary} />
-            </View>
-          )}
+          <MainTab />
         </View>
+
         {locationMenuOpen && <this.Overlay />}
+
         <this.SlideDownDrawer />
+
         <Header
           placement={Platform.OS === 'ios' ? 'center' : 'left'}
           leftComponent={this.menuButton}
