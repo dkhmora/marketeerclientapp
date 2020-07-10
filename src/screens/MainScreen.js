@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   Dimensions,
   FlatList,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 import {
@@ -21,10 +23,13 @@ import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
 import {inject, observer} from 'mobx-react';
 import MainTab from '../navigation/MainTab';
+import {computed} from 'mobx';
 
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
 const pixelsFromTop = getStatusBarHeight() + headerHeight;
 @inject('shopStore')
+@inject('authStore')
+@inject('generalStore')
 @observer
 class MainScreen extends Component {
   constructor(props) {
@@ -33,12 +38,23 @@ class MainScreen extends Component {
     this.state = {
       locationMenuOpen: false,
       initialPosition: -200,
-      ready: false,
       image: '',
       url: '',
     };
 
     Animatable.initializeRegistryWithDefinitions({
+      transformPlusButton: {
+        from: {borderBottomLeftRadius: 24, borderTopLeftRadius: 24},
+        to: {borderBottomLeftRadius: 0, borderTopLeftRadius: 0},
+      },
+      deTransformPlusButton: {
+        from: {borderBottomLeftRadius: 0, borderTopLeftRadius: 0},
+        to: {borderBottomLeftRadius: 24, borderTopLeftRadius: 24},
+      },
+      fadeIn: {
+        from: {opacity: 0},
+        to: {opacity: 1},
+      },
       slideIn: {
         from: {translateY: -pixelsFromTop},
         to: {translateY: pixelsFromTop},
@@ -47,7 +63,7 @@ class MainScreen extends Component {
         from: {translateY: pixelsFromTop},
         to: {translateY: -pixelsFromTop},
       },
-      fadeIn: {
+      fadeInOverlay: {
         from: {
           opacity: 0,
         },
@@ -55,7 +71,7 @@ class MainScreen extends Component {
           opacity: 0.35,
         },
       },
-      fadeOut: {
+      fadeOutOverlay: {
         from: {
           opacity: 0.35,
         },
@@ -64,6 +80,29 @@ class MainScreen extends Component {
         },
       },
     });
+  }
+
+  @computed get deliverToText() {
+    const {
+      userDetails,
+      currentLocationDetails,
+      deliverToCurrentLocation,
+      deliverToSetLocation,
+      deliverToLastDeliveryLocation,
+    } = this.props.generalStore;
+
+    if (deliverToCurrentLocation && currentLocationDetails) {
+      return currentLocationDetails;
+    } else if (deliverToSetLocation && currentLocationDetails) {
+      return currentLocationDetails;
+    } else if (
+      userDetails.lastDeliveryLocationAddress &&
+      deliverToLastDeliveryLocation
+    ) {
+      return userDetails.lastDeliveryLocationAddress;
+    } else {
+      return 'Current Location';
+    }
   }
 
   menuButton = () => {
@@ -126,8 +165,7 @@ class MainScreen extends Component {
     );
   };
 
-  centerComponent = () => {
-    const {centerComponent, title} = this.props;
+  centerComponent = ({deliverToText}) => {
     const {locationMenuOpen} = this.state;
 
     return (
@@ -148,9 +186,27 @@ class MainScreen extends Component {
         <View
           style={{
             flex: 1,
-            justifyContent: 'center',
+            flexDirection: 'row',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
           }}>
           <Text style={styles.header_titleText}>Deliver To: </Text>
+
+          {!this.props.generalStore.addressLoading ? (
+            <Text
+              numberOfLines={1}
+              style={{
+                color: colors.icons,
+                fontSize: 18,
+                fontFamily: 'ProductSans-Black',
+                flexWrap: 'wrap',
+                flexShrink: 1,
+              }}>
+              {deliverToText}
+            </Text>
+          ) : (
+            <ActivityIndicator size="small" color={colors.icons} />
+          )}
         </View>
       </TouchableOpacity>
     );
@@ -173,22 +229,73 @@ class MainScreen extends Component {
         <ListItem
           title="Current Location"
           titleStyle={styles.header_topDrawerTitleText}
-          subtitle="Test Location"
-          subtitleStyle={styles.subtitleStyle}
+          subtitle={
+            this.props.generalStore.currentLocationDetails &&
+            this.props.generalStore.deliverToCurrentLocation
+              ? this.props.generalStore.currentLocationDetails
+              : null
+          }
           leftIcon={<Icon name="map-pin" color={colors.primary} />}
           bottomDivider
           chevron
-          onPress={() => navigation.navigate('Set Location')}
+          checkmark={
+            this.props.generalStore.deliverToCurrentLocation && (
+              <Icon name="check" color={colors.primary} />
+            )
+          }
+          onPress={() => {
+            this.props.generalStore.setCurrentLocation();
+            this.hideLocationMenu();
+          }}
         />
+
+        {this.props.generalStore.userDetails.lastDeliveryLocation && (
+          <ListItem
+            title="Last Delivery Location"
+            titleStyle={styles.header_topDrawerTitleText}
+            subtitle={
+              this.props.generalStore.userDetails.lastDeliveryLocationAddress
+                ? this.props.generalStore.userDetails
+                    .lastDeliveryLocationAddress
+                : null
+            }
+            subtitleStyle={styles.subtitleStyle}
+            leftIcon={<Icon name="navigation" color={colors.primary} />}
+            bottomDivider
+            chevron
+            checkmark={
+              this.props.generalStore.deliverToLastDeliveryLocation && (
+                <Icon name="check" color={colors.primary} />
+              )
+            }
+            onPress={() => {
+              this.props.generalStore.setLastDeliveryLocation();
+              this.hideLocationMenu();
+            }}
+          />
+        )}
+
         <ListItem
-          title="Last Delivery Location"
+          title="Set Location"
           titleStyle={styles.header_topDrawerTitleText}
-          subtitle="Test Location"
-          subtitleStyle={styles.subtitleStyle}
-          leftIcon={<Icon name="navigation" color={colors.primary} />}
+          subtitle={
+            this.props.generalStore.currentLocationDetails &&
+            this.props.generalStore.deliverToSetLocation
+              ? this.props.generalStore.currentLocationDetails
+              : null
+          }
+          leftIcon={<Icon name="map" color={colors.primary} />}
           bottomDivider
           chevron
-          onPress={() => console.log('yes')}
+          checkmark={
+            this.props.generalStore.deliverToSetLocation && (
+              <Icon name="check" color={colors.primary} />
+            )
+          }
+          onPress={() => {
+            navigation.navigate('Set Location', {checkout: false});
+            this.hideLocationMenu();
+          }}
         />
       </Animatable.View>
     );
@@ -224,61 +331,56 @@ class MainScreen extends Component {
   revealLocationMenu() {
     this.setState({locationMenuOpen: true}, () => {
       this.drawer.animate('slideIn');
-      this.overlay.animate('fadeIn');
+      this.overlay.animate('fadeInOverlay');
     });
   }
 
   hideLocationMenu() {
     this.drawer.animate('slideOut');
-    this.overlay.animate('fadeOut').then(() => {
+    this.overlay.animate('fadeOutOverlay').then(() => {
       this.setState({locationMenuOpen: false});
     });
   }
 
-  componentDidMount() {
-    this.props.shopStore.getShopList().then(() => this.setState({ready: true}));
-  }
-
   render() {
-    const {navigation} = this.props;
-    const {locationMenuOpen, ready} = this.state;
-    const dataSource = this.props.shopStore.storeList.slice();
+    const {locationMenuOpen} = this.state;
+    const {appReady} = this.props.generalStore;
+    const {deliverToText} = this;
 
-    if (ready) {
-      return (
-        <View style={styles.container}>
-          <View
-            style={{
-              flex: 1,
-              marginTop: pixelsFromTop,
-            }}>
-            {dataSource && <MainTab />}
-          </View>
-          {locationMenuOpen && <this.Overlay />}
-          <this.SlideDownDrawer />
-          <Header
-            placement={Platform.OS === 'ios' ? 'center' : 'left'}
-            leftComponent={this.menuButton}
-            centerComponent={this.centerComponent}
-            rightComponent={this.rightComponent({
-              cartQuantity: this.props.shopStore.totalCartItemQuantity,
-            })}
-            statusBarProps={{
-              barStyle: 'light-content',
-              backgroundColor: colors.statusBar,
-              translucent: true,
-              animated: true,
-            }}
-            containerStyle={styles.header}
-            centerContainerStyle={{
-              flex: 3,
-            }}
-          />
+    return (
+      <View style={styles.container}>
+        <View
+          style={{
+            flex: 1,
+            marginTop: pixelsFromTop,
+          }}>
+          <MainTab />
         </View>
-      );
-    } else {
-      return null;
-    }
+
+        {locationMenuOpen && <this.Overlay />}
+
+        <this.SlideDownDrawer />
+
+        <Header
+          placement={Platform.OS === 'ios' ? 'center' : 'left'}
+          leftComponent={this.menuButton}
+          centerComponent={this.centerComponent({deliverToText})}
+          rightComponent={this.rightComponent({
+            cartQuantity: this.props.shopStore.totalCartItemQuantity,
+          })}
+          statusBarProps={{
+            barStyle: 'light-content',
+            backgroundColor: colors.statusBar,
+            translucent: true,
+            animated: true,
+          }}
+          containerStyle={styles.header}
+          centerContainerStyle={{
+            flex: 3,
+          }}
+        />
+      </View>
+    );
   }
 }
 

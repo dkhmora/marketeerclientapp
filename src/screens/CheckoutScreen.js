@@ -10,6 +10,7 @@ import {
   StatusBar,
   Image,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -22,100 +23,111 @@ import Toast from '../components/Toast';
 
 @inject('shopStore')
 @inject('authStore')
+@inject('generalStore')
 @observer
 class CheckoutScreen extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      loading: false,
+    };
   }
 
   async handlePlaceOrder() {
     const {navigation} = this.props;
     const cartStores = this.props.shopStore.cartStores.slice();
+    const {userId} = this.props.authStore;
+    const {
+      currentLocation,
+      currentLocationDetails,
+      currentLocationGeohash,
+      updateCoordinates,
+      deliverToCurrentLocation,
+      deliverToLastDeliveryLocation,
+      deliverToSetLocation,
+      userDetails,
+    } = this.props.generalStore;
+    const {
+      storeList,
+      storeCartItems,
+      storeSelectedShipping,
+      storeSelectedPaymentMethod,
+    } = this.props.shopStore;
 
-    await cartStores.map(async (storeName) => {
-      const storeDetails = await this.props.shopStore.getStoreDetails(
-        storeName,
-      );
+    const orderStoreList = await cartStores.map((storeName) => {
+      return storeList.find((element) => element.storeName === storeName);
+    });
 
-      let quantity = 0;
-      let totalAmount = 0;
+    const {userName, userPhoneNumber} = this.props.authStore;
 
-      const orderItems = this.props.shopStore.storeCartItems[storeName];
-      const shipping = this.props.shopStore.storeSelectedShipping[storeName];
-      const paymentMethod = this.props.shopStore.storeSelectedPaymentMethod[
-        storeName
-      ];
-      const reviewed = false;
-      const userCoordinates = null;
-      const userAddress = null;
-      const {userName, userPhoneNumber} = this.props.authStore;
-      const createdAt = new Date().toISOString();
-      const orderStatus = {
-        pending: {
-          status: true,
-          updatedAt: new Date().toISOString(),
-        },
-        unpaid: {
-          status: false,
-        },
-        paid: {
-          status: false,
-        },
-        shipped: {
-          status: false,
-        },
-        completed: {
-          status: false,
-        },
-        cancelled: {
-          status: false,
-        },
-      };
+    let deliveryCoordinates = null;
+    let deliveryAddress = null;
 
-      await this.props.shopStore.storeCartItems[storeName].map((item) => {
-        quantity = item.quantity + quantity;
-        totalAmount = item.price * item.quantity + totalAmount;
-      });
+    if (deliverToCurrentLocation || deliverToSetLocation) {
+      deliveryCoordinates = currentLocation;
+      deliveryAddress = currentLocationDetails;
+    } else if (deliverToLastDeliveryLocation) {
+      deliveryCoordinates = userDetails.lastDeliveryLocation;
+      deliveryAddress = userDetails.lastDeliveryLocationAddress;
+    }
 
-      const {merchantId} = storeDetails;
-      const userId = this.props.authStore.userId;
+    this.setState({loading: true});
 
-      const orderDetails = {
-        reviewed,
+    const userCoordinates = await this.props.generalStore.getUserLocation();
+
+    this.props.shopStore
+      .placeOrder({
+        deliveryCoordinates,
+        deliveryAddress,
         userCoordinates,
-        userAddress,
         userName,
         userPhoneNumber,
         userId,
-        createdAt,
-        orderStatus,
-        quantity,
-        totalAmount,
-        shipping,
-        merchantId,
-        paymentMethod,
-      };
-
-      this.props.shopStore
-        .placeOrder(orderDetails, orderItems)
-        .then(() => console.log(`Order Placed for ${storeName}!`))
-        .then(() => this.props.shopStore.deleteCartStore(storeName, userId))
-        .catch((err) =>
-          Toast({
-            text: `Error placing order for ${storeName}: ${err}`,
-            duration: 5000,
-            type: 'danger',
-          }),
+        storeCartItems,
+        storeSelectedShipping,
+        storeSelectedPaymentMethod,
+        orderStoreList,
+      })
+      .then(() => {
+        updateCoordinates(
+          userId,
+          currentLocation,
+          currentLocationGeohash,
+          currentLocationDetails,
         );
-    });
+      })
+      .then(() => {
+        this.setState({loading: false});
 
-    Toast({text: 'Successfully placed orders!'});
+        Toast({
+          text: 'Orders Placed! Thank you for shopping at Marketeer!',
+          duration: 5000,
+        });
 
-    navigation.navigate('Home');
+        navigation.navigate('Home');
+      })
+      .catch((err) => {
+        navigation.navigate('Cart');
+
+        Toast({
+          text: `Error, something went wrong. Please check your cart if all items have stock left, then re-order.`,
+          type: 'danger',
+          duration: 8000,
+        });
+      });
+  }
+
+  componentWillUnmount() {
+    const {userId} = this.props.authStore;
+    const {getCartItems, unsubscribeToGetCartItems} = this.props.shopStore;
+
+    !unsubscribeToGetCartItems && getCartItems(userId);
   }
 
   render() {
     const {navigation} = this.props;
+    const {loading} = this.state;
 
     return (
       <SafeAreaView style={styles.container}>
@@ -153,7 +165,7 @@ class CheckoutScreen extends Component {
           <CartStoreList
             checkout
             emptyCartText={`This seems lonely...${'\n'}
-              ${'\n'}Go back and visit a store now and add items to your cart!`}
+                ${'\n'}Go back and visit a store now and add items to your cart!`}
           />
         </Animatable.View>
 
@@ -210,6 +222,7 @@ class CheckoutScreen extends Component {
           <Button
             onPress={() => this.handlePlaceOrder()}
             raised
+            disabled={loading}
             icon={<Icon name="arrow-right" color={colors.icons} />}
             iconRight
             title="Place Order"
@@ -228,6 +241,23 @@ class CheckoutScreen extends Component {
             }}
           />
         </Animatable.View>
+
+        {loading && (
+          <View
+            style={{
+              width: '100%',
+              height: '120%',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0,0,0,0.5)',
+            }}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        )}
       </SafeAreaView>
     );
   }

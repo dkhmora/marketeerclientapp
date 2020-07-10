@@ -12,6 +12,7 @@ import SplashScreen from 'react-native-splash-screen';
 import _ from 'lodash';
 import moment from 'moment';
 import auth from '@react-native-firebase/auth';
+import VersionCheck from 'react-native-version-check';
 
 global._ = _;
 global.moment = moment;
@@ -21,7 +22,7 @@ import AuthStore from './src/store/authStore';
 import ShopStore from './src/store/shopStore';
 
 import Setup from './src/boot/setup';
-import {AppState} from 'react-native';
+import {AppState, Linking} from 'react-native';
 
 const generalStore = (window.store = new GeneralStore());
 const authStore = (window.store = new AuthStore());
@@ -32,15 +33,12 @@ import {YellowBox} from 'react-native';
 
 YellowBox.ignoreWarnings([
   'Animated: `useNativeDriver` was not specified. This is a required option and must be explicitly set to `true` or `false`',
-  'Animated.event now requires a second argument for options',
-  'Require cycle: node_modules\\react-native-mapslibcomponentsMapView.js -> node_modules\\react-native-mapslibcomponentsGeojson.js -> node_modules\\react-native-mapslibcomponentsMapView.js',
-  "Warning: Can't perform a React state update on an unmounted component.",
 ]);
 // ------- END OF WARNING SUPPRESSION
 
 @observer
 class App extends React.Component {
-  componentDidMount() {
+  executeAuthStateListener() {
     this.authState = auth().onAuthStateChanged((user) => {
       authStore
         .checkAuthStatus()
@@ -49,7 +47,42 @@ class App extends React.Component {
             const userId = user.uid;
 
             if (!authStore.guest) {
-              shopStore.getCartItems(userId);
+              authStore.reloadUser();
+
+              if (shopStore.cartStores.length === 0) {
+                shopStore.getCartItems(userId);
+              }
+
+              generalStore
+                .getUserDetails(userId)
+                .then(() => {
+                  if (generalStore.userDetails.lastDeliveryLocation) {
+                    return generalStore.setLastDeliveryLocation();
+                  }
+
+                  return generalStore.setCurrentLocation();
+                })
+                .then(() => {
+                  shopStore
+                    .getShopList(
+                      generalStore.currentLocationGeohash,
+                      generalStore.currentLocation,
+                    )
+                    .then(() => {
+                      generalStore.appReady = true;
+                    });
+                });
+            } else {
+              generalStore.setCurrentLocation().then(() => {
+                shopStore
+                  .getShopList(
+                    generalStore.currentLocationGeohash,
+                    generalStore.currentLocation,
+                  )
+                  .then(() => {
+                    generalStore.appReady = true;
+                  });
+              });
             }
 
             AppState.addEventListener('change', (state) => {
@@ -80,13 +113,31 @@ class App extends React.Component {
     });
   }
 
-  componentWillUnmount() {
-    this.authState();
-  }
-
   hideSplashScreen() {
     SplashScreen.hide();
     this.splashScreenTimer && clearTimeout(this.splashScreenTimer);
+  }
+
+  componentDidMount() {
+    /* TODO: Remove comments before deploying in Play Store/App Store
+    VersionCheck.needUpdate().then(async (res) => {
+      if (res.isNeeded) {
+        console.log('Update needed', res.isNeeded);
+        // Linking.openURL(res.storeUrl); // open store if update is needed.
+      } else {
+        console.log('No update needed');
+        this.executeAuthStateListener();
+      }
+    }); */
+
+    shopStore.unsubscribeToGetCartItems &&
+      shopStore.unsubscribeToGetCartItems();
+
+    this.executeAuthStateListener();
+  }
+
+  componentWillUnmount() {
+    this.authState();
   }
 
   render() {

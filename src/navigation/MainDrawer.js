@@ -138,7 +138,7 @@ class MainDrawer extends Component {
           <ListItem
             title="Account"
             leftIcon={<Icon name="user" color={colors.primary} size={18} />}
-            onPress={() => console.log('yes')}
+            onPress={() => navigation.navigate('Account')}
           />
           <ListItem
             title="Help"

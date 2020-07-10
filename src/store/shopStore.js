@@ -1,6 +1,12 @@
 import {observable, action, computed} from 'mobx';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import firebase from '@react-native-firebase/app';
+import '@react-native-firebase/functions';
+import Toast from '../components/Toast';
+import * as geolib from 'geolib';
+
+const functions = firebase.app().functions('asia-northeast1');
 
 const userCartCollection = firestore().collection('user_carts');
 const merchantsCollection = firestore().collection('merchants');
@@ -66,8 +72,6 @@ class shopStore {
         }
       });
 
-    console.log('storedets', storeDetails);
-
     return storeDetails;
   }
 
@@ -96,24 +100,42 @@ class shopStore {
       });
   }
 
-  @action async placeOrder(orderDetails, orderItems) {
-    const userOrdersRef = firestore().collection('orders');
-    const orderItemsRef = firestore().collection('order_items');
-    const batch = firestore().batch();
-    const id = userOrdersRef.doc().id;
+  @action async placeOrder({
+    deliveryCoordinates,
+    deliveryAddress,
+    userCoordinates,
+    userName,
+    userPhoneNumber,
+    userId,
+    storeCartItems,
+    storeSelectedShipping,
+    storeSelectedPaymentMethod,
+    orderStoreList,
+  }) {
+    this.cartUpdateTimeout ? clearTimeout(this.cartUpdateTimeout) : null;
 
-    batch.set(orderItemsRef.doc(id), {items: orderItems});
-    batch.set(userOrdersRef.doc(id), {...orderDetails});
-
-    return batch.commit();
-  }
-
-  @action async deleteCartStore(storeName, userId) {
-    firestore()
-      .collection('user_carts')
-      .doc(userId)
-      .update({[storeName]: firestore.FieldValue.delete()})
-      .then(() => console.log(`Successfully deleted ${storeName} in cart!`));
+    return await functions
+      .httpsCallable('placeOrder')({
+        orderInfo: JSON.stringify({
+          deliveryCoordinates,
+          deliveryAddress,
+          userCoordinates,
+          userName,
+          userPhoneNumber,
+          userId,
+          storeCartItems,
+          storeSelectedShipping,
+          storeSelectedPaymentMethod,
+          orderStoreList,
+        }),
+      })
+      .then(() => {
+        console.log('reset');
+        this.resetData();
+      })
+      .then(() => {
+        console.log(this.storeCartItems);
+      });
   }
 
   @action resetData() {
@@ -221,32 +243,49 @@ class shopStore {
   @action async updateCartItems() {
     const userId = auth().currentUser.uid;
 
-    console.log(this.storeCartItems);
-
-    await userCartCollection
-      .doc(userId)
-      .update({...this.storeCartItems})
-      .catch((err) => console.log(err));
+    if (Object.keys(this.storeCartItems).length > 0) {
+      await userCartCollection
+        .doc(userId)
+        .update({...this.storeCartItems})
+        .catch((err) => console.log(err));
+    } else {
+      await userCartCollection
+        .doc(userId)
+        .set({})
+        .catch((err) => console.log(err));
+    }
   }
 
-  @action async getShopList() {
-    await merchantsCollection
-      .where('visibleToPublic', '==', true)
-      .where('vacationMode', '==', false)
-      .limit(10)
-      .get()
-      .then((querySnapshot) => {
-        const list = [];
+  @action async getShopList(currentLocationGeohash, locationCoordinates) {
+    if (currentLocationGeohash) {
+      await merchantsCollection
+        .where('visibleToPublic', '==', true)
+        .where('vacationMode', '==', false)
+        .where('creditData.creditThresholdReached', '==', false)
+        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
+        .get()
+        .then((querySnapshot) => {
+          const list = [];
 
-        querySnapshot.forEach((documentSnapshot, index) => {
-          list.push(documentSnapshot.data());
+          querySnapshot.forEach((documentSnapshot, index) => {
+            list.push(documentSnapshot.data());
 
-          list[index].merchantId = documentSnapshot.id;
-        });
+            list[index].merchantId = documentSnapshot.id;
+          });
 
-        this.storeList = list;
-      })
-      .catch((err) => console.log(err));
+          return list;
+        })
+        .then((list) => {
+          const finalList = list.filter((element) =>
+            geolib.isPointInPolygon({...locationCoordinates}, [
+              ...element.deliveryCoordinates.boundingBox,
+            ]),
+          );
+
+          this.storeList = finalList;
+        })
+        .catch((err) => console.log(err));
+    }
   }
 
   @action async setStoreItems(merchantId, storeName) {

@@ -26,45 +26,24 @@ class OrderDetailsScreen extends Component {
     const {orderId} = this.props.route.params.order;
 
     this.state = {
-      orderItems: this.props.generalStore.getStoreDetails(orderId),
+      orderItems: null,
+      ready: false,
     };
-  }
 
-  openInMaps() {
-    const {coordinates, userName} = this.props.route.params;
-    const markerName = `Customer ${userName}'s Location`;
-
-    const latLng = `${coordinates._latitude},${coordinates._longitude}`;
-    const url = Platform.select({
-      ios: `http://maps.apple.com/?q=${markerName}&ll=${latLng}`,
-      android: `https://www.google.com/maps/search/?api=1&query=${latLng}`,
+    this.props.generalStore.getOrderItems(orderId).then((orderItems) => {
+      this.setState({orderItems, ready: true});
     });
-
-    Linking.openURL(url);
   }
 
   render() {
-    const {order} = this.props.route.params;
-    const {
-      coordinates,
-      orderId,
-      orderItems,
-      userName,
-      orderNumber,
-      orderStatus,
-      quantity,
-      shippingPrice,
-      totalAmount,
-      userAddress,
-      createdAt,
-    } = order;
+    const {order, orderStatus} = this.props.route.params;
+    const {orderNumber, quantity, shippingPrice, totalAmount} = order;
 
     const {navigation} = this.props;
 
-    const cancelReason = orderStatus.cancelled.reason;
+    const {orderItems, ready} = this.state;
 
-    const mapButtonText =
-      Platform.OS === 'ios' ? 'Open in Apple Maps' : 'Open in Google Maps';
+    const cancelReason = order.orderStatus.cancelled.reason;
 
     const actions = [
       {
@@ -95,35 +74,39 @@ class OrderDetailsScreen extends Component {
               borderRadius: 10,
               overflow: 'hidden',
             }}>
-            <FlatList
-              ListHeaderComponent={
-                <CardItem
-                  header
-                  bordered
-                  style={{backgroundColor: colors.primary}}>
-                  <Text style={{color: colors.icons, fontSize: 20}}>
-                    Order Items
-                  </Text>
-                </CardItem>
-              }
-              data={orderItems}
-              renderItem={({item, index}) => (
-                <View style={{marginHorizontal: 15}}>
-                  <CartListItem item={item} />
-                </View>
-              )}
-              keyExtractor={(item, index) => `${item.name}${index.toString()}`}
-              showsVerticalScrollIndicator={false}
-              ListFooterComponent={
-                <View
-                  style={{
-                    height: 0.5,
-                    flex: 1,
-                    backgroundColor: colors.divider,
-                  }}
-                />
-              }
-            />
+            {ready && (
+              <FlatList
+                ListHeaderComponent={
+                  <CardItem
+                    header
+                    bordered
+                    style={{backgroundColor: colors.primary}}>
+                    <Text style={{color: colors.icons, fontSize: 20}}>
+                      Order Items
+                    </Text>
+                  </CardItem>
+                }
+                data={orderItems}
+                renderItem={({item, index}) => (
+                  <View style={{marginHorizontal: 15}}>
+                    <CartListItem item={item} />
+                  </View>
+                )}
+                keyExtractor={(item, index) =>
+                  `${item.name}${index.toString()}`
+                }
+                showsVerticalScrollIndicator={false}
+                ListFooterComponent={
+                  <View
+                    style={{
+                      height: 0.5,
+                      flex: 1,
+                      backgroundColor: colors.divider,
+                    }}
+                  />
+                }
+              />
+            )}
             <CardItem bordered>
               <Left>
                 <Text note>{quantity} items</Text>
@@ -192,7 +175,7 @@ class OrderDetailsScreen extends Component {
             </CardItem>
           </Card>
 
-          {orderStatus.cancelled.status && (
+          {orderStatus[0] === 'CANCELLED' && (
             <Card
               style={{
                 borderRadius: 10,

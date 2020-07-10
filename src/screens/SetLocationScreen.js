@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import MapView, {Circle, Marker} from 'react-native-maps';
+import MapView, {Marker} from 'react-native-maps';
 import {
   View,
   StatusBar,
@@ -7,16 +7,20 @@ import {
   PermissionsAndroid,
   Platform,
   Dimensions,
-  SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
-import {Text, Item, Input, Card, CardItem} from 'native-base';
-import {Icon, Button} from 'react-native-elements';
+import {Icon, Button, Image} from 'react-native-elements';
 import {observer, inject} from 'mobx-react';
 import Geolocation from '@react-native-community/geolocation';
 import {colors} from '../../assets/colors';
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import geohash from 'ngeohash';
+import Toast from '../components/Toast';
+import BaseHeader from '../components/BaseHeader';
+import RNGooglePlaces from 'react-native-google-places';
+import {computed, observable} from 'mobx';
 
 @inject('authStore')
+@inject('shopStore')
 @inject('generalStore')
 @observer
 class SetLocationScreen extends Component {
@@ -24,67 +28,128 @@ class SetLocationScreen extends Component {
     super(props);
 
     this.state = {
+      saveChangesLoading: false,
+      previousAddress: this.props.generalStore.currentLocationDetails,
       mapReady: false,
       mapData: null,
       editMode: false,
+      loading: false,
       newMarkerPosition: null,
       centerOfScreen: (Dimensions.get('window').height - 17) / 2,
     };
   }
 
+  @observable selectedLocationAddress = null;
+
+  @computed get headerTitle() {
+    const {currentLocationDetails} = this.props.generalStore;
+    const {selectedLocationAddress} = this;
+
+    if (selectedLocationAddress) {
+      return selectedLocationAddress;
+    } else if (currentLocationDetails) {
+      return currentLocationDetails;
+    } else {
+      return 'Selected Location';
+    }
+  }
+
   componentDidMount() {
-    this.setInitialMarkerPosition();
+    const {currentLocation, setCurrentLocation} = this.props.generalStore;
+
+    if (currentLocation) {
+      this.setCoordinates();
+    } else {
+      setCurrentLocation();
+    }
   }
 
-  async setInitialMarkerPosition() {
-    await Geolocation.getCurrentPosition(
-      (position) => {
-        const coords = {
-          latitude: parseFloat(position.coords.latitude),
-          longitude: parseFloat(position.coords.longitude),
-        };
+  getGeohash = (coordinates) => {
+    const {latitude, longitude} = coordinates;
 
-        this.setState({
-          markerPosition: {
-            ...coords,
-          },
-          newMarkerPosition: {
-            ...coords,
-          },
-          mapData: {
-            ...coords,
-            latitudeDelta: 0.04,
-            longitudeDelta: 0.05,
-          },
-          circlePosition: {
-            ...coords,
-          },
-          mapReady: true,
-        });
+    const coordinatesGeohash = geohash.encode(latitude, longitude, 12);
+
+    return coordinatesGeohash;
+  };
+
+  setCoordinates() {
+    const {currentLocation} = this.props.generalStore;
+
+    this.setState({
+      markerPosition: {...currentLocation},
+      circlePosition: {...currentLocation},
+      mapData: {
+        ...currentLocation,
+        latitudeDelta: 0.009,
+        longitudeDelta: 0.009,
       },
-      (err) => console.log(err),
-      {
-        timeout: 20000,
-      },
-    );
+      mapReady: true,
+    });
   }
 
-  handleSetLocation() {
+  async handleSetLocation() {
     const {newMarkerPosition} = this.state;
+    const {navigation} = this.props;
+    const {checkout} = this.props.route.params;
 
-    /*
-    updateCoordinates(
-      merchantId,
-      newMarkerPosition.latitude,
-      newMarkerPosition.longitude,
-      radius,
-    );
-    */
+    const coordinatesGeohash = await this.getGeohash(newMarkerPosition);
+
+    this.props.shopStore.getShopList(coordinatesGeohash, newMarkerPosition);
+
+    this.setState({loading: true});
+
+    this.props.generalStore.deliverToCurrentLocation = false;
+    this.props.generalStore.deliverToLastDeliveryLocation = false;
+    this.props.generalStore.deliverToSetLocation = true;
+
+    this.props.generalStore.currentLocationDetails = this.selectedLocationAddress;
+    this.props.generalStore.currentLocationGeohash = coordinatesGeohash;
+    this.props.generalStore.currentLocation = newMarkerPosition;
+
+    if (checkout) {
+      navigation.navigate('Checkout');
+
+      Toast({text: 'Successfully set location!'});
+
+      this.setState({loading: false});
+    } else {
+      navigation.navigate('Home');
+
+      Toast({text: 'Successfully set location!'});
+
+      this.setState({loading: false});
+    }
 
     this.setState({
       editMode: false,
       markerPosition: newMarkerPosition,
     });
+  }
+
+  panMapToLocation(position) {
+    if (Platform.OS === 'ios') {
+      this.map.animateCamera(
+        {
+          center: position,
+          pitch: 2,
+          heading: 20,
+          altitude: 6000,
+          zoom: 5,
+        },
+        150,
+      );
+    } else {
+      this.map.animateCamera(
+        {
+          center: position,
+          pitch: 2,
+          heading: 1,
+          altitude: 200,
+          zoom: 18,
+        },
+        150,
+      );
+    }
   }
 
   panMapToMarker() {
@@ -105,8 +170,8 @@ class SetLocationScreen extends Component {
           center: this.state.markerPosition,
           pitch: 2,
           heading: 1,
-          altitude: 500,
-          zoom: 15,
+          altitude: 200,
+          zoom: 18,
         },
         150,
       );
@@ -120,6 +185,8 @@ class SetLocationScreen extends Component {
       ).then((granted) => {
         console.log(granted); // just to ensure that permissions were granted
       });
+    } else {
+      Geolocation.requestAuthorization();
     }
   };
 
@@ -127,13 +194,16 @@ class SetLocationScreen extends Component {
     this.setState({
       mapData: {
         ...this.state.markerPosition,
-        latitudeDelta: 0.04,
-        longitudeDelta: 0.05,
+        latitudeDelta: 0.009,
+        longitudeDelta: 0.009,
       },
       newMarkerPosition: this.state.markerPosition,
+      previousAddress: this.props.generalStore.currentLocationDetails,
       initialRadius: this.state.radius,
       editMode: true,
     });
+
+    clearTimeout(this.getAddressTimeout);
 
     this.panMapToMarker();
   }
@@ -141,28 +211,63 @@ class SetLocationScreen extends Component {
   handleCancelChanges() {
     const {markerPosition} = this.state;
 
+    this.props.generalStore.currentLocationDetails = this.state.previousAddress;
+
     this.setState({
-      mapData: {...markerPosition, latitudeDelta: 0.04, longitudeDelta: 0.05},
+      mapData: {...markerPosition, latitudeDelta: 0.009, longitudeDelta: 0.009},
       newMarkerPosition: null,
       editMode: false,
     });
+
+    clearTimeout(this.getAddressTimeout);
+
+    this.selectedLocationAddress = null;
 
     this.panMapToMarker();
   }
 
   handleRegionChange = (mapData) => {
     const {editMode} = this.state;
-    const {latitude, longitude} = mapData;
 
     if (editMode) {
       this.setState({
-        newMarkerPosition: {
-          latitude,
-          longitude,
-        },
+        newMarkerPosition: mapData,
       });
+
+      clearTimeout(this.getAddressTimeout);
+
+      this.setSelectedLocationAddress(mapData);
     }
   };
+
+  async setSelectedLocationAddress(mapData) {
+    this.setState({saveChangesLoading: true});
+
+    this.getAddressTimeout = setTimeout(async () => {
+      this.selectedLocationAddress = await this.props.generalStore.getAddressFromCoordinates(
+        {
+          ...mapData,
+        },
+      );
+
+      this.setState({saveChangesLoading: false});
+    }, 1000);
+  }
+
+  openSearchModal() {
+    RNGooglePlaces.openAutocompleteModal({country: 'PH'}, ['location'])
+      .then((place) => {
+        const coordinates = place.location;
+
+        this.panMapToLocation(coordinates);
+
+        this.setState({
+          newMarkerPosition: {...coordinates},
+          editMode: true,
+        });
+      })
+      .catch((error) => console.log(error.message));
+  }
 
   render() {
     const {navigation} = this.props;
@@ -172,7 +277,11 @@ class SetLocationScreen extends Component {
       mapData,
       mapReady,
       editMode,
+      loading,
+      saveChangesLoading,
     } = this.state;
+    const {checkout} = this.props.route.params;
+    const {headerTitle} = this;
 
     return (
       <View style={{flex: 1}}>
@@ -191,7 +300,7 @@ class SetLocationScreen extends Component {
               this._onMapReady();
             }}
             initialRegion={mapData}>
-            {!editMode && (
+            {!editMode && markerPosition && (
               <Marker
                 ref={(marker) => {
                   this.marker = marker;
@@ -240,7 +349,15 @@ class SetLocationScreen extends Component {
                 }}
               />
               <Button
-                title="Save Changes"
+                title="Set Location"
+                loading={saveChangesLoading}
+                disabled={saveChangesLoading}
+                disabledStyle={{
+                  backgroundColor: colors.accent,
+                  borderRadius: 24,
+                  width: 40,
+                  overflow: 'hidden',
+                }}
                 iconLeft
                 icon={<Icon name="save" color={colors.icons} />}
                 onPress={() => this.handleSetLocation()}
@@ -253,90 +370,78 @@ class SetLocationScreen extends Component {
               />
             </View>
           ) : (
-            <Button
-              title="Change Delivery Location"
-              iconLeft
-              icon={<Icon name="edit" color={colors.icons} />}
-              onPress={() => this.handleEditDeliveryArea()}
-              titleStyle={{color: colors.icons, marginLeft: 5}}
-              buttonStyle={{backgroundColor: colors.primary}}
-              containerStyle={{
-                borderRadius: 24,
-                overflow: 'hidden',
-              }}
-            />
+            <View>
+              <Button
+                title="Change Delivery Location"
+                iconLeft
+                icon={<Icon name="edit" color={colors.icons} />}
+                onPress={() => this.handleEditDeliveryArea()}
+                titleStyle={{color: colors.icons, marginLeft: 5}}
+                buttonStyle={{backgroundColor: colors.primary}}
+                containerStyle={{
+                  borderRadius: 24,
+                  overflow: 'hidden',
+                }}
+              />
+
+              {checkout && (
+                <Button
+                  title="Proceed to Checkout"
+                  onPress={() => navigation.navigate('Checkout')}
+                  iconLeft
+                  icon={
+                    <Image
+                      source={require('../../assets/images/logo_cart.png')}
+                      style={{width: 27, height: 27, resizeMode: 'center'}}
+                      textStyle={{fontFamily: 'ProductSans-Light'}}
+                    />
+                  }
+                  titleStyle={{color: colors.icons, marginLeft: 5}}
+                  buttonStyle={{backgroundColor: colors.accent}}
+                  containerStyle={{
+                    marginTop: 10,
+                    borderRadius: 24,
+                    overflow: 'hidden',
+                  }}
+                />
+              )}
+            </View>
           )}
         </View>
 
-        <SafeAreaView
-          style={{
-            flexDirection: 'row',
-            paddingHorizontal: 10,
-            paddingBottom: 10,
-            backgroundColor: colors.primary,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingTop:
-              Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 10,
-          }}>
-          <Button
-            type="clear"
-            icon={<Icon name="arrow-left" color={colors.primary} />}
-            buttonStyle={{
-              backgroundColor: colors.icons,
-            }}
-            containerStyle={{
-              borderRadius: 24,
-              elevation: 5,
-            }}
-            onPress={() => navigation.goBack()}
-          />
+        <BaseHeader
+          backButton
+          navigation={navigation}
+          title={headerTitle}
+          rightComponent={
+            <Button
+              type="clear"
+              icon={<Icon name="search" color={colors.icons} />}
+              titleStyle={{color: colors.icons}}
+              buttonStyle={{borderRadius: 24}}
+              onPress={() => this.openSearchModal()}
+            />
+          }
+        />
 
-          <GooglePlacesAutocomplete
-            placeholder="Search"
-            fetchDetails
-            onPress={(data, details = null) => {
-              // 'details' is provided when fetchDetails = true
-              console.log(data, details);
-            }}
-            query={{
-              key: 'AIzaSyDZqSAZvKVizDPaDhtzuzGtfyzCpViZvcs',
-              language: 'en',
-              components: 'country:ph',
-            }}
-            styles={{
-              container: {
-                alignSelf: 'flex-start',
-              },
-              textInputContainer: {
-                backgroundColor: 'rgba(0,0,0,0)',
-                borderRadius: 24,
-                marginTop: -7,
-                borderTopWidth: 0,
-                borderBottomWidth: 0,
-              },
-              textInput: {
-                alignSelf: 'flex-start',
-                margin: 0,
-                padding: 0,
-                height: 40,
-                color: '#5d5d5d',
-                fontFamily: 'ProductSans-Light',
-                fontSize: 16,
-                borderRadius: 24,
-              },
-              predefinedPlacesDescription: {
-                color: colors.accent,
-              },
-              listView: {
-                backgroundColor: colors.icons,
+        {loading && (
+          <View
+            style={[
+              StyleSheet.absoluteFillObject,
+              {
+                flex: 1,
                 position: 'absolute',
-                marginTop: 40,
+                top: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                alignItems: 'center',
+                justifyContent: 'center',
               },
-            }}
-            onFail={(error) => console.warn(error)}
-          />
-        </SafeAreaView>
+            ]}>
+            <ActivityIndicator animating color={colors.primary} size="large" />
+          </View>
+        )}
       </View>
     );
   }

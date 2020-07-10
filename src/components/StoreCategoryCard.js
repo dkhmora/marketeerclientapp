@@ -6,6 +6,7 @@ import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
 import storage from '@react-native-firebase/storage';
 import {observer, inject} from 'mobx-react';
+import StoreCategoryCardLoader from './StoreCategoryCardLoader';
 
 @inject('shopStore')
 @observer
@@ -13,7 +14,10 @@ class StoreCategoryCard extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {url: require('../../assets/images/placeholder.jpg')};
+    this.state = {
+      url: null,
+      ready: false,
+    };
 
     this.getImage();
   }
@@ -23,10 +27,19 @@ class StoreCategoryCard extends Component {
     const imageSource = `/images/store_categories/${item.name}.jpg`;
 
     const ref = storage().ref(imageSource);
-    const link = await ref.getDownloadURL();
+    const link = await ref.getDownloadURL().catch((err) => {
+      if (err.code === '[storage/object-not-found]') {
+        console.log('No image');
+      }
+    });
 
     if (link) {
-      this.setState({url: {uri: link}});
+      this.setState({url: {uri: link}, ready: true});
+    } else {
+      this.setState({
+        url: require('../../assets/images/placeholder.jpg'),
+        ready: true,
+      });
     }
   };
 
@@ -54,7 +67,7 @@ class StoreCategoryCard extends Component {
 
   render() {
     const {item} = this.props;
-    const {url} = this.state;
+    const {url, ready} = this.state;
 
     return (
       <Card
@@ -63,36 +76,42 @@ class StoreCategoryCard extends Component {
           height: 100,
           backgroundColor: colors.primary,
         }}>
-        <TouchableOpacity
-          onPress={() => this.displayStores()}
-          activeOpacity={0.85}
-          style={{flex: 1, flexDirection: 'row'}}>
-          <View style={{flex: 7, elevation: 10}}>
-            <FastImage source={url} style={{flex: 1, borderRadius: 10}} />
-          </View>
+        {ready ? (
+          <TouchableOpacity
+            onPress={() => this.displayStores()}
+            activeOpacity={0.85}
+            style={{flex: 1, flexDirection: 'row'}}>
+            <View style={{flex: 7, elevation: 10}}>
+              <FastImage source={url} style={{flex: 1, borderRadius: 10}} />
+            </View>
 
-          <View
-            style={{
-              flex: 3,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: 10,
-            }}>
-            <Text
-              adjustsFontSizeToFit
+            <View
               style={{
-                flex: 1,
-                fontSize: 20,
-                color: colors.icons,
-                textAlign: 'center',
+                flex: 3,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: 10,
               }}>
-              {item.name}
-            </Text>
+              <Text
+                adjustsFontSizeToFit
+                style={{
+                  flex: 1,
+                  fontSize: 20,
+                  color: colors.icons,
+                  textAlign: 'center',
+                }}>
+                {item.name}
+              </Text>
 
-            <Icon name="chevron-right" color={colors.icons} />
+              <Icon name="chevron-right" color={colors.icons} />
+            </View>
+          </TouchableOpacity>
+        ) : (
+          <View>
+            <StoreCategoryCardLoader />
           </View>
-        </TouchableOpacity>
+        )}
       </Card>
     );
   }

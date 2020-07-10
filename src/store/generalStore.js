@@ -4,11 +4,161 @@ import storage from '@react-native-firebase/storage';
 import GiftedChat from 'react-native-gifted-chat';
 import 'react-native-get-random-values';
 import {v4 as uuidv4} from 'uuid';
+import Geolocation from '@react-native-community/geolocation';
+import geohash from 'ngeohash';
+import firebase from '@react-native-firebase/app';
+import '@react-native-firebase/functions';
+import {Platform, PermissionsAndroid} from 'react-native';
+
+const functions = firebase.app().functions('asia-northeast1');
 class generalStore {
+  @observable appReady = false;
   @observable orders = [];
   @observable orderItems = [];
   @observable orderMessages = [];
   @observable unsubscribeGetMessages = null;
+  @observable currentLocation = null;
+  @observable currentLocationDetails = null;
+  @observable deliverToCurrentLocation = false;
+  @observable deliverToLastDeliveryLocation = true;
+  @observable deliverToSetLocation = false;
+  @observable currentLocationGeohash = null;
+  @observable userDetails = {};
+  @observable addressLoading = false;
+
+  @action async getAddressFromCoordinates({latitude, longitude}) {
+    return await functions
+      .httpsCallable('getAddressFromCoordinates')({latitude, longitude})
+      .then((response) => {
+        console.log(response);
+        return response.data.locationDetails;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  @action async getUserLocation() {
+    return new Promise((resolve, reject) => {
+      if (Platform.OS === 'ios') {
+        Geolocation.requestAuthorization();
+      } else {
+        PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        ).then((granted) => {
+          console.log(granted); // just to ensure that permissions were granted
+        });
+      }
+
+      Geolocation.getCurrentPosition(
+        async (position) => {
+          resolve(position.coords);
+        },
+        (err) => {
+          console.log(err);
+          reject();
+        },
+        {
+          timeout: 20000,
+        },
+      );
+    });
+  }
+
+  @action async setCurrentLocation() {
+    return new Promise((resolve, reject) => {
+      if (Platform.OS === 'ios') {
+        Geolocation.requestAuthorization();
+      } else {
+        PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        ).then((granted) => {
+          console.log(granted); // just to ensure that permissions were granted
+        });
+      }
+
+      this.addressLoading = true;
+
+      Geolocation.getCurrentPosition(
+        async (position) => {
+          this.deliverToCurrentLocation = true;
+          this.deliverToSetLocation = false;
+          this.deliverToLastDeliveryLocation = false;
+
+          const coords = {
+            latitude: parseFloat(position.coords.latitude),
+            longitude: parseFloat(position.coords.longitude),
+          };
+
+          this.currentLocationGeohash = geohash.encode(
+            coords.latitude,
+            coords.longitude,
+            12,
+          );
+
+          this.currentLocationDetails = await this.getAddressFromCoordinates({
+            ...coords,
+          });
+
+          this.currentLocation = {...coords};
+
+          resolve();
+        },
+        (err) => {
+          console.log(err);
+          reject();
+        },
+        {
+          timeout: 20000,
+        },
+      );
+    }).then(() => {
+      this.addressLoading = false;
+    });
+  }
+
+  @action async setLastDeliveryLocation() {
+    this.deliverToCurrentLocation = false;
+    this.deliverToSetLocation = false;
+    this.deliverToLastDeliveryLocation = true;
+
+    this.currentLocationGeohash = this.userDetails.lastDeliveryLocationGeohash;
+    this.currentLocation = this.userDetails.lastDeliveryLocation;
+    this.currentLocationDetails = this.userDetails.lastDeliveryLocationAddress;
+  }
+
+  @action async getUserDetails(userId) {
+    await firestore()
+      .collection('users')
+      .doc(userId)
+      .get()
+      .then((document) => {
+        if (document.exists) {
+          this.userDetails = document.data();
+        }
+
+        return null;
+      })
+      .catch((err) => console.log(err));
+  }
+
+  @action async updateCoordinates(
+    userId,
+    coordinates,
+    lastDeliveryLocationGeohash,
+    lastDeliveryLocationAddress,
+  ) {
+    await firestore()
+      .collection('users')
+      .doc(userId)
+      .update({
+        lastDeliveryLocation: {...coordinates},
+        lastDeliveryLocationGeohash,
+        lastDeliveryLocationAddress,
+      })
+      .then(() => console.log('Successfully updated user coordinates'))
+      .catch((err) => console.log(err));
+  }
 
   @action async getImageURI(imageRef) {
     if (imageRef) {
@@ -98,10 +248,12 @@ class generalStore {
       .catch((err) => console.log(err));
   }
 
-  @action setOrders(userId) {
-    firestore()
+  @action async setOrders(userId, limit) {
+    return await firestore()
       .collection('orders')
       .where('userId', '==', userId)
+      .orderBy('userOrderNumber', 'desc')
+      .limit(limit)
       .get()
       .then((querySnapshot) => {
         const data = [];
@@ -110,7 +262,29 @@ class generalStore {
           data.push(doc.data());
           data[index].orderId = doc.id;
         });
+
         this.orders = data;
+      })
+      .catch((err) => console.log(err));
+  }
+
+  @action async retrieveMoreOrders(userId, limit, lastVisible) {
+    return await firestore()
+      .collection('orders')
+      .where('userId', '==', userId)
+      .orderBy('userOrderNumber', 'desc')
+      .startAfter(lastVisible)
+      .limit(limit)
+      .get()
+      .then((querySnapshot) => {
+        const data = [];
+
+        querySnapshot.forEach((doc, index) => {
+          data.push(doc.data());
+          data[index].orderId = doc.id;
+        });
+
+        this.orders = [...this.orders, ...data];
       })
       .catch((err) => console.log(err));
   }
@@ -135,8 +309,6 @@ class generalStore {
           return document.data().items;
         }
       });
-
-    console.log('order', orderItems);
 
     return orderItems;
   }

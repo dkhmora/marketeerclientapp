@@ -88,7 +88,7 @@ class StoreScreen extends Component {
                 top: 0,
                 left: 0,
                 right: 0,
-                backgroundColor: 'rgba(0,0,0,1)',
+                backgroundColor: 'rgba(0,0,0,0.5)',
                 position: 'absolute',
               }}
             />

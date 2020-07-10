@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:simulateScoutLozano.gpx">
+   </FileRef>
+   <FileRef
       location = "group:marketeerclientapp.xcodeproj">
    </FileRef>
    <FileRef
