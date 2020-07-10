@@ -15,7 +15,10 @@ class StoreList extends Component {
 
   onRefresh() {
     this.props.shopStore
-      .getShopList(this.props.generalStore.locationGeohash)
+      .getShopList(
+        this.props.generalStore.currentLocationGeohash,
+        this.props.generalStore.currentLocation,
+      )
       .then(() => {
         this.props.generalStore.appReady = true;
       });

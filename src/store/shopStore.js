@@ -4,6 +4,7 @@ import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import '@react-native-firebase/functions';
 import Toast from '../components/Toast';
+import * as geolib from 'geolib';
 
 const functions = firebase.app().functions('asia-northeast1');
 
@@ -255,13 +256,13 @@ class shopStore {
     }
   }
 
-  @action async getShopList(locationGeohash) {
-    if (locationGeohash) {
+  @action async getShopList(currentLocationGeohash, locationCoordinates) {
+    if (currentLocationGeohash) {
       await merchantsCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
         .where('creditData.creditThresholdReached', '==', false)
-        .where('deliveryCoordinates.upperRange', '>=', locationGeohash)
+        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
         .get()
         .then((querySnapshot) => {
           const list = [];
@@ -275,9 +276,10 @@ class shopStore {
           return list;
         })
         .then((list) => {
-          const finalList = list.filter(
-            (element) =>
-              element.deliveryCoordinates.lowerRange <= locationGeohash,
+          const finalList = list.filter((element) =>
+            geolib.isPointInPolygon({...locationCoordinates}, [
+              ...element.deliveryCoordinates.boundingBox,
+            ]),
           );
 
           this.storeList = finalList;

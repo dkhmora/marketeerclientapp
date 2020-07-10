@@ -67,7 +67,7 @@ class SetLocationScreen extends Component {
   getGeohash = (coordinates) => {
     const {latitude, longitude} = coordinates;
 
-    const coordinatesGeohash = geohash.encode(latitude, longitude, 20);
+    const coordinatesGeohash = geohash.encode(latitude, longitude, 12);
 
     return coordinatesGeohash;
   };
@@ -94,7 +94,7 @@ class SetLocationScreen extends Component {
 
     const coordinatesGeohash = await this.getGeohash(newMarkerPosition);
 
-    this.props.shopStore.getShopList(coordinatesGeohash);
+    this.props.shopStore.getShopList(coordinatesGeohash, newMarkerPosition);
 
     this.setState({loading: true});
 
@@ -103,7 +103,7 @@ class SetLocationScreen extends Component {
     this.props.generalStore.deliverToSetLocation = true;
 
     this.props.generalStore.currentLocationDetails = this.selectedLocationAddress;
-    this.props.generalStore.locationGeohash = coordinatesGeohash;
+    this.props.generalStore.currentLocationGeohash = coordinatesGeohash;
     this.props.generalStore.currentLocation = newMarkerPosition;
 
     if (checkout) {

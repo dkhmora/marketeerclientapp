@@ -64,16 +64,24 @@ class App extends React.Component {
                 })
                 .then(() => {
                   shopStore
-                    .getShopList(generalStore.locationGeohash)
+                    .getShopList(
+                      generalStore.currentLocationGeohash,
+                      generalStore.currentLocation,
+                    )
                     .then(() => {
                       generalStore.appReady = true;
                     });
                 });
             } else {
               generalStore.setCurrentLocation().then(() => {
-                shopStore.getShopList(generalStore.locationGeohash).then(() => {
-                  generalStore.appReady = true;
-                });
+                shopStore
+                  .getShopList(
+                    generalStore.currentLocationGeohash,
+                    generalStore.currentLocation,
+                  )
+                  .then(() => {
+                    generalStore.appReady = true;
+                  });
               });
             }
 

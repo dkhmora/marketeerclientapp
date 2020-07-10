@@ -41,7 +41,7 @@ class CheckoutScreen extends Component {
     const {
       currentLocation,
       currentLocationDetails,
-      locationGeohash,
+      currentLocationGeohash,
       updateCoordinates,
       deliverToCurrentLocation,
       deliverToLastDeliveryLocation,
@@ -93,7 +93,7 @@ class CheckoutScreen extends Component {
         updateCoordinates(
           userId,
           currentLocation,
-          locationGeohash,
+          currentLocationGeohash,
           currentLocationDetails,
         );
       })

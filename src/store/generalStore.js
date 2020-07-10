@@ -22,7 +22,7 @@ class generalStore {
   @observable deliverToCurrentLocation = false;
   @observable deliverToLastDeliveryLocation = true;
   @observable deliverToSetLocation = false;
-  @observable locationGeohash = null;
+  @observable currentLocationGeohash = null;
   @observable userDetails = {};
   @observable addressLoading = false;
 
@@ -90,10 +90,10 @@ class generalStore {
             longitude: parseFloat(position.coords.longitude),
           };
 
-          this.locationGeohash = geohash.encode(
+          this.currentLocationGeohash = geohash.encode(
             coords.latitude,
             coords.longitude,
-            20,
+            12,
           );
 
           this.currentLocationDetails = await this.getAddressFromCoordinates({
@@ -122,7 +122,7 @@ class generalStore {
     this.deliverToSetLocation = false;
     this.deliverToLastDeliveryLocation = true;
 
-    this.locationGeohash = this.userDetails.lastDeliveryLocationGeohash;
+    this.currentLocationGeohash = this.userDetails.lastDeliveryLocationGeohash;
     this.currentLocation = this.userDetails.lastDeliveryLocation;
     this.currentLocationDetails = this.userDetails.lastDeliveryLocationAddress;
   }
@@ -269,8 +269,6 @@ class generalStore {
   }
 
   @action async retrieveMoreOrders(userId, limit, lastVisible) {
-    console.log('retrieve limit', limit);
-    console.log('retrieve lastVisible', lastVisible);
     return await firestore()
       .collection('orders')
       .where('userId', '==', userId)
