@@ -50,10 +50,14 @@ class ItemDescriptionModal extends Component {
             <FastImage
               source={require('../../assets/images/placeholder.jpg')}
               style={{
-                height: 150,
+                borderTopLeftRadius: 10,
+                borderTopRightRadius: 10,
                 width: null,
+                height: 300,
+                aspectRatio: 1,
                 backgroundColor: '#e1e4e8',
               }}
+              resizeMode={FastImage.resizeMode.contain}
             />
           )}
           <View
