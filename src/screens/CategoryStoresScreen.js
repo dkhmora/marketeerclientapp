@@ -95,7 +95,7 @@ class CategoryStoresScreen extends Component {
               animation="fadeInUp"
               useNativeDriver
               duration={800}
-              style={{flex: 1}}>
+              style={{flex: 1, justifyContent: 'center'}}>
               <Text
                 adjustsFontSizeToFit
                 numberOfLines={2}
@@ -105,11 +105,28 @@ class CategoryStoresScreen extends Component {
                     paddingLeft: 5,
                     color: colors.icons,
                     fontSize: 30,
-                    width: '80%',
                   },
                 ]}>
                 {categoryDetails.name}
               </Text>
+
+              {categoryDetails.description && (
+                <View style={{flex: 1, marginTop: 16}}>
+                  <Text
+                    adjustsFontSizeToFit
+                    style={[
+                      styles.text_footer,
+                      {
+                        paddingLeft: 5,
+                        color: colors.icons,
+                        fontSize: 20,
+                        flexShrink: 1,
+                      },
+                    ]}>
+                    {categoryDetails.description}
+                  </Text>
+                </View>
+              )}
             </Animatable.View>
           </ImageBackground>
         </Animatable.View>
