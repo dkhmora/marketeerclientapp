@@ -23,7 +23,7 @@ class OrderList extends Component {
       refreshing: true,
       loading: false,
       lastVisible: null,
-      limit: 10,
+      limit: 8,
       onEndReachedCalledDuringMomentum: true,
     };
   }
