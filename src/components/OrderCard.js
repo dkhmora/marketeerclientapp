@@ -37,6 +37,7 @@ class OrderCard extends Component {
       storeDetails: null,
       ready: false,
       addReviewModal: false,
+      reviewedOnDevice: false,
     };
 
     this.props.shopStore
@@ -216,6 +217,7 @@ class OrderCard extends Component {
 
   CardFooter = ({createdAt, paymentMethod, orderStatus}) => {
     const {order} = this.props;
+    const {reviewedOnDevice} = this.state;
     const timeStamp = moment(createdAt, ISO_8601).format('MM-DD-YYYY hh:MM A');
 
     return (
@@ -231,15 +233,17 @@ class OrderCard extends Component {
         }}>
         <Text>{timeStamp}</Text>
 
-        {orderStatus[0] === 'COMPLETED' && !order.reviewed && (
-          <Button
-            title="Review"
-            type="clear"
-            onPress={() => this.openAddReviewModal()}
-            titleStyle={{color: colors.primary}}
-            containerStyle={{borderRadius: 24}}
-          />
-        )}
+        {orderStatus[0] === 'COMPLETED' &&
+          !order.reviewed &&
+          !reviewedOnDevice && (
+            <Button
+              title="Review"
+              type="clear"
+              onPress={() => this.openAddReviewModal()}
+              titleStyle={{color: colors.primary}}
+              containerStyle={{borderRadius: 24}}
+            />
+          )}
       </View>
     );
   };
@@ -263,6 +267,7 @@ class OrderCard extends Component {
             order={order}
             isVisible={addReviewModal}
             closeModal={() => this.setState({addReviewModal: false})}
+            onReviewSubmit={() => this.setState({reviewedOnDevice: true})}
           />
 
           <Modal

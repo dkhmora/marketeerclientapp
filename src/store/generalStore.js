@@ -26,6 +26,19 @@ class generalStore {
   @observable userDetails = {};
   @observable addressLoading = false;
 
+  @action async addReview({review}) {
+    return await functions
+      .httpsCallable('addReview')({
+        ...review,
+      })
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
   @action async getAddressFromCoordinates({latitude, longitude}) {
     return await functions
       .httpsCallable('getAddressFromCoordinates')({latitude, longitude})
