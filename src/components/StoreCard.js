@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text, Rating} from 'react-native-elements';
+import {Text} from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 import FastImage from 'react-native-fast-image';
 import {
@@ -15,6 +15,7 @@ import {Card, CardItem} from 'native-base';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import StoreCardLoader from './StoreCardLoader';
+import {Rating} from 'react-native-rating-element';
 
 class StoreCard extends Component {
   constructor(props) {
@@ -175,11 +176,11 @@ class StoreCard extends Component {
                   }}>
                   <Rating
                     type="custom"
-                    fractions={1}
-                    startingValue={3.3}
-                    imageSize={20}
-                    ratingImage={require('../../assets/images/star.png')}
-                    readonly
+                    direction="row"
+                    rated={3.5}
+                    selectedIconImage={require('../../assets/images/feather_filled.png')}
+                    emptyIconImage={require('../../assets/images/feather_unfilled.png')}
+                    size={23}
                     tintColor={colors.primary}
                     ratingColor={colors.accent}
                     ratingBackgroundColor="#455A64"
