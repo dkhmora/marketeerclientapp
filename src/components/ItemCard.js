@@ -56,6 +56,10 @@ class ItemCard extends Component {
       }
     }
 
+    if (this.state.minusButtonShown) {
+      this.hideMinusButton();
+    }
+
     return 0;
   }
 
@@ -107,8 +111,11 @@ class ItemCard extends Component {
 
   hideMinusButton() {
     this.setState({minusButtonShown: false});
-    this.buttonCounterView.fadeOutRight(200) &&
-      this.plusButton.deTransformPlusButton(300);
+
+    if (this.buttonCounterView && this.plusButton) {
+      this.buttonCounterView.fadeOutRight(200) &&
+        this.plusButton.deTransformPlusButton(300);
+    }
   }
 
   handleIncreaseQuantity() {
