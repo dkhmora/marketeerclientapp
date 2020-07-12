@@ -155,6 +155,7 @@ class StoreDetailsModal extends Component {
                   elevation: 10,
                   resizeMode: 'stretch',
                   alignItems: 'center',
+                  overflow: 'hidden',
                 }}>
                 <View
                   style={{
