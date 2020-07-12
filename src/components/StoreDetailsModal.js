@@ -1,11 +1,12 @@
 import React, {Component} from 'react';
-import {Overlay, Text, Avatar} from 'react-native-elements';
+import {Overlay, Text, Avatar, ButtonGroup, Icon} from 'react-native-elements';
 import {View, ActivityIndicator, FlatList, ImageBackground} from 'react-native';
 import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
 import {inject} from 'mobx-react';
 import {CardItem, Card} from 'native-base';
 import {Rating} from 'react-native-rating-element';
+import MapView, {Marker} from 'react-native-maps';
 
 @inject('generalStore')
 class StoreDetailsModal extends Component {
@@ -15,6 +16,7 @@ class StoreDetailsModal extends Component {
     this.state = {
       reviewsLoading: true,
       reviews: [],
+      selectedIndex: 0,
     };
   }
 
@@ -62,7 +64,7 @@ class StoreDetailsModal extends Component {
           }}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Avatar
-              title="D"
+              title={item.userName.charAt(0)}
               size="small"
               rounded
               overlayContainerStyle={{
@@ -120,7 +122,7 @@ class StoreDetailsModal extends Component {
       coverImageUrl,
       ...otherProps
     } = this.props;
-    const {reviewsLoading, reviews} = this.state;
+    const {reviewsLoading, reviews, selectedIndex} = this.state;
 
     return (
       <Overlay
@@ -130,10 +132,15 @@ class StoreDetailsModal extends Component {
         onBackdropPress={() => this.handleBackdropPress()}
         windowBackgroundColor="rgba(255, 255, 255, .5)"
         overlayBackgroundColor="red"
-        width="auto"
-        height="auto"
-        overlayStyle={{borderRadius: 10, padding: 0}}>
-        <View style={{flex: 1, maxWidth: '90%', maxHeight: '90%'}}>
+        width="90%"
+        height="70%"
+        overlayStyle={{
+          borderRadius: 10,
+          padding: 0,
+          marginHorizontal: '5%',
+          marginVertical: '20%',
+        }}>
+        <View style={{flex: 1}}>
           <View>
             {coverImageUrl && (
               <ImageBackground
@@ -143,100 +150,164 @@ class StoreDetailsModal extends Component {
                   maxWidth: '100%',
                   borderTopLeftRadius: 10,
                   borderTopRightRadius: 10,
-                  height: 130,
+                  height: 200,
                   aspectRatio: 3,
                   elevation: 10,
                   resizeMode: 'stretch',
+                  alignItems: 'center',
                 }}>
                 <View
                   style={{
-                    flexDirection: 'row',
+                    flexDirection: 'column',
                     flex: 1,
                     backgroundColor: 'rgba(0,0,0,0.5)',
                     paddingHorizontal: 10,
-                    justifyContent: 'flex-start',
+                    justifyContent: 'center',
                     alignItems: 'center',
                   }}>
-                  {displayImageUrl && (
-                    <FastImage
-                      source={{uri: displayImageUrl}}
-                      style={{
-                        borderRadius: 10,
-                        width: 90,
-                        aspectRatio: 1,
-                        backgroundColor: '#e1e4e8',
-                        elevation: 10,
-                        marginRight: 10,
-                      }}
-                      resizeMode={FastImage.resizeMode.center}
-                    />
-                  )}
+                  <View
+                    style={{
+                      flex: 1,
+                      flexDirection: 'row',
+                      justifyContent: 'flex-start',
+                      alignItems: 'center',
+                    }}>
+                    {displayImageUrl && (
+                      <FastImage
+                        source={{uri: displayImageUrl}}
+                        style={{
+                          borderRadius: 10,
+                          width: 90,
+                          aspectRatio: 1,
+                          backgroundColor: '#e1e4e8',
+                          elevation: 10,
+                          marginRight: 10,
+                        }}
+                        resizeMode={FastImage.resizeMode.center}
+                      />
+                    )}
 
-                  <View style={{flex: 1}}>
-                    <Text
-                      style={{
-                        color: colors.icons,
-                        fontSize: 24,
-                        marginBottom: 10,
-                      }}>
-                      {store.storeName}
-                    </Text>
-                    <Text
-                      style={{
-                        color: colors.icons,
-                        fontSize: 16,
-                        flexWrap: 'wrap',
-                      }}>
-                      {store.storeDescription}
-                    </Text>
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          color: colors.icons,
+                          fontSize: 24,
+                          marginBottom: 10,
+                        }}>
+                        {store.storeName}
+                      </Text>
+                      <Text
+                        style={{
+                          color: colors.icons,
+                          fontSize: 16,
+                          flexWrap: 'wrap',
+                        }}>
+                        {store.storeDescription}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={{justifyContent: 'center'}}>
+                    <ButtonGroup
+                      onPress={(index) => this.setState({selectedIndex: index})}
+                      selectedIndex={selectedIndex}
+                      buttons={['Reviews', 'Store Info']}
+                      activeOpacity={0.7}
+                      containerStyle={{
+                        height: 30,
+                        width: '80%',
+                        borderRadius: 8,
+                        elevation: 5,
+                      }}
+                      selectedButtonStyle={{backgroundColor: colors.primary}}
+                    />
                   </View>
                 </View>
               </ImageBackground>
             )}
           </View>
 
-          {reviewsLoading ? (
-            <ActivityIndicator size="large" color={colors.primary} />
+          {selectedIndex === 0 ? (
+            <View style={{flex: 1, overflow: 'hidden'}}>
+              {reviewsLoading ? (
+                <ActivityIndicator size="large" color={colors.primary} />
+              ) : (
+                <FlatList
+                  style={{flex: 1, alignSelf: 'flex-start', overflow: 'hidden'}}
+                  data={reviews}
+                  initialNumToRender={30}
+                  renderItem={({item, index}) => (
+                    <this.ReviewListItem item={item} key={index} />
+                  )}
+                  keyExtractor={(item) => item.orderId}
+                  showsVerticalScrollIndicator={false}
+                />
+              )}
+            </View>
           ) : (
-            <View style={{flex: 1, padding: 10}}>
-              <Card
+            <View
+              style={{
+                flex: 1,
+              }}>
+              <View
                 style={{
-                  flex: 1,
-                  borderRadius: 10,
-                  overflow: 'hidden',
-                  maxHeight: '80%',
+                  flex: 0.1,
+                  paddingHorizontal: 15,
+                  paddingVertical: 20,
+                  justifyContent: 'center',
                 }}>
-                <CardItem
-                  header
-                  bordered
-                  style={{
-                    backgroundColor: colors.primary,
-                  }}>
-                  <Text style={{color: colors.icons, fontSize: 20}}>
-                    Customer Reviews
-                  </Text>
-                </CardItem>
-
-                <CardItem
-                  style={{
-                    paddingLeft: 0,
-                    paddingRight: 0,
-                    paddingTop: 0,
-                    paddingBottom: 0,
-                    flex: 1,
-                  }}>
-                  <FlatList
-                    style={{flex: 1, alignSelf: 'flex-start'}}
-                    data={reviews}
-                    initialNumToRender={30}
-                    renderItem={({item, index}) => (
-                      <this.ReviewListItem item={item} key={index} />
-                    )}
-                    keyExtractor={(item) => item.orderId}
-                    showsVerticalScrollIndicator={false}
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Icon
+                    name="map-pin"
+                    color={colors.primary}
+                    style={{paddingRight: 10}}
                   />
-                </CardItem>
-              </Card>
+                  <Text style={{fontSize: 16}}>
+                    {store.deliveryCoordinates.address}
+                  </Text>
+                </View>
+              </View>
+
+              <View
+                style={{
+                  flex: 0.9,
+                  overflow: 'hidden',
+                  borderBottomRightRadius: 10,
+                  borderBottomLeftRadius: 10,
+                }}>
+                <MapView
+                  style={{
+                    flex: 1,
+                  }}
+                  ref={(map) => {
+                    this.map = map;
+                  }}
+                  onRegionChangeComplete={this.handleRegionChange}
+                  showsUserLocation
+                  initialRegion={{
+                    latitude: store.deliveryCoordinates.latitude,
+                    longitude: store.deliveryCoordinates.longitude,
+                    latitudeDelta: 0.009,
+                    longitudeDelta: 0.009,
+                  }}>
+                  {store.deliveryCoordinates.latitude &&
+                    store.deliveryCoordinates.longitude && (
+                      <Marker
+                        ref={(marker) => {
+                          this.marker = marker;
+                        }}
+                        tracksViewChanges={false}
+                        coordinate={{
+                          latitude: store.deliveryCoordinates.latitude,
+                          longitude: store.deliveryCoordinates.longitude,
+                        }}>
+                        <View>
+                          <Icon color={colors.primary} name="map-pin" />
+                        </View>
+                      </Marker>
+                    )}
+                </MapView>
+              </View>
             </View>
           )}
         </View>

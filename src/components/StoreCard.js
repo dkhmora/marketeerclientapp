@@ -184,6 +184,7 @@ class StoreCard extends Component {
                     tintColor={colors.primary}
                     ratingColor={colors.accent}
                     ratingBackgroundColor="#455A64"
+                    onIconTap={() => {}}
                   />
                 </View>
               </View>
