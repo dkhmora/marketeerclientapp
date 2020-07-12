@@ -238,7 +238,7 @@ class ItemCard extends Component {
               </TouchableOpacity>
             </View>
 
-            <CardItem cardBody style={{marginTop: -10}}>
+            <CardItem cardBody>
               {this.url ? (
                 <FastImage
                   source={{uri: this.url}}
@@ -260,6 +260,33 @@ class ItemCard extends Component {
                   resizeMode={FastImage.resizeMode.contain}
                 />
               )}
+
+              <View
+                style={{
+                  flexDirection: 'row',
+                  position: 'absolute',
+                  bottom: 10,
+                  left: 10,
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  backgroundColor: colors.icons,
+                  opacity: 0.9,
+                  borderColor: colors.text_secondary,
+                  padding: 5,
+                  alignItems: 'center',
+                }}>
+                <Text style={{fontSize: 14}}>{stock}</Text>
+
+                <Text
+                  style={{
+                    fontSize: 14,
+                    textAlign: 'center',
+                    color: colors.text_secondary,
+                  }}>
+                  {' '}
+                  Left
+                </Text>
+              </View>
             </CardItem>
 
             <View
@@ -387,33 +414,6 @@ class ItemCard extends Component {
                   />
                 </View>
               </Animatable.View>
-            </View>
-
-            <View
-              style={{
-                flexDirection: 'row',
-                position: 'absolute',
-                bottom: 10,
-                left: 10,
-                borderRadius: 10,
-                borderWidth: 1,
-                backgroundColor: colors.icons,
-                opacity: 0.9,
-                borderColor: colors.text_secondary,
-                padding: 5,
-                alignItems: 'center',
-              }}>
-              <Text style={{fontSize: 14}}>{stock}</Text>
-
-              <Text
-                style={{
-                  fontSize: 14,
-                  textAlign: 'center',
-                  color: colors.text_secondary,
-                }}>
-                {' '}
-                Left
-              </Text>
             </View>
           </Card>
         </Animatable.View>
