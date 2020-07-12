@@ -17,6 +17,7 @@ import {styles} from '../../assets/styles';
 import SlidingCartPanel from '../components/SlidingCartPanel';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import ItemTabs from '../navigation/ItemCategoriesTab';
+import StoreDetailsModal from '../components/StoreDetailsModal';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -30,6 +31,7 @@ class StoreScreen extends Component {
     this.state = {
       storeItemCategories: {},
       ready: false,
+      detailsModal: false,
     };
 
     const {store} = this.props.route.params;
@@ -51,11 +53,21 @@ class StoreScreen extends Component {
   render() {
     const {store, displayImageUrl, coverImageUrl} = this.props.route.params;
     const {navigation} = this.props;
-    const {storeCategoryItems} = this.state;
+    const {storeCategoryItems, detailsModal} = this.state;
 
     return (
       <View style={{flex: 1, backgroundColor: colors.text_primary}}>
         <StatusBar animated translucent backgroundColor={colors.statusBar} />
+
+        {coverImageUrl && displayImageUrl && (
+          <StoreDetailsModal
+            isVisible={detailsModal}
+            closeModal={() => this.setState({detailsModal: false})}
+            store={store}
+            coverImageUrl={coverImageUrl}
+            displayImageUrl={displayImageUrl}
+          />
+        )}
 
         <Animatable.View
           useNativeDriver
@@ -127,6 +139,7 @@ class StoreScreen extends Component {
               duration={800}
               style={{flex: 1}}>
               <TouchableOpacity
+                onPress={() => this.setState({detailsModal: true})}
                 style={{
                   flexDirection: 'row',
                   justifyContent: 'center',

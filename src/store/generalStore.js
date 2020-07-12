@@ -26,6 +26,31 @@ class generalStore {
   @observable userDetails = {};
   @observable addressLoading = false;
 
+  @action async getStoreReviews(merchantId) {
+    const storeOrderReviewsRef = firestore()
+      .collection('merchants')
+      .doc(merchantId)
+      .collection('order_reviews');
+
+    return await storeOrderReviewsRef
+      .get()
+      .then((querySnapshot) => {
+        const data = [];
+
+        querySnapshot.forEach((doc, index) => {
+          if (doc.id !== 'reviewNumber') {
+            console.log('GENERAL STORE', doc.data());
+            data.push(...doc.data().reviews);
+          }
+        });
+
+        return data;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
   @action async addReview({review}) {
     return await functions
       .httpsCallable('addReview')({
