@@ -16,7 +16,7 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import SlidingCartPanel from '../components/SlidingCartPanel';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import ItemTabs from '../navigation/ItemCategoriesTab';
+import ItemCategoriesTab from '../navigation/ItemCategoriesTab';
 import StoreDetailsModal from '../components/StoreDetailsModal';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
@@ -120,6 +120,7 @@ class StoreScreen extends Component {
                 ]}
               />
             </Animatable.View>
+
             <Animatable.Image
               animation="fadeInUp"
               useNativeDriver
@@ -133,45 +134,45 @@ class StoreScreen extends Component {
                 borderColor: 'rgba(0,0,0,0.6)',
               }}
             />
+
             <Animatable.View
               animation="fadeInUp"
               useNativeDriver
               duration={800}
-              style={{flex: 1}}>
-              <TouchableOpacity
-                onPress={() => this.setState({detailsModal: true})}
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  alignItems: 'center',
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <Text
+                adjustsFontSizeToFit
+                numberOfLines={1}
+                style={[
+                  styles.text_footer,
+                  {
+                    paddingLeft: 5,
+                    color: colors.icons,
+                    fontSize: 30,
+                    width: '80%',
+                  },
+                ]}>
+                {store.storeName}
+              </Text>
+
+              <Button
+                type="clear"
+                containerStyle={{
+                  backgroundColor: colors.icons,
                   borderRadius: 24,
-                  borderWidth: 0.5,
-                  borderColor: colors.icons,
-                  marginHorizontal: 5,
-                  padding: 5,
-                  backgroundColor: 'rgba(0,0,0,0.5)',
-                  elevation: 5,
-                }}>
-                <Text
-                  adjustsFontSizeToFit
-                  numberOfLines={1}
-                  style={[
-                    styles.text_footer,
-                    {
-                      paddingLeft: 5,
-                      color: colors.icons,
-                      fontSize: 30,
-                      width: '80%',
-                    },
-                  ]}>
-                  {store.storeName}
-                </Text>
-                <Icon
-                  name="info"
-                  color={colors.icons}
-                  style={{color: '#fff'}}
-                />
-              </TouchableOpacity>
+                }}
+                icon={
+                  <Icon
+                    name="info"
+                    color={colors.primary}
+                    style={{color: '#fff'}}
+                  />
+                }
+              />
             </Animatable.View>
           </ImageBackground>
         </Animatable.View>
@@ -201,7 +202,7 @@ class StoreScreen extends Component {
               overflow: 'hidden',
             },
           ]}>
-          <ItemTabs
+          <ItemCategoriesTab
             storeCategoryItems={storeCategoryItems}
             storeName={store.storeName}
           />
