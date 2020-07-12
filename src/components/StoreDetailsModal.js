@@ -184,7 +184,7 @@ class StoreDetailsModal extends Component {
                           elevation: 10,
                           marginRight: 10,
                         }}
-                        resizeMode={FastImage.resizeMode.center}
+                        resizeMode={FastImage.resizeMode.contain}
                       />
                     )}
 
