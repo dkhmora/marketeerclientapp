@@ -156,6 +156,13 @@ class StoreDetailsModal extends Component {
                   resizeMode: 'stretch',
                   alignItems: 'center',
                   overflow: 'hidden',
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 5,
+                  },
+                  shadowOpacity: 0.34,
+                  shadowRadius: 6.27,
                 }}>
                 <View
                   style={{
@@ -182,6 +189,13 @@ class StoreDetailsModal extends Component {
                           aspectRatio: 1,
                           backgroundColor: '#e1e4e8',
                           elevation: 10,
+                          shadowColor: '#000',
+                          shadowOffset: {
+                            width: 0,
+                            height: 5,
+                          },
+                          shadowOpacity: 0.34,
+                          shadowRadius: 6.27,
                           marginRight: 10,
                         }}
                         resizeMode={FastImage.resizeMode.contain}
@@ -219,6 +233,14 @@ class StoreDetailsModal extends Component {
                         width: '80%',
                         borderRadius: 8,
                         elevation: 5,
+                        shadowColor: '#000',
+                        shadowOffset: {
+                          width: 0,
+                          height: 2,
+                        },
+                        shadowOpacity: 0.25,
+                        shadowRadius: 3.84,
+                        borderColor: 'rgba(0,0,0,0.7)',
                       }}
                       selectedButtonStyle={{backgroundColor: colors.primary}}
                     />

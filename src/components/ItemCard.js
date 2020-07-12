@@ -200,7 +200,15 @@ class ItemCard extends Component {
                 backgroundColor: colors.icons,
                 paddingHorizontal: 10,
                 paddingVertical: 10,
-                elevation: 2,
+                elevation: 3,
+                zIndex: 10,
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 1.41,
                 borderBottomLeftRadius: 10,
                 borderBottomRightRadius: 10,
               }}>
@@ -245,6 +253,7 @@ class ItemCard extends Component {
                   style={{
                     aspectRatio: 1,
                     flex: 1,
+                    marginTop: -10,
                     backgroundColor: '#e1e4e8',
                   }}
                   resizeMode={FastImage.resizeMode.contain}
@@ -255,6 +264,7 @@ class ItemCard extends Component {
                   style={{
                     aspectRatio: 1,
                     flex: 1,
+                    marginTop: -10,
                     backgroundColor: '#e1e4e8',
                   }}
                   resizeMode={FastImage.resizeMode.contain}
@@ -341,6 +351,13 @@ class ItemCard extends Component {
                         height: 40,
                         borderRadius: 24,
                         elevation: 3,
+                        shadowColor: '#000',
+                        shadowOffset: {
+                          width: 0,
+                          height: 1,
+                        },
+                        shadowOpacity: 0.22,
+                        shadowRadius: 2.22,
                       },
                     ]}
                   />
