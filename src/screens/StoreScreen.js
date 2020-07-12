@@ -73,13 +73,13 @@ class StoreScreen extends Component {
           useNativeDriver
           animation="fadeInUp"
           duration={800}
-          style={{flex: Platform.OS === 'android' ? 2.5 : 2}}>
+          style={{flexDirection: 'row'}}>
           <ImageBackground
             source={{uri: coverImageUrl}}
             style={{
               flex: 1,
               flexDirection: 'row',
-              height: 250,
+              height: 200,
               resizeMode: 'cover',
               justifyContent: 'center',
               paddingTop: STATUS_BAR_HEIGHT,
@@ -145,15 +145,16 @@ class StoreScreen extends Component {
                   justifyContent: 'center',
                   alignItems: 'center',
                   borderRadius: 24,
-                  borderWidth: 1,
-                  borderColor: '#fff',
+                  borderWidth: 0.5,
+                  borderColor: colors.icons,
                   marginHorizontal: 5,
                   padding: 5,
-                  backgroundColor: 'rgba(0,0,0,0.45)',
+                  backgroundColor: 'rgba(0,0,0,0.5)',
+                  elevation: 5,
                 }}>
                 <Text
                   adjustsFontSizeToFit
-                  numberOfLines={2}
+                  numberOfLines={1}
                   style={[
                     styles.text_footer,
                     {
