@@ -7,6 +7,7 @@ import {inject} from 'mobx-react';
 import {CardItem, Card} from 'native-base';
 import {Rating} from 'react-native-rating-element';
 import MapView, {Marker} from 'react-native-maps';
+import moment, {ISO_8601} from 'moment';
 
 @inject('generalStore')
 class StoreDetailsModal extends Component {
@@ -46,6 +47,10 @@ class StoreDetailsModal extends Component {
   }
 
   ReviewListItem({item}) {
+    const timeStamp = moment(item.createdAt, ISO_8601).format(
+      'MM-DD-YYYY hh:MM A',
+    );
+
     return (
       <View
         style={{
@@ -107,7 +112,7 @@ class StoreDetailsModal extends Component {
             asdasd asd sa asd as dsa dasdsa a d adasdasdasd
           </Text>
 
-          <Text style={{color: colors.text_secondary}}>10 Years ago</Text>
+          <Text style={{color: colors.text_secondary}}>{timeStamp}</Text>
         </View>
       </View>
     );

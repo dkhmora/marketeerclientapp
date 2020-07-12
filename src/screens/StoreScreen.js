@@ -161,6 +161,7 @@ class StoreScreen extends Component {
 
               <Button
                 type="clear"
+                onPress={() => this.setState({detailsModal: true})}
                 containerStyle={{
                   backgroundColor: colors.icons,
                   borderRadius: 24,
