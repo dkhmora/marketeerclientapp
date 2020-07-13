@@ -73,7 +73,7 @@ class StoreScreen extends Component {
           useNativeDriver
           animation="fadeInUp"
           duration={800}
-          style={{flexDirection: 'row'}}>
+          style={{flexDirection: 'row', paddingBottom: 20}}>
           <ImageBackground
             source={{uri: coverImageUrl}}
             style={{
@@ -82,7 +82,7 @@ class StoreScreen extends Component {
               height: 200,
               resizeMode: 'cover',
               justifyContent: 'center',
-              paddingTop: STATUS_BAR_HEIGHT,
+              paddingTop: STATUS_BAR_HEIGHT + 20,
               paddingBottom: 40 + STATUS_BAR_HEIGHT,
               paddingHorizontal: 5,
               alignItems: 'center',
@@ -104,6 +104,7 @@ class StoreScreen extends Component {
                 position: 'absolute',
               }}
             />
+
             <Animatable.View
               animation="fadeInUp"
               useNativeDriver

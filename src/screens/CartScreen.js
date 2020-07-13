@@ -64,6 +64,7 @@ class CartScreen extends Component {
             style={{
               height: 65,
               width: 80,
+              marginVertical: 15,
               resizeMode: 'cover',
               marginRight: 10,
             }}
