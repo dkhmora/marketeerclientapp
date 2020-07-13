@@ -9,6 +9,7 @@ import geohash from 'ngeohash';
 import firebase from '@react-native-firebase/app';
 import '@react-native-firebase/functions';
 import {Platform, PermissionsAndroid} from 'react-native';
+import Toast from '../components/Toast';
 
 const functions = firebase.app().functions('asia-northeast1');
 class generalStore {
@@ -110,6 +111,15 @@ class generalStore {
         PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         ).then((granted) => {
+          if (granted === 'granted') {
+            console.log(granted);
+          } else {
+            Toast({
+              text:
+                'Error, location permissions is required. Please enable location permissions.',
+              duration: 0,
+            });
+          }
           console.log(granted); // just to ensure that permissions were granted
         });
       }
@@ -143,6 +153,12 @@ class generalStore {
         },
         (err) => {
           console.log(err);
+
+          Toast({
+            text: err,
+            duration: 0,
+          });
+
           reject();
         },
         {
