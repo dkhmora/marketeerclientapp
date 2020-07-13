@@ -3,12 +3,19 @@ import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs
 import ItemsList from '../components/ItemsList';
 import {View} from 'react-native';
 import {Text} from 'react-native-elements';
+import {computed} from 'mobx';
 
 const ItemTab = createMaterialTopTabNavigator();
 
 class ItemCategoriesTab extends Component {
   constructor(props) {
     super(props);
+  }
+
+  @computed get scrollEnabled() {
+    const {storeCategoryItems} = this.props;
+
+    return storeCategoryItems && storeCategoryItems.size >= 3 ? true : false;
   }
 
   TabScreens(storeCategoryItems) {
@@ -34,11 +41,12 @@ class ItemCategoriesTab extends Component {
 
   render() {
     const {storeCategoryItems} = this.props;
+    const {scrollEnabled} = this;
 
     if (storeCategoryItems) {
       return (
         <View style={{flex: 1}}>
-          <ItemTab.Navigator>
+          <ItemTab.Navigator tabBarOptions={{scrollEnabled}}>
             {storeCategoryItems && this.TabScreens(storeCategoryItems)}
           </ItemTab.Navigator>
         </View>

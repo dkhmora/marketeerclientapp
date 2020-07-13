@@ -11,21 +11,21 @@ import {inject, observer} from 'mobx-react';
 class StoreList extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {refreshing: false};
   }
 
   onRefresh() {
+    this.setState({refreshing: true});
+
     this.props.shopStore
       .getShopList(
         this.props.generalStore.currentLocationGeohash,
         this.props.generalStore.currentLocation,
       )
       .then(() => {
-        this.props.generalStore.appReady = true;
+        this.setState({refreshing: false});
       });
-  }
-
-  componentDidMount() {
-    console.log(this.props.generalStore.appReady);
   }
 
   render() {
@@ -38,6 +38,7 @@ class StoreList extends Component {
     }
 
     const {navigation} = this.props;
+    const {refreshing} = this.state;
 
     return (
       <View
@@ -61,7 +62,7 @@ class StoreList extends Component {
           refreshControl={
             <RefreshControl
               colors={[colors.primary, colors.dark]}
-              refreshing={!this.props.generalStore.appReady}
+              refreshing={refreshing}
               onRefresh={this.onRefresh.bind(this)}
             />
           }

@@ -202,79 +202,82 @@ class PhoneVerificationScreen extends Component {
     const {phoneNumber} = this.props.route.params;
     const {loading} = this.state;
 
-    if (!loading) {
-      return (
-        <View style={styles.container}>
-          <StatusBar animated backgroundColor={colors.primary} />
+    return (
+      <View style={styles.container}>
+        <StatusBar animated backgroundColor={colors.primary} />
 
-          <View style={styles.header}>
-            <Image
-              source={require('../../assets/images/logo.png')}
-              style={{
-                height: 150,
-                width: 200,
-                resizeMode: 'center',
-              }}
-            />
-          </View>
-          <Animatable.View
-            useNativeDriver
-            animation="fadeInUpBig"
-            style={styles.footer}>
-            <View style={{flex: 1}}>
-              <View style={{flex: 1, justifyContent: 'flex-start'}}>
-                <Text style={styles.text_header}>SMS Verification</Text>
-                <Text style={styles.text_subtext}>
-                  Please enter the SMS Verification Code sent to {phoneNumber}
+        <View style={styles.header}>
+          <Image
+            source={require('../../assets/images/logo.png')}
+            style={{
+              height: 150,
+              width: 200,
+              resizeMode: 'center',
+            }}
+          />
+        </View>
+        <Animatable.View
+          useNativeDriver
+          animation="fadeInUpBig"
+          style={styles.footer}>
+          <View style={{flex: 1}}>
+            <View style={{flex: 1, justifyContent: 'flex-start'}}>
+              <Text style={styles.text_header}>SMS Verification</Text>
+              <Text style={styles.text_subtext}>
+                Please enter the SMS Verification Code sent to {phoneNumber}
+              </Text>
+            </View>
+            <View style={{flex: 3}}>
+              <OTPInputView
+                pinCount={6}
+                autoFocusOnLoad
+                codeInputFieldStyle={{
+                  borderRadius: 24,
+                  borderColor: '#666',
+                  color: colors.primary,
+                }}
+                codeInputHighlightStyle={{borderColor: colors.primary}}
+                keyboardType="number-pad"
+                onCodeFilled={(code) => {
+                  this.confirmCode(code);
+                }}
+                style={{width: '95%', height: 100, alignSelf: 'center'}}
+              />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'flex-start',
+                  paddingTop: 10,
+                }}>
+                <Text styles={styles.text_subtext}>
+                  Didn't receive the code?{' '}
                 </Text>
-              </View>
-              <View style={{flex: 3}}>
-                <OTPInputView
-                  pinCount={6}
-                  autoFocusOnLoad
-                  codeInputFieldStyle={{
-                    borderRadius: 24,
-                    borderColor: '#666',
-                    color: colors.primary,
-                  }}
-                  codeInputHighlightStyle={{borderColor: colors.primary}}
-                  keyboardType="number-pad"
-                  onCodeFilled={(code) => {
-                    this.confirmCode(code);
-                  }}
-                  style={{width: '95%', height: 100, alignSelf: 'center'}}
-                />
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'flex-start',
-                    paddingTop: 10,
-                  }}>
-                  <Text styles={styles.text_subtext}>
-                    Didn't receive the code?{' '}
+                <TouchableOpacity onPress={() => this.handleResend()}>
+                  <Text style={styles.touchable_text}>
+                    Resend Verification Code
                   </Text>
-                  <TouchableOpacity onPress={() => this.handleResend()}>
-                    <Text style={styles.touchable_text}>
-                      Resend Verification Code
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+                </TouchableOpacity>
               </View>
             </View>
-          </Animatable.View>
-        </View>
-      );
-    }
+          </View>
+        </Animatable.View>
 
-    return (
-      <View
-        style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: 'rgba(0,0,0,0.5)',
-        }}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        {loading && (
+          <View
+            style={{
+              height: '100%',
+              width: '100%',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0,0,0,0.5)',
+            }}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        )}
       </View>
     );
   }

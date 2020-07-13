@@ -3,7 +3,8 @@ import App from '../App';
 // For theme
 import {colors} from '../../assets/colors';
 import {ThemeProvider} from 'react-native-elements';
-import {inject} from 'mobx-react';
+import {View, ActivityIndicator} from 'react-native';
+import {inject, observer} from 'mobx-react';
 
 const theme = {
   BaseHeader: {
@@ -38,11 +39,31 @@ const theme = {
   },
 };
 @inject('authStore')
+@inject('generalStore')
+@observer
 class Setup extends Component {
   render() {
+    const {appReady} = this.props.generalStore;
     return (
       <ThemeProvider theme={theme}>
         <App />
+
+        {!appReady && (
+          <View
+            style={{
+              height: '100%',
+              width: '100%',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0,0,0,0.5)',
+            }}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        )}
       </ThemeProvider>
     );
   }

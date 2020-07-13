@@ -239,14 +239,14 @@ class authStore {
       );
   }
 
-  @action async signIn(userCredential, password, navigateLocation) {
+  @action async signIn(userCredential, password) {
     const phoneRegexp = new RegExp(/^(09)\d{9}$/);
 
     if (phoneRegexp.test(userCredential)) {
       const phoneBody = userCredential.slice(1, 11);
       const phoneNumber = `+63${phoneBody}`;
 
-      functions
+      return await functions
         .httpsCallable('signInWithPhoneAndPassword')({
           phone: phoneNumber,
           password,
@@ -256,7 +256,7 @@ class authStore {
             .signInWithCustomToken(response.data.t)
             .then(() => {
               this.userAuthenticated = true;
-              navigateLocation;
+
               Toast({
                 text: 'Signed in successfully',
                 duration: 3500,
@@ -280,15 +280,15 @@ class authStore {
           console.log(err);
         });
     } else {
-      await auth()
+      return await auth()
         .signInWithEmailAndPassword(userCredential, password)
         .then(() => {
           this.userAuthenticated = true;
+
           Toast({
             text: 'Signed in successfully',
             duration: 3500,
           });
-          navigateLocation;
         })
         .catch((err) => {
           if (err.code === 'auth/user-not-found') {
@@ -305,14 +305,8 @@ class authStore {
   }
 
   @action async signOut() {
-    await auth()
+    return await auth()
       .signOut()
-      .then(() =>
-        Toast({
-          text: 'Signed out successfully',
-          duration: 3500,
-        }),
-      )
       .then(() =>
         auth()
           .signInAnonymously()

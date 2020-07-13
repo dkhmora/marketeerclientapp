@@ -200,7 +200,15 @@ class ItemCard extends Component {
                 backgroundColor: colors.icons,
                 paddingHorizontal: 10,
                 paddingVertical: 10,
-                elevation: 2,
+                elevation: 3,
+                zIndex: 10,
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 1.41,
                 borderBottomLeftRadius: 10,
                 borderBottomRightRadius: 10,
               }}>
@@ -238,13 +246,14 @@ class ItemCard extends Component {
               </TouchableOpacity>
             </View>
 
-            <CardItem cardBody style={{marginTop: -10}}>
+            <CardItem cardBody>
               {this.url ? (
                 <FastImage
                   source={{uri: this.url}}
                   style={{
                     aspectRatio: 1,
                     flex: 1,
+                    marginTop: -10,
                     backgroundColor: '#e1e4e8',
                   }}
                   resizeMode={FastImage.resizeMode.contain}
@@ -255,11 +264,39 @@ class ItemCard extends Component {
                   style={{
                     aspectRatio: 1,
                     flex: 1,
+                    marginTop: -10,
                     backgroundColor: '#e1e4e8',
                   }}
                   resizeMode={FastImage.resizeMode.contain}
                 />
               )}
+
+              <View
+                style={{
+                  flexDirection: 'row',
+                  position: 'absolute',
+                  bottom: 10,
+                  left: 10,
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  backgroundColor: colors.icons,
+                  opacity: 0.9,
+                  borderColor: colors.text_secondary,
+                  padding: 5,
+                  alignItems: 'center',
+                }}>
+                <Text style={{fontSize: 14}}>{stock}</Text>
+
+                <Text
+                  style={{
+                    fontSize: 14,
+                    textAlign: 'center',
+                    color: colors.text_secondary,
+                  }}>
+                  {' '}
+                  Left
+                </Text>
+              </View>
             </CardItem>
 
             <View
@@ -314,6 +351,13 @@ class ItemCard extends Component {
                         height: 40,
                         borderRadius: 24,
                         elevation: 3,
+                        shadowColor: '#000',
+                        shadowOffset: {
+                          width: 0,
+                          height: 1,
+                        },
+                        shadowOpacity: 0.22,
+                        shadowRadius: 2.22,
                       },
                     ]}
                   />
@@ -387,33 +431,6 @@ class ItemCard extends Component {
                   />
                 </View>
               </Animatable.View>
-            </View>
-
-            <View
-              style={{
-                flexDirection: 'row',
-                position: 'absolute',
-                bottom: 10,
-                left: 10,
-                borderRadius: 10,
-                borderWidth: 1,
-                backgroundColor: colors.icons,
-                opacity: 0.9,
-                borderColor: colors.text_secondary,
-                padding: 5,
-                alignItems: 'center',
-              }}>
-              <Text style={{fontSize: 14}}>{stock}</Text>
-
-              <Text
-                style={{
-                  fontSize: 14,
-                  textAlign: 'center',
-                  color: colors.text_secondary,
-                }}>
-                {' '}
-                Left
-              </Text>
             </View>
           </Card>
         </Animatable.View>

@@ -153,6 +153,7 @@ class CheckoutScreen extends Component {
               width: 80,
               resizeMode: 'cover',
               marginRight: 10,
+              marginVertical: 15,
             }}
           />
           <Text style={{color: colors.icons, fontSize: 30}}>Checkout</Text>

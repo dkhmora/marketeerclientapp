@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   footer: {
-    flex: Platform.OS === 'ios' ? 5 : 7,
+    flex: 1,
     backgroundColor: '#fff',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,

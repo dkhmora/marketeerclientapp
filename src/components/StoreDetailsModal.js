@@ -7,6 +7,7 @@ import {inject} from 'mobx-react';
 import {CardItem, Card} from 'native-base';
 import {Rating} from 'react-native-rating-element';
 import MapView, {Marker} from 'react-native-maps';
+import moment, {ISO_8601} from 'moment';
 
 @inject('generalStore')
 class StoreDetailsModal extends Component {
@@ -46,6 +47,10 @@ class StoreDetailsModal extends Component {
   }
 
   ReviewListItem({item}) {
+    const timeStamp = moment(item.createdAt, ISO_8601).format(
+      'MM-DD-YYYY hh:MM A',
+    );
+
     return (
       <View
         style={{
@@ -107,7 +112,7 @@ class StoreDetailsModal extends Component {
             asdasd asd sa asd as dsa dasdsa a d adasdasdasd
           </Text>
 
-          <Text style={{color: colors.text_secondary}}>10 Years ago</Text>
+          <Text style={{color: colors.text_secondary}}>{timeStamp}</Text>
         </View>
       </View>
     );
@@ -155,6 +160,14 @@ class StoreDetailsModal extends Component {
                   elevation: 10,
                   resizeMode: 'stretch',
                   alignItems: 'center',
+                  overflow: 'hidden',
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 5,
+                  },
+                  shadowOpacity: 0.34,
+                  shadowRadius: 6.27,
                 }}>
                 <View
                   style={{
@@ -181,9 +194,16 @@ class StoreDetailsModal extends Component {
                           aspectRatio: 1,
                           backgroundColor: '#e1e4e8',
                           elevation: 10,
+                          shadowColor: '#000',
+                          shadowOffset: {
+                            width: 0,
+                            height: 5,
+                          },
+                          shadowOpacity: 0.34,
+                          shadowRadius: 6.27,
                           marginRight: 10,
                         }}
-                        resizeMode={FastImage.resizeMode.center}
+                        resizeMode={FastImage.resizeMode.contain}
                       />
                     )}
 
@@ -218,6 +238,14 @@ class StoreDetailsModal extends Component {
                         width: '80%',
                         borderRadius: 8,
                         elevation: 5,
+                        shadowColor: '#000',
+                        shadowOffset: {
+                          width: 0,
+                          height: 2,
+                        },
+                        shadowOpacity: 0.25,
+                        shadowRadius: 3.84,
+                        borderColor: 'rgba(0,0,0,0.7)',
                       }}
                       selectedButtonStyle={{backgroundColor: colors.primary}}
                     />
