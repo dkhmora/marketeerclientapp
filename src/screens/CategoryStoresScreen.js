@@ -18,6 +18,7 @@ import SlidingCartPanel from '../components/SlidingCartPanel';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import ItemTabs from '../navigation/ItemCategoriesTab';
 import StoreList from '../components/StoreList';
+import BackButton from '../components/BackButton';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -77,56 +78,66 @@ class CategoryStoresScreen extends Component {
             <Animatable.View
               animation="fadeInUp"
               useNativeDriver
-              duration={800}>
-              <Button
-                onPress={() => navigation.goBack()}
-                type="clear"
-                color={colors.icons}
-                icon={<Icon name="arrow-left" color={colors.primary} />}
-                buttonStyle={{borderRadius: 30}}
-                containerStyle={[
-                  styles.buttonContainer,
-                  {marginRight: 5, backgroundColor: '#fff', height: 40},
-                ]}
-              />
-            </Animatable.View>
-
-            <Animatable.View
-              animation="fadeInUp"
-              useNativeDriver
               duration={800}
               style={{flex: 1, justifyContent: 'center'}}>
-              <Text
-                adjustsFontSizeToFit
-                numberOfLines={2}
-                style={[
-                  styles.text_footer,
-                  {
-                    paddingLeft: 5,
-                    color: colors.icons,
-                    fontSize: 30,
-                  },
-                ]}>
-                {categoryDetails.name}
-              </Text>
+              <SafeAreaView
+                style={{
+                  flexDirection: 'row',
+                  flex: 1,
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                  paddingBottom: 40 + STATUS_BAR_HEIGHT,
+                }}>
+                <Button
+                  onPress={() => navigation.goBack()}
+                  type="clear"
+                  color={colors.icons}
+                  icon={<Icon name="arrow-left" color={colors.primary} />}
+                  buttonStyle={{borderRadius: 30}}
+                  containerStyle={[
+                    styles.buttonContainer,
+                    {
+                      marginRight: 5,
+                      backgroundColor: '#fff',
+                      height: 40,
+                      alignSelf: 'center',
+                    },
+                  ]}
+                />
 
-              {categoryDetails.description && (
-                <View style={{flex: 1, marginTop: 16}}>
+                <View style={{flexDirection: 'column'}}>
                   <Text
                     adjustsFontSizeToFit
+                    numberOfLines={2}
                     style={[
                       styles.text_footer,
                       {
                         paddingLeft: 5,
                         color: colors.icons,
-                        fontSize: 20,
-                        flexShrink: 1,
+                        fontSize: 30,
                       },
                     ]}>
-                    {categoryDetails.description}
+                    {categoryDetails.name}
                   </Text>
+
+                  {categoryDetails.description && (
+                    <Text
+                      adjustsFontSizeToFit
+                      style={[
+                        styles.text_footer,
+                        {
+                          paddingLeft: 5,
+                          color: colors.icons,
+                          fontSize: 20,
+                          flexShrink: 1,
+                          marginTop: 10,
+                        },
+                      ]}>
+                      {categoryDetails.description}
+                    </Text>
+                  )}
                 </View>
-              )}
+              </SafeAreaView>
             </Animatable.View>
           </ImageBackground>
         </Animatable.View>
