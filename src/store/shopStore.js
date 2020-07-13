@@ -82,7 +82,9 @@ class shopStore {
       .get()
       .then((document) => {
         if (document.exists) {
-          this.storeCategories = document.data().storeCategories;
+          this.storeCategories = document
+            .data()
+            .storeCategories.sort((a, b) => a.name > b.name);
         }
       })
       .catch((err) => console.log(err));
