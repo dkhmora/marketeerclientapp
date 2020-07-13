@@ -108,7 +108,8 @@ class StoreScreen extends Component {
             <Animatable.View
               animation="fadeInUp"
               useNativeDriver
-              duration={800}>
+              duration={800}
+              style={{paddingHorizontal: 10}}>
               <Button
                 onPress={() => navigation.goBack()}
                 type="clear"
@@ -117,7 +118,7 @@ class StoreScreen extends Component {
                 buttonStyle={{borderRadius: 30}}
                 containerStyle={[
                   styles.buttonContainer,
-                  {marginRight: 5, backgroundColor: '#fff', height: 40},
+                  {backgroundColor: '#fff', height: 40},
                 ]}
               />
             </Animatable.View>
@@ -151,10 +152,10 @@ class StoreScreen extends Component {
                 style={[
                   styles.text_footer,
                   {
-                    paddingLeft: 5,
                     color: colors.icons,
                     fontSize: 30,
                     width: '80%',
+                    paddingHorizontal: 10,
                   },
                 ]}>
                 {store.storeName}
@@ -163,10 +164,11 @@ class StoreScreen extends Component {
               <Button
                 type="clear"
                 onPress={() => this.setState({detailsModal: true})}
-                containerStyle={{
-                  backgroundColor: colors.icons,
-                  borderRadius: 24,
-                }}
+                buttonStyle={{borderRadius: 30}}
+                containerStyle={[
+                  styles.buttonContainer,
+                  {marginRight: 5, backgroundColor: '#fff', height: 40},
+                ]}
                 icon={
                   <Icon
                     name="info"
