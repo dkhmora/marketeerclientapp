@@ -258,7 +258,7 @@ class shopStore {
 
   @action async getShopList(currentLocationGeohash, locationCoordinates) {
     if (currentLocationGeohash) {
-      await merchantsCollection
+      return await merchantsCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
         .where('creditData.creditThresholdReached', '==', false)
