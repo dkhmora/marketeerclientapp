@@ -160,33 +160,35 @@ class StoreCard extends Component {
                   </Text>
                 </View>
 
-                <View
-                  style={{
-                    overflow: 'hidden',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    position: 'absolute',
-                    borderTopLeftRadius: 8,
-                    borderBottomLeftRadius: 8,
-                    bottom: 60,
-                    right: 0,
-                    padding: 5,
-                    backgroundColor: colors.primary,
-                  }}>
-                  <Rating
-                    type="custom"
-                    direction="row"
-                    rated={3.5}
-                    selectedIconImage={require('../../assets/images/feather_filled.png')}
-                    emptyIconImage={require('../../assets/images/feather_unfilled.png')}
-                    size={23}
-                    tintColor={colors.primary}
-                    ratingColor={colors.accent}
-                    ratingBackgroundColor="#455A64"
-                    onIconTap={() => {}}
-                  />
-                </View>
+                {store.ratingAverage && (
+                  <View
+                    style={{
+                      overflow: 'hidden',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      position: 'absolute',
+                      borderTopLeftRadius: 8,
+                      borderBottomLeftRadius: 8,
+                      bottom: 60,
+                      right: 0,
+                      padding: 5,
+                      backgroundColor: colors.primary,
+                    }}>
+                    <Rating
+                      type="custom"
+                      direction="row"
+                      rated={store.ratingAverage}
+                      selectedIconImage={require('../../assets/images/feather_filled.png')}
+                      emptyIconImage={require('../../assets/images/feather_unfilled.png')}
+                      size={23}
+                      tintColor={colors.primary}
+                      ratingColor={colors.accent}
+                      ratingBackgroundColor="#455A64"
+                      readonly
+                    />
+                  </View>
+                )}
               </View>
             )}
 
