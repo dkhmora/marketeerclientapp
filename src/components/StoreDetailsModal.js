@@ -39,7 +39,6 @@ class StoreDetailsModal extends Component {
           ),
         },
         () => {
-          console.log(this.state.reviews);
           this.setState({reviewsLoading: false});
         },
       );
@@ -108,8 +107,7 @@ class StoreDetailsModal extends Component {
 
         <View style={{paddingHorizontal: 8, paddingTop: 8}}>
           <Text style={{fontSize: 15, paddingBottom: 10, textAlign: 'justify'}}>
-            {item.reviewBody}sadasdsadas asd as das dsadasdsadasdsa das das dasd
-            asdasd asd sa asd as dsa dasdsa a d adasdasdasd
+            {item.reviewBody}
           </Text>
 
           <Text style={{color: colors.text_secondary}}>{timeStamp}</Text>
@@ -310,7 +308,6 @@ class StoreDetailsModal extends Component {
                   ref={(map) => {
                     this.map = map;
                   }}
-                  onRegionChangeComplete={this.handleRegionChange}
                   showsUserLocation
                   initialRegion={{
                     latitude: store.deliveryCoordinates.latitude,

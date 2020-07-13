@@ -12,33 +12,49 @@ class StoreList extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {refreshing: false};
+    this.state = {refreshing: false, loading: true};
   }
 
-  onRefresh() {
+  componentDidMount() {
+    const {categoryName} = this.props;
+
+    if (categoryName) {
+      this.getInitialStoreList();
+    }
+  }
+
+  getInitialStoreList() {
+    const {categoryName} = this.props;
+
     this.setState({refreshing: true});
 
     this.props.shopStore
-      .getShopList(
+      .getStoreList(
         this.props.generalStore.currentLocationGeohash,
         this.props.generalStore.currentLocation,
+        categoryName,
       )
       .then(() => {
-        this.setState({refreshing: false});
+        this.setState({refreshing: false, loading: false});
       });
   }
 
+  onRefresh() {
+    this.getInitialStoreList();
+  }
+
   render() {
-    let dataSource = '';
-
-    if (!this.props.component) {
-      dataSource = this.props.shopStore.storeList.slice();
-    } else {
-      dataSource = this.props.dataSource;
-    }
-
+    const {categoryName} = this.props;
     const {navigation} = this.props;
-    const {refreshing} = this.state;
+    const {refreshing, loading} = this.state;
+
+    let dataSource = [];
+
+    if (!categoryName && loading) {
+      dataSource = this.props.shopStore.storeList.slice();
+    } else if (categoryName && !loading) {
+      dataSource = this.props.shopStore.categoryStoreList[categoryName].slice();
+    }
 
     return (
       <View

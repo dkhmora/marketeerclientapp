@@ -32,7 +32,7 @@ class CategoryStoresScreen extends Component {
   }
 
   render() {
-    const {storeList, coverImageUrl, categoryDetails} = this.props.route.params;
+    const {coverImageUrl, categoryDetails} = this.props.route.params;
     const {navigation} = this.props;
 
     return (
@@ -105,7 +105,7 @@ class CategoryStoresScreen extends Component {
                   ]}
                 />
 
-                <View style={{flexDirection: 'column'}}>
+                <View style={{flexDirection: 'column', flex: 1}}>
                   <Text
                     adjustsFontSizeToFit
                     numberOfLines={2}
@@ -167,7 +167,12 @@ class CategoryStoresScreen extends Component {
               overflow: 'hidden',
             },
           ]}>
-          <StoreList dataSource={storeList} component navigation={navigation} />
+          {categoryDetails.name && (
+            <StoreList
+              categoryName={categoryDetails.name}
+              navigation={navigation}
+            />
+          )}
         </Animatable.View>
       </View>
     );

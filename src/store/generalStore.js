@@ -39,7 +39,6 @@ class generalStore {
 
         querySnapshot.forEach((doc, index) => {
           if (doc.id !== 'reviewNumber') {
-            console.log('GENERAL STORE', doc.data());
             data.push(...doc.data().reviews);
           }
         });

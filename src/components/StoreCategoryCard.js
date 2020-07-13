@@ -43,23 +43,11 @@ class StoreCategoryCard extends Component {
     }
   };
 
-  getStores() {
-    const {item} = this.props;
-
-    const categoryStores = this.props.shopStore.storeList.filter(
-      (store) => store.storeCategory === item.name,
-    );
-
-    return categoryStores;
-  }
-
   async displayStores() {
-    const storeList = await this.getStores();
     const coverImageUrl = this.state.url;
     const {item} = this.props;
 
     this.props.navigation.navigate('Category Stores', {
-      storeList,
       coverImageUrl,
       categoryDetails: item,
     });

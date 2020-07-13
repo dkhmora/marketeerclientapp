@@ -64,7 +64,7 @@ class App extends React.Component {
                 })
                 .then(() => {
                   shopStore
-                    .getShopList(
+                    .getStoreList(
                       generalStore.currentLocationGeohash,
                       generalStore.currentLocation,
                     )
@@ -75,7 +75,7 @@ class App extends React.Component {
             } else {
               generalStore.setCurrentLocation().then(() => {
                 shopStore
-                  .getShopList(
+                  .getStoreList(
                     generalStore.currentLocationGeohash,
                     generalStore.currentLocation,
                   )

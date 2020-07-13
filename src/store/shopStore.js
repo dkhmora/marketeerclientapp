@@ -17,6 +17,7 @@ class shopStore {
   @observable storeSelectedPaymentMethod = {};
   @observable storeCategories = [];
   @observable storeList = [];
+  @observable categoryStoreList = {};
   @observable itemCategories = [];
   @observable storeCategoryItems = new Map();
   @observable unsubscribeToGetCartItems = null;
@@ -258,8 +259,41 @@ class shopStore {
     }
   }
 
-  @action async getShopList(currentLocationGeohash, locationCoordinates) {
-    if (currentLocationGeohash) {
+  @action async getStoreList(
+    currentLocationGeohash,
+    locationCoordinates,
+    storeCategory,
+  ) {
+    if (currentLocationGeohash && locationCoordinates && storeCategory) {
+      return await merchantsCollection
+        .where('visibleToPublic', '==', true)
+        .where('vacationMode', '==', false)
+        .where('creditData.creditThresholdReached', '==', false)
+        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
+        .where('storeCategory', '==', storeCategory)
+        .get()
+        .then((querySnapshot) => {
+          const list = [];
+
+          querySnapshot.forEach((documentSnapshot, index) => {
+            list.push(documentSnapshot.data());
+
+            list[index].merchantId = documentSnapshot.id;
+          });
+
+          return list;
+        })
+        .then((list) => {
+          const finalList = list.filter((element) =>
+            geolib.isPointInPolygon({...locationCoordinates}, [
+              ...element.deliveryCoordinates.boundingBox,
+            ]),
+          );
+
+          this.categoryStoreList[storeCategory] = finalList;
+        })
+        .catch((err) => console.log(err));
+    } else if (currentLocationGeohash && locationCoordinates) {
       return await merchantsCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
