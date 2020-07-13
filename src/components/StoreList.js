@@ -74,10 +74,11 @@ class StoreList extends Component {
           <View
             style={{
               position: 'absolute',
-              top: '50%',
-              bottom: '50%',
+              height: '100%',
+              width: '100%',
               left: 0,
               right: 0,
+              zIndex: 90,
               alignItems: 'center',
               justifyContent: 'center',
             }}>
