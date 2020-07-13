@@ -167,17 +167,24 @@ class SignUpScreen extends Component {
       <View style={[styles.container, {paddingTop: 0}]}>
         <StatusBar animated translucent backgroundColor={colors.primary} />
 
-        <View style={styles.header}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingTop: StatusBar.currentHeight,
+          }}>
           <Image
             source={require('../../assets/images/logo.png')}
             style={{
               height: 150,
               width: 200,
               resizeMode: 'center',
+              marginVertical: 20,
             }}
           />
 
-          <BackButton navigation={navigation} />
+          {checkout && <BackButton navigation={navigation} />}
         </View>
 
         <Animatable.View

@@ -88,15 +88,20 @@ class LoginScreen extends Component {
 
           <ForgotPasswordModal
             isVisible={this.state.forgotPasswordModal}
-            closeModal={() => this.setState({ forgotPasswordModal: false })}
+            closeModal={() => this.setState({forgotPasswordModal: false})}
           />
 
           <Animatable.View
             duration={800}
             useNativeDriver
             animation="fadeInUp"
-            style={styles.header}>
-            <BackButton navigation={navigation} />
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingTop: StatusBar.currentHeight,
+            }}>
+            {checkout && <BackButton navigation={navigation} />}
 
             <Image
               source={require('../../assets/images/logo.png')}
@@ -104,6 +109,7 @@ class LoginScreen extends Component {
                 height: 150,
                 width: 200,
                 resizeMode: 'center',
+                marginVertical: 20,
               }}
             />
           </Animatable.View>

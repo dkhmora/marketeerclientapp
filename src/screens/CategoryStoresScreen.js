@@ -42,13 +42,13 @@ class CategoryStoresScreen extends Component {
           useNativeDriver
           animation="fadeInUp"
           duration={800}
-          style={{flex: Platform.OS === 'android' ? 2.5 : 2}}>
+          style={{flexDirection: 'row'}}>
           <ImageBackground
             source={coverImageUrl}
             style={{
               flex: 1,
               flexDirection: 'row',
-              height: 250,
+              height: 230,
               resizeMode: 'cover',
               justifyContent: 'center',
               paddingTop: STATUS_BAR_HEIGHT,
