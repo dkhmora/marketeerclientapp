@@ -50,7 +50,7 @@ class StoreList extends Component {
 
     let dataSource = [];
 
-    if (!categoryName && loading) {
+    if (!categoryName) {
       dataSource = this.props.shopStore.storeList.slice();
     } else if (categoryName && !loading) {
       dataSource = this.props.shopStore.categoryStoreList[categoryName].slice();
@@ -64,6 +64,7 @@ class StoreList extends Component {
         }}>
         <FlatList
           style={{paddingHorizontal: 15}}
+          contentContainerStyle={{flexGrow: 1}}
           data={dataSource}
           renderItem={({item, index}) => (
             <View>
@@ -75,6 +76,24 @@ class StoreList extends Component {
               <StoreCard store={item} key={index} navigation={navigation} />
             </View>
           )}
+          ListEmptyComponent={
+            <View
+              style={{
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  textAlign: 'center',
+                  paddingHorizontal: 15,
+                }}>
+                Sorry, there are no available stores in your area yet. But don't
+                worry, we are expanding. Come back and check us out again soon!
+              </Text>
+            </View>
+          }
           refreshControl={
             <RefreshControl
               colors={[colors.primary, colors.dark]}
@@ -85,30 +104,6 @@ class StoreList extends Component {
           keyExtractor={(item) => item.merchantId}
           showsVerticalScrollIndicator={false}
         />
-
-        {dataSource.length <= 0 && this.props.generalStore.appReady && (
-          <View
-            style={{
-              position: 'absolute',
-              height: '100%',
-              width: '100%',
-              left: 0,
-              right: 0,
-              zIndex: 90,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <Text
-              style={{
-                fontSize: 20,
-                textAlign: 'center',
-                paddingHorizontal: 15,
-              }}>
-              We are sorry. There are no stores delivering to your area at the
-              moment. Please come back and try again soon!
-            </Text>
-          </View>
-        )}
       </View>
     );
   }
