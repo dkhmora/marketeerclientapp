@@ -37,7 +37,6 @@ class SignUpScreen extends Component {
       phoneCheck: false,
       secureTextEntry: true,
       confirm_secureTextEntry: true,
-      signUpButton_disabled: true,
     };
   }
 
@@ -164,10 +163,8 @@ class SignUpScreen extends Component {
 
   render() {
     const {
-      signUpButton_disabled,
       passwordCheck,
       confirmPasswordCheck,
-      name,
       nameCheck,
       emailCheck,
       phoneCheck,

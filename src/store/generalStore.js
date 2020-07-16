@@ -231,7 +231,7 @@ class generalStore {
 
   @action getMessages(orderId) {
     this.unsubscribeGetMessages = firestore()
-      .collection('order_chats')
+      .collection('orders')
       .doc(orderId)
       .onSnapshot((documentSnapshot) => {
         if (documentSnapshot.exists) {
@@ -246,11 +246,6 @@ class generalStore {
           } else {
             this.orderMessages = documentSnapshot.data().messages.reverse();
           }
-        } else {
-          firestore()
-            .collection('order_chats')
-            .doc(orderId)
-            .set({messages: []});
         }
       });
   }

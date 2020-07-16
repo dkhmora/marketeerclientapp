@@ -40,12 +40,12 @@ class ItemCategoriesTab extends Component {
   }
 
   render() {
-    const {storeCategoryItems} = this.props;
+    const {storeCategoryItems, style} = this.props;
     const {scrollEnabled} = this;
 
     if (storeCategoryItems) {
       return (
-        <View style={{flex: 1}}>
+        <View style={[style, {flex: 1}]}>
           <ItemTab.Navigator tabBarOptions={{scrollEnabled}}>
             {storeCategoryItems && this.TabScreens(storeCategoryItems)}
           </ItemTab.Navigator>

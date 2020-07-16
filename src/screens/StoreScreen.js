@@ -209,6 +209,7 @@ class StoreScreen extends Component {
           <ItemCategoriesTab
             storeCategoryItems={storeCategoryItems}
             storeName={store.storeName}
+            style={{paddingBottom: 75}}
           />
         </Animatable.View>
 
