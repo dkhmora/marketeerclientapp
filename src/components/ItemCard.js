@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, PureComponent} from 'react';
 import {Card, CardItem, Text, View} from 'native-base';
 import {Image} from 'react-native';
 import {Button, Icon} from 'react-native-elements';
@@ -15,7 +15,7 @@ import ItemCardLoader from './ItemCardLoader';
 @inject('authStore')
 @inject('shopStore')
 @observer
-class ItemCard extends Component {
+class ItemCard extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -37,10 +37,10 @@ class ItemCard extends Component {
 
   @observable url = null;
 
-  get cartItemQuantity() {
+  @computed get cartItemQuantity() {
     const {item, merchantId} = this.props;
 
-    if (this.props.shopStore.storeCartItems) {
+    if (Object.keys(this.props.shopStore.storeCartItems).length > 0) {
       if (this.props.shopStore.storeCartItems[merchantId]) {
         const cartItem = this.props.shopStore.storeCartItems[merchantId].find(
           (storeCartItem) => storeCartItem.name === item.name,
@@ -136,9 +136,11 @@ class ItemCard extends Component {
     this.cartItemQuantity === parseInt(item.stock, 10) &&
       this.setState({addButtonDisabled: true});
 
+    /*
     if (!this.state.minusButtonShown && this.cartItemQuantity >= 1) {
       this.showMinusButton();
     }
+    */
   }
 
   handleDecreaseQuantity() {
@@ -154,9 +156,10 @@ class ItemCard extends Component {
       }, 2500);
     }
 
+    /*
     if (this.cartItemQuantity <= 0 && this.state.minusButtonShown) {
       this.hideMinusButton();
-    }
+    }*/
 
     this.cartItemQuantity <= item.stock &&
       this.setState({addButtonDisabled: false});

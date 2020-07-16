@@ -116,27 +116,19 @@ class shopStore {
   }) {
     this.cartUpdateTimeout ? clearTimeout(this.cartUpdateTimeout) : null;
 
-    return await functions
-      .httpsCallable('placeOrder')({
-        orderInfo: JSON.stringify({
-          deliveryCoordinates,
-          deliveryAddress,
-          userCoordinates,
-          userName,
-          userPhoneNumber,
-          userId,
-          storeCartItems,
-          storeSelectedShipping,
-          storeSelectedPaymentMethod,
-        }),
-      })
-      .then(() => {
-        console.log('reset');
-        this.resetData();
-      })
-      .then(() => {
-        console.log(this.storeCartItems);
-      });
+    return await functions.httpsCallable('placeOrder')({
+      orderInfo: JSON.stringify({
+        deliveryCoordinates,
+        deliveryAddress,
+        userCoordinates,
+        userName,
+        userPhoneNumber,
+        userId,
+        storeCartItems,
+        storeSelectedShipping,
+        storeSelectedPaymentMethod,
+      }),
+    });
   }
 
   @action resetData() {
@@ -175,10 +167,11 @@ class shopStore {
       .onSnapshot((documentSnapshot) => {
         if (documentSnapshot) {
           this.storeCartItems = documentSnapshot.data();
-        } else {
+        }
+        /* else {
           this.resetData();
           return;
-        }
+        } */
       });
   }
 
