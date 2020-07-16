@@ -259,12 +259,30 @@ class StoreDetailsModal extends Component {
                 <ActivityIndicator size="large" color={colors.primary} />
               ) : (
                 <FlatList
-                  style={{flex: 1, alignSelf: 'flex-start', overflow: 'hidden'}}
+                  style={{flex: 1, overflow: 'hidden'}}
+                  contentContainerStyle={{flexGrow: 1}}
                   data={reviews}
                   initialNumToRender={30}
                   renderItem={({item, index}) => (
                     <this.ReviewListItem item={item} key={index} />
                   )}
+                  ListEmptyComponent={
+                    <View
+                      style={{
+                        flex: 1,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>
+                      <Text
+                        style={{
+                          fontSize: 20,
+                          textAlign: 'center',
+                          paddingHorizontal: 15,
+                        }}>
+                        This store has no reviews yet.
+                      </Text>
+                    </View>
+                  }
                   keyExtractor={(item) => item.orderId}
                   showsVerticalScrollIndicator={false}
                 />
