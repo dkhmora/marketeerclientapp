@@ -55,8 +55,8 @@ class CheckoutScreen extends Component {
       storeSelectedPaymentMethod,
     } = this.props.shopStore;
 
-    const orderStoreList = await cartStores.map((storeName) => {
-      return storeList.find((element) => element.storeName === storeName);
+    const orderStoreList = await cartStores.map((merchantId) => {
+      return storeList.find((element) => element.merchantId === merchantId);
     });
 
     const {userName, userPhoneNumber} = this.props.authStore;

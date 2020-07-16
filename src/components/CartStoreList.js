@@ -23,11 +23,11 @@ class CartStoreList extends Component {
       <View style={{flex: 1}}>
         {dataSource.length > 0 ? (
           <ScrollView style={{flex: 1}}>
-            {dataSource.map((storeName, index) => {
+            {dataSource.map((merchantId, index) => {
               return (
                 <CartStoreCard
                   checkout={checkout}
-                  storeName={storeName}
+                  merchantId={merchantId}
                   key={index}
                 />
               );

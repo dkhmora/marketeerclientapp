@@ -19,10 +19,10 @@ class ItemCard extends Component {
   constructor(props) {
     super(props);
 
-    const {item, storeName} = this.props;
+    const {item, merchantId} = this.props;
     const itemQuantity = this.props.shopStore.getCartItemQuantity(
       item,
-      storeName,
+      merchantId,
     );
     const itemStock = item.stock;
 
@@ -38,11 +38,11 @@ class ItemCard extends Component {
   @observable url = null;
 
   @computed get cartItemQuantity() {
-    const {item, storeName} = this.props;
+    const {item, merchantId} = this.props;
 
     if (this.props.shopStore.storeCartItems) {
-      if (this.props.shopStore.storeCartItems[storeName]) {
-        const cartItem = this.props.shopStore.storeCartItems[storeName].find(
+      if (this.props.shopStore.storeCartItems[merchantId]) {
+        const cartItem = this.props.shopStore.storeCartItems[merchantId].find(
           (storeCartItem) => storeCartItem.name === item.name,
         );
 
@@ -64,12 +64,12 @@ class ItemCard extends Component {
   }
 
   @computed get cartItemIndex() {
-    const {item, storeName} = this.props;
+    const {item, merchantId} = this.props;
 
     if (this.props.shopStore.storeCartItems) {
-      if (this.props.shopStore.storeCartItems[storeName]) {
+      if (this.props.shopStore.storeCartItems[merchantId]) {
         const itemIndex = this.props.shopStore.storeCartItems[
-          storeName
+          merchantId
         ].findIndex((storeCartItem) => storeCartItem.name === item.name);
 
         if (itemIndex >= 0) {
@@ -119,9 +119,9 @@ class ItemCard extends Component {
   }
 
   handleIncreaseQuantity() {
-    const {item, storeName} = this.props;
+    const {item, merchantId} = this.props;
 
-    this.props.shopStore.addCartItemToStorage(item, storeName);
+    this.props.shopStore.addCartItemToStorage(item, merchantId);
 
     if (this.cartItemQuantity < item.stock) {
       if (!this.props.authStore.guest) {
@@ -142,9 +142,9 @@ class ItemCard extends Component {
   }
 
   handleDecreaseQuantity() {
-    const {item, storeName} = this.props;
+    const {item, merchantId} = this.props;
 
-    this.props.shopStore.deleteCartItemInStorage(item, storeName);
+    this.props.shopStore.deleteCartItemInStorage(item, merchantId);
 
     if (!this.props.authStore.guest) {
       clearTimeout(this.props.shopStore.cartUpdateTimeout);

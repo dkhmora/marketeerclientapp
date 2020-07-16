@@ -19,7 +19,7 @@ class ItemCategoriesTab extends Component {
   }
 
   TabScreens(storeCategoryItems) {
-    const {storeName} = this.props;
+    const {merchantId} = this.props;
     const tabs = [];
 
     storeCategoryItems.forEach((key, value) => {
@@ -29,7 +29,7 @@ class ItemCategoriesTab extends Component {
           component={ItemsList}
           initialParams={{
             items: key,
-            storeName,
+            merchantId,
           }}
           key={value}
         />,

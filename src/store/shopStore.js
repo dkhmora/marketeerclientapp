@@ -27,8 +27,8 @@ class shopStore {
     let quantity = 0;
 
     if (this.storeCartItems) {
-      Object.keys(this.storeCartItems).map((storeName) => {
-        this.storeCartItems[storeName].map((item) => {
+      Object.keys(this.storeCartItems).map((merchantId) => {
+        this.storeCartItems[merchantId].map((item) => {
           quantity = item.quantity + quantity;
         });
       });
@@ -41,8 +41,8 @@ class shopStore {
     let amount = 0;
 
     if (this.storeCartItems) {
-      Object.keys(this.storeCartItems).map((storeName) => {
-        this.storeCartItems[storeName].map((item) => {
+      Object.keys(this.storeCartItems).map((merchantId) => {
+        this.storeCartItems[merchantId].map((item) => {
           const itemTotal = item.quantity * item.price;
 
           amount = itemTotal + amount;
@@ -147,18 +147,18 @@ class shopStore {
     this.itemCategories = [];
   }
 
-  @action getStoreDetails(storeName) {
+  @action getStoreDetails(merchantId) {
     const store = this.storeList.find(
-      (element) => element.storeName === storeName,
+      (element) => element.merchantId === merchantId,
     );
 
     return store;
   }
 
-  @action getCartItemQuantity(item, storeName) {
+  @action getCartItemQuantity(item, merchantId) {
     if (this.storeCartItems) {
-      if (this.storeCartItems[storeName]) {
-        const cartItem = this.storeCartItems[storeName].find(
+      if (this.storeCartItems[merchantId]) {
+        const cartItem = this.storeCartItems[merchantId].find(
           (storeCartItem) => storeCartItem.name === item.name,
         );
 
@@ -184,8 +184,8 @@ class shopStore {
       });
   }
 
-  @action async addCartItemToStorage(item, storeName) {
-    const storeCartItems = this.storeCartItems[storeName];
+  @action async addCartItemToStorage(item, merchantId) {
+    const storeCartItems = this.storeCartItems[merchantId];
     const dateNow = new Date().toISOString();
 
     const newItem = {
@@ -213,12 +213,12 @@ class shopStore {
     } else {
       console.log('Store not found! Creating new store.');
 
-      this.storeCartItems[storeName] = [{...newItem}];
+      this.storeCartItems[merchantId] = [{...newItem}];
     }
   }
 
-  @action async deleteCartItemInStorage(item, storeName) {
-    const storeCart = this.storeCartItems[storeName];
+  @action async deleteCartItemInStorage(item, merchantId) {
+    const storeCart = this.storeCartItems[merchantId];
     const dateNow = new Date().toISOString();
 
     if (storeCart) {
@@ -233,8 +233,8 @@ class shopStore {
         if (storeCart[cartItemIndex].quantity <= 0) {
           storeCart.splice(cartItemIndex, 1);
 
-          if (!this.storeCartItems[storeName].length) {
-            delete this.storeCartItems[storeName];
+          if (!this.storeCartItems[merchantId].length) {
+            delete this.storeCartItems[merchantId];
           }
         }
       } else {
@@ -324,7 +324,7 @@ class shopStore {
     }
   }
 
-  @action async setStoreItems(merchantId, storeName) {
+  @action async setStoreItems(merchantId) {
     await merchantItemsCollection
       .doc(merchantId)
       .get()
@@ -347,7 +347,7 @@ class shopStore {
         return categoryItems;
       })
       .then((categoryItems) => {
-        this.storeCategoryItems.set(storeName, categoryItems);
+        this.storeCategoryItems.set(merchantId, categoryItems);
       })
       .then(() => console.log('Items successfully set'))
       .catch((err) => console.log(err));
