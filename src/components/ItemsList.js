@@ -43,11 +43,7 @@ class ItemsList extends Component {
                 key={index}
               />
             ) : (
-              <ItemCard
-                item={item}
-                merchantId={merchantId}
-                key={index}
-              />
+              <ItemCard item={item} merchantId={merchantId} key={index} />
             )
           }
           keyExtractor={(item, index) => `${item.name}${index.toString()}`}

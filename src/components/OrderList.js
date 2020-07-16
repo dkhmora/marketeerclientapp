@@ -11,6 +11,7 @@ import {observer, inject} from 'mobx-react';
 import OrderCard from './OrderCard';
 import {colors} from '../../assets/colors';
 import * as Animatable from 'react-native-animatable';
+import {Text} from 'react-native-elements';
 
 @inject('authStore')
 @inject('generalStore')
@@ -24,7 +25,7 @@ class OrderList extends Component {
       loading: false,
       lastVisible: null,
       limit: 8,
-      onEndReachedCalledDuringMomentum: true,
+      onEndReachedCalledDuringMomentum: false,
     };
   }
 
@@ -35,15 +36,19 @@ class OrderList extends Component {
   retrieveInitial = () => {
     this.setState({loading: true});
 
+    const lastVisible =
+      this.props.generalStore.orders.length > 0
+        ? this.props.generalStore.orders[0].userOrderNumber -
+          this.state.limit +
+          1
+        : 0;
+
     this.props.generalStore
       .setOrders(this.props.authStore.userId, this.state.limit)
       .then(() => {
         this.setState({
           loading: false,
-          lastVisible:
-            this.props.generalStore.orders[0].userOrderNumber -
-            this.state.limit +
-            1,
+          lastVisible,
         });
       });
   };
@@ -108,6 +113,7 @@ class OrderList extends Component {
     return (
       <FlatList
         style={{flex: 1, paddingHorizontal: 10}}
+        contentContainerStyle={{flexGrow: 1}}
         data={dataSource}
         renderItem={({item, index}) => (
           <OrderCard order={item} navigation={navigation} key={index} />
@@ -119,6 +125,20 @@ class OrderList extends Component {
         }}
         onEndReached={this.retrieveMore}
         onEndReachedThreshold={0.01}
+        ListEmptyComponent={
+          <View
+            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <Text
+              style={{
+                fontSize: 20,
+                textAlign: 'center',
+                paddingHorizontal: 15,
+              }}>
+              You haven't placed an order yet. Check out the best stores near
+              your area and place an order now!
+            </Text>
+          </View>
+        }
         refreshControl={
           <RefreshControl
             colors={[colors.primary, colors.dark]}

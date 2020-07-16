@@ -113,7 +113,6 @@ class shopStore {
     storeCartItems,
     storeSelectedShipping,
     storeSelectedPaymentMethod,
-    orderStoreList,
   }) {
     this.cartUpdateTimeout ? clearTimeout(this.cartUpdateTimeout) : null;
 
@@ -129,7 +128,6 @@ class shopStore {
           storeCartItems,
           storeSelectedShipping,
           storeSelectedPaymentMethod,
-          orderStoreList,
         }),
       })
       .then(() => {

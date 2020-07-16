@@ -49,15 +49,10 @@ class CheckoutScreen extends Component {
       userDetails,
     } = this.props.generalStore;
     const {
-      storeList,
       storeCartItems,
       storeSelectedShipping,
       storeSelectedPaymentMethod,
     } = this.props.shopStore;
-
-    const orderStoreList = await cartStores.map((merchantId) => {
-      return storeList.find((element) => element.merchantId === merchantId);
-    });
 
     const {userName, userPhoneNumber} = this.props.authStore;
 
@@ -82,12 +77,9 @@ class CheckoutScreen extends Component {
         deliveryAddress,
         userCoordinates,
         userName,
-        userPhoneNumber,
-        userId,
         storeCartItems,
         storeSelectedShipping,
         storeSelectedPaymentMethod,
-        orderStoreList,
       })
       .then(() => {
         updateCoordinates(
