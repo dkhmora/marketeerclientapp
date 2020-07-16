@@ -37,7 +37,7 @@ class ItemCard extends Component {
 
   @observable url = null;
 
-  @computed get cartItemQuantity() {
+  get cartItemQuantity() {
     const {item, merchantId} = this.props;
 
     if (this.props.shopStore.storeCartItems) {
