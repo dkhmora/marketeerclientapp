@@ -26,7 +26,7 @@ class ItemsList extends Component {
   }
 
   render() {
-    const {items, storeName} = this.props.route.params;
+    const {items, merchantId} = this.props.route.params;
     const dataSource = [...items];
 
     const numColumns = 2;
@@ -43,7 +43,11 @@ class ItemsList extends Component {
                 key={index}
               />
             ) : (
-              <ItemCard item={item} storeName={storeName} key={index} />
+              <ItemCard
+                item={item}
+                merchantId={merchantId}
+                key={index}
+              />
             )
           }
           keyExtractor={(item, index) => `${item.name}${index.toString()}`}

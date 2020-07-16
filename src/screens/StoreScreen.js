@@ -37,14 +37,11 @@ class StoreScreen extends Component {
     const {store} = this.props.route.params;
 
     this.props.shopStore
-      .setStoreItems(
-        this.props.route.params.store.merchantId,
-        this.props.route.params.store.storeName,
-      )
+      .setStoreItems(this.props.route.params.store.merchantId)
       .then(() => {
         this.setState({
           storeCategoryItems: this.props.shopStore.storeCategoryItems.get(
-            store.storeName,
+            store.merchantId,
           ),
         });
       });
@@ -208,7 +205,7 @@ class StoreScreen extends Component {
           ]}>
           <ItemCategoriesTab
             storeCategoryItems={storeCategoryItems}
-            storeName={store.storeName}
+            merchantId={store.merchantId}
             style={{paddingBottom: 75}}
           />
         </Animatable.View>
