@@ -18,6 +18,7 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import CartStoreList from '../components/CartStoreList';
 import BackButton from '../components/BackButton';
+import {computed} from 'mobx';
 
 @inject('shopStore')
 @inject('authStore')
@@ -134,6 +135,7 @@ class CartScreen extends Component {
 
           <Button
             onPress={() => this.handleCheckout()}
+            disabled={this.props.shopStore.totalCartItemQuantity <= 0}
             raised
             icon={<Icon name="arrow-right" color={colors.icons} />}
             iconRight

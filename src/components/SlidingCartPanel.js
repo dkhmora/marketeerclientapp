@@ -50,6 +50,7 @@ class SlidingCartPanel extends Component {
     return (
       <SlidingUpPanel
         ref={(c) => (this._panel = c)}
+        friction={0.4}
         minimumVelocityThreshold={0.6}
         minimumDistanceThreshold={3}
         snappingPoints={[
@@ -132,6 +133,7 @@ class SlidingCartPanel extends Component {
 
             <Button
               onPress={() => this.handleCheckout()}
+              disabled={this.props.shopStore.totalCartItemQuantity <= 0}
               raised
               icon={<Icon name="arrow-right" color={colors.icons} />}
               iconRight
@@ -161,6 +163,7 @@ class SlidingCartPanel extends Component {
 
           <Button
             onPress={() => this.handleCheckout()}
+            disabled={this.props.shopStore.totalCartItemQuantity <= 0}
             raised
             icon={<Icon name="arrow-right" color={colors.icons} />}
             iconRight
