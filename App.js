@@ -43,8 +43,6 @@ class App extends React.Component {
       authStore
         .checkAuthStatus()
         .then(() => {
-          const storeFetchLimit = 8;
-
           if (user) {
             const userId = user.uid;
 
@@ -60,9 +58,9 @@ class App extends React.Component {
                 .then(() => {
                   if (generalStore.userDetails.lastDeliveryLocation) {
                     return generalStore.setLastDeliveryLocation();
+                  } else {
+                    return generalStore.setCurrentLocation();
                   }
-
-                  return generalStore.setCurrentLocation();
                 })
                 .then(() => {
                   const {
@@ -70,11 +68,12 @@ class App extends React.Component {
                     currentLocationGeohash,
                   } = generalStore;
 
+                  console.log('currentLocation', currentLocation);
+
                   shopStore
                     .getStoreList({
                       currentLocationGeohash,
                       locationCoordinates: currentLocation,
-                      limit: storeFetchLimit,
                     })
                     .then(() => {
                       generalStore.appReady = true;
@@ -88,7 +87,6 @@ class App extends React.Component {
                   .getStoreList({
                     currentLocationGeohash,
                     locationCoordinates: currentLocation,
-                    limit: storeFetchLimit,
                   })
                   .then(() => {
                     generalStore.appReady = true;

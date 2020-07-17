@@ -149,6 +149,8 @@ class generalStore {
 
           this.currentLocation = {...coords};
 
+          console.log('dito', this.currentLocationGeohash);
+
           resolve();
         },
         (err) => {
@@ -171,13 +173,17 @@ class generalStore {
   }
 
   @action async setLastDeliveryLocation() {
-    this.deliverToCurrentLocation = false;
-    this.deliverToSetLocation = false;
-    this.deliverToLastDeliveryLocation = true;
+    return new Promise((resolve, reject) => {
+      this.deliverToCurrentLocation = false;
+      this.deliverToSetLocation = false;
+      this.deliverToLastDeliveryLocation = true;
 
-    this.currentLocationGeohash = this.userDetails.lastDeliveryLocationGeohash;
-    this.currentLocation = this.userDetails.lastDeliveryLocation;
-    this.currentLocationDetails = this.userDetails.lastDeliveryLocationAddress;
+      this.currentLocationGeohash = this.userDetails.lastDeliveryLocationGeohash;
+      this.currentLocation = this.userDetails.lastDeliveryLocation;
+      this.currentLocationDetails = this.userDetails.lastDeliveryLocationAddress;
+
+      resolve();
+    });
   }
 
   @action async getUserDetails(userId) {
@@ -230,6 +236,9 @@ class generalStore {
   }
 
   @action getMessages(orderId) {
+    this.unsubscribeGetMessages && this.unsubscribeGetMessages();
+    this.orderMessages = [];
+
     this.unsubscribeGetMessages = firestore()
       .collection('orders')
       .doc(orderId)

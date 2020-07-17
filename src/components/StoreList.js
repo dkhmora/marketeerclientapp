@@ -24,7 +24,6 @@ class StoreList extends Component {
       refreshing: false,
       loading: true,
       onEndReachedCalledDuringMomentum: false,
-      limit: 8,
     };
   }
 
@@ -44,7 +43,6 @@ class StoreList extends Component {
   getInitialStoreList() {
     const {categoryName} = this.props;
     const {currentLocationGeohash, currentLocation} = this.props.generalStore;
-    const {limit} = this.state;
 
     this.setState({refreshing: true});
 
@@ -53,7 +51,6 @@ class StoreList extends Component {
         currentLocationGeohash,
         locationCoordinates: currentLocation,
         storeCategory: categoryName,
-        limit,
       })
       .then(() => {
         this.setState({refreshing: false, loading: false});
@@ -65,7 +62,6 @@ class StoreList extends Component {
       !this.state.onEndReachedCalledDuringMomentum &&
       this.state.lastVisible >= 1
     ) {
-      const {limit} = this.state;
       const {categoryName} = this.props;
       const {currentLocationGeohash, currentLocation} = this.props.generalStore;
 
@@ -76,7 +72,6 @@ class StoreList extends Component {
           currentLocationGeohash,
           locationCoordinates: currentLocation,
           storeCategory: categoryName,
-          limit,
           lastVisible: this.lastStoreLowerRange,
         })
         .then(() => {

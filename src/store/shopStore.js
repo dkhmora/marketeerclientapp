@@ -22,6 +22,7 @@ class shopStore {
   @observable storeCategoryItems = new Map();
   @observable unsubscribeToGetCartItems = null;
   @observable cartUpdateTimeout = null;
+  @observable storeFetchLimit = 8;
 
   @computed get totalCartItemQuantity() {
     let quantity = 0;
@@ -254,9 +255,9 @@ class shopStore {
     currentLocationGeohash,
     locationCoordinates,
     storeCategory,
-    limit,
     lastVisible,
   }) {
+    console.log('whut');
     if (
       currentLocationGeohash &&
       locationCoordinates &&
@@ -271,7 +272,7 @@ class shopStore {
         .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
         .orderBy('deliveryCoordinates.lowerRange')
         .startAfter(lastVisible)
-        .limit(limit)
+        .limit(this.storeFetchLimit)
         .get()
         .then((querySnapshot) => {
           const list = [];
@@ -302,7 +303,7 @@ class shopStore {
         .where('storeCategory', '==', storeCategory)
         .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
         .orderBy('deliveryCoordinates.lowerRange')
-        .limit(limit)
+        .limit(this.storeFetchLimit)
         .get()
         .then((querySnapshot) => {
           const list = [];
@@ -333,7 +334,7 @@ class shopStore {
         .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
         .orderBy('deliveryCoordinates.lowerRange')
         .startAfter(lastVisible)
-        .limit(limit)
+        .limit(this.storeFetchLimit)
         .get()
         .then((querySnapshot) => {
           const list = [];
@@ -357,13 +358,14 @@ class shopStore {
         })
         .catch((err) => console.log(err));
     } else {
+      console.log('qweqwe');
       return await merchantsCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
         .where('creditData.creditThresholdReached', '==', false)
         .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
         .orderBy('deliveryCoordinates.lowerRange')
-        .limit(limit)
+        .limit(this.storeFetchLimit)
         .get()
         .then((querySnapshot) => {
           const list = [];
@@ -405,6 +407,8 @@ class shopStore {
           const sortedList = listWithDistance.sort(
             (a, b) => a.distance - b.distance,
           );
+
+          console.log('umabot', currentLocationGeohash);
 
           this.storeList = sortedList;
         })
