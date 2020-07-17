@@ -257,7 +257,6 @@ class shopStore {
     storeCategory,
     lastVisible,
   }) {
-    console.log('whut');
     if (
       currentLocationGeohash &&
       locationCoordinates &&
@@ -358,7 +357,6 @@ class shopStore {
         })
         .catch((err) => console.log(err));
     } else {
-      console.log('qweqwe');
       return await merchantsCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
@@ -407,8 +405,6 @@ class shopStore {
           const sortedList = listWithDistance.sort(
             (a, b) => a.distance - b.distance,
           );
-
-          console.log('umabot', currentLocationGeohash);
 
           this.storeList = sortedList;
         })

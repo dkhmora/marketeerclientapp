@@ -68,8 +68,6 @@ class App extends React.Component {
                     currentLocationGeohash,
                   } = generalStore;
 
-                  console.log('currentLocation', currentLocation);
-
                   shopStore
                     .getStoreList({
                       currentLocationGeohash,
