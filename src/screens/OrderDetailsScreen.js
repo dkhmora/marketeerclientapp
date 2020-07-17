@@ -37,7 +37,7 @@ class OrderDetailsScreen extends Component {
 
   render() {
     const {order, orderStatus} = this.props.route.params;
-    const {orderNumber, quantity, shippingPrice, totalAmount} = order;
+    const {userOrderNumber, quantity, shippingPrice, totalAmount} = order;
 
     const {navigation} = this.props;
 
@@ -55,7 +55,7 @@ class OrderDetailsScreen extends Component {
     return (
       <View style={{flex: 1}}>
         <BaseHeader
-          title={`Order #${orderNumber} Details`}
+          title={`Order #${userOrderNumber} Details`}
           backButton
           optionsButton
           actions={actions}

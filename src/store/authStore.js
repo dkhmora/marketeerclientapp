@@ -212,8 +212,8 @@ class authStore {
         name,
         email,
         phoneNumber,
-        updatedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
+        updatedAt: firestore.Timestamp.now().toMillis(),
+        createdAt: firestore.Timestamp.now().toMillis(),
       })
       .then(() => {
         auth().currentUser.updateProfile({displayName: name});

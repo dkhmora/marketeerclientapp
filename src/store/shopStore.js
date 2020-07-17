@@ -177,7 +177,7 @@ class shopStore {
 
   @action async addCartItemToStorage(item, merchantId) {
     const storeCartItems = this.storeCartItems[merchantId];
-    const dateNow = new Date().toISOString();
+    const dateNow = firestore.Timestamp.now().toMillis();
 
     const newItem = {
       ...item,
@@ -210,7 +210,7 @@ class shopStore {
 
   @action async deleteCartItemInStorage(item, merchantId) {
     const storeCart = this.storeCartItems[merchantId];
-    const dateNow = new Date().toISOString();
+    const dateNow = firestore.Timestamp.now().toMillis();
 
     if (storeCart) {
       const cartItemIndex = storeCart.findIndex(
@@ -250,18 +250,28 @@ class shopStore {
     }
   }
 
-  @action async getStoreList(
+  @action async getStoreList({
     currentLocationGeohash,
     locationCoordinates,
     storeCategory,
-  ) {
-    if (currentLocationGeohash && locationCoordinates && storeCategory) {
+    limit,
+    lastVisible,
+  }) {
+    if (
+      currentLocationGeohash &&
+      locationCoordinates &&
+      storeCategory &&
+      lastVisible
+    ) {
       return await merchantsCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
         .where('creditData.creditThresholdReached', '==', false)
-        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
         .where('storeCategory', '==', storeCategory)
+        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
+        .orderBy('deliveryCoordinates.lowerRange')
+        .startAfter(lastVisible)
+        .limit(limit)
         .get()
         .then((querySnapshot) => {
           const list = [];
@@ -284,12 +294,46 @@ class shopStore {
           this.categoryStoreList[storeCategory] = finalList;
         })
         .catch((err) => console.log(err));
-    } else if (currentLocationGeohash && locationCoordinates) {
+    } else if (currentLocationGeohash && locationCoordinates && storeCategory) {
+      return await merchantsCollection
+        .where('visibleToPublic', '==', true)
+        .where('vacationMode', '==', false)
+        .where('creditData.creditThresholdReached', '==', false)
+        .where('storeCategory', '==', storeCategory)
+        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
+        .orderBy('deliveryCoordinates.lowerRange')
+        .limit(limit)
+        .get()
+        .then((querySnapshot) => {
+          const list = [];
+
+          querySnapshot.forEach((documentSnapshot, index) => {
+            list.push(documentSnapshot.data());
+
+            list[index].merchantId = documentSnapshot.id;
+          });
+
+          return list;
+        })
+        .then((list) => {
+          const finalList = list.filter((element) =>
+            geolib.isPointInPolygon({...locationCoordinates}, [
+              ...element.deliveryCoordinates.boundingBox,
+            ]),
+          );
+
+          this.categoryStoreList[storeCategory] = finalList;
+        })
+        .catch((err) => console.log(err));
+    } else if (currentLocationGeohash && locationCoordinates && lastVisible) {
       return await merchantsCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
         .where('creditData.creditThresholdReached', '==', false)
         .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
+        .orderBy('deliveryCoordinates.lowerRange')
+        .startAfter(lastVisible)
+        .limit(limit)
         .get()
         .then((querySnapshot) => {
           const list = [];
@@ -310,6 +354,59 @@ class shopStore {
           );
 
           this.storeList = finalList;
+        })
+        .catch((err) => console.log(err));
+    } else {
+      return await merchantsCollection
+        .where('visibleToPublic', '==', true)
+        .where('vacationMode', '==', false)
+        .where('creditData.creditThresholdReached', '==', false)
+        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
+        .orderBy('deliveryCoordinates.lowerRange')
+        .limit(limit)
+        .get()
+        .then((querySnapshot) => {
+          const list = [];
+
+          querySnapshot.forEach((documentSnapshot, index) => {
+            list.push(documentSnapshot.data());
+
+            list[index].merchantId = documentSnapshot.id;
+          });
+
+          return list;
+        })
+        .then(async (list) => {
+          const filteredList = list.filter((element) =>
+            geolib.isPointInPolygon(
+              {
+                latitude: locationCoordinates.latitude,
+                longitude: locationCoordinates.longitude,
+              },
+              [...element.deliveryCoordinates.boundingBox],
+            ),
+          );
+
+          const listWithDistance = filteredList.map((store) => {
+            const distance = geolib.getDistance(
+              {
+                latitude: locationCoordinates.latitude,
+                longitude: locationCoordinates.longitude,
+              },
+              {
+                latitude: store.deliveryCoordinates.latitude,
+                longitude: store.deliveryCoordinates.longitude,
+              },
+            );
+
+            return {...store, distance};
+          });
+
+          const sortedList = listWithDistance.sort(
+            (a, b) => a.distance - b.distance,
+          );
+
+          this.storeList = sortedList;
         })
         .catch((err) => console.log(err));
     }

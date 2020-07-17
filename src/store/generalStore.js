@@ -255,7 +255,7 @@ class generalStore {
     message.createdAt = createdAt;
 
     await firestore()
-      .collection('order_chats')
+      .collection('orders')
       .doc(orderId)
       .update('messages', firestore.FieldValue.arrayUnion(message))
       .then(() => console.log('Successfully sent the message'))
@@ -272,7 +272,7 @@ class generalStore {
     };
 
     await firestore()
-      .collection('order_chats')
+      .collection('orders')
       .doc(orderId)
       .update('messages', firestore.FieldValue.arrayUnion(message))
       .then(() => console.log('Successfully sent the message'))

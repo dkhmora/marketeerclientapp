@@ -218,7 +218,7 @@ class OrderCard extends Component {
   CardFooter = ({createdAt, paymentMethod, orderStatus}) => {
     const {order} = this.props;
     const {reviewedOnDevice} = this.state;
-    const timeStamp = moment(createdAt, ISO_8601).format('MM-DD-YYYY hh:MM A');
+    const timeStamp = moment(new Date(createdAt)).format('MM-DD-YYYY hh:MM A');
 
     return (
       <View

@@ -237,11 +237,23 @@ class StoreCard extends Component {
                 <View
                   style={{
                     flexDirection: 'row',
-                    justifyContent: 'flex-start',
+                    justifyContent: 'space-between',
                     alignItems: 'flex-end',
                     marginTop: 5,
                   }}>
-                  <this.PaymentMethods />
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'flex-start',
+                    }}>
+                    <this.PaymentMethods />
+                  </View>
+
+                  <Text style={{color: colors.text_secondary}}>
+                    {store.distance > 1000
+                      ? `${(store.distance / 1000).toFixed(2)} km`
+                      : `${store.distance} meters`}
+                  </Text>
                 </View>
               </View>
             </CardItem>
