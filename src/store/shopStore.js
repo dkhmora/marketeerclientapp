@@ -284,14 +284,8 @@ class shopStore {
 
           return list;
         })
-        .then((list) => {
-          const finalList = list.filter((element) =>
-            geolib.isPointInPolygon({...locationCoordinates}, [
-              ...element.deliveryCoordinates.boundingBox,
-            ]),
-          );
-
-          this.categoryStoreList[storeCategory] = finalList;
+        .then(async (list) => {
+          this.storeList = this.sortStoresByDistance(list, locationCoordinates);
         })
         .catch((err) => console.log(err));
     } else if (currentLocationGeohash && locationCoordinates && storeCategory) {
@@ -315,14 +309,8 @@ class shopStore {
 
           return list;
         })
-        .then((list) => {
-          const finalList = list.filter((element) =>
-            geolib.isPointInPolygon({...locationCoordinates}, [
-              ...element.deliveryCoordinates.boundingBox,
-            ]),
-          );
-
-          this.categoryStoreList[storeCategory] = finalList;
+        .then(async (list) => {
+          this.storeList = this.sortStoresByDistance(list, locationCoordinates);
         })
         .catch((err) => console.log(err));
     } else if (currentLocationGeohash && locationCoordinates && lastVisible) {
@@ -346,14 +334,8 @@ class shopStore {
 
           return list;
         })
-        .then((list) => {
-          const finalList = list.filter((element) =>
-            geolib.isPointInPolygon({...locationCoordinates}, [
-              ...element.deliveryCoordinates.boundingBox,
-            ]),
-          );
-
-          this.storeList = finalList;
+        .then(async (list) => {
+          this.storeList = this.sortStoresByDistance(list, locationCoordinates);
         })
         .catch((err) => console.log(err));
     } else {
@@ -377,39 +359,41 @@ class shopStore {
           return list;
         })
         .then(async (list) => {
-          const filteredList = list.filter((element) =>
-            geolib.isPointInPolygon(
-              {
-                latitude: locationCoordinates.latitude,
-                longitude: locationCoordinates.longitude,
-              },
-              [...element.deliveryCoordinates.boundingBox],
-            ),
-          );
-
-          const listWithDistance = filteredList.map((store) => {
-            const distance = geolib.getDistance(
-              {
-                latitude: locationCoordinates.latitude,
-                longitude: locationCoordinates.longitude,
-              },
-              {
-                latitude: store.deliveryCoordinates.latitude,
-                longitude: store.deliveryCoordinates.longitude,
-              },
-            );
-
-            return {...store, distance};
-          });
-
-          const sortedList = listWithDistance.sort(
-            (a, b) => a.distance - b.distance,
-          );
-
-          this.storeList = sortedList;
+          this.storeList = this.sortStoresByDistance(list, locationCoordinates);
         })
         .catch((err) => console.log(err));
     }
+  }
+
+  @action async sortStoresByDistance(list, locationCoordinates) {
+    const filteredList = list.filter((element) =>
+      geolib.isPointInPolygon(
+        {
+          latitude: locationCoordinates.latitude,
+          longitude: locationCoordinates.longitude,
+        },
+        [...element.deliveryCoordinates.boundingBox],
+      ),
+    );
+
+    const listWithDistance = filteredList.map((store) => {
+      const distance = geolib.getDistance(
+        {
+          latitude: locationCoordinates.latitude,
+          longitude: locationCoordinates.longitude,
+        },
+        {
+          latitude: store.deliveryCoordinates.latitude,
+          longitude: store.deliveryCoordinates.longitude,
+        },
+      );
+
+      return {...store, distance};
+    });
+
+    const sortedList = listWithDistance.sort((a, b) => a.distance - b.distance);
+
+    return sortedList;
   }
 
   @action async setStoreItems(merchantId) {
