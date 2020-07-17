@@ -244,7 +244,13 @@ class MainScreen extends Component {
             )
           }
           onPress={() => {
-            this.props.generalStore.setCurrentLocation();
+            this.props.generalStore.setCurrentLocation().then(() => {
+              this.props.shopStore.getStoreList({
+                currentLocationGeohash: this.props.generalStore
+                  .currentLocationGeohash,
+                locationCoordinates: this.props.generalStore.currentLocation,
+              });
+            });
             this.hideLocationMenu();
           }}
         />
@@ -269,7 +275,13 @@ class MainScreen extends Component {
               )
             }
             onPress={() => {
-              this.props.generalStore.setLastDeliveryLocation();
+              this.props.generalStore.setLastDeliveryLocation().then(() => {
+                this.props.shopStore.getStoreList({
+                  currentLocationGeohash: this.props.generalStore
+                    .currentLocationGeohash,
+                  locationCoordinates: this.props.generalStore.currentLocation,
+                });
+              });
               this.hideLocationMenu();
             }}
           />

@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, PureComponent} from 'react';
 import {Card, CardItem, Text, View} from 'native-base';
 import {Image} from 'react-native';
 import {Button, Icon} from 'react-native-elements';
@@ -15,14 +15,14 @@ import ItemCardLoader from './ItemCardLoader';
 @inject('authStore')
 @inject('shopStore')
 @observer
-class ItemCard extends Component {
+class ItemCard extends PureComponent {
   constructor(props) {
     super(props);
 
-    const {item, storeName} = this.props;
+    const {item, merchantId} = this.props;
     const itemQuantity = this.props.shopStore.getCartItemQuantity(
       item,
-      storeName,
+      merchantId,
     );
     const itemStock = item.stock;
 
@@ -38,11 +38,11 @@ class ItemCard extends Component {
   @observable url = null;
 
   @computed get cartItemQuantity() {
-    const {item, storeName} = this.props;
+    const {item, merchantId} = this.props;
 
-    if (this.props.shopStore.storeCartItems) {
-      if (this.props.shopStore.storeCartItems[storeName]) {
-        const cartItem = this.props.shopStore.storeCartItems[storeName].find(
+    if (Object.keys(this.props.shopStore.storeCartItems).length > 0) {
+      if (this.props.shopStore.storeCartItems[merchantId]) {
+        const cartItem = this.props.shopStore.storeCartItems[merchantId].find(
           (storeCartItem) => storeCartItem.name === item.name,
         );
 
@@ -56,16 +56,20 @@ class ItemCard extends Component {
       }
     }
 
+    if (this.state.minusButtonShown) {
+      this.hideMinusButton();
+    }
+
     return 0;
   }
 
   @computed get cartItemIndex() {
-    const {item, storeName} = this.props;
+    const {item, merchantId} = this.props;
 
     if (this.props.shopStore.storeCartItems) {
-      if (this.props.shopStore.storeCartItems[storeName]) {
+      if (this.props.shopStore.storeCartItems[merchantId]) {
         const itemIndex = this.props.shopStore.storeCartItems[
-          storeName
+          merchantId
         ].findIndex((storeCartItem) => storeCartItem.name === item.name);
 
         if (itemIndex >= 0) {
@@ -107,14 +111,17 @@ class ItemCard extends Component {
 
   hideMinusButton() {
     this.setState({minusButtonShown: false});
-    this.buttonCounterView.fadeOutRight(200) &&
-      this.plusButton.deTransformPlusButton(300);
+
+    if (this.buttonCounterView && this.plusButton) {
+      this.buttonCounterView.fadeOutRight(200) &&
+        this.plusButton.deTransformPlusButton(300);
+    }
   }
 
   handleIncreaseQuantity() {
-    const {item, storeName} = this.props;
+    const {item, merchantId} = this.props;
 
-    this.props.shopStore.addCartItemToStorage(item, storeName);
+    this.props.shopStore.addCartItemToStorage(item, merchantId);
 
     if (this.cartItemQuantity < item.stock) {
       if (!this.props.authStore.guest) {
@@ -129,15 +136,17 @@ class ItemCard extends Component {
     this.cartItemQuantity === parseInt(item.stock, 10) &&
       this.setState({addButtonDisabled: true});
 
+    /*
     if (!this.state.minusButtonShown && this.cartItemQuantity >= 1) {
       this.showMinusButton();
     }
+    */
   }
 
   handleDecreaseQuantity() {
-    const {item, storeName} = this.props;
+    const {item, merchantId} = this.props;
 
-    this.props.shopStore.deleteCartItemInStorage(item, storeName);
+    this.props.shopStore.deleteCartItemInStorage(item, merchantId);
 
     if (!this.props.authStore.guest) {
       clearTimeout(this.props.shopStore.cartUpdateTimeout);
@@ -147,9 +156,10 @@ class ItemCard extends Component {
       }, 2500);
     }
 
+    /*
     if (this.cartItemQuantity <= 0 && this.state.minusButtonShown) {
       this.hideMinusButton();
-    }
+    }*/
 
     this.cartItemQuantity <= item.stock &&
       this.setState({addButtonDisabled: false});
@@ -193,7 +203,15 @@ class ItemCard extends Component {
                 backgroundColor: colors.icons,
                 paddingHorizontal: 10,
                 paddingVertical: 10,
-                elevation: 2,
+                elevation: 3,
+                zIndex: 10,
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 1.41,
                 borderBottomLeftRadius: 10,
                 borderBottomRightRadius: 10,
               }}>
@@ -231,13 +249,14 @@ class ItemCard extends Component {
               </TouchableOpacity>
             </View>
 
-            <CardItem cardBody style={{marginTop: -10}}>
+            <CardItem cardBody>
               {this.url ? (
                 <FastImage
                   source={{uri: this.url}}
                   style={{
                     aspectRatio: 1,
                     flex: 1,
+                    marginTop: -10,
                     backgroundColor: '#e1e4e8',
                   }}
                   resizeMode={FastImage.resizeMode.contain}
@@ -248,11 +267,39 @@ class ItemCard extends Component {
                   style={{
                     aspectRatio: 1,
                     flex: 1,
+                    marginTop: -10,
                     backgroundColor: '#e1e4e8',
                   }}
                   resizeMode={FastImage.resizeMode.contain}
                 />
               )}
+
+              <View
+                style={{
+                  flexDirection: 'row',
+                  position: 'absolute',
+                  bottom: 10,
+                  left: 10,
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  backgroundColor: colors.icons,
+                  opacity: 0.9,
+                  borderColor: colors.text_secondary,
+                  padding: 5,
+                  alignItems: 'center',
+                }}>
+                <Text style={{fontSize: 14}}>{stock}</Text>
+
+                <Text
+                  style={{
+                    fontSize: 14,
+                    textAlign: 'center',
+                    color: colors.text_secondary,
+                  }}>
+                  {' '}
+                  Left
+                </Text>
+              </View>
             </CardItem>
 
             <View
@@ -307,6 +354,13 @@ class ItemCard extends Component {
                         height: 40,
                         borderRadius: 24,
                         elevation: 3,
+                        shadowColor: '#000',
+                        shadowOffset: {
+                          width: 0,
+                          height: 1,
+                        },
+                        shadowOpacity: 0.22,
+                        shadowRadius: 2.22,
                       },
                     ]}
                   />
@@ -380,33 +434,6 @@ class ItemCard extends Component {
                   />
                 </View>
               </Animatable.View>
-            </View>
-
-            <View
-              style={{
-                flexDirection: 'row',
-                position: 'absolute',
-                bottom: 10,
-                left: 10,
-                borderRadius: 10,
-                borderWidth: 1,
-                backgroundColor: colors.icons,
-                opacity: 0.9,
-                borderColor: colors.text_secondary,
-                padding: 5,
-                alignItems: 'center',
-              }}>
-              <Text style={{fontSize: 14}}>{stock}</Text>
-
-              <Text
-                style={{
-                  fontSize: 14,
-                  textAlign: 'center',
-                  color: colors.text_secondary,
-                }}>
-                {' '}
-                Left
-              </Text>
             </View>
           </Card>
         </Animatable.View>

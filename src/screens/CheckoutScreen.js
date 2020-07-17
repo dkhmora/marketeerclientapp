@@ -49,15 +49,10 @@ class CheckoutScreen extends Component {
       userDetails,
     } = this.props.generalStore;
     const {
-      storeList,
       storeCartItems,
       storeSelectedShipping,
       storeSelectedPaymentMethod,
     } = this.props.shopStore;
-
-    const orderStoreList = await cartStores.map((storeName) => {
-      return storeList.find((element) => element.storeName === storeName);
-    });
 
     const {userName, userPhoneNumber} = this.props.authStore;
 
@@ -82,12 +77,9 @@ class CheckoutScreen extends Component {
         deliveryAddress,
         userCoordinates,
         userName,
-        userPhoneNumber,
-        userId,
         storeCartItems,
         storeSelectedShipping,
         storeSelectedPaymentMethod,
-        orderStoreList,
       })
       .then(() => {
         updateCoordinates(
@@ -153,6 +145,7 @@ class CheckoutScreen extends Component {
               width: 80,
               resizeMode: 'cover',
               marginRight: 10,
+              marginVertical: 15,
             }}
           />
           <Text style={{color: colors.icons, fontSize: 30}}>Checkout</Text>

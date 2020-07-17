@@ -58,27 +58,34 @@ class App extends React.Component {
                 .then(() => {
                   if (generalStore.userDetails.lastDeliveryLocation) {
                     return generalStore.setLastDeliveryLocation();
+                  } else {
+                    return generalStore.setCurrentLocation();
                   }
-
-                  return generalStore.setCurrentLocation();
                 })
                 .then(() => {
+                  const {
+                    currentLocation,
+                    currentLocationGeohash,
+                  } = generalStore;
+
                   shopStore
-                    .getShopList(
-                      generalStore.currentLocationGeohash,
-                      generalStore.currentLocation,
-                    )
+                    .getStoreList({
+                      currentLocationGeohash,
+                      locationCoordinates: currentLocation,
+                    })
                     .then(() => {
                       generalStore.appReady = true;
                     });
                 });
             } else {
               generalStore.setCurrentLocation().then(() => {
+                const {currentLocation, currentLocationGeohash} = generalStore;
+
                 shopStore
-                  .getShopList(
-                    generalStore.currentLocationGeohash,
-                    generalStore.currentLocation,
-                  )
+                  .getStoreList({
+                    currentLocationGeohash,
+                    locationCoordinates: currentLocation,
+                  })
                   .then(() => {
                     generalStore.appReady = true;
                   });

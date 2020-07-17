@@ -18,6 +18,7 @@ import SlidingCartPanel from '../components/SlidingCartPanel';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import ItemTabs from '../navigation/ItemCategoriesTab';
 import StoreList from '../components/StoreList';
+import BackButton from '../components/BackButton';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -31,7 +32,7 @@ class CategoryStoresScreen extends Component {
   }
 
   render() {
-    const {storeList, coverImageUrl, categoryDetails} = this.props.route.params;
+    const {coverImageUrl, categoryDetails} = this.props.route.params;
     const {navigation} = this.props;
 
     return (
@@ -42,13 +43,13 @@ class CategoryStoresScreen extends Component {
           useNativeDriver
           animation="fadeInUp"
           duration={800}
-          style={{flex: Platform.OS === 'android' ? 2.5 : 2}}>
+          style={{flexDirection: 'row'}}>
           <ImageBackground
             source={coverImageUrl}
             style={{
               flex: 1,
               flexDirection: 'row',
-              height: 250,
+              height: 230,
               resizeMode: 'cover',
               justifyContent: 'center',
               paddingTop: STATUS_BAR_HEIGHT,
@@ -77,39 +78,66 @@ class CategoryStoresScreen extends Component {
             <Animatable.View
               animation="fadeInUp"
               useNativeDriver
-              duration={800}>
-              <Button
-                onPress={() => navigation.goBack()}
-                type="clear"
-                color={colors.icons}
-                icon={<Icon name="arrow-left" color={colors.primary} />}
-                buttonStyle={{borderRadius: 30}}
-                containerStyle={[
-                  styles.buttonContainer,
-                  {marginRight: 5, backgroundColor: '#fff', height: 40},
-                ]}
-              />
-            </Animatable.View>
-
-            <Animatable.View
-              animation="fadeInUp"
-              useNativeDriver
               duration={800}
-              style={{flex: 1}}>
-              <Text
-                adjustsFontSizeToFit
-                numberOfLines={2}
-                style={[
-                  styles.text_footer,
-                  {
-                    paddingLeft: 5,
-                    color: colors.icons,
-                    fontSize: 30,
-                    width: '80%',
-                  },
-                ]}>
-                {categoryDetails.name}
-              </Text>
+              style={{flex: 1, justifyContent: 'center'}}>
+              <SafeAreaView
+                style={{
+                  flexDirection: 'row',
+                  flex: 1,
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                  paddingBottom: 40 + STATUS_BAR_HEIGHT,
+                }}>
+                <Button
+                  onPress={() => navigation.goBack()}
+                  type="clear"
+                  color={colors.icons}
+                  icon={<Icon name="arrow-left" color={colors.primary} />}
+                  buttonStyle={{borderRadius: 30}}
+                  containerStyle={[
+                    styles.buttonContainer,
+                    {
+                      marginRight: 5,
+                      backgroundColor: '#fff',
+                      height: 40,
+                      alignSelf: 'center',
+                    },
+                  ]}
+                />
+
+                <View style={{flexDirection: 'column', flex: 1}}>
+                  <Text
+                    adjustsFontSizeToFit
+                    numberOfLines={2}
+                    style={[
+                      styles.text_footer,
+                      {
+                        paddingLeft: 5,
+                        color: colors.icons,
+                        fontSize: 30,
+                      },
+                    ]}>
+                    {categoryDetails.name}
+                  </Text>
+
+                  {categoryDetails.description && (
+                    <Text
+                      adjustsFontSizeToFit
+                      style={[
+                        styles.text_footer,
+                        {
+                          paddingLeft: 5,
+                          color: colors.icons,
+                          fontSize: 20,
+                          flexShrink: 1,
+                          marginTop: 10,
+                        },
+                      ]}>
+                      {categoryDetails.description}
+                    </Text>
+                  )}
+                </View>
+              </SafeAreaView>
             </Animatable.View>
           </ImageBackground>
         </Animatable.View>
@@ -139,7 +167,12 @@ class CategoryStoresScreen extends Component {
               overflow: 'hidden',
             },
           ]}>
-          <StoreList dataSource={storeList} component navigation={navigation} />
+          {categoryDetails.name && (
+            <StoreList
+              categoryName={categoryDetails.name}
+              navigation={navigation}
+            />
+          )}
         </Animatable.View>
       </View>
     );

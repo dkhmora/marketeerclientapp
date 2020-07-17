@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text, Rating} from 'react-native-elements';
+import {Text} from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 import FastImage from 'react-native-fast-image';
 import {
@@ -15,6 +15,7 @@ import {Card, CardItem} from 'native-base';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import StoreCardLoader from './StoreCardLoader';
+import {Rating} from 'react-native-rating-element';
 
 class StoreCard extends Component {
   constructor(props) {
@@ -159,32 +160,35 @@ class StoreCard extends Component {
                   </Text>
                 </View>
 
-                <View
-                  style={{
-                    overflow: 'hidden',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    position: 'absolute',
-                    borderTopLeftRadius: 8,
-                    borderBottomLeftRadius: 8,
-                    bottom: 60,
-                    right: 0,
-                    padding: 5,
-                    backgroundColor: colors.primary,
-                  }}>
-                  <Rating
-                    type="custom"
-                    fractions={1}
-                    startingValue={3.3}
-                    imageSize={20}
-                    ratingImage={require('../../assets/images/star.png')}
-                    readonly
-                    tintColor={colors.primary}
-                    ratingColor={colors.accent}
-                    ratingBackgroundColor="#455A64"
-                  />
-                </View>
+                {store.ratingAverage && (
+                  <View
+                    style={{
+                      overflow: 'hidden',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      position: 'absolute',
+                      borderTopLeftRadius: 8,
+                      borderBottomLeftRadius: 8,
+                      bottom: 60,
+                      right: 0,
+                      padding: 5,
+                      backgroundColor: colors.primary,
+                    }}>
+                    <Rating
+                      type="custom"
+                      direction="row"
+                      rated={store.ratingAverage}
+                      selectedIconImage={require('../../assets/images/feather_filled.png')}
+                      emptyIconImage={require('../../assets/images/feather_unfilled.png')}
+                      size={23}
+                      tintColor={colors.primary}
+                      ratingColor={colors.accent}
+                      ratingBackgroundColor="#455A64"
+                      readonly
+                    />
+                  </View>
+                )}
               </View>
             )}
 
@@ -233,11 +237,23 @@ class StoreCard extends Component {
                 <View
                   style={{
                     flexDirection: 'row',
-                    justifyContent: 'flex-start',
+                    justifyContent: 'space-between',
                     alignItems: 'flex-end',
                     marginTop: 5,
                   }}>
-                  <this.PaymentMethods />
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'flex-start',
+                    }}>
+                    <this.PaymentMethods />
+                  </View>
+
+                  <Text style={{color: colors.text_secondary}}>
+                    {store.distance > 1000
+                      ? `${(store.distance / 1000).toFixed(2)} km`
+                      : `${store.distance} meters`}
+                  </Text>
                 </View>
               </View>
             </CardItem>

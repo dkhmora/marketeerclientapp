@@ -9,9 +9,11 @@ import {View, Image} from 'react-native';
 import {colors} from '../../assets/colors';
 import {inject, observer} from 'mobx-react';
 import {computed} from 'mobx';
+import Toast from '../components/Toast';
 
 @inject('authStore')
 @inject('shopStore')
+@inject('generalStore')
 @observer
 class MainDrawer extends Component {
   constructor(props) {
@@ -48,9 +50,20 @@ class MainDrawer extends Component {
     } else if (this.props.authStore.userAuthenticated) {
       navigation.closeDrawer();
 
+      this.props.generalStore.appReady = false;
+
       this.props.authStore
         .signOut()
         .then(() => this.props.authStore.checkAuthStatus())
+        .then(() => {
+          this.props.generalStore.appReady = true;
+        })
+        .then(() => {
+          Toast({
+            text: 'Signed out successfully',
+            duration: 3500,
+          });
+        })
         .then(() => {
           this.props.shopStore.unsubscribeToGetCartItems &&
             this.props.shopStore.unsubscribeToGetCartItems() &&

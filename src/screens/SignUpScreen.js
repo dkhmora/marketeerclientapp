@@ -9,6 +9,7 @@ import {
   ScrollView,
   StatusBar,
   Image,
+  Linking,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -36,7 +37,6 @@ class SignUpScreen extends Component {
       phoneCheck: false,
       secureTextEntry: true,
       confirm_secureTextEntry: true,
-      signUpButton_disabled: true,
     };
   }
 
@@ -148,12 +148,23 @@ class SignUpScreen extends Component {
     });
   }
 
+  openMerchantSignUpForm() {
+    const merchantFormUrl =
+      'https://docs.google.com/forms/d/e/1FAIpQLSfH5koRomOIcJgDrluuEOQ7GpB7q77lThZuFivSYfz7Ec8tag/viewform?usp=sf_link';
+
+    Linking.canOpenURL(merchantFormUrl).then((supported) => {
+      if (supported) {
+        Linking.openURL(merchantFormUrl);
+      } else {
+        console.log("Don't know how to open URI: " + merchantFormUrl);
+      }
+    });
+  }
+
   render() {
     const {
-      signUpButton_disabled,
       passwordCheck,
       confirmPasswordCheck,
-      name,
       nameCheck,
       emailCheck,
       phoneCheck,
@@ -167,17 +178,24 @@ class SignUpScreen extends Component {
       <View style={[styles.container, {paddingTop: 0}]}>
         <StatusBar animated translucent backgroundColor={colors.primary} />
 
-        <View style={styles.header}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingTop: StatusBar.currentHeight,
+          }}>
           <Image
             source={require('../../assets/images/logo.png')}
             style={{
               height: 150,
               width: 200,
               resizeMode: 'center',
+              marginVertical: 20,
             }}
           />
 
-          <BackButton navigation={navigation} />
+          {checkout && <BackButton navigation={navigation} />}
         </View>
 
         <Animatable.View
@@ -202,7 +220,7 @@ class SignUpScreen extends Component {
                 Are you a merchant? Come and join us! Register
               </Text>
 
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => this.openMerchantSignUpForm()}>
                 <Text style={styles.touchable_text}> here</Text>
               </TouchableOpacity>
             </View>

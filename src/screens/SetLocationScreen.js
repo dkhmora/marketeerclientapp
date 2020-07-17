@@ -94,7 +94,7 @@ class SetLocationScreen extends Component {
 
     const coordinatesGeohash = await this.getGeohash(newMarkerPosition);
 
-    this.props.shopStore.getShopList(coordinatesGeohash, newMarkerPosition);
+    this.props.shopStore.getStoreList(coordinatesGeohash, newMarkerPosition);
 
     this.setState({loading: true});
 

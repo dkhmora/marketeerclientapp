@@ -183,9 +183,9 @@ class OrderChatScreen extends Component {
 
   render() {
     const {navigation} = this.props;
-    const {storeName, orderNumber} = this.props.route.params;
+    const {storeName, userOrderNumber} = this.props.route.params;
 
-    const headerTitle = `${storeName} | Order # ${orderNumber}`;
+    const headerTitle = `${storeName} | Order # ${userOrderNumber}`;
 
     const {orderMessages} = this.props.generalStore;
 

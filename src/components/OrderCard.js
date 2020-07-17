@@ -23,6 +23,7 @@ import {Button, Icon, Text} from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 import {colors} from '../../assets/colors';
 import OrderCardLoader from './OrderCardLoader';
+import AddReviewModal from './AddReviewModal';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -35,6 +36,8 @@ class OrderCard extends Component {
       url: require('../../assets/images/placeholder.jpg'),
       storeDetails: null,
       ready: false,
+      addReviewModal: false,
+      reviewedOnDevice: false,
     };
 
     this.props.shopStore
@@ -131,6 +134,10 @@ class OrderCard extends Component {
     });
   }
 
+  openAddReviewModal() {
+    this.setState({addReviewModal: true});
+  }
+
   CardHeader = ({
     imageUrl,
     paymentMethod,
@@ -208,8 +215,10 @@ class OrderCard extends Component {
     );
   };
 
-  CardFooter = ({createdAt, paymentMethod}) => {
-    const timeStamp = moment(createdAt, ISO_8601).format('MM-DD-YYYY hh:MM A');
+  CardFooter = ({createdAt, paymentMethod, orderStatus}) => {
+    const {order} = this.props;
+    const {reviewedOnDevice} = this.state;
+    const timeStamp = moment(new Date(createdAt)).format('MM-DD-YYYY hh:MM A');
 
     return (
       <View
@@ -223,38 +232,44 @@ class OrderCard extends Component {
           height: 40,
         }}>
         <Text>{timeStamp}</Text>
-        {paymentMethod === 'Online Banking' && (
-          <Button
-            title="Pay Now"
-            type="clear"
-            onPress={this.handleViewOrderItems.bind(this)}
-            titleStyle={{color: colors.primary}}
-            containerStyle={{borderRadius: 24}}
-          />
-        )}
+
+        {orderStatus[0] === 'COMPLETED' &&
+          !order.reviewed &&
+          !reviewedOnDevice && (
+            <Button
+              title="Review"
+              type="clear"
+              onPress={() => this.openAddReviewModal()}
+              titleStyle={{color: colors.primary}}
+              containerStyle={{borderRadius: 24}}
+            />
+          )}
       </View>
     );
   };
 
   render() {
-    const {navigation, order} = this.props;
+    const {navigation, order, reviewed} = this.props;
 
     const {
       userOrderNumber,
       quantity,
-      orderStatus,
       totalAmount,
       paymentMethod,
-      orderId,
-      userAddress,
       createdAt,
-      index,
     } = order;
-    const {url, ready} = this.state;
+    const {url, ready, addReviewModal} = this.state;
 
     return (
       <View>
         <View style={{flex: 1}}>
+          <AddReviewModal
+            order={order}
+            isVisible={addReviewModal}
+            closeModal={() => this.setState({addReviewModal: false})}
+            onReviewSubmit={() => this.setState({reviewedOnDevice: true})}
+          />
+
           <Modal
             isVisible={this.confirmationModal}
             transparent={true}
@@ -379,6 +394,8 @@ class OrderCard extends Component {
               <this.CardFooter
                 createdAt={createdAt}
                 paymentMethod={paymentMethod}
+                orderStatus={this.orderStatus}
+                reviewed={reviewed}
               />
             </View>
           ) : (

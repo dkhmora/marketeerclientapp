@@ -20,7 +20,7 @@ class CartStoreCard extends Component {
   @observable url = null;
 
   @observable storeDetails = this.props.shopStore.getStoreDetails(
-    this.props.storeName,
+    this.props.merchantId,
   );
 
   @computed get subTotal() {
@@ -50,7 +50,15 @@ class CartStoreCard extends Component {
   }
 
   @computed get cartItems() {
-    return this.props.shopStore.storeCartItems[this.props.storeName];
+    return this.props.shopStore.storeCartItems[this.props.merchantId];
+  }
+
+  @computed get storeName() {
+    const {merchantId} = this.props;
+
+    return this.props.shopStore.storeList.find(
+      (item) => item.merchantId === merchantId,
+    ).storeName;
   }
 
   getImage = async (imageRef) => {
@@ -69,17 +77,18 @@ class CartStoreCard extends Component {
     }
 
     this.props.shopStore.storeSelectedShipping[
-      this.props.storeName
+      this.props.merchantId
     ] = this.storeDetails.shippingMethods[0];
 
     this.props.shopStore.storeSelectedPaymentMethod[
-      this.props.storeName
+      this.props.merchantId
     ] = this.storeDetails.paymentMethods[0];
   }
 
   render() {
-    const {storeName, checkout} = this.props;
+    const {merchantId, checkout} = this.props;
     const {shippingMethods, paymentMethods} = this.storeDetails;
+    const {storeName} = this;
 
     return (
       <Card
@@ -181,10 +190,12 @@ class CartStoreCard extends Component {
                 mode="dropdown"
                 style={{flex: 1}}
                 selectedValue={
-                  this.props.shopStore.storeSelectedShipping[storeName]
+                  this.props.shopStore.storeSelectedShipping[merchantId]
                 }
                 onValueChange={(value) => {
-                  this.props.shopStore.storeSelectedShipping[storeName] = value;
+                  this.props.shopStore.storeSelectedShipping[
+                    merchantId
+                  ] = value;
                 }}>
                 {shippingMethods.length > 0 ? (
                   shippingMethods.map((method, index) => {
@@ -212,11 +223,11 @@ class CartStoreCard extends Component {
                 mode="dropdown"
                 style={{flex: 1}}
                 selectedValue={
-                  this.props.shopStore.storeSelectedPaymentMethod[storeName]
+                  this.props.shopStore.storeSelectedPaymentMethod[merchantId]
                 }
                 onValueChange={(value) => {
                   this.props.shopStore.storeSelectedPaymentMethod[
-                    storeName
+                    merchantId
                   ] = value;
                 }}>
                 {paymentMethods.length > 0 ? (

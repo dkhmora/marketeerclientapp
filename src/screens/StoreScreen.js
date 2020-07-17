@@ -16,7 +16,8 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import SlidingCartPanel from '../components/SlidingCartPanel';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import ItemTabs from '../navigation/ItemCategoriesTab';
+import ItemCategoriesTab from '../navigation/ItemCategoriesTab';
+import StoreDetailsModal from '../components/StoreDetailsModal';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -30,19 +31,17 @@ class StoreScreen extends Component {
     this.state = {
       storeItemCategories: {},
       ready: false,
+      detailsModal: false,
     };
 
     const {store} = this.props.route.params;
 
     this.props.shopStore
-      .setStoreItems(
-        this.props.route.params.store.merchantId,
-        this.props.route.params.store.storeName,
-      )
+      .setStoreItems(this.props.route.params.store.merchantId)
       .then(() => {
         this.setState({
           storeCategoryItems: this.props.shopStore.storeCategoryItems.get(
-            store.storeName,
+            store.merchantId,
           ),
         });
       });
@@ -51,26 +50,36 @@ class StoreScreen extends Component {
   render() {
     const {store, displayImageUrl, coverImageUrl} = this.props.route.params;
     const {navigation} = this.props;
-    const {storeCategoryItems} = this.state;
+    const {storeCategoryItems, detailsModal} = this.state;
 
     return (
       <View style={{flex: 1, backgroundColor: colors.text_primary}}>
         <StatusBar animated translucent backgroundColor={colors.statusBar} />
 
+        {coverImageUrl && displayImageUrl && (
+          <StoreDetailsModal
+            isVisible={detailsModal}
+            closeModal={() => this.setState({detailsModal: false})}
+            store={store}
+            coverImageUrl={coverImageUrl}
+            displayImageUrl={displayImageUrl}
+          />
+        )}
+
         <Animatable.View
           useNativeDriver
           animation="fadeInUp"
           duration={800}
-          style={{flex: Platform.OS === 'android' ? 2.5 : 2}}>
+          style={{flexDirection: 'row', paddingBottom: 20}}>
           <ImageBackground
             source={{uri: coverImageUrl}}
             style={{
               flex: 1,
               flexDirection: 'row',
-              height: 250,
+              height: 200,
               resizeMode: 'cover',
               justifyContent: 'center',
-              paddingTop: STATUS_BAR_HEIGHT,
+              paddingTop: STATUS_BAR_HEIGHT + 20,
               paddingBottom: 40 + STATUS_BAR_HEIGHT,
               paddingHorizontal: 5,
               alignItems: 'center',
@@ -92,10 +101,12 @@ class StoreScreen extends Component {
                 position: 'absolute',
               }}
             />
+
             <Animatable.View
               animation="fadeInUp"
               useNativeDriver
-              duration={800}>
+              duration={800}
+              style={{paddingHorizontal: 10}}>
               <Button
                 onPress={() => navigation.goBack()}
                 type="clear"
@@ -104,10 +115,11 @@ class StoreScreen extends Component {
                 buttonStyle={{borderRadius: 30}}
                 containerStyle={[
                   styles.buttonContainer,
-                  {marginRight: 5, backgroundColor: '#fff', height: 40},
+                  {backgroundColor: '#fff', height: 40},
                 ]}
               />
             </Animatable.View>
+
             <Animatable.Image
               animation="fadeInUp"
               useNativeDriver
@@ -121,43 +133,47 @@ class StoreScreen extends Component {
                 borderColor: 'rgba(0,0,0,0.6)',
               }}
             />
+
             <Animatable.View
               animation="fadeInUp"
               useNativeDriver
               duration={800}
-              style={{flex: 1}}>
-              <TouchableOpacity
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 24,
-                  borderWidth: 1,
-                  borderColor: '#fff',
-                  marginHorizontal: 5,
-                  padding: 5,
-                  backgroundColor: 'rgba(0,0,0,0.45)',
-                }}>
-                <Text
-                  adjustsFontSizeToFit
-                  numberOfLines={2}
-                  style={[
-                    styles.text_footer,
-                    {
-                      paddingLeft: 5,
-                      color: colors.icons,
-                      fontSize: 30,
-                      width: '80%',
-                    },
-                  ]}>
-                  {store.storeName}
-                </Text>
-                <Icon
-                  name="info"
-                  color={colors.icons}
-                  style={{color: '#fff'}}
-                />
-              </TouchableOpacity>
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <Text
+                adjustsFontSizeToFit
+                numberOfLines={1}
+                style={[
+                  styles.text_footer,
+                  {
+                    color: colors.icons,
+                    fontSize: 30,
+                    width: '80%',
+                    paddingHorizontal: 10,
+                  },
+                ]}>
+                {store.storeName}
+              </Text>
+
+              <Button
+                type="clear"
+                onPress={() => this.setState({detailsModal: true})}
+                buttonStyle={{borderRadius: 30}}
+                containerStyle={[
+                  styles.buttonContainer,
+                  {marginRight: 5, backgroundColor: '#fff', height: 40},
+                ]}
+                icon={
+                  <Icon
+                    name="info"
+                    color={colors.primary}
+                    style={{color: '#fff'}}
+                  />
+                }
+              />
             </Animatable.View>
           </ImageBackground>
         </Animatable.View>
@@ -187,9 +203,10 @@ class StoreScreen extends Component {
               overflow: 'hidden',
             },
           ]}>
-          <ItemTabs
+          <ItemCategoriesTab
             storeCategoryItems={storeCategoryItems}
-            storeName={store.storeName}
+            merchantId={store.merchantId}
+            style={{paddingBottom: 75}}
           />
         </Animatable.View>
 

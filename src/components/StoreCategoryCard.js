@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Text, Icon} from 'react-native-elements';
-import {View, TouchableOpacity} from 'react-native';
+import {View, TouchableOpacity, Platform} from 'react-native';
 import {Card} from 'native-base';
 import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
@@ -43,23 +43,11 @@ class StoreCategoryCard extends Component {
     }
   };
 
-  getStores() {
-    const {item} = this.props;
-
-    const categoryStores = this.props.shopStore.storeList.filter(
-      (store) => store.storeCategory === item.name,
-    );
-
-    return categoryStores;
-  }
-
   async displayStores() {
-    const storeList = await this.getStores();
     const coverImageUrl = this.state.url;
     const {item} = this.props;
 
     this.props.navigation.navigate('Category Stores', {
-      storeList,
       coverImageUrl,
       categoryDetails: item,
     });
@@ -95,9 +83,10 @@ class StoreCategoryCard extends Component {
               }}>
               <Text
                 adjustsFontSizeToFit
+                allowFontScaling
                 style={{
                   flex: 1,
-                  fontSize: 20,
+                  fontSize: Platform.OS === 'ios' ? 18 : 20,
                   color: colors.icons,
                   textAlign: 'center',
                 }}>

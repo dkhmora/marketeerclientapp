@@ -9,6 +9,7 @@ import geohash from 'ngeohash';
 import firebase from '@react-native-firebase/app';
 import '@react-native-firebase/functions';
 import {Platform, PermissionsAndroid} from 'react-native';
+import Toast from '../components/Toast';
 
 const functions = firebase.app().functions('asia-northeast1');
 class generalStore {
@@ -25,6 +26,43 @@ class generalStore {
   @observable currentLocationGeohash = null;
   @observable userDetails = {};
   @observable addressLoading = false;
+
+  @action async getStoreReviews(merchantId) {
+    const storeOrderReviewsRef = firestore()
+      .collection('merchants')
+      .doc(merchantId)
+      .collection('order_reviews');
+
+    return await storeOrderReviewsRef
+      .get()
+      .then((querySnapshot) => {
+        const data = [];
+
+        querySnapshot.forEach((doc, index) => {
+          if (doc.id !== 'reviewNumber') {
+            data.push(...doc.data().reviews);
+          }
+        });
+
+        return data;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  @action async addReview({review}) {
+    return await functions
+      .httpsCallable('addReview')({
+        ...review,
+      })
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 
   @action async getAddressFromCoordinates({latitude, longitude}) {
     return await functions
@@ -73,6 +111,15 @@ class generalStore {
         PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         ).then((granted) => {
+          if (granted === 'granted') {
+            console.log(granted);
+          } else {
+            Toast({
+              text:
+                'Error, location permissions is required. Please enable location permissions.',
+              duration: 0,
+            });
+          }
           console.log(granted); // just to ensure that permissions were granted
         });
       }
@@ -102,10 +149,18 @@ class generalStore {
 
           this.currentLocation = {...coords};
 
+          console.log('dito', this.currentLocationGeohash);
+
           resolve();
         },
         (err) => {
           console.log(err);
+
+          Toast({
+            text: err,
+            duration: 0,
+          });
+
           reject();
         },
         {
@@ -118,13 +173,17 @@ class generalStore {
   }
 
   @action async setLastDeliveryLocation() {
-    this.deliverToCurrentLocation = false;
-    this.deliverToSetLocation = false;
-    this.deliverToLastDeliveryLocation = true;
+    return new Promise((resolve, reject) => {
+      this.deliverToCurrentLocation = false;
+      this.deliverToSetLocation = false;
+      this.deliverToLastDeliveryLocation = true;
 
-    this.currentLocationGeohash = this.userDetails.lastDeliveryLocationGeohash;
-    this.currentLocation = this.userDetails.lastDeliveryLocation;
-    this.currentLocationDetails = this.userDetails.lastDeliveryLocationAddress;
+      this.currentLocationGeohash = this.userDetails.lastDeliveryLocationGeohash;
+      this.currentLocation = this.userDetails.lastDeliveryLocation;
+      this.currentLocationDetails = this.userDetails.lastDeliveryLocationAddress;
+
+      resolve();
+    });
   }
 
   @action async getUserDetails(userId) {
@@ -177,8 +236,11 @@ class generalStore {
   }
 
   @action getMessages(orderId) {
+    this.unsubscribeGetMessages && this.unsubscribeGetMessages();
+    this.orderMessages = [];
+
     this.unsubscribeGetMessages = firestore()
-      .collection('order_chats')
+      .collection('orders')
       .doc(orderId)
       .onSnapshot((documentSnapshot) => {
         if (documentSnapshot.exists) {
@@ -193,11 +255,6 @@ class generalStore {
           } else {
             this.orderMessages = documentSnapshot.data().messages.reverse();
           }
-        } else {
-          firestore()
-            .collection('order_chats')
-            .doc(orderId)
-            .set({messages: []});
         }
       });
   }
@@ -207,7 +264,7 @@ class generalStore {
     message.createdAt = createdAt;
 
     await firestore()
-      .collection('order_chats')
+      .collection('orders')
       .doc(orderId)
       .update('messages', firestore.FieldValue.arrayUnion(message))
       .then(() => console.log('Successfully sent the message'))
@@ -224,7 +281,7 @@ class generalStore {
     };
 
     await firestore()
-      .collection('order_chats')
+      .collection('orders')
       .doc(orderId)
       .update('messages', firestore.FieldValue.arrayUnion(message))
       .then(() => console.log('Successfully sent the message'))

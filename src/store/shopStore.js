@@ -17,17 +17,19 @@ class shopStore {
   @observable storeSelectedPaymentMethod = {};
   @observable storeCategories = [];
   @observable storeList = [];
+  @observable categoryStoreList = {};
   @observable itemCategories = [];
   @observable storeCategoryItems = new Map();
   @observable unsubscribeToGetCartItems = null;
   @observable cartUpdateTimeout = null;
+  @observable storeFetchLimit = 8;
 
   @computed get totalCartItemQuantity() {
     let quantity = 0;
 
     if (this.storeCartItems) {
-      Object.keys(this.storeCartItems).map((storeName) => {
-        this.storeCartItems[storeName].map((item) => {
+      Object.keys(this.storeCartItems).map((merchantId) => {
+        this.storeCartItems[merchantId].map((item) => {
           quantity = item.quantity + quantity;
         });
       });
@@ -40,8 +42,8 @@ class shopStore {
     let amount = 0;
 
     if (this.storeCartItems) {
-      Object.keys(this.storeCartItems).map((storeName) => {
-        this.storeCartItems[storeName].map((item) => {
+      Object.keys(this.storeCartItems).map((merchantId) => {
+        this.storeCartItems[merchantId].map((item) => {
           const itemTotal = item.quantity * item.price;
 
           amount = itemTotal + amount;
@@ -82,7 +84,9 @@ class shopStore {
       .get()
       .then((document) => {
         if (document.exists) {
-          this.storeCategories = document.data().storeCategories;
+          this.storeCategories = document
+            .data()
+            .storeCategories.sort((a, b) => a.name > b.name);
         }
       })
       .catch((err) => console.log(err));
@@ -110,32 +114,22 @@ class shopStore {
     storeCartItems,
     storeSelectedShipping,
     storeSelectedPaymentMethod,
-    orderStoreList,
   }) {
     this.cartUpdateTimeout ? clearTimeout(this.cartUpdateTimeout) : null;
 
-    return await functions
-      .httpsCallable('placeOrder')({
-        orderInfo: JSON.stringify({
-          deliveryCoordinates,
-          deliveryAddress,
-          userCoordinates,
-          userName,
-          userPhoneNumber,
-          userId,
-          storeCartItems,
-          storeSelectedShipping,
-          storeSelectedPaymentMethod,
-          orderStoreList,
-        }),
-      })
-      .then(() => {
-        console.log('reset');
-        this.resetData();
-      })
-      .then(() => {
-        console.log(this.storeCartItems);
-      });
+    return await functions.httpsCallable('placeOrder')({
+      orderInfo: JSON.stringify({
+        deliveryCoordinates,
+        deliveryAddress,
+        userCoordinates,
+        userName,
+        userPhoneNumber,
+        userId,
+        storeCartItems,
+        storeSelectedShipping,
+        storeSelectedPaymentMethod,
+      }),
+    });
   }
 
   @action resetData() {
@@ -144,18 +138,18 @@ class shopStore {
     this.itemCategories = [];
   }
 
-  @action getStoreDetails(storeName) {
+  @action getStoreDetails(merchantId) {
     const store = this.storeList.find(
-      (element) => element.storeName === storeName,
+      (element) => element.merchantId === merchantId,
     );
 
     return store;
   }
 
-  @action getCartItemQuantity(item, storeName) {
+  @action getCartItemQuantity(item, merchantId) {
     if (this.storeCartItems) {
-      if (this.storeCartItems[storeName]) {
-        const cartItem = this.storeCartItems[storeName].find(
+      if (this.storeCartItems[merchantId]) {
+        const cartItem = this.storeCartItems[merchantId].find(
           (storeCartItem) => storeCartItem.name === item.name,
         );
 
@@ -174,16 +168,17 @@ class shopStore {
       .onSnapshot((documentSnapshot) => {
         if (documentSnapshot) {
           this.storeCartItems = documentSnapshot.data();
-        } else {
+        }
+        /* else {
           this.resetData();
           return;
-        }
+        } */
       });
   }
 
-  @action async addCartItemToStorage(item, storeName) {
-    const storeCartItems = this.storeCartItems[storeName];
-    const dateNow = new Date().toISOString();
+  @action async addCartItemToStorage(item, merchantId) {
+    const storeCartItems = this.storeCartItems[merchantId];
+    const dateNow = firestore.Timestamp.now().toMillis();
 
     const newItem = {
       ...item,
@@ -210,13 +205,13 @@ class shopStore {
     } else {
       console.log('Store not found! Creating new store.');
 
-      this.storeCartItems[storeName] = [{...newItem}];
+      this.storeCartItems[merchantId] = [{...newItem}];
     }
   }
 
-  @action async deleteCartItemInStorage(item, storeName) {
-    const storeCart = this.storeCartItems[storeName];
-    const dateNow = new Date().toISOString();
+  @action async deleteCartItemInStorage(item, merchantId) {
+    const storeCart = this.storeCartItems[merchantId];
+    const dateNow = firestore.Timestamp.now().toMillis();
 
     if (storeCart) {
       const cartItemIndex = storeCart.findIndex(
@@ -230,8 +225,8 @@ class shopStore {
         if (storeCart[cartItemIndex].quantity <= 0) {
           storeCart.splice(cartItemIndex, 1);
 
-          if (!this.storeCartItems[storeName].length) {
-            delete this.storeCartItems[storeName];
+          if (!this.storeCartItems[merchantId].length) {
+            delete this.storeCartItems[merchantId];
           }
         }
       } else {
@@ -256,13 +251,89 @@ class shopStore {
     }
   }
 
-  @action async getShopList(currentLocationGeohash, locationCoordinates) {
-    if (currentLocationGeohash) {
-      await merchantsCollection
+  @action async getStoreList({
+    currentLocationGeohash,
+    locationCoordinates,
+    storeCategory,
+    lastVisible,
+  }) {
+    if (
+      currentLocationGeohash &&
+      locationCoordinates &&
+      storeCategory &&
+      lastVisible
+    ) {
+      return await merchantsCollection
+        .where('visibleToPublic', '==', true)
+        .where('vacationMode', '==', false)
+        .where('creditData.creditThresholdReached', '==', false)
+        .where('storeCategory', '==', storeCategory)
+        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
+        .orderBy('deliveryCoordinates.lowerRange')
+        .startAfter(lastVisible)
+        .limit(this.storeFetchLimit)
+        .get()
+        .then((querySnapshot) => {
+          const list = [];
+
+          querySnapshot.forEach((documentSnapshot, index) => {
+            list.push(documentSnapshot.data());
+
+            list[index].merchantId = documentSnapshot.id;
+          });
+
+          return list;
+        })
+        .then((list) => {
+          const finalList = list.filter((element) =>
+            geolib.isPointInPolygon({...locationCoordinates}, [
+              ...element.deliveryCoordinates.boundingBox,
+            ]),
+          );
+
+          this.categoryStoreList[storeCategory] = finalList;
+        })
+        .catch((err) => console.log(err));
+    } else if (currentLocationGeohash && locationCoordinates && storeCategory) {
+      return await merchantsCollection
+        .where('visibleToPublic', '==', true)
+        .where('vacationMode', '==', false)
+        .where('creditData.creditThresholdReached', '==', false)
+        .where('storeCategory', '==', storeCategory)
+        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
+        .orderBy('deliveryCoordinates.lowerRange')
+        .limit(this.storeFetchLimit)
+        .get()
+        .then((querySnapshot) => {
+          const list = [];
+
+          querySnapshot.forEach((documentSnapshot, index) => {
+            list.push(documentSnapshot.data());
+
+            list[index].merchantId = documentSnapshot.id;
+          });
+
+          return list;
+        })
+        .then((list) => {
+          const finalList = list.filter((element) =>
+            geolib.isPointInPolygon({...locationCoordinates}, [
+              ...element.deliveryCoordinates.boundingBox,
+            ]),
+          );
+
+          this.categoryStoreList[storeCategory] = finalList;
+        })
+        .catch((err) => console.log(err));
+    } else if (currentLocationGeohash && locationCoordinates && lastVisible) {
+      return await merchantsCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
         .where('creditData.creditThresholdReached', '==', false)
         .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
+        .orderBy('deliveryCoordinates.lowerRange')
+        .startAfter(lastVisible)
+        .limit(this.storeFetchLimit)
         .get()
         .then((querySnapshot) => {
           const list = [];
@@ -285,10 +356,63 @@ class shopStore {
           this.storeList = finalList;
         })
         .catch((err) => console.log(err));
+    } else {
+      return await merchantsCollection
+        .where('visibleToPublic', '==', true)
+        .where('vacationMode', '==', false)
+        .where('creditData.creditThresholdReached', '==', false)
+        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
+        .orderBy('deliveryCoordinates.lowerRange')
+        .limit(this.storeFetchLimit)
+        .get()
+        .then((querySnapshot) => {
+          const list = [];
+
+          querySnapshot.forEach((documentSnapshot, index) => {
+            list.push(documentSnapshot.data());
+
+            list[index].merchantId = documentSnapshot.id;
+          });
+
+          return list;
+        })
+        .then(async (list) => {
+          const filteredList = list.filter((element) =>
+            geolib.isPointInPolygon(
+              {
+                latitude: locationCoordinates.latitude,
+                longitude: locationCoordinates.longitude,
+              },
+              [...element.deliveryCoordinates.boundingBox],
+            ),
+          );
+
+          const listWithDistance = filteredList.map((store) => {
+            const distance = geolib.getDistance(
+              {
+                latitude: locationCoordinates.latitude,
+                longitude: locationCoordinates.longitude,
+              },
+              {
+                latitude: store.deliveryCoordinates.latitude,
+                longitude: store.deliveryCoordinates.longitude,
+              },
+            );
+
+            return {...store, distance};
+          });
+
+          const sortedList = listWithDistance.sort(
+            (a, b) => a.distance - b.distance,
+          );
+
+          this.storeList = sortedList;
+        })
+        .catch((err) => console.log(err));
     }
   }
 
-  @action async setStoreItems(merchantId, storeName) {
+  @action async setStoreItems(merchantId) {
     await merchantItemsCollection
       .doc(merchantId)
       .get()
@@ -311,7 +435,7 @@ class shopStore {
         return categoryItems;
       })
       .then((categoryItems) => {
-        this.storeCategoryItems.set(storeName, categoryItems);
+        this.storeCategoryItems.set(merchantId, categoryItems);
       })
       .then(() => console.log('Items successfully set'))
       .catch((err) => console.log(err));

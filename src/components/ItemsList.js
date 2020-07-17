@@ -26,32 +26,30 @@ class ItemsList extends Component {
   }
 
   render() {
-    const {items, storeName} = this.props.route.params;
+    const {items, merchantId} = this.props.route.params;
     const dataSource = [...items];
 
     const numColumns = 2;
 
     return (
-      <Container style={{flex: 1}}>
-        <View style={{flex: 1}}>
-          <FlatList
-            data={this.formatData(dataSource, numColumns)}
-            numColumns={numColumns}
-            renderItem={({item, index}) =>
-              item.empty ? (
-                <View
-                  style={{flex: 1, backgroundColor: 'transparent'}}
-                  key={index}
-                />
-              ) : (
-                <ItemCard item={item} storeName={storeName} key={index} />
-              )
-            }
-            keyExtractor={(item, index) => `${item.name}${index.toString()}`}
-            showsVerticalScrollIndicator={false}
-          />
-        </View>
-      </Container>
+      <View style={{flex: 1}}>
+        <FlatList
+          data={this.formatData(dataSource, numColumns)}
+          numColumns={numColumns}
+          renderItem={({item, index}) =>
+            item.empty ? (
+              <View
+                style={{flex: 1, backgroundColor: 'transparent'}}
+                key={index}
+              />
+            ) : (
+              <ItemCard item={item} merchantId={merchantId} key={index} />
+            )
+          }
+          keyExtractor={(item, index) => `${item.name}${index.toString()}`}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
     );
   }
 }
