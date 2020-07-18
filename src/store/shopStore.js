@@ -285,10 +285,9 @@ class shopStore {
           return list;
         })
         .then(async (list) => {
-          this.categoryStoreList[storeCategory] = this.sortStoresByDistance(
-            list,
-            locationCoordinates,
-          );
+          this.categoryStoreList[
+            storeCategory
+          ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
         .catch((err) => console.log(err));
     } else if (currentLocationGeohash && locationCoordinates && storeCategory) {
@@ -313,10 +312,9 @@ class shopStore {
           return list;
         })
         .then(async (list) => {
-          this.categoryStoreList[storeCategory] = this.sortStoresByDistance(
-            list,
-            locationCoordinates,
-          );
+          this.categoryStoreList[
+            storeCategory
+          ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
         .catch((err) => console.log(err));
     } else if (currentLocationGeohash && locationCoordinates && lastVisible) {
@@ -341,7 +339,10 @@ class shopStore {
           return list;
         })
         .then(async (list) => {
-          this.storeList = this.sortStoresByDistance(list, locationCoordinates);
+          this.storeList = await this.sortStoresByDistance(
+            list,
+            locationCoordinates,
+          );
         })
         .catch((err) => console.log(err));
     } else {
@@ -365,7 +366,10 @@ class shopStore {
           return list;
         })
         .then(async (list) => {
-          this.storeList = this.sortStoresByDistance(list, locationCoordinates);
+          this.storeList = await this.sortStoresByDistance(
+            list,
+            locationCoordinates,
+          );
         })
         .catch((err) => console.log(err));
     }
