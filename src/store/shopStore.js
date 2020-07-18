@@ -345,7 +345,7 @@ class shopStore {
           );
         })
         .catch((err) => console.log(err));
-    } else {
+    } else if (currentLocationGeohash && locationCoordinates) {
       return await merchantsCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)

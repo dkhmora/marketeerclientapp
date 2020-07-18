@@ -26,6 +26,7 @@ class generalStore {
   @observable currentLocationGeohash = null;
   @observable userDetails = {};
   @observable addressLoading = false;
+  @observable navigation = null;
 
   @action async getStoreReviews(merchantId) {
     const storeOrderReviewsRef = firestore()
@@ -118,6 +119,8 @@ class generalStore {
               text:
                 'Error, location permissions is required. Please enable location permissions.',
               duration: 0,
+              type: 'danger',
+              buttonText: 'Okay',
             });
           }
           console.log(granted); // just to ensure that permissions were granted
@@ -149,17 +152,27 @@ class generalStore {
 
           this.currentLocation = {...coords};
 
-          console.log('dito', this.currentLocationGeohash);
-
           resolve();
         },
         (err) => {
           console.log(err);
 
-          Toast({
-            text: err,
-            duration: 0,
-          });
+          if (err.code === 2) {
+            Toast({
+              text:
+                'Error: Cannot get location coordinates. Please set your coordinates manually.',
+              duration: 0,
+              type: 'danger',
+              buttonText: 'Okay',
+            });
+          }
+
+          if (this.navigation) {
+            this.navigation.navigate('Set Location', {
+              checkout: false,
+              locationError: true,
+            });
+          }
 
           reject();
         },

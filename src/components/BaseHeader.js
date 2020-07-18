@@ -46,10 +46,14 @@ class BaseHeader extends Component {
   };
 
   leftComponent = () => {
-    const {backButton} = this.props;
+    const {backButton, noLeftComponent} = this.props;
 
     if (backButton) {
       return this.backButton();
+    }
+
+    if (noLeftComponent) {
+      return null;
     }
 
     return this.menuButton();

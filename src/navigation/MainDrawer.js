@@ -20,6 +20,10 @@ class MainDrawer extends Component {
     super(props);
   }
 
+  componentDidMount() {
+    this.props.generalStore.navigation = this.props.navigation;
+  }
+
   @computed get authenticationButtonText() {
     return this.props.authStore.guest ? 'Log In' : 'Log Out';
   }
