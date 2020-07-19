@@ -1,13 +1,15 @@
 import React, {Component} from 'react';
 import FastImage from 'react-native-fast-image';
-import {Card, Text, ListItem} from 'react-native-elements';
-import {observable} from 'mobx';
+import {Card, Text, ListItem, Button, Icon} from 'react-native-elements';
+import {observable, computed} from 'mobx';
 import storage from '@react-native-firebase/storage';
 import {View, Image} from 'react-native';
-import {observer} from 'mobx-react';
+import {observer, inject} from 'mobx-react';
 import {styles} from '../../assets/styles';
 import {colors} from '../../assets/colors';
 
+@inject('shopStore')
+@inject('authStore')
 @observer
 class CartListItem extends Component {
   constructor(props) {
@@ -18,7 +20,31 @@ class CartListItem extends Component {
     };
   }
 
+  @computed get addButtonDisabled() {
+    const {item} = this.props;
+
+    return item.quantity >= item.stock;
+  }
+
   @observable url = null;
+
+  handleIncreaseQuantity() {
+    const {item, merchantId} = this.props;
+
+    this.props.shopStore.addCartItemToStorage(item, merchantId);
+
+    if (!this.addButtonDisabled) {
+      this.props.shopStore.updateCartItems();
+    }
+  }
+
+  handleDecreaseQuantity() {
+    const {item, merchantId} = this.props;
+
+    this.props.shopStore.deleteCartItemInStorage(item, merchantId);
+
+    this.props.shopStore.updateCartItems();
+  }
 
   getImage = async () => {
     const ref = storage().ref(this.props.item.image);
@@ -33,7 +59,7 @@ class CartListItem extends Component {
   }
 
   render() {
-    const {item} = this.props;
+    const {item, checkout} = this.props;
     const {url} = this.state;
 
     return (
@@ -41,6 +67,7 @@ class CartListItem extends Component {
         style={{
           flexDirection: 'row',
           marginVertical: 8,
+          paddingHorizontal: 10,
         }}>
         <FastImage
           key={item.name}
@@ -60,7 +87,13 @@ class CartListItem extends Component {
             flexDirection: 'column',
             paddingHorizontal: 10,
           }}>
-          <Text style={{fontFamily: 'ProductSans-Regular', fontSize: 18}}>
+          <Text
+            numberOfLines={1}
+            style={{
+              fontFamily: 'ProductSans-Regular',
+              fontSize: 18,
+              flexWrap: 'wrap',
+            }}>
             {item.name}
           </Text>
           <Text
@@ -69,17 +102,111 @@ class CartListItem extends Component {
               fontFamily: 'ProductSans-Light',
               fontSize: 14,
               color: colors.text_secondary,
+              flexWrap: 'wrap',
             }}>
             {item.description}
           </Text>
         </View>
+
+        {!checkout && (
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              marginRight: 10,
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                backgroundColor: '#fff',
+                elevation: 3,
+                borderRadius: 30,
+                overflow: 'hidden',
+              }}>
+              <Button
+                onPress={() => this.handleDecreaseQuantity()}
+                type="clear"
+                color={colors.icons}
+                icon={<Icon name="minus" color={colors.primary} size={15} />}
+                containerStyle={[
+                  styles.buttonContainer,
+                  {
+                    backgroundColor: '#fff',
+                    height: 30,
+                    borderRadius: 30,
+                    elevation: 3,
+                    shadowColor: '#000',
+                    shadowOffset: {
+                      width: 0,
+                      height: 1,
+                    },
+                    shadowOpacity: 0.22,
+                    shadowRadius: 2.22,
+                  },
+                ]}
+              />
+              <View
+                style={{
+                  width: 30,
+                  justifyContent: 'center',
+                }}>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontFamily: 'ProductSans-Black',
+                  }}>
+                  {item.quantity}
+                </Text>
+              </View>
+
+              <Button
+                onPress={() => this.handleIncreaseQuantity()}
+                disabled={this.addButtonDisabled}
+                type="clear"
+                color={colors.icons}
+                icon={
+                  <Icon
+                    name="plus"
+                    color={
+                      this.addButtonDisabled
+                        ? colors.text_secondary
+                        : colors.primary
+                    }
+                    size={15}
+                  />
+                }
+                containerStyle={[
+                  styles.buttonContainer,
+                  {
+                    backgroundColor: '#fff',
+                    height: 30,
+                    borderRadius: 30,
+                    elevation: 3,
+                    shadowColor: '#000',
+                    shadowOffset: {
+                      width: 0,
+                      height: 1,
+                    },
+                    shadowOpacity: 0.22,
+                    shadowRadius: 2.22,
+                  },
+                ]}
+              />
+            </View>
+          </View>
+        )}
+
         <View
           style={{
             flexDirection: 'column',
             alignItems: 'flex-end',
             justifyContent: 'flex-start',
+            width: 60,
           }}>
           <Text
+            adjustsFontSizeToFit
+            numberOfLines={1}
             style={{
               fontFamily: 'ProductSans-Black',
               fontSize: 16,
@@ -88,6 +215,8 @@ class CartListItem extends Component {
             ₱ {item.price}
           </Text>
           <Text
+            adjustsFontSizeToFit
+            numberOfLines={1}
             style={{
               color: colors.text_secondary,
               borderBottomColor: colors.divider,
@@ -97,7 +226,10 @@ class CartListItem extends Component {
             }}>
             x {item.quantity}
           </Text>
-          <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
+          <Text
+            adjustsFontSizeToFit
+            numberOfLines={1}
+            style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
             ₱ {item.price * item.quantity}
           </Text>
         </View>

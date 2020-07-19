@@ -93,8 +93,10 @@ class CartStoreCard extends Component {
     return (
       <Card
         containerStyle={{
-          margin: 3,
+          margin: 0,
           marginVertical: 10,
+          paddingLeft: 0,
+          paddingRight: 0,
           borderRadius: 10,
           elevation: 3,
           overflow: 'hidden',
@@ -105,6 +107,7 @@ class CartStoreCard extends Component {
             flexDirection: 'row',
             alignItems: 'center',
             paddingBottom: 5,
+            paddingHorizontal: 10,
             borderBottomWidth: 1,
             borderBottomColor: colors.primary,
           }}>
@@ -135,7 +138,11 @@ class CartStoreCard extends Component {
           {this.cartItems.map((item) => {
             return (
               <View key={item.name} style={{flex: 1, alignItems: 'center'}}>
-                <CartListItem item={item} />
+                <CartListItem
+                  item={item}
+                  merchantId={merchantId}
+                  checkout={checkout}
+                />
                 <View
                   style={{
                     width: '100%',
@@ -151,7 +158,8 @@ class CartStoreCard extends Component {
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            marginTop: 5,
+            paddingTop: 10,
+            paddingHorizontal: 10,
           }}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Text style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
@@ -173,7 +181,8 @@ class CartStoreCard extends Component {
               borderRadius: 10,
               borderWidth: 1,
               borderColor: colors.divider,
-              paddingHorizontal: 8,
+              marginHorizontal: 10,
+              marginTop: 10,
               flexDirection: 'column',
             }}>
             <View
@@ -182,6 +191,7 @@ class CartStoreCard extends Component {
                 marginTop: 5,
                 alignItems: 'center',
                 justifyContent: 'center',
+                paddingHorizontal: 8,
               }}>
               <Text style={{fontSize: 16, fontFamily: 'ProductSans-Light'}}>
                 Shipping Method:
@@ -215,6 +225,7 @@ class CartStoreCard extends Component {
                 marginTop: 5,
                 alignItems: 'center',
                 justifyContent: 'center',
+                paddingHorizontal: 8,
               }}>
               <Text style={{fontSize: 16, fontFamily: 'ProductSans-Light'}}>
                 Payment Method:

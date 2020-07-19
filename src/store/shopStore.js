@@ -186,7 +186,6 @@ class shopStore {
       createdAt: dateNow,
       updatedAt: dateNow,
     };
-    delete newItem.stock;
     delete newItem.sales;
 
     if (storeCartItems) {
@@ -238,16 +237,22 @@ class shopStore {
   @action async updateCartItems() {
     const userId = auth().currentUser.uid;
 
-    if (Object.keys(this.storeCartItems).length > 0) {
-      await userCartCollection
-        .doc(userId)
-        .update({...this.storeCartItems})
-        .catch((err) => console.log(err));
-    } else {
-      await userCartCollection
-        .doc(userId)
-        .set({})
-        .catch((err) => console.log(err));
+    if (userId) {
+      this.cartUpdateTimeout && clearTimeout(this.cartUpdateTimeout);
+
+      this.cartUpdateTimeout = setTimeout(async () => {
+        if (Object.keys(this.storeCartItems).length > 0) {
+          await userCartCollection
+            .doc(userId)
+            .update({...this.storeCartItems})
+            .catch((err) => console.log(err));
+        } else {
+          await userCartCollection
+            .doc(userId)
+            .set({})
+            .catch((err) => console.log(err));
+        }
+      }, 2500);
     }
   }
 

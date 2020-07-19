@@ -124,13 +124,7 @@ class ItemCard extends PureComponent {
     this.props.shopStore.addCartItemToStorage(item, merchantId);
 
     if (this.cartItemQuantity < item.stock) {
-      if (!this.props.authStore.guest) {
-        clearTimeout(this.props.shopStore.cartUpdateTimeout);
-
-        this.props.shopStore.cartUpdateTimeout = setTimeout(() => {
-          this.props.shopStore.updateCartItems();
-        }, 2500);
-      }
+      this.props.shopStore.updateCartItems();
     }
 
     this.cartItemQuantity === parseInt(item.stock, 10) &&
@@ -148,13 +142,7 @@ class ItemCard extends PureComponent {
 
     this.props.shopStore.deleteCartItemInStorage(item, merchantId);
 
-    if (!this.props.authStore.guest) {
-      clearTimeout(this.props.shopStore.cartUpdateTimeout);
-
-      this.props.shopStore.cartUpdateTimeout = setTimeout(() => {
-        this.props.shopStore.updateCartItems();
-      }, 2500);
-    }
+    this.props.shopStore.updateCartItems();
 
     /*
     if (this.cartItemQuantity <= 0 && this.state.minusButtonShown) {
