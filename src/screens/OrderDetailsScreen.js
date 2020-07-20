@@ -89,7 +89,7 @@ class OrderDetailsScreen extends Component {
                 data={orderItems}
                 renderItem={({item, index}) => (
                   <View style={{marginHorizontal: 15}}>
-                    <CartListItem item={item} />
+                    <CartListItem item={item} checkout />
                   </View>
                 )}
                 keyExtractor={(item, index) =>
