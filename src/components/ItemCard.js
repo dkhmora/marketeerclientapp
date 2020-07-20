@@ -53,7 +53,11 @@ class ItemCard extends PureComponent {
 
           return cartItem.quantity;
         }
+
+        return 0;
       }
+
+      return 0;
     }
 
     if (this.state.minusButtonShown) {

@@ -109,27 +109,28 @@ class shopStore {
     deliveryAddress,
     userCoordinates,
     userName,
-    userPhoneNumber,
-    userId,
     storeCartItems,
     storeSelectedShipping,
     storeSelectedPaymentMethod,
+    userId,
   }) {
     this.cartUpdateTimeout ? clearTimeout(this.cartUpdateTimeout) : null;
 
-    return await functions.httpsCallable('placeOrder')({
-      orderInfo: JSON.stringify({
-        deliveryCoordinates,
-        deliveryAddress,
-        userCoordinates,
-        userName,
-        userPhoneNumber,
-        userId,
-        storeCartItems,
-        storeSelectedShipping,
-        storeSelectedPaymentMethod,
-      }),
-    });
+    return await functions
+      .httpsCallable('placeOrder')({
+        orderInfo: JSON.stringify({
+          deliveryCoordinates,
+          deliveryAddress,
+          userCoordinates,
+          userName,
+          storeCartItems,
+          storeSelectedShipping,
+          storeSelectedPaymentMethod,
+        }),
+      })
+      .then(() => {
+        this.getCartItems(userId);
+      });
   }
 
   @action resetData() {
@@ -163,6 +164,8 @@ class shopStore {
   }
 
   @action getCartItems(userId) {
+    this.unsubscribeToGetCartItems && this.unsubscribeToGetCartItems();
+
     this.unsubscribeToGetCartItems = userCartCollection
       .doc(userId)
       .onSnapshot((documentSnapshot) => {

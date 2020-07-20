@@ -80,6 +80,7 @@ class CheckoutScreen extends Component {
         storeCartItems,
         storeSelectedShipping,
         storeSelectedPaymentMethod,
+        userId,
       })
       .then(() => {
         updateCoordinates(

@@ -19,9 +19,9 @@ class CartStoreCard extends Component {
 
   @observable url = null;
 
-  @observable storeDetails = this.props.shopStore.getStoreDetails(
-    this.props.merchantId,
-  );
+  @computed get storeDetails() {
+    return this.props.shopStore.getStoreDetails(this.props.merchantId);
+  }
 
   @computed get subTotal() {
     let amount = 0;
