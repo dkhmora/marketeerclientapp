@@ -3,7 +3,6 @@ import {View} from 'react-native';
 import {Picker} from 'native-base';
 import {Card, Text, Image} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
-import FastImage from 'react-native-fast-image';
 import CartListItem from './CartListItem';
 import {colors} from '../../assets/colors';
 import storage from '@react-native-firebase/storage';

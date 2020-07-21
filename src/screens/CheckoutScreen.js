@@ -36,7 +36,6 @@ class CheckoutScreen extends Component {
 
   async handlePlaceOrder() {
     const {navigation} = this.props;
-    const cartStores = this.props.shopStore.cartStores.slice();
     const {userId} = this.props.authStore;
     const {
       currentLocation,
@@ -54,7 +53,7 @@ class CheckoutScreen extends Component {
       storeSelectedPaymentMethod,
     } = this.props.shopStore;
 
-    const {userName, userPhoneNumber} = this.props.authStore;
+    const {userName} = this.props.authStore;
 
     let deliveryCoordinates = null;
     let deliveryAddress = null;
@@ -80,7 +79,6 @@ class CheckoutScreen extends Component {
         storeCartItems,
         storeSelectedShipping,
         storeSelectedPaymentMethod,
-        userId,
       })
       .then(() => {
         updateCoordinates(

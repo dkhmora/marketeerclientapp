@@ -109,24 +109,24 @@ class shopStore {
     deliveryAddress,
     userCoordinates,
     userName,
-    storeCartItems,
     storeSelectedShipping,
     storeSelectedPaymentMethod,
-    userId,
   }) {
+    const userId = auth().currentUser.uid;
     this.cartUpdateTimeout ? clearTimeout(this.cartUpdateTimeout) : null;
 
-    return await functions
-      .httpsCallable('placeOrder')({
-        orderInfo: JSON.stringify({
-          deliveryCoordinates,
-          deliveryAddress,
-          userCoordinates,
-          userName,
-          storeCartItems,
-          storeSelectedShipping,
-          storeSelectedPaymentMethod,
-        }),
+    return await this.updateCartItemsInstantly()
+      .then(async () => {
+        await functions.httpsCallable('placeOrder')({
+          orderInfo: JSON.stringify({
+            deliveryCoordinates,
+            deliveryAddress,
+            userCoordinates,
+            userName,
+            storeSelectedShipping,
+            storeSelectedPaymentMethod,
+          }),
+        });
       })
       .then(() => {
         this.getCartItems(userId);
@@ -238,24 +238,28 @@ class shopStore {
   }
 
   @action async updateCartItems() {
+    this.cartUpdateTimeout && clearTimeout(this.cartUpdateTimeout);
+
+    this.cartUpdateTimeout = setTimeout(async () => {
+      this.updateCartItemsInstantly();
+    }, 2500);
+  }
+
+  @action async updateCartItemsInstantly() {
     const userId = auth().currentUser.uid;
 
     if (userId) {
-      this.cartUpdateTimeout && clearTimeout(this.cartUpdateTimeout);
-
-      this.cartUpdateTimeout = setTimeout(async () => {
-        if (Object.keys(this.storeCartItems).length > 0) {
-          await userCartCollection
-            .doc(userId)
-            .update({...this.storeCartItems})
-            .catch((err) => console.log(err));
-        } else {
-          await userCartCollection
-            .doc(userId)
-            .set({})
-            .catch((err) => console.log(err));
-        }
-      }, 2500);
+      if (Object.keys(this.storeCartItems).length > 0) {
+        await userCartCollection
+          .doc(userId)
+          .update({...this.storeCartItems})
+          .catch((err) => console.log(err));
+      } else {
+        await userCartCollection
+          .doc(userId)
+          .set({})
+          .catch((err) => console.log(err));
+      }
     }
   }
 
