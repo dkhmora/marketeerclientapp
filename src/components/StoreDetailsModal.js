@@ -46,9 +46,7 @@ class StoreDetailsModal extends Component {
   }
 
   ReviewListItem({item}) {
-    const timeStamp = moment(new Date(item.createdAt)).format(
-      'MM-DD-YYYY hh:MM A',
-    );
+    const timeStamp = moment(item.createdAt, 'x').format('MM-DD-YYYY hh:mm A');
 
     return (
       <View
