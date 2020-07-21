@@ -40,28 +40,14 @@ class ItemCard extends PureComponent {
   @computed get cartItemQuantity() {
     const {item, merchantId} = this.props;
 
-    if (Object.keys(this.props.shopStore.storeCartItems).length > 0) {
-      if (this.props.shopStore.storeCartItems[merchantId]) {
-        const cartItem = this.props.shopStore.storeCartItems[merchantId].find(
-          (storeCartItem) => storeCartItem.name === item.name,
-        );
+    if (this.props.shopStore.storeCartItems[merchantId]) {
+      const cartItem = this.props.shopStore.storeCartItems[merchantId].find(
+        (storeCartItem) => storeCartItem.name === item.name,
+      );
 
-        if (cartItem) {
-          if (cartItem.quantity > 0 && !this.state.minusButtonShown) {
-            this.showMinusButton();
-          }
-
-          return cartItem.quantity;
-        }
-
-        return 0;
+      if (cartItem) {
+        return cartItem.quantity;
       }
-
-      return 0;
-    }
-
-    if (this.state.minusButtonShown) {
-      this.hideMinusButton();
     }
 
     return 0;
@@ -91,6 +77,16 @@ class ItemCard extends PureComponent {
     this.url = link;
   };
 
+  componentDidUpdate() {
+    if (this.state.minusButtonShown && this.cartItemQuantity <= 0) {
+      this.hideMinusButton();
+    }
+
+    if (this.cartItemQuantity > 0 && !this.state.minusButtonShown) {
+      this.showMinusButton();
+    }
+  }
+
   componentDidMount() {
     if (this.props.item.image) {
       this.getImage()
@@ -106,20 +102,21 @@ class ItemCard extends PureComponent {
   }
 
   showMinusButton() {
-    if (this.buttonCounterView && this.plusButton) {
-      this.setState({minusButtonShown: true});
-      this.buttonCounterView.fadeInRight(200) &&
-        this.plusButton.transformPlusButton(300);
-    }
+    this.setState({minusButtonShown: true}, () => {
+      if (this.buttonCounterView && this.plusButton) {
+        this.buttonCounterView.fadeInRight(200) &&
+          this.plusButton.transformPlusButton(300);
+      }
+    });
   }
 
   hideMinusButton() {
-    this.setState({minusButtonShown: false});
-
-    if (this.buttonCounterView && this.plusButton) {
-      this.buttonCounterView.fadeOutRight(200) &&
-        this.plusButton.deTransformPlusButton(300);
-    }
+    this.setState({minusButtonShown: false}, () => {
+      if (this.buttonCounterView && this.plusButton) {
+        this.buttonCounterView.fadeOutRight(200) &&
+          this.plusButton.deTransformPlusButton(300);
+      }
+    });
   }
 
   handleIncreaseQuantity() {
