@@ -212,7 +212,7 @@ class CartListItem extends Component {
               fontSize: 16,
               color: colors.text_secondary,
             }}>
-            ₱ {item.price}
+            ₱{item.price}
           </Text>
           <Text
             adjustsFontSizeToFit
@@ -230,7 +230,7 @@ class CartListItem extends Component {
             adjustsFontSizeToFit
             numberOfLines={1}
             style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
-            ₱ {item.price * item.quantity}
+            ₱{item.price * item.quantity}
           </Text>
         </View>
       </View>

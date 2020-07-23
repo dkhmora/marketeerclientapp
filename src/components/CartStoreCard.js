@@ -22,6 +22,15 @@ class CartStoreCard extends Component {
     return this.props.shopStore.getStoreDetails(this.props.merchantId);
   }
 
+  @computed get orderTotal() {
+    const {ownDeliveryServiceFee} = this.storeDetails;
+
+    return this.props.shopStore.storeSelectedShipping[this.props.merchantId] ===
+      'Own Delivery'
+      ? this.subTotal + ownDeliveryServiceFee
+      : this.subTotal;
+  }
+
   @computed get subTotal() {
     let amount = 0;
 
@@ -86,7 +95,11 @@ class CartStoreCard extends Component {
 
   render() {
     const {merchantId, checkout} = this.props;
-    const {shippingMethods, paymentMethods} = this.storeDetails;
+    const {
+      shippingMethods,
+      paymentMethods,
+      ownDeliveryServiceFee,
+    } = this.storeDetails;
     const {storeName} = this;
 
     return (
@@ -96,6 +109,7 @@ class CartStoreCard extends Component {
           marginVertical: 10,
           paddingLeft: 0,
           paddingRight: 0,
+          marginBottom: 10,
           borderRadius: 10,
           elevation: 3,
           overflow: 'hidden',
@@ -162,16 +176,78 @@ class CartStoreCard extends Component {
           }}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Text style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
-              Store Subtotal
+              Merchandise Subtotal
             </Text>
             <Text style={{fontSize: 13, paddingLeft: 5}}>
               ({this.totalItemQuantity} Items)
             </Text>
           </View>
           <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
-            ₱ {this.subTotal}
+            ₱{this.subTotal}
           </Text>
         </View>
+
+        {checkout && (
+          <View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                paddingTop: 10,
+                paddingHorizontal: 10,
+              }}>
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'flex-start',
+                }}>
+                <Text style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
+                  Delivery Fee
+                </Text>
+
+                {this.props.shopStore.storeSelectedShipping[merchantId] !==
+                  'Own Delivery' && (
+                  <Text
+                    numberOfLines={2}
+                    style={{
+                      fontSize: 13,
+                      textAlignVertical: 'center',
+                      paddingLeft: 5,
+                      paddingRight: 15,
+                      flexShrink: 1,
+                    }}>
+                    (To be paid in cash upon receiving order)
+                  </Text>
+                )}
+              </View>
+
+              <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
+                {this.props.shopStore.storeSelectedShipping[merchantId] ===
+                'Own Delivery'
+                  ? `₱${ownDeliveryServiceFee}`
+                  : `₱80 - ₱250`}
+              </Text>
+            </View>
+
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                paddingTop: 10,
+                paddingHorizontal: 10,
+              }}>
+              <Text style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
+                Order Total
+              </Text>
+
+              <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
+                ₱{this.orderTotal}
+              </Text>
+            </View>
+          </View>
+        )}
 
         {checkout && (
           <View
@@ -195,6 +271,7 @@ class CartStoreCard extends Component {
               <Text style={{fontSize: 16, fontFamily: 'ProductSans-Light'}}>
                 Shipping Method:
               </Text>
+
               <Picker
                 mode="dropdown"
                 style={{flex: 1}}
@@ -208,8 +285,13 @@ class CartStoreCard extends Component {
                 }}>
                 {shippingMethods.length > 0 ? (
                   shippingMethods.map((method, index) => {
+                    const label =
+                      method === 'Own Delivery'
+                        ? `${method} (₱ ${ownDeliveryServiceFee})`
+                        : `${method} (₱80 - ₱250)`;
+
                     return (
-                      <Picker.Item label={method} value={method} key={index} />
+                      <Picker.Item label={label} value={method} key={index} />
                     );
                   })
                 ) : (

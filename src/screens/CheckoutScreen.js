@@ -153,7 +153,7 @@ class CheckoutScreen extends Component {
         <Animatable.View
           useNativeDriver
           animation="fadeInUpBig"
-          style={[styles.footer, {paddingBottom: 100}]}>
+          style={[styles.footer, {paddingBottom: 100, paddingHorizontal: 10}]}>
           <CartStoreList
             checkout
             emptyCartText={`This seems lonely...${'\n'}

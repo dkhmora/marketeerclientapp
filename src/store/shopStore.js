@@ -43,8 +43,14 @@ class shopStore {
 
     if (this.storeCartItems) {
       Object.keys(this.storeCartItems).map((merchantId) => {
-        this.storeCartItems[merchantId].map((item) => {
-          const itemTotal = item.quantity * item.price;
+        const storeDetails = this.getStoreDetails(merchantId);
+
+        this.storeCartItems[merchantId].map(async (item) => {
+          let itemTotal = item.quantity * item.price;
+
+          if (this.storeSelectedShipping[merchantId] === 'Own Delivery') {
+            itemTotal += storeDetails.ownDeliveryServiceFee;
+          }
 
           amount = itemTotal + amount;
         });
