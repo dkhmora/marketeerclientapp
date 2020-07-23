@@ -227,7 +227,7 @@ class StoreDetailsModal extends Component {
                     <ButtonGroup
                       onPress={(index) => this.setState({selectedIndex: index})}
                       selectedIndex={selectedIndex}
-                      buttons={['Reviews', 'Store Info']}
+                      buttons={['Store Info', 'Reviews']}
                       activeOpacity={0.7}
                       containerStyle={{
                         height: 30,
@@ -251,10 +251,17 @@ class StoreDetailsModal extends Component {
             )}
           </View>
 
-          {selectedIndex === 0 ? (
+          {selectedIndex === 1 ? (
             <View style={{flex: 1, overflow: 'hidden'}}>
               {reviewsLoading ? (
-                <ActivityIndicator size="large" color={colors.primary} />
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <ActivityIndicator size="large" color={colors.primary} />
+                </View>
               ) : (
                 <FlatList
                   style={{flex: 1, overflow: 'hidden'}}
