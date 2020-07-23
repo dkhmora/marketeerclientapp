@@ -115,37 +115,59 @@ class CartListItem extends Component {
               alignItems: 'center',
               justifyContent: 'flex-end',
               marginRight: 10,
+              elevation: 3,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 1,
+              },
+              shadowOpacity: 0.22,
+              shadowRadius: 2.22,
+              borderRadius: 30,
             }}>
             <View
               style={{
                 flexDirection: 'row',
                 backgroundColor: '#fff',
-                elevation: 3,
                 borderRadius: 30,
                 overflow: 'hidden',
               }}>
-              <Button
-                onPress={() => this.handleDecreaseQuantity()}
-                type="clear"
-                color={colors.icons}
-                icon={<Icon name="minus" color={colors.primary} size={15} />}
-                containerStyle={[
-                  styles.buttonContainer,
-                  {
-                    backgroundColor: '#fff',
-                    height: 30,
-                    borderRadius: 30,
-                    elevation: 3,
-                    shadowColor: '#000',
-                    shadowOffset: {
-                      width: 0,
-                      height: 1,
-                    },
-                    shadowOpacity: 0.22,
-                    shadowRadius: 2.22,
+              <View
+                style={{
+                  elevation: 3,
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 1,
                   },
-                ]}
-              />
+                  shadowOpacity: 0.22,
+                  shadowRadius: 2.22,
+                  borderRadius: 30,
+                }}>
+                <Button
+                  onPress={() => this.handleDecreaseQuantity()}
+                  type="clear"
+                  color={colors.icons}
+                  icon={<Icon name="minus" color={colors.primary} size={15} />}
+                  containerStyle={[
+                    styles.buttonContainer,
+                    {
+                      backgroundColor: '#fff',
+                      height: 30,
+                      borderRadius: 30,
+                      elevation: 3,
+                      shadowColor: '#000',
+                      shadowOffset: {
+                        width: 0,
+                        height: 1,
+                      },
+                      shadowOpacity: 0.22,
+                      shadowRadius: 2.22,
+                    },
+                  ]}
+                />
+              </View>
+
               <View
                 style={{
                   width: 30,
@@ -160,39 +182,43 @@ class CartListItem extends Component {
                 </Text>
               </View>
 
-              <Button
-                onPress={() => this.handleIncreaseQuantity()}
-                disabled={this.addButtonDisabled}
-                type="clear"
-                color={colors.icons}
-                icon={
-                  <Icon
-                    name="plus"
-                    color={
-                      this.addButtonDisabled
-                        ? colors.text_secondary
-                        : colors.primary
-                    }
-                    size={15}
-                  />
-                }
-                containerStyle={[
-                  styles.buttonContainer,
-                  {
-                    backgroundColor: '#fff',
-                    height: 30,
-                    borderRadius: 30,
-                    elevation: 3,
-                    shadowColor: '#000',
-                    shadowOffset: {
-                      width: 0,
-                      height: 1,
-                    },
-                    shadowOpacity: 0.22,
-                    shadowRadius: 2.22,
+              <View
+                style={{
+                  elevation: 3,
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 2,
                   },
-                ]}
-              />
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
+                }}>
+                <Button
+                  onPress={() => this.handleIncreaseQuantity()}
+                  disabled={this.addButtonDisabled}
+                  type="clear"
+                  color={colors.icons}
+                  icon={
+                    <Icon
+                      name="plus"
+                      color={
+                        this.addButtonDisabled
+                          ? colors.text_secondary
+                          : colors.primary
+                      }
+                      size={15}
+                    />
+                  }
+                  containerStyle={[
+                    styles.buttonContainer,
+                    {
+                      backgroundColor: '#fff',
+                      height: 30,
+                      borderRadius: 30,
+                    },
+                  ]}
+                />
+              </View>
             </View>
           </View>
         )}

@@ -10,6 +10,7 @@ import {
   StatusBar,
   Image,
   Linking,
+  SafeAreaView,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -150,7 +151,7 @@ class SignUpScreen extends Component {
 
   openMerchantSignUpForm() {
     const merchantFormUrl =
-      'https://docs.google.com/forms/d/e/1FAIpQLSfH5koRomOIcJgDrluuEOQ7GpB7q77lThZuFivSYfz7Ec8tag/viewform?usp=sf_link';
+      'https://marketeer.ph/components/pages/partnermerchantsignup';
 
     Linking.canOpenURL(merchantFormUrl).then((supported) => {
       if (supported) {
@@ -180,22 +181,23 @@ class SignUpScreen extends Component {
 
         <View
           style={{
-            flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
             paddingTop: StatusBar.currentHeight,
           }}>
-          <Image
-            source={require('../../assets/images/logo.png')}
-            style={{
-              height: 150,
-              width: 200,
-              resizeMode: 'center',
-              marginVertical: 20,
-            }}
-          />
-
           {checkout && <BackButton navigation={navigation} />}
+
+          <SafeAreaView style={{flexDirection: 'row'}}>
+            <Image
+              source={require('../../assets/images/logo.png')}
+              style={{
+                height: 150,
+                width: 200,
+                resizeMode: 'center',
+                marginVertical: 20,
+              }}
+            />
+          </SafeAreaView>
         </View>
 
         <Animatable.View
