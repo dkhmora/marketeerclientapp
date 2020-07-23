@@ -23,9 +23,6 @@ class OrderList extends Component {
     this.state = {
       refreshing: true,
       loading: false,
-      lastVisible: null,
-      limit: 8,
-      onEndReachedCalledDuringMomentum: false,
     };
   }
 
@@ -36,70 +33,11 @@ class OrderList extends Component {
   retrieveInitial = () => {
     this.setState({loading: true});
 
-    const lastVisible =
-      this.props.generalStore.orders.length > 0
-        ? this.props.generalStore.orders[0].userOrderNumber -
-          this.state.limit +
-          1
-        : 0;
-
-    this.props.generalStore
-      .setOrders(this.props.authStore.userId, this.state.limit)
-      .then(() => {
-        this.setState({
-          loading: false,
-          lastVisible,
-        });
+    this.props.generalStore.setOrders(this.props.authStore.userId).then(() => {
+      this.setState({
+        loading: false,
       });
-  };
-
-  retrieveMore = () => {
-    if (
-      !this.state.onEndReachedCalledDuringMomentum &&
-      this.state.lastVisible >= 1
-    ) {
-      const {limit, lastVisible} = this.state;
-
-      this.setState({refreshing: true, onEndReachedCalledDuringMomentum: true});
-
-      this.props.generalStore
-        .retrieveMoreOrders(this.props.authStore.userId, limit, lastVisible)
-        .then(() => {
-          this.setState({
-            refreshing: false,
-            lastVisible: this.state.lastVisible - this.state.limit,
-            onEndReachedCalledDuringMomentum: false,
-          });
-        });
-    }
-  };
-
-  renderFooter = () => {
-    return (
-      <View style={{bottom: 50, width: '100%'}}>
-        {this.state.onEndReachedCalledDuringMomentum && (
-          <Animatable.View
-            animation="slideInUp"
-            duration={400}
-            useNativeDriver
-            style={{
-              alignItems: 'center',
-              flex: 1,
-            }}>
-            <ActivityIndicator
-              size="large"
-              color={colors.primary}
-              style={{
-                backgroundColor: colors.icons,
-                borderRadius: 30,
-                padding: 5,
-                elevation: 5,
-              }}
-            />
-          </Animatable.View>
-        )}
-      </View>
-    );
+    });
   };
 
   onRefresh() {
@@ -115,16 +53,12 @@ class OrderList extends Component {
         style={{flex: 1, paddingHorizontal: 10}}
         contentContainerStyle={{flexGrow: 1}}
         data={dataSource}
+        initialNumToRender={10}
         renderItem={({item, index}) => (
           <OrderCard order={item} navigation={navigation} key={index} />
         )}
         keyExtractor={(item) => item.orderId}
         showsVerticalScrollIndicator={false}
-        onMomentumScrollBegin={() => {
-          this.state.onEndReachedCalledDuringMomentum = false;
-        }}
-        onEndReached={this.retrieveMore}
-        onEndReachedThreshold={0.01}
         ListEmptyComponent={
           <View
             style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
@@ -146,8 +80,6 @@ class OrderList extends Component {
             onRefresh={this.onRefresh.bind(this)}
           />
         }
-        refreshing={this.state.onEndReachedCalledDuringMomentum}
-        ListFooterComponent={this.renderFooter}
       />
     );
   }

@@ -13,6 +13,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import auth from '@react-native-firebase/auth';
 import VersionCheck from 'react-native-version-check';
+import AsyncStorage from '@react-native-community/async-storage';
 
 global._ = _;
 global.moment = moment;
@@ -23,11 +24,13 @@ import ShopStore from './src/store/shopStore';
 
 import Setup from './src/boot/setup';
 import {AppState, Linking} from 'react-native';
+import {create} from 'mobx-persist';
 
+const hydrate = create({storage: AsyncStorage});
 const generalStore = (window.store = new GeneralStore());
 const authStore = (window.store = new AuthStore());
 const shopStore = (window.store = new ShopStore());
-
+hydrate('list', generalStore);
 // @TODO: This is to hide a Warning caused by NativeBase after upgrading to RN 0.62
 import {YellowBox} from 'react-native';
 

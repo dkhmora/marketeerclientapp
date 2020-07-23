@@ -1,16 +1,14 @@
-import React, {Component} from 'react';
-import {Overlay, Text, Button, Icon, Input} from 'react-native-elements';
-import {View, Switch, ActivityIndicator} from 'react-native';
-import FastImage from 'react-native-fast-image';
+import React, {PureComponent} from 'react';
+import {Overlay, Text, Button, Input} from 'react-native-elements';
+import {View, ActivityIndicator} from 'react-native';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
-import * as Animatable from 'react-native-animatable';
 import {inject} from 'mobx-react';
 import {Rating} from 'react-native-rating-element';
 import Toast from './Toast';
 
 @inject('generalStore')
-class AddReviewModal extends Component {
+class AddReviewModal extends PureComponent {
   constructor(props) {
     super(props);
 
