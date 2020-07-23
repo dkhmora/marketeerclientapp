@@ -128,7 +128,7 @@ class OrderCard extends Component {
     navigation.navigate('Order Chat', {
       storeName,
       userAddress,
-      orderId,
+      order,
       userOrderNumber,
       orderStatus: this.orderStatus,
     });
