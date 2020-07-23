@@ -301,6 +301,7 @@ class SetLocationScreen extends Component {
             ref={(map) => {
               this.map = map;
             }}
+            provider="google"
             onRegionChangeComplete={this.handleRegionChange}
             showsUserLocation
             followsUserLocation
