@@ -9,7 +9,7 @@ import {
   Button,
   Icon,
 } from 'native-base';
-import {View, Platform, Linking} from 'react-native';
+import {View, Platform, Linking, ActivityIndicator} from 'react-native';
 import {Text} from 'react-native-elements';
 import BaseHeader from '../components/BaseHeader';
 import {FlatList, ScrollView} from 'react-native-gesture-handler';
@@ -62,7 +62,7 @@ class OrderDetailsScreen extends Component {
           navigation={navigation}
         />
 
-        <View
+        <ScrollView
           style={{
             flex: 1,
             flexDirection: 'column',
@@ -74,38 +74,35 @@ class OrderDetailsScreen extends Component {
               borderRadius: 10,
               overflow: 'hidden',
             }}>
-            {ready && (
-              <FlatList
-                ListHeaderComponent={
-                  <CardItem
-                    header
-                    bordered
-                    style={{backgroundColor: colors.primary}}>
-                    <Text style={{color: colors.icons, fontSize: 20}}>
-                      Order Items
-                    </Text>
-                  </CardItem>
-                }
-                data={orderItems}
-                renderItem={({item, index}) => (
-                  <View style={{marginHorizontal: 15}}>
-                    <CartListItem item={item} checkout />
-                  </View>
-                )}
-                keyExtractor={(item, index) => `${item.itemId}`}
-                showsVerticalScrollIndicator={false}
-                ListFooterComponent={
-                  <View
-                    style={{
-                      height: 0.5,
-                      flex: 1,
-                      backgroundColor: colors.divider,
-                    }}
-                  />
-                }
-              />
+            <CardItem header bordered style={{backgroundColor: colors.primary}}>
+              <Text style={{color: colors.icons, fontSize: 20}}>
+                Order Items
+              </Text>
+            </CardItem>
+
+            {ready ? (
+              <View>
+                {orderItems.map((item, index) => {
+                  return (
+                    <View style={{marginHorizontal: 15}} key={item.itemId}>
+                      <CartListItem item={item} checkout />
+                    </View>
+                  );
+                })}
+              </View>
+            ) : (
+              <View
+                style={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingVertical: 15,
+                }}>
+                <ActivityIndicator size="large" color={colors.primary} />
+              </View>
             )}
-            <CardItem bordered>
+            <CardItem
+              bordered
+              style={{borderTopWidth: 0.5, borderTopColor: colors.divider}}>
               <Left>
                 <Text note>{quantity} items</Text>
               </Left>
@@ -196,7 +193,7 @@ class OrderDetailsScreen extends Component {
               </CardItem>
             </Card>
           )}
-        </View>
+        </ScrollView>
       </View>
     );
   }
