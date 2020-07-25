@@ -5,12 +5,13 @@ import firebase from '@react-native-firebase/app';
 import '@react-native-firebase/functions';
 import Toast from '../components/Toast';
 import * as geolib from 'geolib';
+import {persist} from 'mobx-persist';
+import MapView from 'react-native-maps';
 
 const functions = firebase.app().functions('asia-northeast1');
 
 const userCartCollection = firestore().collection('user_carts');
 const merchantsCollection = firestore().collection('merchants');
-const merchantItemsCollection = firestore().collection('merchant_items');
 class shopStore {
   @observable storeCartItems = {};
   @observable storeSelectedShipping = {};
@@ -424,22 +425,36 @@ class shopStore {
     return sortedList;
   }
 
-  @action async setStoreItems(merchantId) {
-    await merchantItemsCollection
+  @action async setStoreItems(merchantId, itemCategories) {
+    const merchantItemsCollection = firestore()
+      .collection('merchants')
       .doc(merchantId)
-      .get()
-      .then((documentSnapshot) => {
-        const itemCategories = documentSnapshot.data().itemCategories.sort();
-        const allItems = documentSnapshot.data().items;
+      .collection('items');
 
-        return {allItems, itemCategories};
+    await merchantItemsCollection
+      .get()
+      .then(async (querySnapshot) => {
+        const allItems = [];
+
+        if (!querySnapshot.empty) {
+          await querySnapshot.forEach(async (doc, index) => {
+            const newItems = doc.data().items;
+            allItems.push(...newItems);
+          });
+        }
+
+        return {allItems};
       })
-      .then(({allItems, itemCategories}) => {
+      .then(({allItems}) => {
+        const sortedItems = allItems.sort((a, b) => a.name > b.name);
+
         const categoryItems = new Map();
-        categoryItems.set('All', allItems);
+        categoryItems.set('All', sortedItems);
 
         itemCategories.map((category) => {
-          const items = allItems.filter((item) => item.category === category);
+          const items = sortedItems.filter(
+            (item) => item.category === category,
+          );
 
           categoryItems.set(category, items);
         });
