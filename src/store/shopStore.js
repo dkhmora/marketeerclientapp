@@ -158,7 +158,7 @@ class shopStore {
     if (this.storeCartItems) {
       if (this.storeCartItems[merchantId]) {
         const cartItem = this.storeCartItems[merchantId].find(
-          (storeCartItem) => storeCartItem.name === item.name,
+          (storeCartItem) => storeCartItem.itemId === item.itemId,
         );
 
         if (cartItem) {
@@ -200,7 +200,7 @@ class shopStore {
 
     if (storeCartItems) {
       const cartItemIndex = storeCartItems.findIndex(
-        (storeCartItem) => storeCartItem.name === item.name,
+        (storeCartItem) => storeCartItem.itemId === item.itemId,
       );
 
       if (cartItemIndex >= 0) {
@@ -224,7 +224,7 @@ class shopStore {
 
     if (storeCart) {
       const cartItemIndex = storeCart.findIndex(
-        (storeCartItem) => storeCartItem.name === item.name,
+        (storeCartItem) => storeCartItem.itemId === item.itemId,
       );
 
       if (cartItemIndex >= 0) {

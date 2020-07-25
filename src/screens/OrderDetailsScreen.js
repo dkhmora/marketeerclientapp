@@ -92,9 +92,7 @@ class OrderDetailsScreen extends Component {
                     <CartListItem item={item} checkout />
                   </View>
                 )}
-                keyExtractor={(item, index) =>
-                  `${item.name}${index.toString()}`
-                }
+                keyExtractor={(item, index) => `${item.itemId}`}
                 showsVerticalScrollIndicator={false}
                 ListFooterComponent={
                   <View

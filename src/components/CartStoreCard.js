@@ -150,7 +150,7 @@ class CartStoreCard extends Component {
         <View>
           {this.cartItems.map((item) => {
             return (
-              <View key={item.name} style={{flex: 1, alignItems: 'center'}}>
+              <View key={item.itemId} style={{flex: 1, alignItems: 'center'}}>
                 <CartListItem
                   item={item}
                   merchantId={merchantId}

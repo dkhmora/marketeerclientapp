@@ -70,7 +70,7 @@ class CartListItem extends Component {
           paddingHorizontal: 10,
         }}>
         <FastImage
-          key={item.name}
+          key={item.itemId}
           source={url}
           style={{
             height: 55,
@@ -115,7 +115,6 @@ class CartListItem extends Component {
               alignItems: 'center',
               justifyContent: 'flex-end',
               marginRight: 10,
-              elevation: 3,
               shadowColor: '#000',
               shadowOffset: {
                 width: 0,
@@ -131,10 +130,10 @@ class CartListItem extends Component {
                 backgroundColor: '#fff',
                 borderRadius: 30,
                 overflow: 'hidden',
+                elevation: 3,
               }}>
               <View
                 style={{
-                  elevation: 3,
                   shadowColor: '#000',
                   shadowOffset: {
                     width: 0,
@@ -172,6 +171,7 @@ class CartListItem extends Component {
                 style={{
                   width: 30,
                   justifyContent: 'center',
+                  elevation: 3,
                 }}>
                 <Text
                   style={{
@@ -184,7 +184,6 @@ class CartListItem extends Component {
 
               <View
                 style={{
-                  elevation: 3,
                   shadowColor: '#000',
                   shadowOffset: {
                     width: 0,
@@ -215,6 +214,14 @@ class CartListItem extends Component {
                       backgroundColor: '#fff',
                       height: 30,
                       borderRadius: 30,
+                      elevation: 3,
+                      shadowColor: '#000',
+                      shadowOffset: {
+                        width: 0,
+                        height: 1,
+                      },
+                      shadowOpacity: 0.22,
+                      shadowRadius: 2.22,
                     },
                   ]}
                 />

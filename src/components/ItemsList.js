@@ -46,7 +46,7 @@ class ItemsList extends Component {
               <ItemCard item={item} merchantId={merchantId} key={index} />
             )
           }
-          keyExtractor={(item, index) => `${item.name}${index.toString()}`}
+          keyExtractor={(item, index) => `${item.itemId}`}
           showsVerticalScrollIndicator={false}
         />
       </View>

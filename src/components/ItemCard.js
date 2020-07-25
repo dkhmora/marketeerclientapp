@@ -42,7 +42,7 @@ class ItemCard extends PureComponent {
 
     if (this.props.shopStore.storeCartItems[merchantId]) {
       const cartItem = this.props.shopStore.storeCartItems[merchantId].find(
-        (storeCartItem) => storeCartItem.name === item.name,
+        (storeCartItem) => storeCartItem.itemId === item.itemId,
       );
 
       if (cartItem) {
@@ -60,7 +60,7 @@ class ItemCard extends PureComponent {
       if (this.props.shopStore.storeCartItems[merchantId]) {
         const itemIndex = this.props.shopStore.storeCartItems[
           merchantId
-        ].findIndex((storeCartItem) => storeCartItem.name === item.name);
+        ].findIndex((storeCartItem) => storeCartItem.itemId === item.itemId);
 
         if (itemIndex >= 0) {
           return itemIndex;
