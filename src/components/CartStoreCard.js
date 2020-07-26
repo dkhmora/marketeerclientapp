@@ -3,7 +3,6 @@ import {View} from 'react-native';
 import {Picker} from 'native-base';
 import {Card, Text, Image} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
-import FastImage from 'react-native-fast-image';
 import CartListItem from './CartListItem';
 import {colors} from '../../assets/colors';
 import storage from '@react-native-firebase/storage';
@@ -19,9 +18,18 @@ class CartStoreCard extends Component {
 
   @observable url = null;
 
-  @observable storeDetails = this.props.shopStore.getStoreDetails(
-    this.props.merchantId,
-  );
+  @computed get storeDetails() {
+    return this.props.shopStore.getStoreDetails(this.props.merchantId);
+  }
+
+  @computed get orderTotal() {
+    const {ownDeliveryServiceFee} = this.storeDetails;
+
+    return this.props.shopStore.storeSelectedShipping[this.props.merchantId] ===
+      'Own Delivery'
+      ? this.subTotal + ownDeliveryServiceFee
+      : this.subTotal;
+  }
 
   @computed get subTotal() {
     let amount = 0;
@@ -51,6 +59,17 @@ class CartStoreCard extends Component {
 
   @computed get cartItems() {
     return this.props.shopStore.storeCartItems[this.props.merchantId];
+  }
+
+  @computed get currentStoreItems() {
+    const {merchantId} = this.props;
+    const storeItems = this.props.shopStore.storeCategoryItems.get(merchantId);
+
+    if (storeItems) {
+      return storeItems.get('All');
+    }
+
+    return [];
   }
 
   @computed get storeName() {
@@ -87,14 +106,21 @@ class CartStoreCard extends Component {
 
   render() {
     const {merchantId, checkout} = this.props;
-    const {shippingMethods, paymentMethods} = this.storeDetails;
+    const {
+      shippingMethods,
+      paymentMethods,
+      ownDeliveryServiceFee,
+    } = this.storeDetails;
     const {storeName} = this;
 
     return (
       <Card
         containerStyle={{
-          margin: 3,
+          margin: 0,
           marginVertical: 10,
+          paddingLeft: 0,
+          paddingRight: 0,
+          marginBottom: 10,
           borderRadius: 10,
           elevation: 3,
           overflow: 'hidden',
@@ -105,6 +131,7 @@ class CartStoreCard extends Component {
             flexDirection: 'row',
             alignItems: 'center',
             paddingBottom: 5,
+            paddingHorizontal: 10,
             borderBottomWidth: 1,
             borderBottomColor: colors.primary,
           }}>
@@ -133,17 +160,18 @@ class CartStoreCard extends Component {
         </View>
         <View>
           {this.cartItems.map((item) => {
+            const itemSnapshot = this.currentStoreItems.find(
+              (storeItem) => storeItem.itemId === item.itemId,
+            );
+
             return (
-              <View key={item.name} style={{flex: 1, alignItems: 'center'}}>
-                <CartListItem item={item} />
-                <View
-                  style={{
-                    width: '100%',
-                    height: 1,
-                    backgroundColor: colors.divider,
-                  }}
-                />
-              </View>
+              <CartListItem
+                item={item}
+                itemSnapshot={itemSnapshot}
+                merchantId={merchantId}
+                checkout={checkout}
+                key={item.itemId}
+              />
             );
           })}
         </View>
@@ -151,20 +179,83 @@ class CartStoreCard extends Component {
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            marginTop: 5,
+            paddingTop: 10,
+            paddingHorizontal: 10,
           }}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Text style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
-              Store Subtotal
+              Merchandise Subtotal
             </Text>
             <Text style={{fontSize: 13, paddingLeft: 5}}>
               ({this.totalItemQuantity} Items)
             </Text>
           </View>
           <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
-            ₱ {this.subTotal}
+            ₱{this.subTotal}
           </Text>
         </View>
+
+        {checkout && (
+          <View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                paddingTop: 10,
+                paddingHorizontal: 10,
+              }}>
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'flex-start',
+                }}>
+                <Text style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
+                  Delivery Fee
+                </Text>
+
+                {this.props.shopStore.storeSelectedShipping[merchantId] !==
+                  'Own Delivery' && (
+                  <Text
+                    numberOfLines={2}
+                    style={{
+                      fontSize: 13,
+                      textAlignVertical: 'center',
+                      paddingLeft: 5,
+                      paddingRight: 15,
+                      flexShrink: 1,
+                    }}>
+                    (To be paid in cash upon receiving order)
+                  </Text>
+                )}
+              </View>
+
+              <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
+                {this.props.shopStore.storeSelectedShipping[merchantId] ===
+                'Own Delivery'
+                  ? `₱${ownDeliveryServiceFee}`
+                  : `₱80 - ₱250`}
+              </Text>
+            </View>
+
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                paddingTop: 10,
+                paddingHorizontal: 10,
+              }}>
+              <Text style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
+                Order Total
+              </Text>
+
+              <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
+                ₱{this.orderTotal}
+              </Text>
+            </View>
+          </View>
+        )}
 
         {checkout && (
           <View
@@ -173,7 +264,8 @@ class CartStoreCard extends Component {
               borderRadius: 10,
               borderWidth: 1,
               borderColor: colors.divider,
-              paddingHorizontal: 8,
+              marginHorizontal: 10,
+              marginTop: 10,
               flexDirection: 'column',
             }}>
             <View
@@ -182,10 +274,12 @@ class CartStoreCard extends Component {
                 marginTop: 5,
                 alignItems: 'center',
                 justifyContent: 'center',
+                paddingHorizontal: 8,
               }}>
               <Text style={{fontSize: 16, fontFamily: 'ProductSans-Light'}}>
                 Shipping Method:
               </Text>
+
               <Picker
                 mode="dropdown"
                 style={{flex: 1}}
@@ -199,8 +293,13 @@ class CartStoreCard extends Component {
                 }}>
                 {shippingMethods.length > 0 ? (
                   shippingMethods.map((method, index) => {
+                    const label =
+                      method === 'Own Delivery'
+                        ? `${method} (₱ ${ownDeliveryServiceFee})`
+                        : `${method} (₱80 - ₱250)`;
+
                     return (
-                      <Picker.Item label={method} value={method} key={index} />
+                      <Picker.Item label={label} value={method} key={index} />
                     );
                   })
                 ) : (
@@ -215,6 +314,7 @@ class CartStoreCard extends Component {
                 marginTop: 5,
                 alignItems: 'center',
                 justifyContent: 'center',
+                paddingHorizontal: 8,
               }}>
               <Text style={{fontSize: 16, fontFamily: 'ProductSans-Light'}}>
                 Payment Method:

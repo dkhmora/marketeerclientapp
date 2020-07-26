@@ -10,11 +10,13 @@ import firebase from '@react-native-firebase/app';
 import '@react-native-firebase/functions';
 import {Platform, PermissionsAndroid} from 'react-native';
 import Toast from '../components/Toast';
+import {persist} from 'mobx-persist';
 
 const functions = firebase.app().functions('asia-northeast1');
 class generalStore {
   @observable appReady = false;
-  @observable orders = [];
+  @persist('list') @observable orders = [];
+  @persist @observable maxOrderUpdatedAt = 0;
   @observable orderItems = [];
   @observable orderMessages = [];
   @observable unsubscribeGetMessages = null;
@@ -26,6 +28,7 @@ class generalStore {
   @observable currentLocationGeohash = null;
   @observable userDetails = {};
   @observable addressLoading = false;
+  @observable navigation = null;
 
   @action async getStoreReviews(merchantId) {
     const storeOrderReviewsRef = firestore()
@@ -118,6 +121,8 @@ class generalStore {
               text:
                 'Error, location permissions is required. Please enable location permissions.',
               duration: 0,
+              type: 'danger',
+              buttonText: 'Okay',
             });
           }
           console.log(granted); // just to ensure that permissions were granted
@@ -149,17 +154,27 @@ class generalStore {
 
           this.currentLocation = {...coords};
 
-          console.log('dito', this.currentLocationGeohash);
-
           resolve();
         },
         (err) => {
           console.log(err);
 
-          Toast({
-            text: err,
-            duration: 0,
-          });
+          if (err.code === 2) {
+            Toast({
+              text:
+                'Error: Cannot get location coordinates. Please set your coordinates manually.',
+              duration: 0,
+              type: 'danger',
+              buttonText: 'Okay',
+            });
+          }
+
+          if (this.navigation) {
+            this.navigation.navigate('Set Location', {
+              checkout: false,
+              locationError: true,
+            });
+          }
 
           reject();
         },
@@ -288,13 +303,27 @@ class generalStore {
       .catch((err) => console.log(err));
   }
 
-  @action async sendImage(orderId, user, imagePath) {
+  @action async sendImage(
+    orderId,
+    customerUserId,
+    merchantId,
+    user,
+    imagePath,
+  ) {
     const messageId = uuidv4();
     const imageRef = `/images/orders/${orderId}/order_chat/${messageId}`;
+    const storageRef = storage().ref(imageRef);
 
-    await storage()
-      .ref(imageRef)
+    await storageRef
       .putFile(imagePath)
+      .then(() => {
+        storageRef.updateMetadata({
+          customMetadata: {
+            customerUserId,
+            merchantId,
+          },
+        });
+      })
       .then(() => {
         return this.getImageUrl(imageRef);
       })
@@ -305,43 +334,36 @@ class generalStore {
       .catch((err) => console.log(err));
   }
 
-  @action async setOrders(userId, limit) {
+  @action async setOrders(userId) {
     return await firestore()
       .collection('orders')
       .where('userId', '==', userId)
-      .orderBy('userOrderNumber', 'desc')
-      .limit(limit)
+      .where('updatedAt', '>', this.maxOrderUpdatedAt)
+      .orderBy('updatedAt', 'desc')
       .get()
       .then((querySnapshot) => {
-        const data = [];
-
         querySnapshot.forEach((doc, index) => {
-          data.push(doc.data());
-          data[index].orderId = doc.id;
+          console.log('updated');
+          const order = {...doc.data(), orderId: doc.id};
+
+          if (order.updatedAt > this.maxOrderUpdatedAt) {
+            this.maxOrderUpdatedAt = order.updatedAt;
+          }
+
+          const existingOrderIndex = this.orders
+            .slice()
+            .findIndex((existingOrder) => existingOrder.orderId === doc.id);
+
+          if (existingOrderIndex >= 0) {
+            this.orders[existingOrderIndex] = order;
+          } else {
+            this.orders.push(order);
+          }
         });
 
-        this.orders = data;
-      })
-      .catch((err) => console.log(err));
-  }
-
-  @action async retrieveMoreOrders(userId, limit, lastVisible) {
-    return await firestore()
-      .collection('orders')
-      .where('userId', '==', userId)
-      .orderBy('userOrderNumber', 'desc')
-      .startAfter(lastVisible)
-      .limit(limit)
-      .get()
-      .then((querySnapshot) => {
-        const data = [];
-
-        querySnapshot.forEach((doc, index) => {
-          data.push(doc.data());
-          data[index].orderId = doc.id;
-        });
-
-        this.orders = [...this.orders, ...data];
+        this.orders = this.orders
+          .slice()
+          .sort((a, b) => b.updatedAt - a.updatedAt);
       })
       .catch((err) => console.log(err));
   }

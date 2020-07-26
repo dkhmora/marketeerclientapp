@@ -31,7 +31,12 @@ class SetLocationScreen extends Component {
       saveChangesLoading: false,
       previousAddress: this.props.generalStore.currentLocationDetails,
       mapReady: false,
-      mapData: null,
+      mapData: {
+        latitude: 14.629636,
+        longitude: 121.015193,
+        latitudeDelta: 0.1,
+        longitudeDelta: 0.1,
+      },
       editMode: false,
       loading: false,
       newMarkerPosition: null,
@@ -56,9 +61,12 @@ class SetLocationScreen extends Component {
 
   componentDidMount() {
     const {currentLocation, setCurrentLocation} = this.props.generalStore;
+    const {locationError} = this.props.route.params;
 
     if (currentLocation) {
       this.setCoordinates();
+    } else if (locationError) {
+      this.setState({mapReady: true, editMode: true});
     } else {
       setCurrentLocation();
     }
@@ -127,55 +135,29 @@ class SetLocationScreen extends Component {
   }
 
   panMapToLocation(position) {
-    if (Platform.OS === 'ios') {
-      this.map.animateCamera(
-        {
-          center: position,
-          pitch: 2,
-          heading: 20,
-          altitude: 6000,
-          zoom: 5,
-        },
-        150,
-      );
-    } else {
-      this.map.animateCamera(
-        {
-          center: position,
-          pitch: 2,
-          heading: 1,
-          altitude: 200,
-          zoom: 18,
-        },
-        150,
-      );
-    }
+    this.map.animateCamera(
+      {
+        center: position,
+        pitch: 2,
+        heading: 1,
+        altitude: 200,
+        zoom: 18,
+      },
+      150,
+    );
   }
 
   panMapToMarker() {
-    if (Platform.OS === 'ios') {
-      this.map.animateCamera(
-        {
-          center: this.state.markerPosition,
-          pitch: 2,
-          heading: 20,
-          altitude: 6000,
-          zoom: 5,
-        },
-        150,
-      );
-    } else {
-      this.map.animateCamera(
-        {
-          center: this.state.markerPosition,
-          pitch: 2,
-          heading: 1,
-          altitude: 200,
-          zoom: 18,
-        },
-        150,
-      );
-    }
+    this.map.animateCamera(
+      {
+        center: this.state.markerPosition,
+        pitch: 2,
+        heading: 1,
+        altitude: 200,
+        zoom: 18,
+      },
+      150,
+    );
   }
 
   _onMapReady = () => {
@@ -280,7 +262,7 @@ class SetLocationScreen extends Component {
       loading,
       saveChangesLoading,
     } = this.state;
-    const {checkout} = this.props.route.params;
+    const {checkout, locationError} = this.props.route.params;
     const {headerTitle} = this;
 
     return (
@@ -293,6 +275,7 @@ class SetLocationScreen extends Component {
             ref={(map) => {
               this.map = map;
             }}
+            provider="google"
             onRegionChangeComplete={this.handleRegionChange}
             showsUserLocation
             followsUserLocation
@@ -337,17 +320,20 @@ class SetLocationScreen extends Component {
           }}>
           {editMode ? (
             <View style={{flexDirection: 'row'}}>
-              <Button
-                iconLeft
-                icon={<Icon name="x" color={colors.icons} />}
-                onPress={() => this.handleCancelChanges()}
-                buttonStyle={{backgroundColor: 'red'}}
-                containerStyle={{
-                  borderRadius: 24,
-                  marginRight: 10,
-                  overflow: 'hidden',
-                }}
-              />
+              {!locationError && (
+                <Button
+                  iconLeft
+                  icon={<Icon name="x" color={colors.icons} />}
+                  onPress={() => this.handleCancelChanges()}
+                  buttonStyle={{backgroundColor: 'red'}}
+                  containerStyle={{
+                    borderRadius: 24,
+                    marginRight: 10,
+                    overflow: 'hidden',
+                  }}
+                />
+              )}
+
               <Button
                 title="Set Location"
                 loading={saveChangesLoading}
@@ -410,9 +396,10 @@ class SetLocationScreen extends Component {
         </View>
 
         <BaseHeader
-          backButton
+          backButton={locationError ? false : true}
           navigation={navigation}
           title={headerTitle}
+          noLeftComponent={locationError ? true : false}
           rightComponent={
             <Button
               type="clear"

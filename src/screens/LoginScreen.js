@@ -9,6 +9,7 @@ import {
   Image,
   ActivityIndicator,
   Dimensions,
+  SafeAreaView,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -99,22 +100,23 @@ class LoginScreen extends Component {
           useNativeDriver
           animation="fadeInUp"
           style={{
-            flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
             paddingTop: StatusBar.currentHeight,
           }}>
           {checkout && <BackButton navigation={navigation} />}
 
-          <Image
-            source={require('../../assets/images/logo.png')}
-            style={{
-              height: 150,
-              width: 200,
-              resizeMode: 'center',
-              marginVertical: 20,
-            }}
-          />
+          <SafeAreaView style={{flexDirection: 'row'}}>
+            <Image
+              source={require('../../assets/images/logo.png')}
+              style={{
+                height: 150,
+                width: 200,
+                resizeMode: 'center',
+                marginVertical: 20,
+              }}
+            />
+          </SafeAreaView>
         </Animatable.View>
 
         <Animatable.View
@@ -223,13 +225,14 @@ class LoginScreen extends Component {
                 <Text style={styles.touchable_text}> here</Text>
               </TouchableOpacity>
             </View>
-
+            {/*
             <SocialIcon
               title="Sign In With Facebook"
               button
               type="facebook"
               style={{marginHorizontal: 0, marginTop: 30}}
             />
+            */}
           </ScrollView>
         </Animatable.View>
 

@@ -36,7 +36,6 @@ class CheckoutScreen extends Component {
 
   async handlePlaceOrder() {
     const {navigation} = this.props;
-    const cartStores = this.props.shopStore.cartStores.slice();
     const {userId} = this.props.authStore;
     const {
       currentLocation,
@@ -54,7 +53,7 @@ class CheckoutScreen extends Component {
       storeSelectedPaymentMethod,
     } = this.props.shopStore;
 
-    const {userName, userPhoneNumber} = this.props.authStore;
+    const {userName} = this.props.authStore;
 
     let deliveryCoordinates = null;
     let deliveryAddress = null;
@@ -81,6 +80,39 @@ class CheckoutScreen extends Component {
         storeSelectedShipping,
         storeSelectedPaymentMethod,
       })
+      .then(async (response) => {
+        this.setState({loading: false});
+
+        if (response.data.s === 200) {
+          Toast({
+            text: 'Orders Placed! Thank you for shopping at Marketeer!',
+            duration: 5000,
+          });
+
+          navigation.replace('Home');
+        }
+
+        if (response.data.s === 400) {
+          Toast({
+            text: response.data.m,
+            type: 'danger',
+            duration: 8000,
+          });
+
+          await this.props.shopStore.cartStores.map(async (merchantId) => {
+            const storeDetails = await this.props.shopStore.getStoreDetailsFromMerchantId(
+              merchantId,
+            );
+
+            this.props.shopStore.setStoreItems(
+              merchantId,
+              storeDetails.itemCategories,
+            );
+          });
+
+          navigation.replace('Cart');
+        }
+      })
       .then(() => {
         updateCoordinates(
           userId,
@@ -88,25 +120,6 @@ class CheckoutScreen extends Component {
           currentLocationGeohash,
           currentLocationDetails,
         );
-      })
-      .then(() => {
-        this.setState({loading: false});
-
-        Toast({
-          text: 'Orders Placed! Thank you for shopping at Marketeer!',
-          duration: 5000,
-        });
-
-        navigation.navigate('Home');
-      })
-      .catch((err) => {
-        navigation.navigate('Cart');
-
-        Toast({
-          text: `Error, something went wrong. Please check your cart if all items have stock left, then re-order.`,
-          type: 'danger',
-          duration: 8000,
-        });
       });
   }
 
@@ -154,7 +167,7 @@ class CheckoutScreen extends Component {
         <Animatable.View
           useNativeDriver
           animation="fadeInUpBig"
-          style={[styles.footer, {paddingBottom: 100}]}>
+          style={[styles.footer, {paddingBottom: 100, paddingHorizontal: 10}]}>
           <CartStoreList
             checkout
             emptyCartText={`This seems lonely...${'\n'}

@@ -36,8 +36,8 @@ class OrderChatScreen extends Component {
   @observable imagePath = '';
 
   componentDidMount() {
-    const {orderId} = this.props.route.params;
-    this.props.generalStore.getMessages(orderId);
+    const {order} = this.props.route.params;
+    this.props.generalStore.getMessages(order.orderId);
   }
 
   componentWillUnmount() {
@@ -45,12 +45,12 @@ class OrderChatScreen extends Component {
   }
 
   onSend(messages = []) {
-    const {orderId} = this.props.route.params;
-    this.props.generalStore.sendMessage(orderId, messages[0]);
+    const {order} = this.props.route.params;
+    this.props.generalStore.sendMessage(order.orderId, messages[0]);
   }
 
   handleTakePhoto() {
-    const {orderId} = this.props.route.params;
+    const {order} = this.props.route.params;
 
     ImagePicker.openCamera({
       width: 1280,
@@ -63,7 +63,9 @@ class OrderChatScreen extends Component {
       })
       .then(() =>
         this.props.generalStore.sendImage(
-          orderId,
+          order.orderId,
+          order.userId,
+          order.merchantId,
           this.state.user,
           this.imagePath,
         ),
@@ -72,7 +74,7 @@ class OrderChatScreen extends Component {
   }
 
   handleSelectImage() {
-    const {orderId} = this.props.route.params;
+    const {order} = this.props.route.params;
 
     ImagePicker.openPicker({
       width: 1280,
@@ -85,7 +87,9 @@ class OrderChatScreen extends Component {
       })
       .then(() =>
         this.props.generalStore.sendImage(
-          orderId,
+          order.orderId,
+          order.userId,
+          order.merchantId,
           this.state.user,
           this.imagePath,
         ),

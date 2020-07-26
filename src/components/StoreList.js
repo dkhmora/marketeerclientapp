@@ -38,6 +38,14 @@ class StoreList extends Component {
     if (categoryName) {
       this.getInitialStoreList();
     }
+
+    if (
+      this.props.generalStore.appReady &&
+      this.props.generalStore.locationError
+    ) {
+      this.props.generalStore.locationError = false;
+      this.props.navigation.navigate('Set Location', {checkout: false});
+    }
   }
 
   getInitialStoreList() {

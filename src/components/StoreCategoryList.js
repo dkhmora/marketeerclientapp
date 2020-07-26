@@ -51,7 +51,7 @@ class StoreCategoryList extends Component {
                 onRefresh={this.onRefresh.bind(this)}
               />
             }
-            keyExtractor={(item) => item.name}
+            keyExtractor={(store) => store.name}
             showsVerticalScrollIndicator={false}
           />
         </View>

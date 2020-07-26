@@ -13,15 +13,9 @@ class MainTab extends Component {
   }
 
   render() {
-    const storeList = this.props.shopStore.storeList.slice();
-
     return (
       <TabStores.Navigator initialRouteName="Near You">
-        <TabStores.Screen
-          name="Near You"
-          component={StoreList}
-          initialParams={{dataSource: storeList}}
-        />
+        <TabStores.Screen name="Near You" component={StoreList} />
         <TabStores.Screen name="Categories" component={StoreCategoryList} />
       </TabStores.Navigator>
     );

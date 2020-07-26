@@ -37,7 +37,10 @@ class StoreScreen extends Component {
     const {store} = this.props.route.params;
 
     this.props.shopStore
-      .setStoreItems(this.props.route.params.store.merchantId)
+      .setStoreItems(
+        this.props.route.params.store.merchantId,
+        store.itemCategories,
+      )
       .then(() => {
         this.setState({
           storeCategoryItems: this.props.shopStore.storeCategoryItems.get(

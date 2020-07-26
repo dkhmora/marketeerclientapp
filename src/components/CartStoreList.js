@@ -32,7 +32,6 @@ class CartStoreList extends Component {
                 />
               );
             })}
-            <View style={{height: 10}} />
           </ScrollView>
         ) : (
           <View

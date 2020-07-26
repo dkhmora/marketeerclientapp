@@ -40,24 +40,14 @@ class ItemCard extends PureComponent {
   @computed get cartItemQuantity() {
     const {item, merchantId} = this.props;
 
-    if (Object.keys(this.props.shopStore.storeCartItems).length > 0) {
-      if (this.props.shopStore.storeCartItems[merchantId]) {
-        const cartItem = this.props.shopStore.storeCartItems[merchantId].find(
-          (storeCartItem) => storeCartItem.name === item.name,
-        );
+    if (this.props.shopStore.storeCartItems[merchantId]) {
+      const cartItem = this.props.shopStore.storeCartItems[merchantId].find(
+        (storeCartItem) => storeCartItem.itemId === item.itemId,
+      );
 
-        if (cartItem) {
-          if (cartItem.quantity > 0 && !this.state.minusButtonShown) {
-            this.showMinusButton();
-          }
-
-          return cartItem.quantity;
-        }
+      if (cartItem) {
+        return cartItem.quantity;
       }
-    }
-
-    if (this.state.minusButtonShown) {
-      this.hideMinusButton();
     }
 
     return 0;
@@ -70,7 +60,7 @@ class ItemCard extends PureComponent {
       if (this.props.shopStore.storeCartItems[merchantId]) {
         const itemIndex = this.props.shopStore.storeCartItems[
           merchantId
-        ].findIndex((storeCartItem) => storeCartItem.name === item.name);
+        ].findIndex((storeCartItem) => storeCartItem.itemId === item.itemId);
 
         if (itemIndex >= 0) {
           return itemIndex;
@@ -87,6 +77,16 @@ class ItemCard extends PureComponent {
     this.url = link;
   };
 
+  componentDidUpdate() {
+    if (this.state.minusButtonShown && this.cartItemQuantity <= 0) {
+      this.hideMinusButton();
+    }
+
+    if (this.cartItemQuantity > 0 && !this.state.minusButtonShown) {
+      this.showMinusButton();
+    }
+  }
+
   componentDidMount() {
     if (this.props.item.image) {
       this.getImage()
@@ -102,20 +102,21 @@ class ItemCard extends PureComponent {
   }
 
   showMinusButton() {
-    if (this.buttonCounterView && this.plusButton) {
-      this.setState({minusButtonShown: true});
-      this.buttonCounterView.fadeInRight(200) &&
-        this.plusButton.transformPlusButton(300);
-    }
+    this.setState({minusButtonShown: true}, () => {
+      if (this.buttonCounterView && this.plusButton) {
+        this.buttonCounterView.fadeInRight(200) &&
+          this.plusButton.transformPlusButton(300);
+      }
+    });
   }
 
   hideMinusButton() {
-    this.setState({minusButtonShown: false});
-
-    if (this.buttonCounterView && this.plusButton) {
-      this.buttonCounterView.fadeOutRight(200) &&
-        this.plusButton.deTransformPlusButton(300);
-    }
+    this.setState({minusButtonShown: false}, () => {
+      if (this.buttonCounterView && this.plusButton) {
+        this.buttonCounterView.fadeOutRight(200) &&
+          this.plusButton.deTransformPlusButton(300);
+      }
+    });
   }
 
   handleIncreaseQuantity() {
@@ -124,13 +125,7 @@ class ItemCard extends PureComponent {
     this.props.shopStore.addCartItemToStorage(item, merchantId);
 
     if (this.cartItemQuantity < item.stock) {
-      if (!this.props.authStore.guest) {
-        clearTimeout(this.props.shopStore.cartUpdateTimeout);
-
-        this.props.shopStore.cartUpdateTimeout = setTimeout(() => {
-          this.props.shopStore.updateCartItems();
-        }, 2500);
-      }
+      this.props.shopStore.updateCartItems();
     }
 
     this.cartItemQuantity === parseInt(item.stock, 10) &&
@@ -148,13 +143,7 @@ class ItemCard extends PureComponent {
 
     this.props.shopStore.deleteCartItemInStorage(item, merchantId);
 
-    if (!this.props.authStore.guest) {
-      clearTimeout(this.props.shopStore.cartUpdateTimeout);
-
-      this.props.shopStore.cartUpdateTimeout = setTimeout(() => {
-        this.props.shopStore.updateCartItems();
-      }, 2500);
-    }
+    this.props.shopStore.updateCartItems();
 
     /*
     if (this.cartItemQuantity <= 0 && this.state.minusButtonShown) {
@@ -346,7 +335,13 @@ class ItemCard extends PureComponent {
                     onPress={() => this.handleDecreaseQuantity()}
                     type="clear"
                     color={colors.icons}
-                    icon={<Icon name="minus" color={colors.primary} />}
+                    icon={
+                      this.cartItemQuantity === 1 ? (
+                        <Icon name="trash-2" color={colors.primary} />
+                      ) : (
+                        <Icon name="minus" color={colors.primary} />
+                      )
+                    }
                     containerStyle={[
                       styles.buttonContainer,
                       {
@@ -379,6 +374,10 @@ class ItemCard extends PureComponent {
                       textAlign: 'center',
                       fontFamily: 'ProductSans-Black',
                       paddingRight: 4,
+                      color:
+                        this.cartItemQuantity > stock && stock
+                          ? '#F44336'
+                          : colors.text_primary,
                     }}>
                     {this.cartItemQuantity}
                   </Text>

@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {PureComponent} from 'react';
 import {
   Card,
   CardItem,
@@ -7,17 +7,14 @@ import {
   Right,
   Toast,
   View,
-  Item,
-  Input,
   H3,
   Textarea,
 } from 'native-base';
-import {ActionSheetIOS, Platform} from 'react-native';
-import moment, {ISO_8601} from 'moment';
+import {ActionSheetIOS} from 'react-native';
+import moment from 'moment';
 import {observer, inject} from 'mobx-react';
 import Modal from 'react-native-modal';
 import {observable, action, computed} from 'mobx';
-import BaseOptionsMenu from './BaseOptionsMenu';
 import FastImage from 'react-native-fast-image';
 import {Button, Icon, Text} from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
@@ -28,7 +25,7 @@ import AddReviewModal from './AddReviewModal';
 @inject('generalStore')
 @inject('shopStore')
 @observer
-class OrderCard extends Component {
+class OrderCard extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -50,6 +47,12 @@ class OrderCard extends Component {
 
   @observable confirmationModal = false;
   @observable cancelReason = '';
+
+  @computed get timeStamp() {
+    const {order} = this.props;
+
+    return moment(order.updatedAt, 'x').fromNow();
+  }
 
   @computed get orderStatus() {
     const {orderStatus} = this.props.order;
@@ -128,7 +131,7 @@ class OrderCard extends Component {
     navigation.navigate('Order Chat', {
       storeName,
       userAddress,
-      orderId,
+      order,
       userOrderNumber,
       orderStatus: this.orderStatus,
     });
@@ -218,7 +221,6 @@ class OrderCard extends Component {
   CardFooter = ({createdAt, paymentMethod, orderStatus}) => {
     const {order} = this.props;
     const {reviewedOnDevice} = this.state;
-    const timeStamp = moment(new Date(createdAt)).format('MM-DD-YYYY hh:MM A');
 
     return (
       <View
@@ -231,7 +233,7 @@ class OrderCard extends Component {
           paddingBottom: 5,
           height: 40,
         }}>
-        <Text>{timeStamp}</Text>
+        <Text>Updated {this.timeStamp}</Text>
 
         {orderStatus[0] === 'COMPLETED' &&
           !order.reviewed &&

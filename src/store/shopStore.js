@@ -5,12 +5,13 @@ import firebase from '@react-native-firebase/app';
 import '@react-native-firebase/functions';
 import Toast from '../components/Toast';
 import * as geolib from 'geolib';
+import {persist} from 'mobx-persist';
+import MapView from 'react-native-maps';
 
 const functions = firebase.app().functions('asia-northeast1');
 
 const userCartCollection = firestore().collection('user_carts');
 const merchantsCollection = firestore().collection('merchants');
-const merchantItemsCollection = firestore().collection('merchant_items');
 class shopStore {
   @observable storeCartItems = {};
   @observable storeSelectedShipping = {};
@@ -23,6 +24,7 @@ class shopStore {
   @observable unsubscribeToGetCartItems = null;
   @observable cartUpdateTimeout = null;
   @observable storeFetchLimit = 8;
+  @observable validItemQuantity = {};
 
   @computed get totalCartItemQuantity() {
     let quantity = 0;
@@ -38,13 +40,29 @@ class shopStore {
     return quantity;
   }
 
+  @computed get validCheckout() {
+    if (this.validItemQuantity) {
+      console.log(Object.values(this.validItemQuantity));
+      if (Object.values(this.validItemQuantity).includes(false)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   @computed get totalCartSubTotal() {
     let amount = 0;
 
     if (this.storeCartItems) {
       Object.keys(this.storeCartItems).map((merchantId) => {
-        this.storeCartItems[merchantId].map((item) => {
-          const itemTotal = item.quantity * item.price;
+        const storeDetails = this.getStoreDetails(merchantId);
+
+        this.storeCartItems[merchantId].map(async (item) => {
+          let itemTotal = item.quantity * item.price;
+
+          if (this.storeSelectedShipping[merchantId] === 'Own Delivery') {
+            itemTotal += storeDetails.ownDeliveryServiceFee;
+          }
 
           amount = itemTotal + amount;
         });
@@ -109,27 +127,33 @@ class shopStore {
     deliveryAddress,
     userCoordinates,
     userName,
-    userPhoneNumber,
-    userId,
-    storeCartItems,
     storeSelectedShipping,
     storeSelectedPaymentMethod,
   }) {
+    const userId = auth().currentUser.uid;
     this.cartUpdateTimeout ? clearTimeout(this.cartUpdateTimeout) : null;
 
-    return await functions.httpsCallable('placeOrder')({
-      orderInfo: JSON.stringify({
-        deliveryCoordinates,
-        deliveryAddress,
-        userCoordinates,
-        userName,
-        userPhoneNumber,
-        userId,
-        storeCartItems,
-        storeSelectedShipping,
-        storeSelectedPaymentMethod,
-      }),
-    });
+    return await this.updateCartItemsInstantly()
+      .then(async () => {
+        return await functions.httpsCallable('placeOrder')({
+          orderInfo: JSON.stringify({
+            deliveryCoordinates,
+            deliveryAddress,
+            userCoordinates,
+            userName,
+            storeSelectedShipping,
+            storeSelectedPaymentMethod,
+          }),
+        });
+      })
+      .then(async (response) => {
+        await this.getCartItems(userId);
+
+        return response;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   @action resetData() {
@@ -150,7 +174,7 @@ class shopStore {
     if (this.storeCartItems) {
       if (this.storeCartItems[merchantId]) {
         const cartItem = this.storeCartItems[merchantId].find(
-          (storeCartItem) => storeCartItem.name === item.name,
+          (storeCartItem) => storeCartItem.itemId === item.itemId,
         );
 
         if (cartItem) {
@@ -163,6 +187,8 @@ class shopStore {
   }
 
   @action getCartItems(userId) {
+    this.unsubscribeToGetCartItems && this.unsubscribeToGetCartItems();
+
     this.unsubscribeToGetCartItems = userCartCollection
       .doc(userId)
       .onSnapshot((documentSnapshot) => {
@@ -186,12 +212,11 @@ class shopStore {
       createdAt: dateNow,
       updatedAt: dateNow,
     };
-    delete newItem.stock;
     delete newItem.sales;
 
     if (storeCartItems) {
       const cartItemIndex = storeCartItems.findIndex(
-        (storeCartItem) => storeCartItem.name === item.name,
+        (storeCartItem) => storeCartItem.itemId === item.itemId,
       );
 
       if (cartItemIndex >= 0) {
@@ -215,7 +240,7 @@ class shopStore {
 
     if (storeCart) {
       const cartItemIndex = storeCart.findIndex(
-        (storeCartItem) => storeCartItem.name === item.name,
+        (storeCartItem) => storeCartItem.itemId === item.itemId,
       );
 
       if (cartItemIndex >= 0) {
@@ -236,18 +261,28 @@ class shopStore {
   }
 
   @action async updateCartItems() {
+    this.cartUpdateTimeout && clearTimeout(this.cartUpdateTimeout);
+
+    this.cartUpdateTimeout = setTimeout(async () => {
+      this.updateCartItemsInstantly();
+    }, 2500);
+  }
+
+  @action async updateCartItemsInstantly() {
     const userId = auth().currentUser.uid;
 
-    if (Object.keys(this.storeCartItems).length > 0) {
-      await userCartCollection
-        .doc(userId)
-        .update({...this.storeCartItems})
-        .catch((err) => console.log(err));
-    } else {
-      await userCartCollection
-        .doc(userId)
-        .set({})
-        .catch((err) => console.log(err));
+    if (userId) {
+      if (Object.keys(this.storeCartItems).length > 0) {
+        await userCartCollection
+          .doc(userId)
+          .update({...this.storeCartItems})
+          .catch((err) => console.log(err));
+      } else {
+        await userCartCollection
+          .doc(userId)
+          .set({})
+          .catch((err) => console.log(err));
+      }
     }
   }
 
@@ -284,14 +319,10 @@ class shopStore {
 
           return list;
         })
-        .then((list) => {
-          const finalList = list.filter((element) =>
-            geolib.isPointInPolygon({...locationCoordinates}, [
-              ...element.deliveryCoordinates.boundingBox,
-            ]),
-          );
-
-          this.categoryStoreList[storeCategory] = finalList;
+        .then(async (list) => {
+          this.categoryStoreList[
+            storeCategory
+          ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
         .catch((err) => console.log(err));
     } else if (currentLocationGeohash && locationCoordinates && storeCategory) {
@@ -315,14 +346,10 @@ class shopStore {
 
           return list;
         })
-        .then((list) => {
-          const finalList = list.filter((element) =>
-            geolib.isPointInPolygon({...locationCoordinates}, [
-              ...element.deliveryCoordinates.boundingBox,
-            ]),
-          );
-
-          this.categoryStoreList[storeCategory] = finalList;
+        .then(async (list) => {
+          this.categoryStoreList[
+            storeCategory
+          ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
         .catch((err) => console.log(err));
     } else if (currentLocationGeohash && locationCoordinates && lastVisible) {
@@ -346,17 +373,14 @@ class shopStore {
 
           return list;
         })
-        .then((list) => {
-          const finalList = list.filter((element) =>
-            geolib.isPointInPolygon({...locationCoordinates}, [
-              ...element.deliveryCoordinates.boundingBox,
-            ]),
+        .then(async (list) => {
+          this.storeList = await this.sortStoresByDistance(
+            list,
+            locationCoordinates,
           );
-
-          this.storeList = finalList;
         })
         .catch((err) => console.log(err));
-    } else {
+    } else if (currentLocationGeohash && locationCoordinates) {
       return await merchantsCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
@@ -377,57 +401,76 @@ class shopStore {
           return list;
         })
         .then(async (list) => {
-          const filteredList = list.filter((element) =>
-            geolib.isPointInPolygon(
-              {
-                latitude: locationCoordinates.latitude,
-                longitude: locationCoordinates.longitude,
-              },
-              [...element.deliveryCoordinates.boundingBox],
-            ),
+          this.storeList = await this.sortStoresByDistance(
+            list,
+            locationCoordinates,
           );
-
-          const listWithDistance = filteredList.map((store) => {
-            const distance = geolib.getDistance(
-              {
-                latitude: locationCoordinates.latitude,
-                longitude: locationCoordinates.longitude,
-              },
-              {
-                latitude: store.deliveryCoordinates.latitude,
-                longitude: store.deliveryCoordinates.longitude,
-              },
-            );
-
-            return {...store, distance};
-          });
-
-          const sortedList = listWithDistance.sort(
-            (a, b) => a.distance - b.distance,
-          );
-
-          this.storeList = sortedList;
         })
         .catch((err) => console.log(err));
     }
   }
 
-  @action async setStoreItems(merchantId) {
-    await merchantItemsCollection
-      .doc(merchantId)
-      .get()
-      .then((documentSnapshot) => {
-        const itemCategories = documentSnapshot.data().itemCategories.sort();
-        const allItems = documentSnapshot.data().items;
+  @action async sortStoresByDistance(list, locationCoordinates) {
+    const filteredList = list.filter((element) =>
+      geolib.isPointInPolygon(
+        {
+          latitude: locationCoordinates.latitude,
+          longitude: locationCoordinates.longitude,
+        },
+        [...element.deliveryCoordinates.boundingBox],
+      ),
+    );
 
-        return {allItems, itemCategories};
+    const listWithDistance = filteredList.map((store) => {
+      const distance = geolib.getDistance(
+        {
+          latitude: locationCoordinates.latitude,
+          longitude: locationCoordinates.longitude,
+        },
+        {
+          latitude: store.deliveryCoordinates.latitude,
+          longitude: store.deliveryCoordinates.longitude,
+        },
+      );
+
+      return {...store, distance};
+    });
+
+    const sortedList = listWithDistance.sort((a, b) => a.distance - b.distance);
+
+    return sortedList;
+  }
+
+  @action async setStoreItems(merchantId, itemCategories) {
+    const merchantItemsCollection = firestore()
+      .collection('merchants')
+      .doc(merchantId)
+      .collection('items');
+
+    await merchantItemsCollection
+      .get()
+      .then(async (querySnapshot) => {
+        const allItems = [];
+
+        if (!querySnapshot.empty) {
+          await querySnapshot.forEach(async (doc, index) => {
+            const newItems = doc.data().items;
+            allItems.push(...newItems);
+          });
+        }
+
+        return {allItems};
       })
-      .then(({allItems, itemCategories}) => {
+      .then(({allItems}) => {
+        const sortedItems = allItems.sort((a, b) => a.name > b.name);
+
         const categoryItems = new Map();
-        categoryItems.set('All', allItems);
+        categoryItems.set('All', sortedItems);
 
         itemCategories.map((category) => {
-          const items = allItems.filter((item) => item.category === category);
+          const items = sortedItems.filter(
+            (item) => item.category === category,
+          );
 
           categoryItems.set(category, items);
         });

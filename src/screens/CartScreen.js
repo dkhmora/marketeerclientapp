@@ -76,7 +76,7 @@ class CartScreen extends Component {
         <Animatable.View
           useNativeDriver
           animation="fadeInUpBig"
-          style={[styles.footer, {paddingBottom: 100}]}>
+          style={[styles.footer, {paddingBottom: 100, paddingHorizontal: 10}]}>
           <CartStoreList
             emptyCartText={`This seems lonely...${'\n'}
               ${'\n'}Go back and visit a store now and add items to your cart!`}
@@ -135,7 +135,10 @@ class CartScreen extends Component {
 
           <Button
             onPress={() => this.handleCheckout()}
-            disabled={this.props.shopStore.totalCartItemQuantity <= 0}
+            disabled={
+              this.props.shopStore.totalCartItemQuantity <= 0 ||
+              !this.props.shopStore.validCheckout
+            }
             raised
             icon={<Icon name="arrow-right" color={colors.icons} />}
             iconRight

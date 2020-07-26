@@ -94,6 +94,7 @@ class SlidingCartPanel extends Component {
               width: '100%',
               flexDirection: 'row',
               justifyContent: 'space-between',
+              alignItems: 'center',
             }}>
             <View
               style={{
@@ -126,14 +127,17 @@ class SlidingCartPanel extends Component {
                 flex: 1,
                 fontSize: 26,
                 fontFamily: 'ProductSans-Black',
-                textAlignVertical: 'bottom',
+                textAlignVertical: 'center',
               }}>
               ₱ {this.props.shopStore.totalCartSubTotal}
             </Text>
 
             <Button
               onPress={() => this.handleCheckout()}
-              disabled={this.props.shopStore.totalCartItemQuantity <= 0}
+              disabled={
+                this.props.shopStore.totalCartItemQuantity <= 0 ||
+                !this.props.shopStore.validCheckout
+              }
               raised
               icon={<Icon name="arrow-right" color={colors.icons} />}
               iconRight
@@ -163,7 +167,10 @@ class SlidingCartPanel extends Component {
 
           <Button
             onPress={() => this.handleCheckout()}
-            disabled={this.props.shopStore.totalCartItemQuantity <= 0}
+            disabled={
+              this.props.shopStore.totalCartItemQuantity <= 0 ||
+              !this.props.shopStore.validCheckout
+            }
             raised
             icon={<Icon name="arrow-right" color={colors.icons} />}
             iconRight
