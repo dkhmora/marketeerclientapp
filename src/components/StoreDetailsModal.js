@@ -328,6 +328,7 @@ class StoreDetailsModal extends Component {
                   style={{
                     flex: 1,
                   }}
+                  provider="google"
                   ref={(map) => {
                     this.map = map;
                   }}

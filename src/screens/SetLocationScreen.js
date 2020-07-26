@@ -135,55 +135,29 @@ class SetLocationScreen extends Component {
   }
 
   panMapToLocation(position) {
-    if (Platform.OS === 'ios') {
-      this.map.animateCamera(
-        {
-          center: position,
-          pitch: 2,
-          heading: 20,
-          altitude: 6000,
-          zoom: 5,
-        },
-        150,
-      );
-    } else {
-      this.map.animateCamera(
-        {
-          center: position,
-          pitch: 2,
-          heading: 1,
-          altitude: 200,
-          zoom: 18,
-        },
-        150,
-      );
-    }
+    this.map.animateCamera(
+      {
+        center: position,
+        pitch: 2,
+        heading: 1,
+        altitude: 200,
+        zoom: 18,
+      },
+      150,
+    );
   }
 
   panMapToMarker() {
-    if (Platform.OS === 'ios') {
-      this.map.animateCamera(
-        {
-          center: this.state.markerPosition,
-          pitch: 2,
-          heading: 20,
-          altitude: 6000,
-          zoom: 5,
-        },
-        150,
-      );
-    } else {
-      this.map.animateCamera(
-        {
-          center: this.state.markerPosition,
-          pitch: 2,
-          heading: 1,
-          altitude: 200,
-          zoom: 18,
-        },
-        150,
-      );
-    }
+    this.map.animateCamera(
+      {
+        center: this.state.markerPosition,
+        pitch: 2,
+        heading: 1,
+        altitude: 200,
+        zoom: 18,
+      },
+      150,
+    );
   }
 
   _onMapReady = () => {
