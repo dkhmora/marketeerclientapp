@@ -133,7 +133,10 @@ class SlidingCartPanel extends Component {
 
             <Button
               onPress={() => this.handleCheckout()}
-              disabled={this.props.shopStore.totalCartItemQuantity <= 0}
+              disabled={
+                this.props.shopStore.totalCartItemQuantity <= 0 ||
+                !this.props.shopStore.validCheckout
+              }
               raised
               icon={<Icon name="arrow-right" color={colors.icons} />}
               iconRight
@@ -163,7 +166,10 @@ class SlidingCartPanel extends Component {
 
           <Button
             onPress={() => this.handleCheckout()}
-            disabled={this.props.shopStore.totalCartItemQuantity <= 0}
+            disabled={
+              this.props.shopStore.totalCartItemQuantity <= 0 ||
+              !this.props.shopStore.validCheckout
+            }
             raised
             icon={<Icon name="arrow-right" color={colors.icons} />}
             iconRight

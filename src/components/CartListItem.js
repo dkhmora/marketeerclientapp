@@ -61,6 +61,16 @@ class CartListItem extends Component {
     }
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    const {item, itemSnapshot} = this.props;
+
+    if (itemSnapshot && item.quantity > itemSnapshot.stock) {
+      this.props.shopStore.validItemQuantity[item.itemId] = false;
+    } else {
+      this.props.shopStore.validItemQuantity[item.itemId] = true;
+    }
+  }
+
   render() {
     const {item, itemSnapshot, checkout} = this.props;
     const {url} = this.state;

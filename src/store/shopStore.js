@@ -24,6 +24,7 @@ class shopStore {
   @observable unsubscribeToGetCartItems = null;
   @observable cartUpdateTimeout = null;
   @observable storeFetchLimit = 8;
+  @observable validItemQuantity = {};
 
   @computed get totalCartItemQuantity() {
     let quantity = 0;
@@ -37,6 +38,16 @@ class shopStore {
     }
 
     return quantity;
+  }
+
+  @computed get validCheckout() {
+    if (this.validItemQuantity) {
+      console.log(Object.values(this.validItemQuantity));
+      if (Object.values(this.validItemQuantity).includes(false)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @computed get totalCartSubTotal() {
