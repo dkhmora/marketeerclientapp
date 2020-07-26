@@ -80,7 +80,7 @@ class CheckoutScreen extends Component {
         storeSelectedShipping,
         storeSelectedPaymentMethod,
       })
-      .then((response) => {
+      .then(async (response) => {
         this.setState({loading: false});
 
         if (response.data.s === 200) {
@@ -94,9 +94,20 @@ class CheckoutScreen extends Component {
 
         if (response.data.s === 400) {
           Toast({
-            text: `${response.data.m}`,
+            text: response.data.m,
             type: 'danger',
             duration: 8000,
+          });
+
+          await this.props.shopStore.cartStores.map(async (merchantId) => {
+            const storeDetails = await this.props.shopStore.getStoreDetailsFromMerchantId(
+              merchantId,
+            );
+
+            this.props.shopStore.setStoreItems(
+              merchantId,
+              storeDetails.itemCategories,
+            );
           });
 
           navigation.replace('Cart');
