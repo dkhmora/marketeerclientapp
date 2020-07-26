@@ -83,7 +83,9 @@ class CheckoutScreen extends Component {
       .then(async (response) => {
         this.setState({loading: false});
 
-        if (response.data.s === 200) {
+        console.log(response);
+
+        if (response.data[0].s === 200) {
           Toast({
             text: 'Orders Placed! Thank you for shopping at Marketeer!',
             duration: 5000,
