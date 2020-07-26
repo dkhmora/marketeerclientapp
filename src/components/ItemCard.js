@@ -155,7 +155,14 @@ class ItemCard extends PureComponent {
   }
 
   render() {
-    const {name, price, stock, unit, description} = this.props.item;
+    const {
+      name,
+      price,
+      discountedPrice,
+      stock,
+      unit,
+      description,
+    } = this.props.item;
 
     const {addButtonDisabled, loading} = this.state;
 
@@ -177,6 +184,7 @@ class ItemCard extends PureComponent {
             description={description}
             name={name}
             price={price}
+            discountedPrice={discountedPrice}
             unit={unit}
             stock={stock}
             url={this.url}
@@ -222,13 +230,28 @@ class ItemCard extends PureComponent {
                       {name}
                     </Text>
 
-                    <Text
-                      style={{
-                        color: colors.text_primary,
-                        fontFamily: 'ProductSans-Black',
-                      }}>
-                      ₱{price}/{unit}
-                    </Text>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                      {discountedPrice && (
+                        <Text
+                          style={{
+                            textDecorationLine: 'line-through',
+                            textDecorationStyle: 'solid',
+                            color: colors.text_secondary,
+                            fontSize: 14,
+                            marginRight: 5,
+                          }}>
+                          ₱{price}
+                        </Text>
+                      )}
+
+                      <Text
+                        style={{
+                          color: colors.text_primary,
+                          fontFamily: 'ProductSans-Black',
+                        }}>
+                        ₱{discountedPrice ? discountedPrice : price}/{unit}
+                      </Text>
+                    </View>
                   </View>
 
                   <View style={{width: 30}}>

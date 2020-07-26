@@ -16,6 +16,7 @@ class ItemDescriptionModal extends Component {
       description,
       name,
       url,
+      discountedPrice,
       price,
       unit,
       stock,
@@ -76,14 +77,30 @@ class ItemDescriptionModal extends Component {
               }}>
               {name}
             </Text>
-            <Text
-              style={{
-                color: colors.text_primary,
-                fontSize: 18,
-                fontFamily: 'ProductSans-Black',
-              }}>
-              ₱{price}/{unit}
-            </Text>
+
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              {discountedPrice && (
+                <Text
+                  style={{
+                    textDecorationLine: 'line-through',
+                    textDecorationStyle: 'solid',
+                    color: colors.text_secondary,
+                    fontSize: 16,
+                    marginRight: 5,
+                  }}>
+                  ₱{price}
+                </Text>
+              )}
+
+              <Text
+                style={{
+                  color: colors.text_primary,
+                  fontFamily: 'ProductSans-Black',
+                  fontSize: 18,
+                }}>
+                ₱{discountedPrice ? discountedPrice : price}/{unit}
+              </Text>
+            </View>
 
             <View style={{padding: 10, marginBottom: 20}}>
               <Text style={{fontSize: 18}}>{description}</Text>
