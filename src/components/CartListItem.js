@@ -21,9 +21,12 @@ class CartListItem extends Component {
   }
 
   @computed get addButtonDisabled() {
-    const {item} = this.props;
+    const {item, itemSnapshot} = this.props;
 
-    return item.quantity >= item.stock;
+    if (itemSnapshot) {
+      return item.quantity >= itemSnapshot.stock;
+    }
+    return false;
   }
 
   @observable url = null;
@@ -59,15 +62,18 @@ class CartListItem extends Component {
   }
 
   render() {
-    const {item, checkout} = this.props;
+    const {item, itemSnapshot, checkout} = this.props;
     const {url} = this.state;
 
     return (
       <View
         style={{
           flexDirection: 'row',
-          marginVertical: 8,
+          alignItems: 'center',
           paddingHorizontal: 10,
+          paddingVertical: 5,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.divider,
         }}>
         <FastImage
           key={item.itemId}
@@ -96,6 +102,7 @@ class CartListItem extends Component {
             }}>
             {item.name}
           </Text>
+
           <Text
             numberOfLines={2}
             style={{
@@ -111,7 +118,7 @@ class CartListItem extends Component {
         {!checkout && (
           <View
             style={{
-              flexDirection: 'row',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'flex-end',
               marginRight: 10,
@@ -124,6 +131,33 @@ class CartListItem extends Component {
               shadowRadius: 2.22,
               borderRadius: 30,
             }}>
+            {itemSnapshot && (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  backgroundColor: colors.icons,
+                  opacity: 0.9,
+                  borderColor: colors.text_secondary,
+                  marginBottom: 5,
+                  padding: 5,
+                  alignItems: 'center',
+                }}>
+                <Text style={{fontSize: 14}}>{itemSnapshot.stock}</Text>
+
+                <Text
+                  style={{
+                    fontSize: 14,
+                    textAlign: 'center',
+                    color: colors.text_secondary,
+                  }}>
+                  {' '}
+                  Left
+                </Text>
+              </View>
+            )}
+
             <View
               style={{
                 flexDirection: 'row',
@@ -147,7 +181,13 @@ class CartListItem extends Component {
                   onPress={() => this.handleDecreaseQuantity()}
                   type="clear"
                   color={colors.icons}
-                  icon={<Icon name="minus" color={colors.primary} size={15} />}
+                  icon={
+                    item.quantity === 1 ? (
+                      <Icon name="trash-2" color={colors.primary} size={15} />
+                    ) : (
+                      <Icon name="minus" color={colors.primary} size={15} />
+                    )
+                  }
                   containerStyle={[
                     styles.buttonContainer,
                     {
@@ -177,6 +217,10 @@ class CartListItem extends Component {
                   style={{
                     textAlign: 'center',
                     fontFamily: 'ProductSans-Black',
+                    color:
+                      itemSnapshot && item.quantity > itemSnapshot.stock
+                        ? '#F44336'
+                        : colors.text_primary,
                   }}>
                   {item.quantity}
                 </Text>
@@ -247,6 +291,7 @@ class CartListItem extends Component {
             }}>
             ₱{item.price}
           </Text>
+
           <Text
             adjustsFontSizeToFit
             numberOfLines={1}
@@ -259,6 +304,7 @@ class CartListItem extends Component {
             }}>
             x {item.quantity}
           </Text>
+
           <Text
             adjustsFontSizeToFit
             numberOfLines={1}

@@ -335,7 +335,13 @@ class ItemCard extends PureComponent {
                     onPress={() => this.handleDecreaseQuantity()}
                     type="clear"
                     color={colors.icons}
-                    icon={<Icon name="minus" color={colors.primary} />}
+                    icon={
+                      this.cartItemQuantity === 1 ? (
+                        <Icon name="trash-2" color={colors.primary} />
+                      ) : (
+                        <Icon name="minus" color={colors.primary} />
+                      )
+                    }
                     containerStyle={[
                       styles.buttonContainer,
                       {
@@ -368,6 +374,10 @@ class ItemCard extends PureComponent {
                       textAlign: 'center',
                       fontFamily: 'ProductSans-Black',
                       paddingRight: 4,
+                      color:
+                        this.cartItemQuantity > stock && stock
+                          ? '#F44336'
+                          : colors.text_primary,
                     }}>
                     {this.cartItemQuantity}
                   </Text>

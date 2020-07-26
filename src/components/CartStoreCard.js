@@ -61,6 +61,17 @@ class CartStoreCard extends Component {
     return this.props.shopStore.storeCartItems[this.props.merchantId];
   }
 
+  @computed get currentStoreItems() {
+    const {merchantId} = this.props;
+    const storeItems = this.props.shopStore.storeCategoryItems.get(merchantId);
+
+    if (storeItems) {
+      return storeItems.get('All');
+    }
+
+    return [];
+  }
+
   @computed get storeName() {
     const {merchantId} = this.props;
 
@@ -149,21 +160,18 @@ class CartStoreCard extends Component {
         </View>
         <View>
           {this.cartItems.map((item) => {
+            const itemSnapshot = this.currentStoreItems.find(
+              (storeItem) => storeItem.itemId === item.itemId,
+            );
+
             return (
-              <View key={item.itemId} style={{flex: 1, alignItems: 'center'}}>
-                <CartListItem
-                  item={item}
-                  merchantId={merchantId}
-                  checkout={checkout}
-                />
-                <View
-                  style={{
-                    width: '100%',
-                    height: 1,
-                    backgroundColor: colors.divider,
-                  }}
-                />
-              </View>
+              <CartListItem
+                item={item}
+                itemSnapshot={itemSnapshot}
+                merchantId={merchantId}
+                checkout={checkout}
+                key={item.itemId}
+              />
             );
           })}
         </View>

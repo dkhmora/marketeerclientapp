@@ -80,6 +80,28 @@ class CheckoutScreen extends Component {
         storeSelectedShipping,
         storeSelectedPaymentMethod,
       })
+      .then((response) => {
+        this.setState({loading: false});
+
+        if (response.data.s === 200) {
+          Toast({
+            text: 'Orders Placed! Thank you for shopping at Marketeer!',
+            duration: 5000,
+          });
+
+          navigation.replace('Home');
+        }
+
+        if (response.data.s === 400) {
+          Toast({
+            text: `${response.data.m}`,
+            type: 'danger',
+            duration: 8000,
+          });
+
+          navigation.replace('Cart');
+        }
+      })
       .then(() => {
         updateCoordinates(
           userId,
@@ -87,25 +109,6 @@ class CheckoutScreen extends Component {
           currentLocationGeohash,
           currentLocationDetails,
         );
-      })
-      .then(() => {
-        this.setState({loading: false});
-
-        Toast({
-          text: 'Orders Placed! Thank you for shopping at Marketeer!',
-          duration: 5000,
-        });
-
-        navigation.replace('Home');
-      })
-      .catch((err) => {
-        navigation.replace('Cart');
-
-        Toast({
-          text: `Error, something went wrong. Please check your cart if all items have stock left, then re-order.`,
-          type: 'danger',
-          duration: 8000,
-        });
       });
   }
 

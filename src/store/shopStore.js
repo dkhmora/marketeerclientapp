@@ -124,7 +124,7 @@ class shopStore {
 
     return await this.updateCartItemsInstantly()
       .then(async () => {
-        await functions.httpsCallable('placeOrder')({
+        return await functions.httpsCallable('placeOrder')({
           orderInfo: JSON.stringify({
             deliveryCoordinates,
             deliveryAddress,
@@ -135,8 +135,13 @@ class shopStore {
           }),
         });
       })
-      .then(() => {
-        this.getCartItems(userId);
+      .then(async (response) => {
+        await this.getCartItems(userId);
+
+        return response;
+      })
+      .catch((err) => {
+        console.log(err);
       });
   }
 
