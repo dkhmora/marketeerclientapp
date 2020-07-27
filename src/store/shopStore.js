@@ -13,7 +13,7 @@ const functions = firebase.app().functions('asia-northeast1');
 const userCartCollection = firestore().collection('user_carts');
 const merchantsCollection = firestore().collection('merchants');
 class shopStore {
-  @observable storeCartItems = {};
+  @persist('object') @observable storeCartItems = {};
   @observable storeSelectedShipping = {};
   @observable storeSelectedPaymentMethod = {};
   @observable storeCategories = [];

@@ -31,6 +31,7 @@ const generalStore = (window.store = new GeneralStore());
 const authStore = (window.store = new AuthStore());
 const shopStore = (window.store = new ShopStore());
 hydrate('list', generalStore);
+hydrate('list', shopStore);
 // @TODO: This is to hide a Warning caused by NativeBase after upgrading to RN 0.62
 import {YellowBox} from 'react-native';
 
