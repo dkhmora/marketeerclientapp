@@ -4,6 +4,8 @@ import firebase from '@react-native-firebase/app';
 import firestore from '@react-native-firebase/firestore';
 import Toast from '../components/Toast';
 import '@react-native-firebase/functions';
+import {Platform} from 'react-native';
+import messaging from '@react-native-firebase/messaging';
 
 const functions = firebase.app().functions('asia-northeast1');
 class authStore {
@@ -58,6 +60,34 @@ class authStore {
     }
 
     return null;
+  }
+
+  @action async subscribeToNotifications() {
+    let authorizationStatus = null;
+
+    if (!this.guest) {
+      if (Platform.OS === 'ios') {
+        authorizationStatus = await messaging().requestPermission();
+      } else {
+        authorizationStatus = true;
+      }
+
+      if (authorizationStatus) {
+        await messaging()
+          .getToken()
+          .then((token) => {
+            firestore()
+              .collection('users')
+              .doc(this.userId)
+              .update('fcmTokens', firestore.FieldValue.arrayUnion(token));
+          })
+          .catch((err) => console.log(err));
+      }
+    }
+  }
+
+  @action async unsubscribeToNotifications() {
+    await messaging().deleteToken();
   }
 
   @action async resetPassword(email) {
@@ -181,6 +211,9 @@ class authStore {
       .then(() => console.log('Successfully created user documents'))
       .then(() => this.checkAuthStatus())
       .then(() => {
+        this.subscribeToNotifications();
+      })
+      .then(() => {
         Toast({
           text: 'Welcome to Marketeer!',
           duration: 4000,
@@ -257,6 +290,8 @@ class authStore {
             .then(() => {
               this.userAuthenticated = true;
 
+              this.subscribeToNotifications();
+
               Toast({
                 text: 'Signed in successfully',
                 duration: 3500,
@@ -285,6 +320,8 @@ class authStore {
         .then(() => {
           this.userAuthenticated = true;
 
+          this.subscribeToNotifications();
+
           Toast({
             text: 'Signed in successfully',
             duration: 3500,
@@ -307,13 +344,12 @@ class authStore {
   @action async signOut() {
     return await auth()
       .signOut()
-      .then(() =>
-        auth()
-          .signInAnonymously()
-          .then(() => {
-            this.userAuthenticated = true;
-          }),
-      )
+      .then(() => {
+        this.unsubscribeToNotifications();
+      })
+      .then(() => {
+        this.signInAnonymously();
+      })
       .catch((err) => console.log(err));
   }
 
