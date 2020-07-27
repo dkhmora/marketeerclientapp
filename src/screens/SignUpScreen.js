@@ -185,7 +185,7 @@ class SignUpScreen extends Component {
             justifyContent: 'center',
             paddingTop: StatusBar.currentHeight,
           }}>
-          {checkout && <BackButton navigation={navigation} />}
+          <BackButton navigation={navigation} />
 
           <SafeAreaView style={{flexDirection: 'row'}}>
             <Image
