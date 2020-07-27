@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import ItemsList from '../components/ItemsList';
-import {View} from 'react-native';
+import {View, ActivityIndicator} from 'react-native';
 import {Text} from 'react-native-elements';
 import {computed} from 'mobx';
+import {colors} from '../../assets/colors';
 
 const ItemTab = createMaterialTopTabNavigator();
 
@@ -57,15 +58,10 @@ class ItemCategoriesTab extends Component {
       <View
         style={{
           flex: 1,
-          paddingHorizontal: 15,
-          paddingVertical: 20,
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-        <Text style={{fontSize: 18}}>
-          Oh no! This store currently has no items yet. Please check back again
-          later.
-        </Text>
+        <ActivityIndicator color={colors.primary} size="large" />
       </View>
     );
   }

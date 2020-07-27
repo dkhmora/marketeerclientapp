@@ -5,8 +5,6 @@ import {
   View,
   TouchableOpacity,
   Dimensions,
-  FlatList,
-  RefreshControl,
   ActivityIndicator,
 } from 'react-native';
 import {getStatusBarHeight} from 'react-native-status-bar-height';

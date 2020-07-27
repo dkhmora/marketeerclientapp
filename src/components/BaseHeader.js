@@ -37,6 +37,7 @@ class BaseHeader extends Component {
           type="clear"
           color={colors.icons}
           icon={<Icon name="arrow-left" color={colors.icons} />}
+          titleStyle={{color: colors.icons}}
           containerStyle={{borderRadius: 24}}
         />
       );

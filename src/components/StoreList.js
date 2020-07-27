@@ -124,6 +124,15 @@ class StoreList extends Component {
     );
   };
 
+  renderItem = ({item, index}) => (
+    <View key={item.merchantId}>
+      {index === 0 && (
+        <Text style={styles.listTitleText}>Stores Delivering To You</Text>
+      )}
+      <StoreCard store={item} navigation={this.props.navigation} />
+    </View>
+  );
+
   render() {
     const {categoryName} = this.props;
     const {navigation} = this.props;
@@ -147,33 +156,27 @@ class StoreList extends Component {
           style={{paddingHorizontal: 15}}
           contentContainerStyle={{flexGrow: 1}}
           data={dataSource}
-          renderItem={({item, index}) => (
-            <View>
-              {index === 0 && (
-                <Text style={styles.listTitleText}>
-                  Stores Delivering To You
-                </Text>
-              )}
-              <StoreCard store={item} key={index} navigation={navigation} />
-            </View>
-          )}
+          renderItem={this.renderItem}
           ListEmptyComponent={
-            <View
-              style={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <Text
+            !loading && (
+              <View
                 style={{
-                  fontSize: 20,
-                  textAlign: 'center',
-                  paddingHorizontal: 15,
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}>
-                Sorry, there are no available stores in your area yet. But don't
-                worry, we are expanding. Come back and check us out again soon!
-              </Text>
-            </View>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    textAlign: 'center',
+                    paddingHorizontal: 15,
+                  }}>
+                  Sorry, there are no available stores in your area yet. But
+                  don't worry, we are expanding. Come back and check us out
+                  again soon!
+                </Text>
+              </View>
+            )
           }
           refreshControl={
             <RefreshControl

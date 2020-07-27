@@ -249,7 +249,8 @@ class ItemCard extends PureComponent {
                           color: colors.text_primary,
                           fontFamily: 'ProductSans-Black',
                         }}>
-                        ₱{discountedPrice ? discountedPrice : price}/{unit}
+                        ₱{discountedPrice ? discountedPrice : price}
+                        {unit && `/${unit}`}
                       </Text>
                     </View>
                   </View>

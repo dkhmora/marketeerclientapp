@@ -1,18 +1,9 @@
 import React, {Component} from 'react';
-import {
-  Container,
-  Card,
-  CardItem,
-  Left,
-  Right,
-  Body,
-  Button,
-  Icon,
-} from 'native-base';
-import {View, Platform, Linking, ActivityIndicator} from 'react-native';
+import {Card, CardItem, Left, Right, Body} from 'native-base';
+import {View, ActivityIndicator} from 'react-native';
 import {Text} from 'react-native-elements';
 import BaseHeader from '../components/BaseHeader';
-import {FlatList, ScrollView} from 'react-native-gesture-handler';
+import {ScrollView} from 'react-native-gesture-handler';
 import {colors} from '../../assets/colors';
 import CartListItem from '../components/CartListItem';
 import {inject, observer} from 'mobx-react';

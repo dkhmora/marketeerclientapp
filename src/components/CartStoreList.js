@@ -1,10 +1,7 @@
 import React, {Component} from 'react';
-import {FlatList, View, ScrollView} from 'react-native';
-import {Card, Text, ListItem, Image} from 'react-native-elements';
+import {View, ScrollView} from 'react-native';
+import {Text} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
-import FastImage from 'react-native-fast-image';
-import CartListItem from './CartListItem';
-import {colors} from '../../assets/colors';
 import CartStoreCard from './CartStoreCard';
 
 @inject('shopStore')

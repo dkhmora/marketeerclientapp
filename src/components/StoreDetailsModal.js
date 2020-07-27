@@ -114,6 +114,10 @@ class StoreDetailsModal extends Component {
     );
   }
 
+  renderItem = ({item, index}) => (
+    <this.ReviewListItem item={item} key={item.orderId} />
+  );
+
   render() {
     const {
       isVisible,
@@ -268,9 +272,7 @@ class StoreDetailsModal extends Component {
                   contentContainerStyle={{flexGrow: 1}}
                   data={reviews}
                   initialNumToRender={30}
-                  renderItem={({item, index}) => (
-                    <this.ReviewListItem item={item} key={index} />
-                  )}
+                  renderItem={this.renderItem}
                   ListEmptyComponent={
                     <View
                       style={{
