@@ -145,30 +145,30 @@ class MainDrawer extends Component {
             backgroundColor: '#fff',
             width: '100%',
           }}>
-          <ListItem
-            title="Orders"
-            leftIcon={
-              <Icon name="clipboard" color={colors.primary} size={18} />
-            }
-            onPress={() => navigation.navigate('Orders')}
-          />
-          <ListItem
-            title="Account"
-            leftIcon={<Icon name="user" color={colors.primary} size={18} />}
-            onPress={() => navigation.navigate('Account')}
-          />
+          {!this.props.authStore.guest && (
+            <View>
+              <ListItem
+                title="Orders"
+                leftIcon={
+                  <Icon name="clipboard" color={colors.primary} size={18} />
+                }
+                onPress={() => navigation.navigate('Orders')}
+              />
+
+              <ListItem
+                title="Account"
+                leftIcon={<Icon name="user" color={colors.primary} size={18} />}
+                onPress={() => navigation.navigate('Account')}
+              />
+            </View>
+          )}
+
           <ListItem
             title="Help"
             leftIcon={
               <Icon name="help-circle" color={colors.primary} size={18} />
             }
             bottomDivider
-            onPress={() => console.log('yes')}
-          />
-          <ListItem
-            title="Settings"
-            leftIcon={<Icon name="settings" color={colors.primary} size={18} />}
-            topDivider
             onPress={() => console.log('yes')}
           />
           <ListItem
