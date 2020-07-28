@@ -13,6 +13,12 @@ class ItemCategoriesTab extends Component {
     super(props);
   }
 
+  @computed get scrollEnabled() {
+    const {storeCategoryItems} = this.props;
+
+    return storeCategoryItems && storeCategoryItems.size > 4 ? true : false;
+  }
+
   TabScreens(storeCategoryItems) {
     const {merchantId} = this.props;
     const tabs = [];
@@ -43,9 +49,8 @@ class ItemCategoriesTab extends Component {
         <View style={[style, {flex: 1}]}>
           <ItemTab.Navigator
             tabBarOptions={{
-              scrollEnabled: true,
-              tabStyle: {width: 100},
-              indicatorStyle: {width: 50, left: 25},
+              scrollEnabled,
+              indicatorStyle: {width: '10%', left: '7.5%'},
             }}>
             {storeCategoryItems && this.TabScreens(storeCategoryItems)}
           </ItemTab.Navigator>
