@@ -18,6 +18,7 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import BackButton from '../components/BackButton';
 import ForgotPasswordModal from '../components/ForgotPasswordModal';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 @inject('authStore')
 @observer
@@ -74,7 +75,9 @@ class LoginScreen extends Component {
     this.props.authStore.signIn(userCredential, password).then(() => {
       this.setState({loading: false}, () => {
         checkout
-          ? navigation.dangerouslyGetParent().navigate('Checkout')
+          ? navigation
+              .dangerouslyGetParent()
+              .replace('Set Location', {checkout: true})
           : navigation.dangerouslyGetParent().replace('Home');
       });
     });
@@ -112,7 +115,7 @@ class LoginScreen extends Component {
               style={{
                 height: 150,
                 width: 200,
-                resizeMode: 'center',
+                resizeMode: 'contain',
                 marginVertical: 20,
               }}
             />
@@ -123,7 +126,7 @@ class LoginScreen extends Component {
           useNativeDriver
           animation="fadeInUpBig"
           style={styles.footer}>
-          <ScrollView>
+          <KeyboardAwareScrollView>
             <Text style={styles.text_header}>{titleText}</Text>
 
             <Text style={styles.text_footer}>Email Address/Phone Number</Text>
@@ -135,6 +138,7 @@ class LoginScreen extends Component {
 
               <TextInput
                 placeholder="myemail@gmail.com/09991234567"
+                placeholderTextColor={colors.text_secondary}
                 maxLength={256}
                 style={styles.textInput}
                 autoCapitalize="none"
@@ -170,6 +174,7 @@ class LoginScreen extends Component {
 
               <TextInput
                 placeholder="Password"
+                placeholderTextColor={colors.text_secondary}
                 maxLength={32}
                 secureTextEntry={this.state.secureTextEntry ? true : false}
                 style={styles.textInput}
@@ -233,7 +238,7 @@ class LoginScreen extends Component {
               style={{marginHorizontal: 0, marginTop: 30}}
             />
             */}
-          </ScrollView>
+          </KeyboardAwareScrollView>
         </Animatable.View>
 
         {loading && (

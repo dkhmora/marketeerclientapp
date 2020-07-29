@@ -18,6 +18,7 @@ import {Icon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import BackButton from '../components/BackButton';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 @inject('generalStore')
 @inject('authStore')
 @observer
@@ -140,7 +141,7 @@ class SignUpScreen extends Component {
     const {name, email, password, phoneNumber} = this.state;
     const {checkout} = this.props.route.params;
 
-    this.props.navigation.navigate('Phone Verification', {
+    this.props.navigation.replace('Phone Verification', {
       name,
       email,
       password,
@@ -204,7 +205,7 @@ class SignUpScreen extends Component {
           useNativeDriver
           animation="fadeInUpBig"
           style={styles.footer}>
-          <ScrollView>
+          <KeyboardAwareScrollView>
             <Text style={styles.text_header}>Sign Up</Text>
 
             <Text style={[styles.text_subtext]}>
@@ -237,6 +238,7 @@ class SignUpScreen extends Component {
               <TextInput
                 placeholder="Gordon Norman"
                 maxLength={100}
+                placeholderTextColor={colors.text_secondary}
                 style={styles.textInput}
                 autoCapitalize="words"
                 onChangeText={(value) => this.handleNameChange(value)}
@@ -263,6 +265,7 @@ class SignUpScreen extends Component {
 
               <TextInput
                 placeholder="gordon_norman@gmail.com"
+                placeholderTextColor={colors.text_secondary}
                 maxLength={256}
                 style={styles.textInput}
                 autoCapitalize="none"
@@ -298,6 +301,7 @@ class SignUpScreen extends Component {
 
               <TextInput
                 placeholder="9173456789"
+                placeholderTextColor={colors.text_secondary}
                 keyboardType="numeric"
                 maxLength={10}
                 style={styles.textInput}
@@ -326,6 +330,7 @@ class SignUpScreen extends Component {
 
               <TextInput
                 placeholder="Password"
+                placeholderTextColor={colors.text_secondary}
                 secureTextEntry={secureTextEntry ? true : false}
                 maxLength={32}
                 style={styles.textInput}
@@ -362,6 +367,7 @@ class SignUpScreen extends Component {
 
               <TextInput
                 placeholder="Confirm Password"
+                placeholderTextColor={colors.text_secondary}
                 secureTextEntry={confirm_secureTextEntry ? true : false}
                 maxLength={32}
                 style={styles.textInput}
@@ -448,7 +454,7 @@ class SignUpScreen extends Component {
                 <Text style={styles.touchable_text}>here</Text>
               </TouchableOpacity>
             </View>
-          </ScrollView>
+          </KeyboardAwareScrollView>
         </Animatable.View>
       </View>
     );

@@ -40,13 +40,15 @@ class ItemCard extends PureComponent {
   @computed get cartItemQuantity() {
     const {item, merchantId} = this.props;
 
-    if (this.props.shopStore.storeCartItems[merchantId]) {
-      const cartItem = this.props.shopStore.storeCartItems[merchantId].find(
-        (storeCartItem) => storeCartItem.itemId === item.itemId,
-      );
+    if (this.props.shopStore.storeCartItems) {
+      if (this.props.shopStore.storeCartItems[merchantId]) {
+        const cartItem = this.props.shopStore.storeCartItems[merchantId].find(
+          (storeCartItem) => storeCartItem.itemId === item.itemId,
+        );
 
-      if (cartItem) {
-        return cartItem.quantity;
+        if (cartItem) {
+          return cartItem.quantity;
+        }
       }
     }
 

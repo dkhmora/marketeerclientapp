@@ -272,7 +272,7 @@ class shopStore {
     const userId = auth().currentUser.uid;
 
     if (userId) {
-      if (Object.keys(this.storeCartItems).length > 0) {
+      if (this.storeCartItems && Object.keys(this.storeCartItems).length > 0) {
         await userCartCollection
           .doc(userId)
           .update({...this.storeCartItems})

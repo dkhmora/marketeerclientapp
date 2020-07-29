@@ -115,7 +115,9 @@ class PhoneVerificationScreen extends Component {
             this.props.shopStore
               .setCartItems(this.props.authStore.userId)
               .then(() => {
-                navigation.dangerouslyGetParent().navigate('Checkout');
+                navigation
+                  .dangerouslyGetParent()
+                  .replace('Set Location', {checkout: true});
               })
               .catch((err) => {
                 if (err.code === 'auth/quota-exceeded') {

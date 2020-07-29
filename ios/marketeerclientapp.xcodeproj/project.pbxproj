@@ -32,10 +32,7 @@
 		B515D01151C26819DBA92402 /* libPods-marketeerclientapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BCAC6017D3B22AD00451FCD /* libPods-marketeerclientapp.a */; };
 		CFD32988375D41CC971F71F7 /* ProductSans-ThinItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 42C9FE26C4A749DCB92D9DFD /* ProductSans-ThinItalic.ttf */; };
 		E89A097F2493E3E700007182 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = E89A097E2493E3E700007182 /* LaunchScreen.xib */; };
-		E89A09932494DA6300007182 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E89A09912494DA6300007182 /* GoogleService-Info.plist */; };
-		E89A09942494DA6300007182 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E89A09912494DA6300007182 /* GoogleService-Info.plist */; };
-		E89A09952494DA6300007182 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E89A09912494DA6300007182 /* GoogleService-Info.plist */; };
-		E89A09962494DC5A00007182 /* GoogleService-Info.plist in Sources */ = {isa = PBXBuildFile; fileRef = E89A09912494DA6300007182 /* GoogleService-Info.plist */; };
+		E8A6EF5C24D188E5008D1528 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E8A6EF5B24D188E5008D1528 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -111,7 +108,7 @@
 		E72BE88353D8491F95AA9526 /* ProductSans-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "ProductSans-BlackItalic.ttf"; path = "../assets/fonts/ProductSans-BlackItalic.ttf"; sourceTree = "<group>"; };
 		E85805F824CF469300813825 /* Marketeer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Marketeer.entitlements; path = marketeerclientapp/Marketeer.entitlements; sourceTree = "<group>"; };
 		E89A097E2493E3E700007182 /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
-		E89A09912494DA6300007182 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		E8A6EF5B24D188E5008D1528 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E9CD97A69DBE4F1AB33CCDF7 /* Pods-marketeerclientapp-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-marketeerclientapp-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-marketeerclientapp-tvOS/Pods-marketeerclientapp-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
@@ -262,7 +259,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				E89A09912494DA6300007182 /* GoogleService-Info.plist */,
+				E8A6EF5B24D188E5008D1528 /* GoogleService-Info.plist */,
 				13B07FAE1A68108700A75B9A /* marketeerclientapp */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* marketeerclientappTests */,
@@ -424,7 +421,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E89A09932494DA6300007182 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -434,6 +430,7 @@
 			files = (
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				E89A097F2493E3E700007182 /* LaunchScreen.xib in Resources */,
+				E8A6EF5C24D188E5008D1528 /* GoogleService-Info.plist in Resources */,
 				0642AD89321A4B96975C9A71 /* ProductSans-Black.ttf in Resources */,
 				B02AE78AE20948C3B8C047D7 /* ProductSans-BlackItalic.ttf in Resources */,
 				113C70621521438D8C8BF72C /* ProductSans-Bold.ttf in Resources */,
@@ -454,7 +451,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */,
-				E89A09942494DA6300007182 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -462,7 +458,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E89A09952494DA6300007182 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -481,7 +476,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
+			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
 		2D02E4CB1E0B4B27006451C7 /* Bundle React Native Code And Images */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -764,7 +759,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E89A09962494DC5A00007182 /* GoogleService-Info.plist in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
