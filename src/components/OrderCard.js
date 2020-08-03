@@ -5,7 +5,6 @@ import {
   Left,
   Body,
   Right,
-  Toast,
   View,
   H3,
   Textarea,
@@ -21,6 +20,7 @@ import storage from '@react-native-firebase/storage';
 import {colors} from '../../assets/colors';
 import OrderCardLoader from './OrderCardLoader';
 import AddReviewModal from './AddReviewModal';
+import Toast from './Toast';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -96,7 +96,7 @@ class OrderCard extends PureComponent {
     this.props.generalStore
       .cancelOrder(merchantId, orderId, this.cancelReason)
       .then(() => {
-        Toast.show({
+        Toast({
           text: `Order # ${userOrderNumber} successfully cancelled!`,
           buttonText: 'Okay',
           type: 'success',
