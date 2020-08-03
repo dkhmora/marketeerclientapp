@@ -43,12 +43,11 @@ const theme = {
 @observer
 class Setup extends Component {
   render() {
-    const {appReady} = this.props.generalStore;
     return (
       <ThemeProvider theme={theme}>
         <App />
 
-        {!appReady && (
+        {!this.props.generalStore.appReady && (
           <View
             style={{
               height: '100%',
