@@ -411,7 +411,7 @@ class shopStore {
   }
 
   @action async sortStoresByDistance(list, locationCoordinates) {
-    const filteredList = list.filter((element) =>
+    const filteredList = await list.filter((element) =>
       geolib.isPointInPolygon(
         {
           latitude: locationCoordinates.latitude,
@@ -421,22 +421,30 @@ class shopStore {
       ),
     );
 
-    const listWithDistance = filteredList.map((store) => {
-      const distance = geolib.getDistance(
-        {
-          latitude: locationCoordinates.latitude,
-          longitude: locationCoordinates.longitude,
-        },
-        {
-          latitude: store.deliveryCoordinates.latitude,
-          longitude: store.deliveryCoordinates.longitude,
-        },
-      );
+    const listWithDistance = await filteredList.map((store) => {
+      const distance = store.storeLocation
+        ? geolib.getDistance(
+            {
+              latitude: locationCoordinates.latitude,
+              longitude: locationCoordinates.longitude,
+            },
+            {
+              latitude: store.storeLocation.latitude,
+              longitude: store.storeLocation.longitude,
+            },
+          )
+        : null;
 
       return {...store, distance};
     });
 
-    const sortedList = listWithDistance.sort((a, b) => a.distance - b.distance);
+    const sortedList = await listWithDistance.sort((a, b) => {
+      return (
+        (a.distance === null) - (b.distance === null) ||
+        +(a.distance > b.distance) ||
+        -(a.distance < b.distance)
+      );
+    });
 
     return sortedList;
   }

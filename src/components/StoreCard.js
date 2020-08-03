@@ -250,9 +250,11 @@ class StoreCard extends Component {
                   </View>
 
                   <Text style={{color: colors.text_secondary}}>
-                    {store.distance > 1000
-                      ? `${(store.distance / 1000).toFixed(2)} km`
-                      : `${store.distance} meters`}
+                    {store.distance
+                      ? store.distance > 1000
+                        ? `${(store.distance / 1000).toFixed(2)} km`
+                        : `${store.distance} meters`
+                      : ''}
                   </Text>
                 </View>
               </View>
