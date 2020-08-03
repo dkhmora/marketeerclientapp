@@ -75,11 +75,11 @@ class StoreCategoryCard extends Component {
 
             <View
               style={{
-                flex: 3,
+                flex: 3.25,
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: 10,
+                paddingLeft: 10,
               }}>
               <Text
                 adjustsFontSizeToFit
