@@ -35,8 +35,6 @@ class StoreList extends Component {
   }
 
   componentDidMount() {
-    const {categoryName} = this.props;
-
     when(
       () =>
         this.props.generalStore.currentLocation &&
