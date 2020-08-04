@@ -157,6 +157,18 @@ class SignUpScreen extends Component {
     Linking.openURL(merchantFormUrl);
   }
 
+  openTermsAndConditions() {
+    const url = 'https://marketeer.ph/components/pages/termsandconditions';
+
+    Linking.openURL(url);
+  }
+
+  openPrivacyPolicy() {
+    const url = 'https://marketeer.ph/components/pages/privacypolicy';
+
+    Linking.openURL(url);
+  }
+
   render() {
     const {
       passwordCheck,
@@ -391,22 +403,35 @@ class SignUpScreen extends Component {
               </TouchableOpacity>
             </View>
 
-            <View style={styles.textPrivate}>
-              <Text style={[styles.color_textPrivate, styles.text_subtext]}>
-                By signing up you agree to our{' '}
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                justifyContent: 'flex-start',
+                paddingTop: 30,
+                flexWrap: 'wrap',
+              }}>
+              <Text
+                style={{textAlign: 'justify', color: colors.text_secondary}}>
+                By using our service, you agree to our
               </Text>
 
-              <TouchableOpacity>
-                <Text style={styles.touchable_text}>Terms of service</Text>
+              <TouchableOpacity onPress={() => this.openTermsAndConditions()}>
+                <Text style={[styles.touchable_text, {textAlign: 'justify'}]}>
+                  {' '}
+                  Terms and Conditions{' '}
+                </Text>
               </TouchableOpacity>
 
-              <Text style={[styles.color_textPrivate, styles.text_subtext]}>
-                {' '}
+              <Text
+                style={{textAlign: 'justify', color: colors.text_secondary}}>
                 and{' '}
               </Text>
 
-              <TouchableOpacity>
-                <Text style={styles.touchable_text}>Privacy policy</Text>
+              <TouchableOpacity onPress={() => this.openPrivacyPolicy()}>
+                <Text style={[styles.touchable_text, {textAlign: 'justify'}]}>
+                  Privacy Policy
+                </Text>
               </TouchableOpacity>
             </View>
 

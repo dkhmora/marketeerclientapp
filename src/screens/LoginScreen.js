@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Dimensions,
   SafeAreaView,
+  Linking,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -81,6 +82,18 @@ class LoginScreen extends Component {
           : navigation.dangerouslyGetParent().replace('Home');
       });
     });
+  }
+
+  openTermsAndConditions() {
+    const url = 'https://marketeer.ph/components/pages/termsandconditions';
+
+    Linking.openURL(url);
+  }
+
+  openPrivacyPolicy() {
+    const url = 'https://marketeer.ph/components/pages/privacypolicy';
+
+    Linking.openURL(url);
   }
 
   render() {
@@ -195,6 +208,38 @@ class LoginScreen extends Component {
               onPress={() => this.setState({forgotPasswordModal: true})}>
               <Text style={styles.touchable_text}>Forgot Password?</Text>
             </TouchableOpacity>
+
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                justifyContent: 'flex-start',
+                paddingTop: 30,
+                flexWrap: 'wrap',
+              }}>
+              <Text
+                style={{textAlign: 'justify', color: colors.text_secondary}}>
+                By using our service, you agree to our
+              </Text>
+
+              <TouchableOpacity onPress={() => this.openTermsAndConditions()}>
+                <Text style={[styles.touchable_text, {textAlign: 'justify'}]}>
+                  {' '}
+                  Terms and Conditions{' '}
+                </Text>
+              </TouchableOpacity>
+
+              <Text
+                style={{textAlign: 'justify', color: colors.text_secondary}}>
+                and{' '}
+              </Text>
+
+              <TouchableOpacity onPress={() => this.openPrivacyPolicy()}>
+                <Text style={[styles.touchable_text, {textAlign: 'justify'}]}>
+                  Privacy Policy
+                </Text>
+              </TouchableOpacity>
+            </View>
 
             <Button
               onPress={() => this.handleSignIn()}
