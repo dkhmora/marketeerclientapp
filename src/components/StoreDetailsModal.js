@@ -313,9 +313,7 @@ class StoreDetailsModal extends Component {
                     color={colors.primary}
                     style={{paddingRight: 10}}
                   />
-                  <Text style={{fontSize: 16}}>
-                    {store.deliveryCoordinates.address}
-                  </Text>
+                  <Text style={{fontSize: 16}}>{store.address}</Text>
                 </View>
               </View>
 
@@ -336,21 +334,21 @@ class StoreDetailsModal extends Component {
                   }}
                   showsUserLocation
                   initialRegion={{
-                    latitude: store.deliveryCoordinates.latitude,
-                    longitude: store.deliveryCoordinates.longitude,
+                    latitude: store.storeLocation.latitude,
+                    longitude: store.storeLocation.longitude,
                     latitudeDelta: 0.009,
                     longitudeDelta: 0.009,
                   }}>
-                  {store.deliveryCoordinates.latitude &&
-                    store.deliveryCoordinates.longitude && (
+                  {store.storeLocation.latitude &&
+                    store.storeLocation.longitude && (
                       <Marker
                         ref={(marker) => {
                           this.marker = marker;
                         }}
                         tracksViewChanges={false}
                         coordinate={{
-                          latitude: store.deliveryCoordinates.latitude,
-                          longitude: store.deliveryCoordinates.longitude,
+                          latitude: store.storeLocation.latitude,
+                          longitude: store.storeLocation.longitude,
                         }}>
                         <View>
                           <Icon color={colors.primary} name="map-pin" />

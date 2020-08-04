@@ -13,12 +13,6 @@ class ItemCategoriesTab extends Component {
     super(props);
   }
 
-  @computed get scrollEnabled() {
-    const {storeCategoryItems} = this.props;
-
-    return storeCategoryItems && storeCategoryItems.size > 4 ? true : false;
-  }
-
   TabScreens(storeCategoryItems) {
     const {merchantId} = this.props;
     const tabs = [];
@@ -42,15 +36,19 @@ class ItemCategoriesTab extends Component {
 
   render() {
     const {storeCategoryItems, style} = this.props;
-    const {scrollEnabled} = this;
 
     if (storeCategoryItems) {
       return (
         <View style={[style, {flex: 1}]}>
           <ItemTab.Navigator
+            lazy
+            lazyPreloadDistance={1}
             tabBarOptions={{
-              scrollEnabled,
-              indicatorStyle: {width: '10%', left: '7.5%'},
+              scrollEnabled: true,
+              tabStyle: {width: 'auto'},
+              indicatorStyle: {
+                backgroundColor: colors.primary,
+              },
             }}>
             {storeCategoryItems && this.TabScreens(storeCategoryItems)}
           </ItemTab.Navigator>
