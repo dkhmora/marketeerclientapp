@@ -1,16 +1,25 @@
 import React, {Component} from 'react';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import ItemsList from '../components/ItemsList';
-import {View, ActivityIndicator} from 'react-native';
+import {View, ActivityIndicator, Dimensions} from 'react-native';
 import {Text} from 'react-native-elements';
 import {computed} from 'mobx';
 import {colors} from '../../assets/colors';
 
 const ItemTab = createMaterialTopTabNavigator();
+const SCREEN_WIDTH = Dimensions.get('screen').width;
 
 class ItemCategoriesTab extends Component {
   constructor(props) {
     super(props);
+  }
+
+  @computed get tabWidth() {
+    const {storeCategoryItems} = this.props;
+
+    return storeCategoryItems && storeCategoryItems.size > 5
+      ? 'auto'
+      : SCREEN_WIDTH / storeCategoryItems.size;
   }
 
   TabScreens(storeCategoryItems) {
@@ -45,7 +54,7 @@ class ItemCategoriesTab extends Component {
             lazyPreloadDistance={1}
             tabBarOptions={{
               scrollEnabled: true,
-              tabStyle: {width: 'auto'},
+              tabStyle: {width: this.tabWidth},
               indicatorStyle: {
                 backgroundColor: colors.primary,
               },
