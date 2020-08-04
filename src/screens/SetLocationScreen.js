@@ -337,6 +337,8 @@ class SetLocationScreen extends Component {
         )}
         <View
           style={{
+            flexDirection: 'row',
+            width: '100%',
             position: 'absolute',
             alignSelf: 'center',
             justifyContent: 'center',
@@ -422,18 +424,16 @@ class SetLocationScreen extends Component {
         <View
           style={{
             position: 'absolute',
-            alignSelf: 'center',
-            justifyContent: 'center',
-            bottom: '5%',
+            bottom: '12%',
             right: 20,
           }}>
           <Button
             onPress={() => this.panToCurrentLocation()}
-            icon={<Icon name="crosshair" color={colors.icons} />}
-            titleStyle={{color: colors.primary}}
-            buttonStyle={{backgroundColor: colors.primary}}
+            disabled={!this.state.currentUserLocation}
+            icon={<Icon name="crosshair" color={colors.icons} size={35} />}
+            titleStyle={{color: colors.icons}}
+            buttonStyle={{backgroundColor: colors.primary, borderRadius: 35}}
             containerStyle={{
-              borderRadius: 24,
               overflow: 'hidden',
             }}
           />
