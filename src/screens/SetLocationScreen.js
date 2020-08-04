@@ -41,6 +41,7 @@ class SetLocationScreen extends Component {
       loading: false,
       newMarkerPosition: null,
       centerOfScreen: (Dimensions.get('window').height - 17) / 2,
+      currentUserLocation: null,
     };
   }
 
@@ -262,6 +263,15 @@ class SetLocationScreen extends Component {
       .catch((error) => Toast({text: error.message, type: 'danger'}));
   }
 
+  panToCurrentLocation() {
+    if (this.state.currentUserLocation) {
+      const {latitude, longitude} = this.state.currentUserLocation;
+      const coordinates = {latitude, longitude};
+
+      this.panMapToLocation(coordinates);
+    }
+  }
+
   render() {
     const {navigation} = this.props;
     const {
@@ -287,6 +297,9 @@ class SetLocationScreen extends Component {
               this.map = map;
             }}
             provider="google"
+            onUserLocationChange={(event) =>
+              this.setState({currentUserLocation: event.nativeEvent.coordinate})
+            }
             onRegionChangeComplete={this.handleRegionChange}
             showsUserLocation
             followsUserLocation
@@ -404,6 +417,26 @@ class SetLocationScreen extends Component {
               )}
             </View>
           )}
+        </View>
+
+        <View
+          style={{
+            position: 'absolute',
+            alignSelf: 'center',
+            justifyContent: 'center',
+            bottom: '5%',
+            right: 20,
+          }}>
+          <Button
+            onPress={() => this.panToCurrentLocation()}
+            icon={<Icon name="crosshair" color={colors.icons} />}
+            titleStyle={{color: colors.primary}}
+            buttonStyle={{backgroundColor: colors.primary}}
+            containerStyle={{
+              borderRadius: 24,
+              overflow: 'hidden',
+            }}
+          />
         </View>
 
         <BaseHeader
