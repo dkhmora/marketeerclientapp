@@ -24,8 +24,6 @@ class BaseOptionsMenu extends Component {
           return {optionActions};
         });
       });
-    } else {
-      console.log('Please put an equal number of options and actions');
     }
   }
 

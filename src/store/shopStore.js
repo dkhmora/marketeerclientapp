@@ -5,6 +5,7 @@ import firebase from '@react-native-firebase/app';
 import '@react-native-firebase/functions';
 import * as geolib from 'geolib';
 import {persist} from 'mobx-persist';
+import Toast from '../components/Toast';
 
 const functions = firebase.app().functions('asia-northeast1');
 
@@ -127,7 +128,7 @@ class shopStore {
             .storeCategories.sort((a, b) => a.name > b.name);
         }
       })
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err, type: 'danger'}));
   }
 
   @action async setCartItems(userId) {
@@ -136,9 +137,6 @@ class shopStore {
       .doc(userId)
       .set({
         ...this.storeCartItems,
-      })
-      .then(() => {
-        console.log('Successfully updated cart!');
       });
   }
 
@@ -172,7 +170,7 @@ class shopStore {
         return response;
       })
       .catch((err) => {
-        console.log(err);
+        Toast({text: err, type: 'danger'});
       });
   }
 
@@ -243,13 +241,9 @@ class shopStore {
         storeCartItems[cartItemIndex].quantity += 1;
         storeCartItems[cartItemIndex].updatedAt = dateNow;
       } else {
-        console.log('item cannot be found in store! Creating new item.');
-
         storeCartItems.push(newItem);
       }
     } else {
-      console.log('Store not found! Creating new store.');
-
       this.storeCartItems[merchantId] = [{...newItem}];
     }
   }
@@ -275,7 +269,7 @@ class shopStore {
           }
         }
       } else {
-        console.log('item cannot be found in store!');
+        Toast({text: 'Error: Item cannot be found in store!', type: 'danger'});
       }
     }
   }
@@ -296,12 +290,12 @@ class shopStore {
         await userCartCollection
           .doc(userId)
           .update({...this.storeCartItems})
-          .catch((err) => console.log(err));
+          .catch((err) => Toast({text: err, type: 'danger'}));
       } else {
         await userCartCollection
           .doc(userId)
           .set({})
-          .catch((err) => console.log(err));
+          .catch((err) => Toast({text: err, type: 'danger'}));
       }
     }
   }
@@ -344,7 +338,7 @@ class shopStore {
             storeCategory
           ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
-        .catch((err) => console.log(err));
+        .catch((err) => Toast({text: err, type: 'danger'}));
     } else if (currentLocationGeohash && locationCoordinates && storeCategory) {
       return await merchantsCollection
         .where('visibleToPublic', '==', true)
@@ -371,7 +365,7 @@ class shopStore {
             storeCategory
           ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
-        .catch((err) => console.log(err));
+        .catch((err) => Toast({text: err, type: 'danger'}));
     } else if (currentLocationGeohash && locationCoordinates && lastVisible) {
       return await merchantsCollection
         .where('visibleToPublic', '==', true)
@@ -399,7 +393,7 @@ class shopStore {
             locationCoordinates,
           );
         })
-        .catch((err) => console.log(err));
+        .catch((err) => Toast({text: err, type: 'danger'}));
     } else if (currentLocationGeohash && locationCoordinates) {
       return await merchantsCollection
         .where('visibleToPublic', '==', true)
@@ -426,7 +420,7 @@ class shopStore {
             locationCoordinates,
           );
         })
-        .catch((err) => console.log(err));
+        .catch((err) => Toast({text: err, type: 'danger'}));
     }
   }
 
@@ -508,8 +502,7 @@ class shopStore {
       .then((categoryItems) => {
         this.storeCategoryItems.set(merchantId, categoryItems);
       })
-      .then(() => console.log('Items successfully set'))
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err, type: 'danger'}));
   }
 }
 

@@ -50,7 +50,7 @@ class generalStore {
         return data;
       })
       .catch((err) => {
-        console.log(err);
+        Toast({text: err, type: 'danger'});
       });
   }
 
@@ -60,10 +60,17 @@ class generalStore {
         ...review,
       })
       .then((response) => {
-        console.log(response);
+        if (response.data.s === 200) {
+          Toast({text: 'Successfully submitted review'});
+        } else {
+          Toast({
+            text: response.data.m,
+            type: 'danger',
+          });
+        }
       })
       .catch((err) => {
-        console.log(err);
+        Toast({text: err, type: 'danger'});
       });
   }
 
@@ -71,11 +78,17 @@ class generalStore {
     return await functions
       .httpsCallable('getAddressFromCoordinates')({latitude, longitude})
       .then((response) => {
-        console.log(response);
+        if (response.data.s !== 200) {
+          Toast({
+            text: response.data.m,
+            type: 'danger',
+          });
+        }
+
         return response.data.locationDetails;
       })
       .catch((err) => {
-        console.log(err);
+        Toast({text: err, type: 'danger'});
       });
   }
 
@@ -87,7 +100,15 @@ class generalStore {
         PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         ).then((granted) => {
-          console.log(granted); // just to ensure that permissions were granted
+          if (granted !== 'granted') {
+            Toast({
+              text:
+                'Error, location permissions is required. Please enable location permissions.',
+              duration: 0,
+              type: 'danger',
+              buttonText: 'Okay',
+            });
+          }
         });
       }
 
@@ -96,7 +117,7 @@ class generalStore {
           resolve(position.coords);
         },
         (err) => {
-          console.log(err);
+          Toast({text: err, type: 'danger'});
           reject();
         },
         {
@@ -123,7 +144,6 @@ class generalStore {
               buttonText: 'Okay',
             });
           }
-          console.log(granted); // just to ensure that permissions were granted
         });
       }
 
@@ -155,7 +175,7 @@ class generalStore {
           resolve();
         },
         (err) => {
-          console.log(err);
+          Toast({text: err, type: 'danger'});
 
           if (err.code === 2) {
             Toast({
@@ -212,7 +232,7 @@ class generalStore {
 
         return null;
       })
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err, type: 'danger'}));
   }
 
   @action async updateCoordinates(
@@ -229,8 +249,7 @@ class generalStore {
         lastDeliveryLocationGeohash,
         lastDeliveryLocationAddress,
       })
-      .then(() => console.log('Successfully updated user coordinates'))
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err, type: 'danger'}));
   }
 
   @action async getImageURI(imageRef) {
@@ -281,8 +300,7 @@ class generalStore {
       .collection('orders')
       .doc(orderId)
       .update('messages', firestore.FieldValue.arrayUnion(message))
-      .then(() => console.log('Successfully sent the message'))
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err, type: 'danger'}));
   }
 
   @action async createImageMessage(orderId, messageId, user, imageLink) {
@@ -298,8 +316,7 @@ class generalStore {
       .collection('orders')
       .doc(orderId)
       .update('messages', firestore.FieldValue.arrayUnion(message))
-      .then(() => console.log('Successfully sent the message'))
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err, type: 'danger'}));
   }
 
   @action async sendImage(
@@ -329,8 +346,7 @@ class generalStore {
       .then((imageLink) =>
         this.createImageMessage(orderId, messageId, user, imageLink),
       )
-      .then(() => console.log('Image successfully uploaded and sent!'))
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err, type: 'danger'}));
   }
 
   @action async setOrders(userId) {
@@ -342,7 +358,6 @@ class generalStore {
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc, index) => {
-          console.log('updated');
           const order = {...doc.data(), orderId: doc.id};
 
           if (order.updatedAt > this.maxOrderUpdatedAt) {
@@ -364,7 +379,7 @@ class generalStore {
           .slice()
           .sort((a, b) => b.updatedAt - a.updatedAt);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err, type: 'danger'}));
   }
 
   @action async setOrderItems(orderId) {

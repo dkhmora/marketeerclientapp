@@ -72,7 +72,6 @@ class StoreDetailsModal extends Component {
               overlayContainerStyle={{
                 backgroundColor: colors.primary,
               }}
-              onPress={() => console.log('Works!')}
               activeOpacity={0.7}
               titleStyle={{
                 fontFamily: 'ProductSans-Light',

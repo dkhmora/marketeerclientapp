@@ -46,7 +46,6 @@ class OrderList extends Component {
   );
 
   render() {
-    const {navigation} = this.props;
     const dataSource = this.props.generalStore.orders.slice();
 
     return (
@@ -61,18 +60,20 @@ class OrderList extends Component {
         showsVerticalScrollIndicator={false}
         maxToRenderPerBatch={5}
         ListEmptyComponent={
-          <View
-            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-            <Text
-              style={{
-                fontSize: 20,
-                textAlign: 'center',
-                paddingHorizontal: 15,
-              }}>
-              You haven't placed an order yet. Check out the best stores near
-              your area and place an order now!
-            </Text>
-          </View>
+          !this.state.loading && (
+            <View
+              style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  textAlign: 'center',
+                  paddingHorizontal: 15,
+                }}>
+                You haven't placed an order yet. Check out the best stores near
+                your area and place an order now!
+              </Text>
+            </View>
+          )
         }
         refreshControl={
           <RefreshControl

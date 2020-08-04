@@ -154,13 +154,7 @@ class SignUpScreen extends Component {
     const merchantFormUrl =
       'https://marketeer.ph/components/pages/partnermerchantsignup';
 
-    Linking.canOpenURL(merchantFormUrl).then((supported) => {
-      if (supported) {
-        Linking.openURL(merchantFormUrl);
-      } else {
-        console.log("Don't know how to open URI: " + merchantFormUrl);
-      }
-    });
+    Linking.openURL(merchantFormUrl);
   }
 
   render() {

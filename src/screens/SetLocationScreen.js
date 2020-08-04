@@ -168,7 +168,15 @@ class SetLocationScreen extends Component {
       PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       ).then((granted) => {
-        console.log(granted); // just to ensure that permissions were granted
+        if (granted !== 'granted') {
+          Toast({
+            text:
+              'Error, location permissions is required. Please enable location permissions.',
+            duration: 0,
+            type: 'danger',
+            buttonText: 'Okay',
+          });
+        }
       });
     } else {
       Geolocation.requestAuthorization();
@@ -251,7 +259,7 @@ class SetLocationScreen extends Component {
           editMode: true,
         });
       })
-      .catch((error) => console.log(error.message));
+      .catch((error) => Toast({text: error.message, type: 'danger'}));
   }
 
   render() {

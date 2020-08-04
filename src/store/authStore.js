@@ -81,7 +81,7 @@ class authStore {
               .doc(this.userId)
               .update('fcmTokens', firestore.FieldValue.arrayUnion(token));
           })
-          .catch((err) => console.log(err));
+          .catch((err) => Toast({text: err, type: 'danger'}));
       }
     }
   }
@@ -146,7 +146,7 @@ class authStore {
           });
         }
 
-        console.log(err.message);
+        Toast({text: err.message, type: 'danger'});
       });
   }
 
@@ -193,7 +193,7 @@ class authStore {
           });
         }
 
-        console.log(err);
+        Toast({text: err, type: 'danger'});
       });
   }
 
@@ -208,7 +208,6 @@ class authStore {
     await this.linkCurrentUserWithPhoneNumber(phoneCredential)
       .then(() => this.linkCurrentUserWithEmail(email, password))
       .then(() => this.createUserDocuments(name, email, phoneNumber))
-      .then(() => console.log('Successfully created user documents'))
       .then(() => this.checkAuthStatus())
       .then(() => {
         this.subscribeToNotifications();
@@ -231,7 +230,7 @@ class authStore {
         }
         navigation.goBack();
 
-        console.log(err);
+        Toast({text: err, type: 'danger'});
       });
   }
 
@@ -259,17 +258,11 @@ class authStore {
       password,
     );
 
-    await auth()
-      .currentUser.linkWithCredential(emailCredential)
-      .then(() => console.log('Successfully linked anonymous user with email'));
+    await auth().currentUser.linkWithCredential(emailCredential);
   }
 
   @action async linkCurrentUserWithPhoneNumber(phoneCredential) {
-    await auth()
-      .currentUser.linkWithCredential(phoneCredential)
-      .then(() =>
-        console.log('Successfully linked email account with phone number'),
-      );
+    await auth().currentUser.linkWithCredential(phoneCredential);
   }
 
   @action async signIn(userCredential, password) {
@@ -303,7 +296,7 @@ class authStore {
                 duration: 3500,
               });
 
-              console.log(err);
+              Toast({text: err, type: 'danger'});
             });
         })
         .catch((err) => {
@@ -312,7 +305,7 @@ class authStore {
             duration: 3500,
           });
 
-          console.log(err);
+          Toast({text: err, type: 'danger'});
         });
     } else {
       return await auth()
@@ -336,7 +329,7 @@ class authStore {
               duration: 6000,
             });
           }
-          console.log(err);
+          Toast({text: err, type: 'danger'});
         });
     }
   }
@@ -350,15 +343,13 @@ class authStore {
       .then(() => {
         this.signInAnonymously();
       })
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err, type: 'danger'}));
   }
 
   @action async checkAuthStatus() {
     if (auth().currentUser) {
-      console.log('User is authenticated');
       this.userAuthenticated = true;
     } else {
-      console.log('signinanonymous');
       await this.signInAnonymously();
     }
   }
@@ -369,7 +360,7 @@ class authStore {
       .then(() => {
         this.userAuthenticated = true;
       })
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err, type: 'danger'}));
   }
 }
 

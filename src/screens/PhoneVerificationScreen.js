@@ -73,9 +73,12 @@ class PhoneVerificationScreen extends Component {
 
               this.props.navigation.navigate('Auth');
 
-              console.log(
-                'Verification error: ' + JSON.stringify(phoneAuthSnapshot),
-              );
+              Toast({
+                text: `Verification error: ${JSON.stringify(
+                  phoneAuthSnapshot,
+                )}`,
+                type: 'danger',
+              });
               break;
           }
 
@@ -84,7 +87,10 @@ class PhoneVerificationScreen extends Component {
           });
         },
         (error) => {
-          console.log('Error verifying phone number: ' + error);
+          Toast({
+            text: `Error verifying phone number: ${error}`,
+            type: 'danger',
+          });
         },
       );
   }
@@ -152,7 +158,7 @@ class PhoneVerificationScreen extends Component {
 
                 navigation.replace('Home');
 
-                console.log(err);
+                Toast({text: err, type: 'danger'});
               });
           } else {
             navigation.dangerouslyGetParent().replace('Home');
@@ -195,7 +201,7 @@ class PhoneVerificationScreen extends Component {
 
           navigation.replace('Home');
 
-          console.log(err);
+          Toast({text: err, type: 'danger'});
         });
     }
   }

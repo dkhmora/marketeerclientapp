@@ -74,7 +74,11 @@ class MainDrawer extends Component {
             this.props.shopStore.resetData();
         });
     } else {
-      console.log('Failed to authenticate');
+      Toast({
+        text: 'Failed to authenticate',
+        duration: 3500,
+        type: 'danger',
+      });
     }
   }
 
@@ -125,7 +129,6 @@ class MainDrawer extends Component {
               rounded
               overlayContainerStyle={{backgroundColor: colors.icons}}
               title={userInitial}
-              onPress={() => console.log('Works!')}
               activeOpacity={0.7}
             />
             <Text
@@ -169,12 +172,10 @@ class MainDrawer extends Component {
               <Icon name="help-circle" color={colors.primary} size={18} />
             }
             bottomDivider
-            onPress={() => console.log('yes')}
           />
           <ListItem
             title="Terms & Conditions / Privacy Policy"
             leftIcon={<Icon name="book" color={colors.primary} size={18} />}
-            onPress={() => console.log('yes')}
           />
           <ListItem
             title={authenticationButtonText}
