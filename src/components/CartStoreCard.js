@@ -223,28 +223,18 @@ class CartStoreCard extends Component {
                 <Text style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
                   Delivery Fee
                 </Text>
-
-                {this.props.shopStore.storeSelectedShipping[merchantId] !==
-                  'Own Delivery' && (
-                  <Text
-                    numberOfLines={2}
-                    style={{
-                      fontSize: 13,
-                      textAlignVertical: 'center',
-                      paddingLeft: 5,
-                      paddingRight: 15,
-                      flexShrink: 1,
-                    }}>
-                    (To be paid in cash upon receiving order)
-                  </Text>
-                )}
               </View>
 
-              <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
+              <Text
+                style={{
+                  fontFamily: 'ProductSans-Black',
+                  fontSize: 14,
+                  textAlignVertical: 'center',
+                }}>
                 {this.props.shopStore.storeSelectedShipping[merchantId] ===
                 'Own Delivery'
                   ? `₱${ownDeliveryServiceFee}`
-                  : `₱80 - ₱250`}
+                  : `(To be determined with merchant)`}
               </Text>
             </View>
 
@@ -285,36 +275,49 @@ class CartStoreCard extends Component {
                 justifyContent: 'center',
                 paddingHorizontal: 8,
               }}>
-              <Text style={{fontSize: 16, fontFamily: 'ProductSans-Light'}}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontFamily: 'ProductSans-Light',
+                }}>
                 Shipping Method:
               </Text>
 
-              <Picker
-                mode="dropdown"
-                style={{flex: 1}}
-                selectedValue={
-                  this.props.shopStore.storeSelectedShipping[merchantId]
-                }
-                onValueChange={(value) => {
-                  this.props.shopStore.storeSelectedShipping[
-                    merchantId
-                  ] = value;
-                }}>
-                {shippingMethods.length > 0 ? (
-                  shippingMethods.map((method, index) => {
+              {shippingMethods.length > 0 ? (
+                <Picker
+                  mode="dropdown"
+                  style={{flex: 1}}
+                  selectedValue={
+                    this.props.shopStore.storeSelectedShipping[merchantId]
+                  }
+                  onValueChange={(value) => {
+                    this.props.shopStore.storeSelectedShipping[
+                      merchantId
+                    ] = value;
+                  }}>
+                  {shippingMethods.map((method, index) => {
                     const label =
                       method === 'Own Delivery'
                         ? `${method} (₱ ${ownDeliveryServiceFee})`
-                        : `${method} (₱80 - ₱250)`;
+                        : `${method}`;
 
                     return (
                       <Picker.Item label={label} value={method} key={index} />
                     );
-                  })
-                ) : (
-                  <Text>No shipping method available for your location</Text>
-                )}
-              </Picker>
+                  })}
+                </Picker>
+              ) : (
+                <Text
+                  style={{
+                    flex: 1,
+                    paddingHorizontal: 10,
+                    paddingVertical: 18,
+                    fontFamily: 'ProductSans-Regular',
+                    fontStyle: 'italic',
+                  }}>
+                  No shipping method available
+                </Text>
+              )}
             </View>
 
             <View
@@ -328,27 +331,29 @@ class CartStoreCard extends Component {
               <Text style={{fontSize: 16, fontFamily: 'ProductSans-Light'}}>
                 Payment Method:
               </Text>
-              <Picker
-                mode="dropdown"
-                style={{flex: 1}}
-                selectedValue={
-                  this.props.shopStore.storeSelectedPaymentMethod[merchantId]
-                }
-                onValueChange={(value) => {
-                  this.props.shopStore.storeSelectedPaymentMethod[
-                    merchantId
-                  ] = value;
-                }}>
-                {paymentMethods.length > 0 ? (
-                  paymentMethods.map((method, index) => {
+              {paymentMethods.length > 0 ? (
+                <Picker
+                  mode="dropdown"
+                  style={{flex: 1}}
+                  selectedValue={
+                    this.props.shopStore.storeSelectedPaymentMethod[merchantId]
+                  }
+                  onValueChange={(value) => {
+                    this.props.shopStore.storeSelectedPaymentMethod[
+                      merchantId
+                    ] = value;
+                  }}>
+                  {paymentMethods.map((method, index) => {
                     return (
                       <Picker.Item label={method} value={method} key={index} />
                     );
-                  })
-                ) : (
-                  <Text>No payment method available</Text>
-                )}
-              </Picker>
+                  })}
+                </Picker>
+              ) : (
+                <Text style={{paddingTop: 10}}>
+                  No payment method available
+                </Text>
+              )}
             </View>
           </View>
         )}

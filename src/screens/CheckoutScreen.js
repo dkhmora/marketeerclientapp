@@ -227,27 +227,31 @@ class CheckoutScreen extends Component {
             </Text>
           </View>
 
-          <Button
-            onPress={() => this.handlePlaceOrder()}
-            raised
-            disabled={loading}
-            icon={<Icon name="arrow-right" color={colors.icons} />}
-            iconRight
-            title="Place Order"
-            titleStyle={{
-              color: colors.icons,
-              fontFamily: 'ProductSans-Black',
-              fontSize: 22,
-              marginRight: '20%',
-            }}
-            buttonStyle={{height: '100%', backgroundColor: colors.accent}}
-            containerStyle={{
-              height: '100%',
-              flex: 1,
-              borderRadius: 24,
-              padding: 0,
-            }}
-          />
+          <View style={{borderRadius: 24, overflow: 'hidden', flex: 1}}>
+            <Button
+              onPress={() => this.handlePlaceOrder()}
+              raised
+              disabled={loading || !this.props.shopStore.validPlaceOrder}
+              icon={<Icon name="arrow-right" color={colors.icons} />}
+              iconRight
+              title="Place Order"
+              titleStyle={{
+                color: colors.icons,
+                fontFamily: 'ProductSans-Black',
+                fontSize: 22,
+                marginRight: '20%',
+              }}
+              buttonStyle={{
+                height: '100%',
+                backgroundColor: colors.accent,
+                borderRadius: 24,
+              }}
+              containerStyle={{
+                height: '100%',
+                padding: 0,
+              }}
+            />
+          </View>
         </Animatable.View>
 
         {loading && (

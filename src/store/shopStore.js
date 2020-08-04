@@ -3,10 +3,8 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import '@react-native-firebase/functions';
-import Toast from '../components/Toast';
 import * as geolib from 'geolib';
 import {persist} from 'mobx-persist';
-import MapView from 'react-native-maps';
 
 const functions = firebase.app().functions('asia-northeast1');
 
@@ -42,11 +40,33 @@ class shopStore {
 
   @computed get validCheckout() {
     if (this.validItemQuantity && this.validItemQuantity.length > 0) {
-      console.log(Object.values(this.validItemQuantity));
       if (Object.values(this.validItemQuantity).includes(false)) {
         return false;
       }
     }
+
+    return true;
+  }
+
+  @computed get validPlaceOrder() {
+    if (this.cartStores.length > 0) {
+      const storeSelectedMethods = this.cartStores.map((storeName) => {
+        if (!this.storeSelectedPaymentMethod[storeName]) {
+          return false;
+        }
+
+        if (!this.storeSelectedShipping[storeName]) {
+          return false;
+        }
+
+        return true;
+      });
+
+      if (storeSelectedMethods.includes(false)) {
+        return false;
+      }
+    }
+
     return true;
   }
 

@@ -63,7 +63,11 @@ class App extends React.Component {
             if (!authStore.guest) {
               authStore.reloadUser();
 
-              if (shopStore.cartStores.length === 0) {
+              if (shopStore.cartStores.length !== 0) {
+                shopStore.updateCartItemsInstantly().then(() => {
+                  shopStore.getCartItems(userId);
+                });
+              } else {
                 shopStore.getCartItems(userId);
               }
 
