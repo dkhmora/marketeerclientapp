@@ -148,9 +148,8 @@ class SlidingCartPanel extends Component {
                 fontSize: 18,
                 marginRight: '20%',
               }}
-              buttonStyle={{backgroundColor: colors.accent}}
+              buttonStyle={{backgroundColor: colors.accent, borderRadius: 24}}
               containerStyle={{
-                borderRadius: 24,
                 padding: 0,
               }}
             />
@@ -181,11 +180,14 @@ class SlidingCartPanel extends Component {
               fontSize: 18,
               marginRight: '20%',
             }}
-            buttonStyle={{height: 50, backgroundColor: colors.accent}}
-            containerStyle={{
+            buttonStyle={{
+              height: 50,
+              backgroundColor: colors.accent,
               borderRadius: 24,
+            }}
+            containerStyle={{
               padding: 0,
-              marginBottom: Platform.OS === 'ios' ? 80 : 50,
+              marginBottom: Platform.OS === 'ios' ? 80 : 30,
               width: '100%',
             }}
           />
