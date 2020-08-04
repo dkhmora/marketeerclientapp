@@ -5,7 +5,7 @@ import {
 } from '@react-navigation/drawer';
 import MainScreen from '../screens/MainScreen';
 import {Text, Icon, ListItem, Avatar} from 'react-native-elements';
-import {View, Image} from 'react-native';
+import {View, Image, Linking} from 'react-native';
 import {colors} from '../../assets/colors';
 import {inject, observer} from 'mobx-react';
 import {computed} from 'mobx';
@@ -80,6 +80,24 @@ class MainDrawer extends Component {
         type: 'danger',
       });
     }
+  }
+
+  openTermsAndConditions() {
+    const url = 'https://marketeer.ph/components/pages/termsandconditions';
+
+    Linking.openURL(url);
+  }
+
+  openPrivacyPolicy() {
+    const url = 'https://marketeer.ph/components/pages/privacypolicy';
+
+    Linking.openURL(url);
+  }
+
+  openContactUs() {
+    const url = 'https://marketeer.ph/components/pages/contactus';
+
+    Linking.openURL(url);
   }
 
   customDrawer = (props) => {
@@ -171,11 +189,17 @@ class MainDrawer extends Component {
             leftIcon={
               <Icon name="help-circle" color={colors.primary} size={18} />
             }
+            onPress={() => this.openContactUs()}
             bottomDivider
           />
           <ListItem
-            title="Terms & Conditions / Privacy Policy"
-            leftIcon={<Icon name="book" color={colors.primary} size={18} />}
+            title="Terms & Conditions"
+            onPress={() => this.openTermsAndConditions()}
+          />
+          <ListItem
+            title="Privacy Policy"
+            onPress={() => this.openPrivacyPolicy()}
+            bottomDivider
           />
           <ListItem
             title={authenticationButtonText}
