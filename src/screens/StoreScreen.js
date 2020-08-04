@@ -186,7 +186,7 @@ class StoreScreen extends Component {
           style={{
             width: 200,
             height: 150,
-            resizeMode: 'center',
+            resizeMode: 'contain',
             position: 'absolute',
             top: '50%',
             left: '25%',
@@ -213,15 +213,7 @@ class StoreScreen extends Component {
           />
         </Animatable.View>
 
-        {Platform.OS === 'ios' ? (
-          <SafeAreaView>
-            <SafeAreaView>
-              <SlidingCartPanel navigation={navigation} />
-            </SafeAreaView>
-          </SafeAreaView>
-        ) : (
-          <SlidingCartPanel navigation={navigation} />
-        )}
+        <SlidingCartPanel navigation={navigation} />
       </View>
     );
   }

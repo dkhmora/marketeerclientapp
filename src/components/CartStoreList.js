@@ -14,12 +14,22 @@ class CartStoreList extends Component {
 
   render() {
     const dataSource = this.props.shopStore.cartStores.slice();
-    const {emptyCartText, checkout} = this.props;
+    const {
+      emptyCartText,
+      checkout,
+      onTouchEnd,
+      onTouchStart,
+      onTouchCancel,
+    } = this.props;
 
     return (
       <View style={{flex: 1}}>
         {dataSource.length > 0 ? (
-          <ScrollView style={{flex: 1}}>
+          <ScrollView
+            style={{flex: 1}}
+            onTouchEnd={() => onTouchEnd()}
+            onTouchStart={() => onTouchStart()}
+            onTouchCancel={() => onTouchCancel()}>
             {dataSource.map((merchantId, index) => {
               return (
                 <CartStoreCard

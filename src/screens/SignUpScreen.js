@@ -200,7 +200,7 @@ class SignUpScreen extends Component {
               style={{
                 height: 150,
                 width: 200,
-                resizeMode: 'center',
+                resizeMode: 'contain',
                 marginVertical: 20,
               }}
             />

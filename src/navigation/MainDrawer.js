@@ -67,11 +67,6 @@ class MainDrawer extends Component {
             text: 'Signed out successfully',
             duration: 3500,
           });
-        })
-        .then(() => {
-          this.props.shopStore.unsubscribeToGetCartItems &&
-            this.props.shopStore.unsubscribeToGetCartItems() &&
-            this.props.shopStore.resetData();
         });
     } else {
       Toast({
@@ -132,7 +127,7 @@ class MainDrawer extends Component {
             style={{
               height: 150,
               width: 150,
-              resizeMode: 'center',
+              resizeMode: 'contain',
               alignSelf: 'center',
             }}
           />

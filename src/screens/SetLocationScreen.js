@@ -389,7 +389,7 @@ class SetLocationScreen extends Component {
                   icon={
                     <Image
                       source={require('../../assets/images/logo_cart.png')}
-                      style={{width: 27, height: 27, resizeMode: 'center'}}
+                      style={{width: 27, height: 27, resizeMode: 'contain'}}
                       textStyle={{fontFamily: 'ProductSans-Light'}}
                     />
                   }

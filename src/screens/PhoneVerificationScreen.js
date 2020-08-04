@@ -115,8 +115,6 @@ class PhoneVerificationScreen extends Component {
       this.props.authStore
         .createUser(name, email, password, phoneNumber, credential, navigation)
         .then(() => {
-          this.props.shopStore.getCartItems(this.props.authStore.userId);
-
           if (checkout) {
             this.props.shopStore
               .setCartItems(this.props.authStore.userId)
@@ -158,7 +156,7 @@ class PhoneVerificationScreen extends Component {
 
                 navigation.replace('Home');
 
-                Toast({text: err, type: 'danger'});
+                Toast({text: err.message, type: 'danger'});
               });
           } else {
             navigation.dangerouslyGetParent().replace('Home');
@@ -201,7 +199,7 @@ class PhoneVerificationScreen extends Component {
 
           navigation.replace('Home');
 
-          Toast({text: err, type: 'danger'});
+          Toast({text: err.message, type: 'danger'});
         });
     }
   }
@@ -220,7 +218,7 @@ class PhoneVerificationScreen extends Component {
             style={{
               height: 150,
               width: 200,
-              resizeMode: 'center',
+              resizeMode: 'contain',
             }}
           />
         </View>

@@ -84,6 +84,12 @@ class App extends React.Component {
                   generalStore.appReady = true;
                 });
             } else {
+              if (shopStore.unsubscribeToGetCartItems) {
+                shopStore.unsubscribeToGetCartItems();
+              }
+
+              shopStore.resetData();
+
               generalStore.setCurrentLocation().then(() => {
                 generalStore.appReady = true;
               });

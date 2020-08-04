@@ -81,7 +81,7 @@ class authStore {
               .doc(this.userId)
               .update('fcmTokens', firestore.FieldValue.arrayUnion(token));
           })
-          .catch((err) => Toast({text: err, type: 'danger'}));
+          .catch((err) => Toast({text: err.message, type: 'danger'}));
       }
     }
   }
@@ -146,7 +146,7 @@ class authStore {
           });
         }
 
-        Toast({text: err.message, type: 'danger'});
+        Toast({text: err.message.message, type: 'danger'});
       });
   }
 
@@ -193,7 +193,7 @@ class authStore {
           });
         }
 
-        Toast({text: err, type: 'danger'});
+        Toast({text: err.message, type: 'danger'});
       });
   }
 
@@ -230,7 +230,7 @@ class authStore {
         }
         navigation.goBack();
 
-        Toast({text: err, type: 'danger'});
+        Toast({text: err.message, type: 'danger'});
       });
   }
 
@@ -296,7 +296,7 @@ class authStore {
                 duration: 3500,
               });
 
-              Toast({text: err, type: 'danger'});
+              Toast({text: err.message, type: 'danger'});
             });
         })
         .catch((err) => {
@@ -305,7 +305,7 @@ class authStore {
             duration: 3500,
           });
 
-          Toast({text: err, type: 'danger'});
+          Toast({text: err.message, type: 'danger'});
         });
     } else {
       return await auth()
@@ -329,7 +329,7 @@ class authStore {
               duration: 6000,
             });
           }
-          Toast({text: err, type: 'danger'});
+          Toast({text: err.message, type: 'danger'});
         });
     }
   }
@@ -343,7 +343,7 @@ class authStore {
       .then(() => {
         this.signInAnonymously();
       })
-      .catch((err) => Toast({text: err, type: 'danger'}));
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
   @action async checkAuthStatus() {
@@ -360,7 +360,7 @@ class authStore {
       .then(() => {
         this.userAuthenticated = true;
       })
-      .catch((err) => Toast({text: err, type: 'danger'}));
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 }
 

@@ -71,7 +71,7 @@ class OrderChatScreen extends Component {
           this.imagePath,
         ),
       )
-      .catch((err) => Toast({text: err, type: 'danger'}));
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
   handleSelectImage() {
@@ -95,7 +95,7 @@ class OrderChatScreen extends Component {
           this.imagePath,
         ),
       )
-      .catch((err) => Toast({text: err, type: 'danger'}));
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
   renderBubble(props) {

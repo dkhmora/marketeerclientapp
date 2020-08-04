@@ -12,18 +12,26 @@ import {Icon, Badge, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import CartStoreList from '../components/CartStoreList';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {initialWindowMetrics} from 'react-native-safe-area-context';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
+const SCREEN_WIDTH = Dimensions.get('window').width;
 const SLIDING_MENU_INITIAL_HEIGHT = 75;
 const SLIDING_MENU_EXTENDED_HEIGHT =
   SCREEN_HEIGHT - SLIDING_MENU_INITIAL_HEIGHT;
+const inset = initialWindowMetrics.insets;
+const landScape = SCREEN_WIDTH > SCREEN_HEIGHT;
+const bottomPadding = inset.bottom;
 @inject('shopStore')
 @inject('authStore')
 @observer
 class SlidingCartPanel extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      allowDragging: true,
+    };
   }
 
   componentDidMount() {
@@ -53,6 +61,7 @@ class SlidingCartPanel extends Component {
         friction={0.4}
         minimumVelocityThreshold={0.6}
         minimumDistanceThreshold={3}
+        allowDragging={this.state.allowDragging}
         snappingPoints={[
           SLIDING_MENU_INITIAL_HEIGHT,
           SLIDING_MENU_EXTENDED_HEIGHT,
@@ -60,7 +69,7 @@ class SlidingCartPanel extends Component {
         allowMomentum
         draggableRange={{
           top: SLIDING_MENU_EXTENDED_HEIGHT,
-          bottom: SLIDING_MENU_INITIAL_HEIGHT,
+          bottom: SLIDING_MENU_INITIAL_HEIGHT + bottomPadding,
         }}
         containerStyle={{
           backgroundColor: '#fff',
@@ -107,7 +116,7 @@ class SlidingCartPanel extends Component {
                 style={{
                   height: 35,
                   width: 40,
-                  resizeMode: 'center',
+                  resizeMode: 'contain',
                   tintColor: colors.primary,
                   marginRight: 10,
                 }}
@@ -161,7 +170,12 @@ class SlidingCartPanel extends Component {
               width: '100%',
               marginTop: 20,
             }}>
-            <CartStoreList emptyCartText="Your cart is empty" />
+            <CartStoreList
+              emptyCartText="Your cart is empty"
+              onTouchStart={() => this.setState({allowDragging: false})}
+              onTouchEnd={() => this.setState({allowDragging: true})}
+              onTouchCancel={() => this.setState({allowDragging: true})}
+            />
           </View>
 
           <Button

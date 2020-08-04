@@ -50,7 +50,7 @@ class generalStore {
         return data;
       })
       .catch((err) => {
-        Toast({text: err, type: 'danger'});
+        Toast({text: err.message, type: 'danger'});
       });
   }
 
@@ -70,7 +70,7 @@ class generalStore {
         }
       })
       .catch((err) => {
-        Toast({text: err, type: 'danger'});
+        Toast({text: err.message, type: 'danger'});
       });
   }
 
@@ -88,7 +88,7 @@ class generalStore {
         return response.data.locationDetails;
       })
       .catch((err) => {
-        Toast({text: err, type: 'danger'});
+        Toast({text: err.message, type: 'danger'});
       });
   }
 
@@ -117,7 +117,7 @@ class generalStore {
           resolve(position.coords);
         },
         (err) => {
-          Toast({text: err, type: 'danger'});
+          Toast({text: err.message, type: 'danger'});
           reject();
         },
         {
@@ -175,7 +175,7 @@ class generalStore {
           resolve();
         },
         (err) => {
-          Toast({text: err, type: 'danger'});
+          Toast({text: err.message, type: 'danger'});
 
           if (err.code === 2) {
             Toast({
@@ -233,7 +233,7 @@ class generalStore {
 
         return null;
       })
-      .catch((err) => Toast({text: err, type: 'danger'}));
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
   @action async updateCoordinates(
@@ -250,7 +250,7 @@ class generalStore {
         lastDeliveryLocationGeohash,
         lastDeliveryLocationAddress,
       })
-      .catch((err) => Toast({text: err, type: 'danger'}));
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
   @action async getImageURI(imageRef) {
@@ -301,7 +301,7 @@ class generalStore {
       .collection('orders')
       .doc(orderId)
       .update('messages', firestore.FieldValue.arrayUnion(message))
-      .catch((err) => Toast({text: err, type: 'danger'}));
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
   @action async createImageMessage(orderId, messageId, user, imageLink) {
@@ -317,7 +317,7 @@ class generalStore {
       .collection('orders')
       .doc(orderId)
       .update('messages', firestore.FieldValue.arrayUnion(message))
-      .catch((err) => Toast({text: err, type: 'danger'}));
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
   @action async sendImage(
@@ -347,7 +347,7 @@ class generalStore {
       .then((imageLink) =>
         this.createImageMessage(orderId, messageId, user, imageLink),
       )
-      .catch((err) => Toast({text: err, type: 'danger'}));
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
   @action async setOrders(userId) {
@@ -380,7 +380,7 @@ class generalStore {
           .slice()
           .sort((a, b) => b.updatedAt - a.updatedAt);
       })
-      .catch((err) => Toast({text: err, type: 'danger'}));
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
   @action async setOrderItems(orderId) {

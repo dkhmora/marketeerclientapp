@@ -146,7 +146,7 @@ class MainScreen extends Component {
           icon={
             <Image
               source={require('../../assets/images/logo_cart.png')}
-              style={{width: 30, height: 30, resizeMode: 'center'}}
+              style={{width: 30, height: 30, resizeMode: 'contain'}}
               textStyle={{fontFamily: 'ProductSans-Light'}}
             />
           }

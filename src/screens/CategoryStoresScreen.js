@@ -147,7 +147,7 @@ class CategoryStoresScreen extends Component {
           style={{
             width: 200,
             height: 150,
-            resizeMode: 'center',
+            resizeMode: 'contain',
             position: 'absolute',
             top: '50%',
             left: '25%',
