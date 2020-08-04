@@ -114,9 +114,7 @@ class generalStore {
         PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         ).then((granted) => {
-          if (granted === 'granted') {
-            console.log(granted);
-          } else {
+          if (granted !== 'granted') {
             Toast({
               text:
                 'Error, location permissions is required. Please enable location permissions.',

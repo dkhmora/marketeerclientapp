@@ -11,7 +11,7 @@ import {Text} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {inject, observer} from 'mobx-react';
 import * as Animatable from 'react-native-animatable';
-import {computed} from 'mobx';
+import {computed, when} from 'mobx';
 
 @inject('shopStore')
 @inject('generalStore')
@@ -24,6 +24,8 @@ class StoreList extends Component {
       refreshing: false,
       loading: true,
       onEndReachedCalledDuringMomentum: false,
+      currentLocation: null,
+      currentLocationGeohash: null,
     };
   }
 
@@ -35,9 +37,14 @@ class StoreList extends Component {
   componentDidMount() {
     const {categoryName} = this.props;
 
-    if (categoryName) {
-      this.getInitialStoreList();
-    }
+    when(
+      () =>
+        this.props.generalStore.currentLocation &&
+        this.props.generalStore.currentLocationGeohash,
+      () => {
+        this.getInitialStoreList();
+      },
+    );
 
     if (
       this.props.generalStore.appReady &&
@@ -52,17 +59,20 @@ class StoreList extends Component {
     const {categoryName} = this.props;
     const {currentLocationGeohash, currentLocation} = this.props.generalStore;
 
-    this.setState({refreshing: true});
-
-    this.props.shopStore
-      .getStoreList({
-        currentLocationGeohash,
-        locationCoordinates: currentLocation,
-        storeCategory: categoryName,
-      })
-      .then(() => {
-        this.setState({refreshing: false, loading: false});
-      });
+    this.setState(
+      {refreshing: true, currentLocationGeohash, currentLocation},
+      () => {
+        this.props.shopStore
+          .getStoreList({
+            currentLocationGeohash: this.state.currentLocationGeohash,
+            locationCoordinates: this.state.currentLocation,
+            storeCategory: categoryName,
+          })
+          .then(() => {
+            this.setState({refreshing: false, loading: false});
+          });
+      },
+    );
   }
 
   retrieveMoreStores() {
@@ -140,10 +150,14 @@ class StoreList extends Component {
 
     let dataSource = [];
 
-    if (!categoryName) {
-      dataSource = this.props.shopStore.storeList.slice();
-    } else if (categoryName && !loading) {
-      dataSource = this.props.shopStore.categoryStoreList[categoryName].slice();
+    if (!loading) {
+      if (!categoryName) {
+        dataSource = this.props.shopStore.storeList.slice();
+      } else {
+        dataSource = this.props.shopStore.categoryStoreList[
+          categoryName
+        ].slice();
+      }
     }
 
     return (

@@ -6,7 +6,7 @@ import {inject, observer} from 'mobx-react';
 import CartListItem from './CartListItem';
 import {colors} from '../../assets/colors';
 import storage from '@react-native-firebase/storage';
-import {observable, computed} from 'mobx';
+import {observable, computed, when} from 'mobx';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -95,13 +95,22 @@ class CartStoreCard extends Component {
       this.url = require('../../assets/images/placeholder.jpg');
     }
 
-    this.props.shopStore.storeSelectedShipping[
-      this.props.merchantId
-    ] = this.storeDetails.shippingMethods[0];
+    when(
+      () =>
+        this.storeDetails.shippingMethods &&
+        this.storeDetails.shippingMethods.length > 0 &&
+        this.storeDetails.paymentMethods &&
+        this.storeDetails.paymentMethods.length > 0,
+      () => {
+        this.props.shopStore.storeSelectedShipping[
+          this.props.merchantId
+        ] = this.storeDetails.shippingMethods[0];
 
-    this.props.shopStore.storeSelectedPaymentMethod[
-      this.props.merchantId
-    ] = this.storeDetails.paymentMethods[0];
+        this.props.shopStore.storeSelectedPaymentMethod[
+          this.props.merchantId
+        ] = this.storeDetails.paymentMethods[0];
+      },
+    );
   }
 
   render() {

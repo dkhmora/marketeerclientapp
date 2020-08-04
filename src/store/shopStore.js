@@ -41,7 +41,7 @@ class shopStore {
   }
 
   @computed get validCheckout() {
-    if (this.validItemQuantity) {
+    if (this.validItemQuantity && this.validItemQuantity.length > 0) {
       console.log(Object.values(this.validItemQuantity));
       if (Object.values(this.validItemQuantity).includes(false)) {
         return false;

@@ -42,12 +42,22 @@ YellowBox.ignoreWarnings([
 
 @observer
 class App extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      user: null,
+    };
+  }
+
   executeAuthStateListener() {
     this.authState = auth().onAuthStateChanged((user) => {
       authStore
         .checkAuthStatus()
         .then(() => {
           if (user) {
+            this.setState({user});
+
             const userId = user.uid;
 
             if (!authStore.guest) {
@@ -67,32 +77,11 @@ class App extends React.Component {
                   }
                 })
                 .then(() => {
-                  const {
-                    currentLocation,
-                    currentLocationGeohash,
-                  } = generalStore;
-
-                  shopStore
-                    .getStoreList({
-                      currentLocationGeohash,
-                      locationCoordinates: currentLocation,
-                    })
-                    .then(() => {
-                      generalStore.appReady = true;
-                    });
+                  generalStore.appReady = true;
                 });
             } else {
               generalStore.setCurrentLocation().then(() => {
-                const {currentLocation, currentLocationGeohash} = generalStore;
-
-                shopStore
-                  .getStoreList({
-                    currentLocationGeohash,
-                    locationCoordinates: currentLocation,
-                  })
-                  .then(() => {
-                    generalStore.appReady = true;
-                  });
+                generalStore.appReady = true;
               });
             }
 
@@ -118,7 +107,7 @@ class App extends React.Component {
         .then(() => {
           this.splashScreenTimer = setTimeout(
             this.hideSplashScreen.bind(this),
-            1000,
+            500,
           );
         });
     });
