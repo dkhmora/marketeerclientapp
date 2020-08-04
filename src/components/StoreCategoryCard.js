@@ -83,7 +83,7 @@ class StoreCategoryCard extends Component {
                 allowFontScaling
                 style={{
                   flex: 1,
-                  fontSize: Platform.OS === 'ios' ? 18 : 20,
+                  fontSize: Platform.OS === 'ios' ? 17.5 : 20,
                   color: colors.icons,
                   textAlign: 'center',
                 }}>

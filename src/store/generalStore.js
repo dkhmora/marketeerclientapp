@@ -189,6 +189,7 @@ class generalStore {
 
           if (this.navigation) {
             this.appReady = true;
+            this.addressLoading = false;
             this.navigation.navigate('Set Location', {
               checkout: false,
               locationError: true,
