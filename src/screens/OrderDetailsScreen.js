@@ -28,7 +28,7 @@ class OrderDetailsScreen extends Component {
 
   render() {
     const {order, orderStatus} = this.props.route.params;
-    const {userOrderNumber, quantity, shippingPrice, totalAmount} = order;
+    const {userOrderNumber, quantity, deliveryPrice, subTotal} = order;
 
     const {navigation} = this.props;
 
@@ -75,7 +75,7 @@ class OrderDetailsScreen extends Component {
               <View>
                 {orderItems.map((item, index) => {
                   return (
-                    <View style={{marginHorizontal: 15}} key={item.itemId}>
+                    <View key={item.itemId}>
                       <CartListItem item={item} checkout />
                     </View>
                   );
@@ -110,12 +110,13 @@ class OrderDetailsScreen extends Component {
                   <Text
                     style={{
                       fontSize: 18,
-                      color: colors.primary,
+                      color: colors.text_primary,
                       fontFamily: 'ProductSans-Black',
                     }}>
-                    ₱{totalAmount}
+                    ₱{subTotal}
                   </Text>
                 </View>
+
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <Text
                     style={{
@@ -123,15 +124,19 @@ class OrderDetailsScreen extends Component {
                       color: colors.text_primary,
                       fontFamily: 'ProductSans-Light',
                     }}>
-                    Estimated Shipping Price:{' '}
+                    Delivery Price:{' '}
                   </Text>
                   <Text
                     style={{
                       fontSize: 18,
-                      color: colors.primary,
+                      color: colors.text_primary,
                       fontFamily: 'ProductSans-Black',
                     }}>
-                    ₱{shippingPrice}130-200
+                    {deliveryPrice && deliveryPrice > 0
+                      ? `₱${deliveryPrice}`
+                      : !deliveryPrice
+                      ? '(Contact Merchant)'
+                      : '₱0 (Free Delivery)'}
                   </Text>
                 </View>
               </Right>
@@ -151,10 +156,10 @@ class OrderDetailsScreen extends Component {
                   <Text
                     style={{
                       fontSize: 18,
-                      color: colors.primary,
+                      color: colors.text_primary,
                       fontFamily: 'ProductSans-Black',
                     }}>
-                    ₱{totalAmount + 130} - ₱{totalAmount + 200}
+                    ₱{subTotal + (deliveryPrice ? deliveryPrice : 0)}
                   </Text>
                 </View>
               </Right>

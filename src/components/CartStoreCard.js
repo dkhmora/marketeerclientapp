@@ -25,8 +25,9 @@ class CartStoreCard extends Component {
   @computed get orderTotal() {
     const {ownDeliveryServiceFee} = this.storeDetails;
 
-    return this.props.shopStore.storeSelectedShipping[this.props.merchantId] ===
-      'Own Delivery'
+    return this.props.shopStore.storeSelectedDeliveryMethod[
+      this.props.merchantId
+    ] === 'Own Delivery'
       ? this.subTotal + ownDeliveryServiceFee
       : this.subTotal;
   }
@@ -88,6 +89,7 @@ class CartStoreCard extends Component {
 
   componentDidMount() {
     const {displayImage} = this.storeDetails;
+    const {checkout} = this.props;
 
     if (displayImage) {
       this.getImage(displayImage);
@@ -95,22 +97,29 @@ class CartStoreCard extends Component {
       this.url = require('../../assets/images/placeholder.jpg');
     }
 
-    when(
-      () =>
-        this.storeDetails.shippingMethods &&
-        this.storeDetails.shippingMethods.length > 0 &&
-        this.storeDetails.paymentMethods &&
-        this.storeDetails.paymentMethods.length > 0,
-      () => {
-        this.props.shopStore.storeSelectedShipping[
-          this.props.merchantId
-        ] = this.storeDetails.shippingMethods[0];
+    if (checkout) {
+      when(
+        () =>
+          this.storeDetails.shippingMethods &&
+          this.storeDetails.shippingMethods.length > 0 &&
+          this.storeDetails.paymentMethods &&
+          this.storeDetails.paymentMethods.length > 0,
+        () => {
+          this.props.shopStore.storeSelectedDeliveryMethod[
+            this.props.merchantId
+          ] = this.storeDetails.shippingMethods[0];
 
-        this.props.shopStore.storeSelectedPaymentMethod[
-          this.props.merchantId
-        ] = this.storeDetails.paymentMethods[0];
-      },
-    );
+          this.props.shopStore.storeSelectedPaymentMethod[
+            this.props.merchantId
+          ] = this.storeDetails.paymentMethods[0];
+        },
+      );
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.shopStore.storeSelectedDeliveryMethod = {};
+    this.props.shopStore.storeSelectedPaymentMethod = {};
   }
 
   render() {
@@ -225,17 +234,29 @@ class CartStoreCard extends Component {
                 </Text>
               </View>
 
-              <Text
-                style={{
-                  fontFamily: 'ProductSans-Black',
-                  fontSize: 14,
-                  textAlignVertical: 'center',
-                }}>
-                {this.props.shopStore.storeSelectedShipping[merchantId] ===
-                'Own Delivery'
-                  ? `₱${ownDeliveryServiceFee}`
-                  : `(To be determined with merchant)`}
-              </Text>
+              {this.props.shopStore.storeSelectedDeliveryMethod[merchantId] ===
+              'Own Delivery' ? (
+                <Text
+                  style={{
+                    fontFamily: 'ProductSans-Black',
+                    fontSize: 18,
+                    textAlignVertical: 'center',
+                  }}>
+                  {this.subTotal >= this.storeDetails.freeDeliveryMinimum &&
+                  this.storeDetails.freeDelivery
+                    ? 'Free Delivery'
+                    : `₱${ownDeliveryServiceFee}`}
+                </Text>
+              ) : (
+                <Text
+                  style={{
+                    fontFamily: 'ProductSans-Black',
+                    fontSize: 14,
+                    textAlignVertical: 'center',
+                  }}>
+                  (Please discuss with merchant)
+                </Text>
+              )}
             </View>
 
             <View
@@ -288,10 +309,10 @@ class CartStoreCard extends Component {
                   mode="dropdown"
                   style={{flex: 1}}
                   selectedValue={
-                    this.props.shopStore.storeSelectedShipping[merchantId]
+                    this.props.shopStore.storeSelectedDeliveryMethod[merchantId]
                   }
                   onValueChange={(value) => {
-                    this.props.shopStore.storeSelectedShipping[
+                    this.props.shopStore.storeSelectedDeliveryMethod[
                       merchantId
                     ] = value;
                   }}>

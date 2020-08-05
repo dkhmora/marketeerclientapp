@@ -49,7 +49,7 @@ class CheckoutScreen extends Component {
     } = this.props.generalStore;
     const {
       storeCartItems,
-      storeSelectedShipping,
+      storeSelectedDeliveryMethod,
       storeSelectedPaymentMethod,
     } = this.props.shopStore;
 
@@ -77,7 +77,7 @@ class CheckoutScreen extends Component {
         userCoordinates,
         userName,
         storeCartItems,
-        storeSelectedShipping,
+        storeSelectedDeliveryMethod,
         storeSelectedPaymentMethod,
       })
       .then(async (response) => {
@@ -167,7 +167,10 @@ class CheckoutScreen extends Component {
         <Animatable.View
           useNativeDriver
           animation="fadeInUpBig"
-          style={[styles.footer, {paddingBottom: 100, paddingHorizontal: 10}]}>
+          style={[
+            styles.footer,
+            {paddingBottom: 100, paddingHorizontal: 10, overflow: 'hidden'},
+          ]}>
           <CartStoreList
             checkout
             emptyCartText={`This seems lonely...${'\n'}

@@ -13,7 +13,7 @@ const userCartCollection = firestore().collection('user_carts');
 const merchantsCollection = firestore().collection('merchants');
 class shopStore {
   @persist('object') @observable storeCartItems = {};
-  @observable storeSelectedShipping = {};
+  @observable storeSelectedDeliveryMethod = {};
   @observable storeSelectedPaymentMethod = {};
   @observable storeCategories = [];
   @observable storeList = [];
@@ -56,7 +56,7 @@ class shopStore {
           return false;
         }
 
-        if (!this.storeSelectedShipping[storeName]) {
+        if (!this.storeSelectedDeliveryMethod[storeName]) {
           return false;
         }
 
@@ -77,16 +77,23 @@ class shopStore {
     if (this.storeCartItems) {
       Object.keys(this.storeCartItems).map((merchantId) => {
         const storeDetails = this.getStoreDetails(merchantId);
+        let storeTotal = 0;
 
         this.storeCartItems[merchantId].map(async (item) => {
           let itemTotal = item.quantity * item.price;
 
-          if (this.storeSelectedShipping[merchantId] === 'Own Delivery') {
-            itemTotal += storeDetails.ownDeliveryServiceFee;
-          }
-
-          amount = itemTotal + amount;
+          storeTotal += itemTotal;
         });
+
+        if (
+          this.storeSelectedDeliveryMethod[merchantId] === 'Own Delivery' &&
+          storeDetails.freeDeliveryMinimum > storeTotal &&
+          storeDetails.freeDelivery
+        ) {
+          amount += storeDetails.ownDeliveryServiceFee;
+        }
+
+        amount += storeTotal;
       });
     }
 
@@ -145,7 +152,7 @@ class shopStore {
     deliveryAddress,
     userCoordinates,
     userName,
-    storeSelectedShipping,
+    storeSelectedDeliveryMethod,
     storeSelectedPaymentMethod,
   }) {
     const userId = auth().currentUser.uid;
@@ -159,7 +166,7 @@ class shopStore {
             deliveryAddress,
             userCoordinates,
             userName,
-            storeSelectedShipping,
+            storeSelectedDeliveryMethod,
             storeSelectedPaymentMethod,
           }),
         });
@@ -174,7 +181,7 @@ class shopStore {
 
   @action resetData() {
     this.storeCartItems = {};
-    this.storeSelectedShipping = {};
+    this.storeSelectedDeliveryMethod = {};
     this.itemCategories = [];
   }
 
