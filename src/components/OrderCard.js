@@ -257,6 +257,7 @@ class OrderCard extends PureComponent {
       userOrderNumber,
       quantity,
       subTotal,
+      deliveryPrice,
       paymentMethod,
       createdAt,
     } = order;
@@ -386,7 +387,7 @@ class OrderCard extends PureComponent {
                       fontFamily: 'ProductSans-Bold',
                       textAlign: 'center',
                     }}>
-                    ₱{subTotal}
+                    ₱{subTotal + (deliveryPrice ? deliveryPrice : 0)}
                   </Text>
 
                   <Text>Total Amount</Text>

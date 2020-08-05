@@ -134,7 +134,7 @@ class OrderDetailsScreen extends Component {
                     }}>
                     {deliveryPrice && deliveryPrice > 0
                       ? `₱${deliveryPrice}`
-                      : !deliveryPrice
+                      : deliveryPrice === null
                       ? '(Contact Merchant)'
                       : '₱0 (Free Delivery)'}
                   </Text>
