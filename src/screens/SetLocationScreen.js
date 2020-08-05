@@ -424,7 +424,7 @@ class SetLocationScreen extends Component {
         <View
           style={{
             position: 'absolute',
-            bottom: '12%',
+            bottom: '20%',
             right: 20,
           }}>
           <Button
