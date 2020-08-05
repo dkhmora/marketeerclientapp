@@ -27,9 +27,9 @@ class CartStoreList extends Component {
         {dataSource.length > 0 ? (
           <ScrollView
             style={{flex: 1}}
-            onTouchEnd={() => onTouchEnd()}
-            onTouchStart={() => onTouchStart()}
-            onTouchCancel={() => onTouchCancel()}>
+            onTouchEnd={() => onTouchEnd && onTouchEnd()}
+            onTouchStart={() => onTouchStart && onTouchStart()}
+            onTouchCancel={() => onTouchCancel && onTouchCancel()}>
             {dataSource.map((merchantId, index) => {
               return (
                 <CartStoreCard
