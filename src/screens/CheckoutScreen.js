@@ -220,9 +220,12 @@ class CheckoutScreen extends Component {
             </Text>
 
             <Text
+              numberOfLines={1}
+              adjustsFontSizeToFit
               style={{
                 color: colors.icons,
                 fontSize: 16,
+                textAlign: 'center',
               }}>
               Total Amount
             </Text>
