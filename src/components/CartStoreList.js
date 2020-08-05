@@ -23,7 +23,7 @@ class CartStoreList extends Component {
     } = this.props;
 
     return (
-      <View style={{flex: 1}}>
+      <View style={{flex: 1, marginVertical: -10}}>
         {dataSource.length > 0 ? (
           <ScrollView
             style={{flex: 1}}
@@ -39,6 +39,7 @@ class CartStoreList extends Component {
                 />
               );
             })}
+            <View style={{height: 10}} />
           </ScrollView>
         ) : (
           <View

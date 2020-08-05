@@ -76,7 +76,14 @@ class CartScreen extends Component {
         <Animatable.View
           useNativeDriver
           animation="fadeInUpBig"
-          style={[styles.footer, {paddingBottom: 100, paddingHorizontal: 10}]}>
+          style={[
+            styles.footer,
+            {
+              paddingBottom: 100,
+              paddingHorizontal: 10,
+              overflow: 'hidden',
+            },
+          ]}>
           <CartStoreList
             emptyCartText={`This seems lonely...${'\n'}
               ${'\n'}Go back and visit a store now and add items to your cart!`}
