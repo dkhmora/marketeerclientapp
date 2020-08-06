@@ -13,6 +13,7 @@ const userCartCollection = firestore().collection('user_carts');
 const merchantsCollection = firestore().collection('merchants');
 class shopStore {
   @persist('object') @observable storeCartItems = {};
+  @observable storeDetails = {};
   @observable storeSelectedDeliveryMethod = {};
   @observable storeSelectedPaymentMethod = {};
   @observable storeCategories = [];
@@ -110,17 +111,26 @@ class shopStore {
   }
 
   @action async getStoreDetailsFromMerchantId(merchantId) {
-    const storeDetails = await firestore()
-      .collection('merchants')
-      .doc(merchantId)
-      .get()
-      .then((document) => {
-        if (document.exists) {
-          return document.data();
-        }
-      });
+    return await new Promise(async (resolve, reject) => {
+      const storeDetails = await this.getStoreDetails(merchantId);
 
-    return storeDetails;
+      if (storeDetails) {
+        return resolve(storeDetails);
+      }
+
+      return await firestore()
+        .collection('merchants')
+        .doc(merchantId)
+        .get()
+        .then((document) => {
+          if (document.exists) {
+            return resolve(document.data());
+          }
+        })
+        .catch((err) => {
+          return reject(err);
+        });
+    });
   }
 
   @action async setStoreCategories() {

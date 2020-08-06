@@ -7,7 +7,6 @@ import {colors} from '../../assets/colors';
 import storage from '@react-native-firebase/storage';
 import {observer, inject} from 'mobx-react';
 import StoreCategoryCardLoader from './StoreCategoryCardLoader';
-import Toast from './Toast';
 
 @inject('shopStore')
 @observer

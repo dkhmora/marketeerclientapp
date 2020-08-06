@@ -1,19 +1,12 @@
 import React, {Component} from 'react';
-import {View, Image} from 'react-native';
-import {Container, Input, Item} from 'native-base';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {View} from 'react-native';
+import {Container} from 'native-base';
 import BaseHeader from '../components/BaseHeader';
 import {Button, Icon, Avatar, Text} from 'react-native-elements';
-import {
-  GiftedChat,
-  Bubble,
-  Send,
-  Composer,
-  MessageImage,
-} from 'react-native-gifted-chat';
+import {GiftedChat, Bubble, Send} from 'react-native-gifted-chat';
 import {inject, observer} from 'mobx-react';
 import ImagePicker from 'react-native-image-crop-picker';
-import {observable, computed} from 'mobx';
+import {observable} from 'mobx';
 import {colors} from '../../assets/colors';
 import Toast from '../components/Toast';
 import ConfirmationModal from '../components/ConfirmationModal';

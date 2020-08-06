@@ -1,24 +1,12 @@
 import React, {Component} from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  Platform,
-  StyleSheet,
-  ScrollView,
-  StatusBar,
-  Image,
-  SafeAreaView,
-} from 'react-native';
+import {View, Text, StatusBar, Image, SafeAreaView} from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
-import {Icon, SocialIcon, Button} from 'react-native-elements';
+import {Icon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import CartStoreList from '../components/CartStoreList';
 import BackButton from '../components/BackButton';
-import {computed} from 'mobx';
 
 @inject('shopStore')
 @inject('authStore')

@@ -5,7 +5,6 @@ import {inject, observer} from 'mobx-react';
 import {Card, CardItem} from 'native-base';
 import {Text, Button, Icon, Input, Overlay} from 'react-native-elements';
 import {colors} from '../../assets/colors';
-import {computed} from 'mobx';
 import Toast from '../components/Toast';
 import {styles} from '../../assets/styles';
 

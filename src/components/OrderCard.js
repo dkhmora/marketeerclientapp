@@ -21,6 +21,7 @@ import {colors} from '../../assets/colors';
 import OrderCardLoader from './OrderCardLoader';
 import AddReviewModal from './AddReviewModal';
 import Toast from './Toast';
+import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -143,6 +144,8 @@ class OrderCard extends PureComponent {
 
   CardHeader = ({
     imageUrl,
+    imagePath,
+    imageReady,
     paymentMethod,
     userOrderNumber,
     orderStatus,
@@ -161,18 +164,34 @@ class OrderCard extends PureComponent {
               flexDirection: 'row',
               alignItems: 'center',
             }}>
-            <FastImage
-              source={imageUrl}
-              style={{
-                height: 35,
-                width: 35,
-                borderRadius: 10,
-                borderWidth: 1,
-                borderColor: colors.primary,
-                marginRight: 10,
-              }}
-              resizeMode={FastImage.resizeMode.cover}
-            />
+            {imagePath && imageReady ? (
+              <FastImage
+                source={imageUrl}
+                style={{
+                  height: 35,
+                  width: 35,
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: colors.primary,
+                  marginRight: 10,
+                }}
+                resizeMode={FastImage.resizeMode.cover}
+              />
+            ) : (
+              <Placeholder Animation={Fade}>
+                <PlaceholderMedia
+                  style={{
+                    height: 35,
+                    width: 35,
+                    borderRadius: 10,
+                    borderWidth: 1,
+                    borderColor: colors.primary,
+                    marginRight: 10,
+                  }}
+                />
+              </Placeholder>
+            )}
+
             <View>
               <View style={{flexDirection: 'row'}}>
                 <Text
@@ -180,6 +199,7 @@ class OrderCard extends PureComponent {
                   style={{color: colors.text_primary, fontSize: 18}}>
                   {storeDetails.storeName}
                 </Text>
+
                 <View
                   style={{
                     borderRadius: 20,
@@ -199,12 +219,14 @@ class OrderCard extends PureComponent {
                   </Text>
                 </View>
               </View>
+
               <View style={{flexDirection: 'row'}}>
                 <Text
                   note
                   style={{color: colors.text_secondary, marginRight: 8}}>
                   Order # {userOrderNumber}
                 </Text>
+
                 <Text style={{color: colors.primary}}>{orderStatus}</Text>
               </View>
             </View>
@@ -339,11 +361,13 @@ class OrderCard extends PureComponent {
           </Modal>
         </View>
 
-        <Card style={{borderRadius: 8, overflow: 'hidden'}}>
-          {ready ? (
+        {this.state.storeDetails ? (
+          <Card style={{borderRadius: 8, overflow: 'hidden'}}>
             <View style={{height: 175}}>
               <this.CardHeader
                 imageUrl={url}
+                imagePath={this.state.storeDetails.displayImage}
+                imageReady={ready}
                 userOrderNumber={userOrderNumber}
                 paymentMethod={paymentMethod}
                 orderStatus={this.orderStatus}
@@ -401,12 +425,12 @@ class OrderCard extends PureComponent {
                 reviewed={reviewed}
               />
             </View>
-          ) : (
-            <View style={{padding: 10, height: 175}}>
-              <OrderCardLoader />
-            </View>
-          )}
-        </Card>
+          </Card>
+        ) : (
+          <View style={{padding: 10, height: 175}}>
+            <OrderCardLoader />
+          </View>
+        )}
       </View>
     );
   }

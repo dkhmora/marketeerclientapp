@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import ItemsList from '../components/ItemsList';
 import {View, ActivityIndicator, Dimensions} from 'react-native';
-import {Text} from 'react-native-elements';
 import {computed} from 'mobx';
 import {colors} from '../../assets/colors';
 

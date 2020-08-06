@@ -1,6 +1,5 @@
-import React, {Component, PureComponent} from 'react';
+import React, {PureComponent} from 'react';
 import {Card, CardItem, Text, View} from 'native-base';
-import {Image} from 'react-native';
 import {Button, Icon} from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 import {inject, observer} from 'mobx-react';
@@ -11,7 +10,7 @@ import {styles} from '../../assets/styles';
 import FastImage from 'react-native-fast-image';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import ItemDescriptionModal from './ItemDescriptionModal';
-import ItemCardLoader from './ItemCardLoader';
+import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
 @inject('authStore')
 @inject('shopStore')
 @observer
@@ -161,6 +160,7 @@ class ItemCard extends PureComponent {
       name,
       price,
       discountedPrice,
+      image,
       stock,
       unit,
       description,
@@ -168,104 +168,113 @@ class ItemCard extends PureComponent {
 
     const {addButtonDisabled, loading} = this.state;
 
-    if (!loading) {
-      return (
-        <Animatable.View
-          useNativeDriver
-          animation="fadeIn"
-          duration={350}
+    return (
+      <Animatable.View
+        useNativeDriver
+        animation="fadeIn"
+        duration={350}
+        style={{
+          flex: 1,
+          flexDirection: 'column',
+          marginHorizontal: 6,
+          marginVertical: 3,
+        }}>
+        <ItemDescriptionModal
+          isVisible={this.state.overlay}
+          onBackdropPress={() => this.setState({overlay: false})}
+          description={description}
+          name={name}
+          price={price}
+          discountedPrice={discountedPrice}
+          unit={unit}
+          stock={stock}
+          url={this.url}
+        />
+
+        <Card
           style={{
-            flex: 1,
-            flexDirection: 'column',
-            marginHorizontal: 6,
-            marginVertical: 3,
+            borderRadius: 10,
+            overflow: 'hidden',
           }}>
-          <ItemDescriptionModal
-            isVisible={this.state.overlay}
-            onBackdropPress={() => this.setState({overlay: false})}
-            description={description}
-            name={name}
-            price={price}
-            discountedPrice={discountedPrice}
-            unit={unit}
-            stock={stock}
-            url={this.url}
-          />
-
-          <Card
+          <View
             style={{
-              borderRadius: 10,
-              overflow: 'hidden',
+              backgroundColor: colors.icons,
+              paddingHorizontal: 10,
+              paddingVertical: 10,
+              elevation: 3,
+              zIndex: 10,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 1,
+              },
+              shadowOpacity: 0.2,
+              shadowRadius: 1.41,
+              borderBottomLeftRadius: 10,
+              borderBottomRightRadius: 10,
             }}>
-            <View
-              style={{
-                backgroundColor: colors.icons,
-                paddingHorizontal: 10,
-                paddingVertical: 10,
-                elevation: 3,
-                zIndex: 10,
-                shadowColor: '#000',
-                shadowOffset: {
-                  width: 0,
-                  height: 1,
-                },
-                shadowOpacity: 0.2,
-                shadowRadius: 1.41,
-                borderBottomLeftRadius: 10,
-                borderBottomRightRadius: 10,
-              }}>
-              <TouchableOpacity onPress={() => this.setState({overlay: true})}>
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: 0,
-                  }}>
-                  <View style={{flex: 1, flexDirection: 'column'}}>
-                    <Text
-                      style={{
-                        color: colors.text_secondary,
-                        fontFamily: 'ProductSans-Regular',
-                      }}>
-                      {name}
-                    </Text>
+            <TouchableOpacity onPress={() => this.setState({overlay: true})}>
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: 0,
+                }}>
+                <View style={{flex: 1, flexDirection: 'column'}}>
+                  <Text
+                    style={{
+                      color: colors.text_secondary,
+                      fontFamily: 'ProductSans-Regular',
+                    }}>
+                    {name}
+                  </Text>
 
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                      {discountedPrice && (
-                        <Text
-                          style={{
-                            textDecorationLine: 'line-through',
-                            textDecorationStyle: 'solid',
-                            color: colors.text_secondary,
-                            fontSize: 14,
-                            marginRight: 5,
-                          }}>
-                          ₱{price}
-                        </Text>
-                      )}
-
+                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    {discountedPrice && (
                       <Text
                         style={{
-                          color: colors.text_primary,
-                          fontFamily: 'ProductSans-Black',
+                          textDecorationLine: 'line-through',
+                          textDecorationStyle: 'solid',
+                          color: colors.text_secondary,
+                          fontSize: 14,
+                          marginRight: 5,
                         }}>
-                        ₱{discountedPrice ? discountedPrice : price}
-                        {unit && `/${unit}`}
+                        ₱{price}
                       </Text>
-                    </View>
-                  </View>
+                    )}
 
-                  <View style={{width: 30}}>
-                    <Icon name="info" color={colors.primary} />
+                    <Text
+                      style={{
+                        color: colors.text_primary,
+                        fontFamily: 'ProductSans-Black',
+                      }}>
+                      ₱{discountedPrice ? discountedPrice : price}
+                      {unit && `/${unit}`}
+                    </Text>
                   </View>
                 </View>
-              </TouchableOpacity>
-            </View>
 
-            <CardItem cardBody>
-              {this.url ? (
+                <View style={{width: 30}}>
+                  <Icon name="info" color={colors.primary} />
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <CardItem cardBody>
+            {image !== '' ? (
+              loading ? (
+                <Placeholder Animation={Fade}>
+                  <PlaceholderMedia
+                    style={{
+                      width: '100%',
+                      aspectRatio: 1,
+                    }}
+                  />
+                </Placeholder>
+              ) : (
                 <FastImage
                   source={{uri: this.url}}
                   style={{
@@ -276,67 +285,79 @@ class ItemCard extends PureComponent {
                   }}
                   resizeMode={FastImage.resizeMode.contain}
                 />
-              ) : (
-                <FastImage
-                  source={require('../../assets/images/placeholder.jpg')}
-                  style={{
-                    aspectRatio: 1,
-                    flex: 1,
-                    marginTop: -10,
-                    backgroundColor: '#e1e4e8',
-                  }}
-                  resizeMode={FastImage.resizeMode.contain}
-                />
-              )}
-
-              <View
+              )
+            ) : (
+              <FastImage
+                source={require('../../assets/images/placeholder.jpg')}
                 style={{
-                  flexDirection: 'row',
-                  position: 'absolute',
-                  bottom: 10,
-                  left: 10,
-                  borderRadius: 10,
-                  borderWidth: 1,
-                  backgroundColor: colors.icons,
-                  opacity: 0.9,
-                  borderColor: colors.text_secondary,
-                  padding: 5,
-                  alignItems: 'center',
-                }}>
-                <Text style={{fontSize: 14}}>{stock}</Text>
-
-                <Text
-                  style={{
-                    fontSize: 14,
-                    textAlign: 'center',
-                    color: colors.text_secondary,
-                  }}>
-                  {' '}
-                  Left
-                </Text>
-              </View>
-            </CardItem>
+                  aspectRatio: 1,
+                  flex: 1,
+                  marginTop: -10,
+                  backgroundColor: '#e1e4e8',
+                }}
+                resizeMode={FastImage.resizeMode.contain}
+              />
+            )}
 
             <View
               style={{
                 flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
                 position: 'absolute',
                 bottom: 10,
-                right: 10,
+                left: 10,
+                borderRadius: 10,
+                borderWidth: 1,
+                backgroundColor: colors.icons,
+                opacity: 0.9,
+                borderColor: colors.text_secondary,
+                padding: 5,
+                alignItems: 'center',
               }}>
-              <Animatable.View
-                ref={(buttonCounterView) =>
-                  (this.buttonCounterView = buttonCounterView)
-                }
-                useNativeDriver
+              <Text style={{fontSize: 14}}>{stock}</Text>
+
+              <Text
                 style={{
-                  flexDirection: 'row',
-                  opacity: 0,
-                  backgroundColor: '#fff',
-                  borderTopLeftRadius: 24,
-                  borderBottomLeftRadius: 24,
+                  fontSize: 14,
+                  textAlign: 'center',
+                  color: colors.text_secondary,
+                }}>
+                {' '}
+                Left
+              </Text>
+            </View>
+          </CardItem>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'absolute',
+              bottom: 10,
+              right: 10,
+            }}>
+            <Animatable.View
+              ref={(buttonCounterView) =>
+                (this.buttonCounterView = buttonCounterView)
+              }
+              useNativeDriver
+              style={{
+                flexDirection: 'row',
+                opacity: 0,
+                backgroundColor: '#fff',
+                borderTopLeftRadius: 24,
+                borderBottomLeftRadius: 24,
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.25,
+                shadowRadius: 1.84,
+                elevation: 2,
+              }}>
+              <View
+                style={{
                   shadowColor: '#000',
                   shadowOffset: {
                     width: 0,
@@ -344,144 +365,111 @@ class ItemCard extends PureComponent {
                   },
                   shadowOpacity: 0.25,
                   shadowRadius: 1.84,
-                  elevation: 2,
+                  paddingRight: 4,
                 }}>
-                <View
-                  style={{
-                    shadowColor: '#000',
-                    shadowOffset: {
-                      width: 0,
-                      height: 2,
+                <Button
+                  onPress={() => this.handleDecreaseQuantity()}
+                  type="clear"
+                  color={colors.icons}
+                  icon={
+                    this.cartItemQuantity === 1 ? (
+                      <Icon name="trash-2" color={colors.primary} />
+                    ) : (
+                      <Icon name="minus" color={colors.primary} />
+                    )
+                  }
+                  containerStyle={[
+                    styles.buttonContainer,
+                    {
+                      backgroundColor: '#fff',
+                      height: 40,
+                      borderRadius: 24,
+                      elevation: 3,
+                      shadowColor: '#000',
+                      shadowOffset: {
+                        width: 0,
+                        height: 1,
+                      },
+                      shadowOpacity: 0.22,
+                      shadowRadius: 2.22,
                     },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 1.84,
+                  ]}
+                />
+              </View>
+
+              <View
+                style={{
+                  backgroundColor: '#fff',
+                  height: 40,
+                  width: 40,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontFamily: 'ProductSans-Black',
                     paddingRight: 4,
+                    color:
+                      this.cartItemQuantity > stock && stock
+                        ? '#F44336'
+                        : colors.text_primary,
                   }}>
-                  <Button
-                    onPress={() => this.handleDecreaseQuantity()}
-                    type="clear"
-                    color={colors.icons}
-                    icon={
-                      this.cartItemQuantity === 1 ? (
-                        <Icon name="trash-2" color={colors.primary} />
-                      ) : (
-                        <Icon name="minus" color={colors.primary} />
-                      )
-                    }
-                    containerStyle={[
-                      styles.buttonContainer,
-                      {
-                        backgroundColor: '#fff',
-                        height: 40,
-                        borderRadius: 24,
-                        elevation: 3,
-                        shadowColor: '#000',
-                        shadowOffset: {
-                          width: 0,
-                          height: 1,
-                        },
-                        shadowOpacity: 0.22,
-                        shadowRadius: 2.22,
-                      },
-                    ]}
-                  />
-                </View>
+                  {this.cartItemQuantity}
+                </Text>
+              </View>
+            </Animatable.View>
 
-                <View
-                  style={{
-                    backgroundColor: '#fff',
-                    height: 40,
-                    width: 40,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <Text
-                    style={{
-                      textAlign: 'center',
-                      fontFamily: 'ProductSans-Black',
-                      paddingRight: 4,
-                      color:
-                        this.cartItemQuantity > stock && stock
-                          ? '#F44336'
-                          : colors.text_primary,
-                    }}>
-                    {this.cartItemQuantity}
-                  </Text>
-                </View>
-              </Animatable.View>
-
-              <Animatable.View
-                ref={(plusButton) => (this.plusButton = plusButton)}
-                useNativeDriver
-                style={[
-                  styles.buttonContainer,
-                  {
-                    borderRadius: 24,
-                    backgroundColor: '#fff',
-                    height: 40,
-                    elevation: 2,
+            <Animatable.View
+              ref={(plusButton) => (this.plusButton = plusButton)}
+              useNativeDriver
+              style={[
+                styles.buttonContainer,
+                {
+                  borderRadius: 24,
+                  backgroundColor: '#fff',
+                  height: 40,
+                  elevation: 2,
+                },
+              ]}>
+              <View
+                style={{
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 2,
                   },
-                ]}>
-                <View
-                  style={{
-                    shadowColor: '#000',
-                    shadowOffset: {
-                      width: 0,
-                      height: 2,
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
+                }}>
+                <Button
+                  onPress={() => this.handleIncreaseQuantity()}
+                  disabled={addButtonDisabled}
+                  type="clear"
+                  color={colors.icons}
+                  icon={
+                    <Icon
+                      name="plus"
+                      color={
+                        addButtonDisabled
+                          ? colors.text_secondary
+                          : colors.primary
+                      }
+                    />
+                  }
+                  containerStyle={[
+                    styles.buttonContainer,
+                    {
+                      backgroundColor: '#fff',
+                      height: 40,
+                      borderRadius: 24,
+                      elevation: 3,
                     },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 3.84,
-                  }}>
-                  <Button
-                    onPress={() => this.handleIncreaseQuantity()}
-                    disabled={addButtonDisabled}
-                    type="clear"
-                    color={colors.icons}
-                    icon={
-                      <Icon
-                        name="plus"
-                        color={
-                          addButtonDisabled
-                            ? colors.text_secondary
-                            : colors.primary
-                        }
-                      />
-                    }
-                    containerStyle={[
-                      styles.buttonContainer,
-                      {
-                        backgroundColor: '#fff',
-                        height: 40,
-                        borderRadius: 24,
-                        elevation: 3,
-                      },
-                    ]}
-                  />
-                </View>
-              </Animatable.View>
-            </View>
-          </Card>
-        </Animatable.View>
-      );
-    }
-
-    return (
-      <Animatable.View
-        useNativeDriver
-        animation="fadeInUp"
-        duration={350}
-        style={{
-          flex: 1,
-          flexDirection: 'column',
-          marginHorizontal: 6,
-          marginVertical: 3,
-        }}>
-        <Card
-          style={{
-            borderRadius: 10,
-            overflow: 'hidden',
-          }}>
-          <ItemCardLoader />
+                  ]}
+                />
+              </View>
+            </Animatable.View>
+          </View>
         </Card>
       </Animatable.View>
     );

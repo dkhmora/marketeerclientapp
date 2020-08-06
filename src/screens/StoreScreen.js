@@ -2,8 +2,6 @@ import React, {Component} from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
-  Platform,
   StatusBar,
   Image,
   ImageBackground,
@@ -15,7 +13,6 @@ import {Icon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import SlidingCartPanel from '../components/SlidingCartPanel';
-import {SafeAreaView} from 'react-native-safe-area-context';
 import ItemCategoriesTab from '../navigation/ItemCategoriesTab';
 import StoreDetailsModal from '../components/StoreDetailsModal';
 

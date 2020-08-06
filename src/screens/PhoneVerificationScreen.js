@@ -3,8 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Platform,
-  StyleSheet,
   StatusBar,
   Image,
   ActivityIndicator,

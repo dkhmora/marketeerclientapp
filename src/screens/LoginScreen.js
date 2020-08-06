@@ -4,17 +4,15 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  ScrollView,
   StatusBar,
   Image,
   ActivityIndicator,
-  Dimensions,
   SafeAreaView,
   Linking,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
-import {Icon, SocialIcon, Button, Overlay} from 'react-native-elements';
+import {Icon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import BackButton from '../components/BackButton';
