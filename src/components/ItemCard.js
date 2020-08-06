@@ -269,6 +269,9 @@ class ItemCard extends PureComponent {
                 <Placeholder Animation={Fade}>
                   <PlaceholderMedia
                     style={{
+                      flex: 1,
+                      marginTop: -10,
+                      height: '100%',
                       width: '100%',
                       aspectRatio: 1,
                     }}
