@@ -100,14 +100,14 @@ class CartStoreCard extends Component {
     if (checkout) {
       when(
         () =>
-          this.storeDetails.shippingMethods &&
-          this.storeDetails.shippingMethods.length > 0 &&
+          this.storeDetails.deliveryMethods &&
+          this.storeDetails.deliveryMethods.length > 0 &&
           this.storeDetails.paymentMethods &&
           this.storeDetails.paymentMethods.length > 0,
         () => {
           this.props.shopStore.storeSelectedDeliveryMethod[
             this.props.merchantId
-          ] = this.storeDetails.shippingMethods[0];
+          ] = this.storeDetails.deliveryMethods[0];
 
           this.props.shopStore.storeSelectedPaymentMethod[
             this.props.merchantId
@@ -125,7 +125,7 @@ class CartStoreCard extends Component {
   render() {
     const {merchantId, checkout} = this.props;
     const {
-      shippingMethods,
+      deliveryMethods,
       paymentMethods,
       ownDeliveryServiceFee,
     } = this.storeDetails;
@@ -301,10 +301,10 @@ class CartStoreCard extends Component {
                   fontSize: 16,
                   fontFamily: 'ProductSans-Light',
                 }}>
-                Shipping Method:
+                Delivery Method:
               </Text>
 
-              {shippingMethods.length > 0 ? (
+              {deliveryMethods.length > 0 ? (
                 <Picker
                   mode="dropdown"
                   style={{flex: 1}}
@@ -316,7 +316,7 @@ class CartStoreCard extends Component {
                       merchantId
                     ] = value;
                   }}>
-                  {shippingMethods.map((method, index) => {
+                  {deliveryMethods.map((method, index) => {
                     const label =
                       method === 'Own Delivery'
                         ? `${method} (₱ ${ownDeliveryServiceFee})`
@@ -336,7 +336,7 @@ class CartStoreCard extends Component {
                     fontFamily: 'ProductSans-Regular',
                     fontStyle: 'italic',
                   }}>
-                  No shipping method available
+                  No delivery method available
                 </Text>
               )}
             </View>
