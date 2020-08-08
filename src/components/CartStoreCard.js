@@ -175,8 +175,8 @@ class CartStoreCard extends Component {
           <Image
             source={this.url}
             style={{
-              height: 30,
-              width: 30,
+              height: 40,
+              width: 40,
               marginRight: 10,
               borderRadius: 10,
               borderColor: colors.primary,
@@ -185,15 +185,31 @@ class CartStoreCard extends Component {
           />
 
           <Text
-            numberOfLines={2}
+            numberOfLines={3}
             style={{
-              width: '85%',
-              fontSize: 20,
+              fontSize: 19,
               fontFamily: 'ProductSans-Light',
+              maxWidth: '50%',
               flexWrap: 'wrap',
             }}>
             {storeName}
           </Text>
+
+          {this.storeDetails.freeDelivery && (
+            <Text
+              numberOfLines={2}
+              adjustsFontSizeToFit
+              style={{
+                fontSize: 16,
+                fontFamily: 'ProductSans-Bold',
+                flexShrink: 1,
+                color: colors.primary,
+                marginLeft: 10,
+              }}>
+              Free Delivery (₱{this.storeDetails.freeDeliveryMinimum} Min.
+              Order)
+            </Text>
+          )}
         </View>
         <View>
           {this.cartItems.map((item) => {
@@ -260,6 +276,11 @@ class CartStoreCard extends Component {
                     fontFamily: 'ProductSans-Black',
                     fontSize: 18,
                     textAlignVertical: 'center',
+                    color:
+                      this.subTotal >= this.storeDetails.freeDeliveryMinimum &&
+                      this.storeDetails.freeDelivery
+                        ? colors.primary
+                        : colors.text_primary,
                   }}>
                   {this.subTotal >= this.storeDetails.freeDeliveryMinimum &&
                   this.storeDetails.freeDelivery

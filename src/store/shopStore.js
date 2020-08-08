@@ -86,12 +86,13 @@ class shopStore {
           storeTotal += itemTotal;
         });
 
-        if (
-          this.storeSelectedDeliveryMethod[merchantId] === 'Own Delivery' &&
-          storeDetails.freeDeliveryMinimum > storeTotal &&
-          !storeDetails.freeDelivery
-        ) {
-          amount += storeDetails.ownDeliveryServiceFee;
+        if (this.storeSelectedDeliveryMethod[merchantId] === 'Own Delivery') {
+          if (
+            storeDetails.freeDeliveryMinimum > storeTotal ||
+            !storeDetails.freeDelivery
+          ) {
+            amount += storeDetails.ownDeliveryServiceFee;
+          }
         }
 
         amount += storeTotal;

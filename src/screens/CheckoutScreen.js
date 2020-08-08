@@ -91,7 +91,9 @@ class CheckoutScreen extends Component {
 
           await response.data.map((res) => {
             if (res.s === 200) {
-              responses = `${responses}; ${res.m}; Thank you for shopping at Marketeer!`;
+              responses = `${responses !== '' ? `${responses}; ` : ''}${
+                res.m
+              }; Thank you for shopping at Marketeer!`;
             }
           });
 
