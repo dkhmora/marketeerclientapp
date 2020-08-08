@@ -239,14 +239,18 @@ class generalStore {
       .collection('users')
       .doc(userId)
       .onSnapshot((documentSnapshot) => {
-        if (documentSnapshot.exists) {
-          this.userDetails = documentSnapshot.data();
+        if (documentSnapshot) {
+          if (documentSnapshot.exists) {
+            this.userDetails = documentSnapshot.data();
 
-          if (documentSnapshot.data().addresses.Home) {
-            return this.setLastDeliveryLocation();
-          } else {
-            return this.setCurrentLocation();
+            if (documentSnapshot.data().addresses.Home) {
+              return this.setLastDeliveryLocation();
+            } else {
+              return this.setCurrentLocation();
+            }
           }
+        } else {
+          this.unsubscribeUserDetails();
         }
 
         return null;

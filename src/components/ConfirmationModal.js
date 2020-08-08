@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 import {Overlay, Text, Button} from 'react-native-elements';
-import {View, Dimensions} from 'react-native';
+import {View, Dimensions, StatusBar} from 'react-native';
 import {inject, observer} from 'mobx-react';
 import FastImage from 'react-native-fast-image';
 
@@ -20,8 +20,7 @@ class ConfirmationModal extends PureComponent {
         onBackdropPress={() => {
           closeModal();
         }}
-        windowBackgroundColor="rgba(255, 255, 255, .5)"
-        overlayBackgroundColor="red"
+        statusBarTranslucent
         width="80%"
         height="auto"
         overlayStyle={{

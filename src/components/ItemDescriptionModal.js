@@ -28,8 +28,7 @@ class ItemDescriptionModal extends Component {
         {...otherProps}
         isVisible={isVisible}
         onBackdropPress={onBackdropPress}
-        windowBackgroundColor="rgba(255, 255, 255, .5)"
-        overlayBackgroundColor="red"
+        statusBarTranslucent
         width="auto"
         height="auto"
         overlayStyle={{borderRadius: 10, padding: 0}}>

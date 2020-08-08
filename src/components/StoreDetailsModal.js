@@ -133,8 +133,7 @@ class StoreDetailsModal extends Component {
         isVisible={isVisible}
         onShow={() => this.getReviews()}
         onBackdropPress={() => this.handleBackdropPress()}
-        windowBackgroundColor="rgba(255, 255, 255, .5)"
-        overlayBackgroundColor="red"
+        statusBarTranslucent
         width="90%"
         height="70%"
         overlayStyle={{

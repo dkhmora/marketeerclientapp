@@ -93,10 +93,7 @@ class MainScreen extends Component {
       return currentLocationDetails;
     } else if (deliverToSetLocation && currentLocationDetails) {
       return currentLocationDetails;
-    } else if (
-      userDetails.addresses.Home.address &&
-      deliverToLastDeliveryLocation
-    ) {
+    } else if (userDetails.addresses && deliverToLastDeliveryLocation) {
       return userDetails.addresses.Home.address;
     } else {
       return 'Current Location';
@@ -266,7 +263,7 @@ class MainScreen extends Component {
           }}
         />
 
-        {this.props.generalStore.userDetails.addresses.Home.coordinates && (
+        {this.props.generalStore.userDetails.addresses && (
           <ListItem
             title="Last Delivery Location"
             containerStyle={{
@@ -288,7 +285,7 @@ class MainScreen extends Component {
               },
             ]}
             subtitle={
-              this.props.generalStore.userDetails.addresses.Home.address
+              this.props.generalStore.userDetails.addresses
                 ? this.props.generalStore.userDetails.addresses.Home.address
                 : null
             }

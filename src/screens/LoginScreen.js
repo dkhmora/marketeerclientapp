@@ -22,6 +22,7 @@ import InAppBrowser from 'react-native-inappbrowser-reborn';
 import Toast from '../components/Toast';
 
 @inject('authStore')
+@inject('generalStore')
 @observer
 class LoginScreen extends Component {
   constructor(props) {

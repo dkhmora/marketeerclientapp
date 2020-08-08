@@ -11,6 +11,7 @@ import {inject, observer} from 'mobx-react';
 import {computed} from 'mobx';
 import Toast from '../components/Toast';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 @inject('authStore')
 @inject('shopStore')
@@ -19,6 +20,10 @@ import InAppBrowser from 'react-native-inappbrowser-reborn';
 class MainDrawer extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      signOutConfirmModal: false,
+    };
   }
 
   componentDidMount() {
@@ -239,7 +244,7 @@ class MainDrawer extends Component {
           <ListItem
             title={authenticationButtonText}
             leftIcon={authenticationIcon}
-            onPress={() => this.handleAuthentication(navigation)}
+            onPress={() => this.setState({signOutConfirmModal: true})}
           />
         </View>
       </DrawerContentScrollView>
@@ -250,16 +255,30 @@ class MainDrawer extends Component {
     const DrawerMain = createDrawerNavigator();
 
     return (
-      <DrawerMain.Navigator
-        initialRouteName="Main"
-        drawerContent={(props) => {
-          return this.customDrawer(props);
-        }}
-        drawerStyle={{
-          width: '70%',
-        }}>
-        <DrawerMain.Screen name="Main" component={MainScreen} />
-      </DrawerMain.Navigator>
+      <View style={{flex: 1}}>
+        <ConfirmationModal
+          isVisible={this.state.signOutConfirmModal}
+          title="Sign Out?"
+          body="Are you sure you want to sign out?"
+          onConfirm={() => {
+            this.setState({signOutConfirmModal: false}, () => {
+              this.handleAuthentication();
+            });
+          }}
+          closeModal={() => this.setState({signOutConfirmModal: false})}
+        />
+
+        <DrawerMain.Navigator
+          initialRouteName="Main"
+          drawerContent={(props) => {
+            return this.customDrawer(props);
+          }}
+          drawerStyle={{
+            width: '70%',
+          }}>
+          <DrawerMain.Screen name="Main" component={MainScreen} />
+        </DrawerMain.Navigator>
+      </View>
     );
   }
 }

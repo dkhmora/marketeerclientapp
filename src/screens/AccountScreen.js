@@ -124,6 +124,7 @@ class AccountScreen extends Component {
           isVisible={passwordInputModal}
           width="auto"
           height="auto"
+          statusBarTranslucent
           onBackdropPress={() =>
             this.setState({passwordInputModal: false, editMode: false})
           }
