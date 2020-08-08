@@ -10,6 +10,7 @@ import {colors} from '../../assets/colors';
 import {inject, observer} from 'mobx-react';
 import {computed} from 'mobx';
 import Toast from '../components/Toast';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 
 @inject('authStore')
 @inject('shopStore')
@@ -77,22 +78,57 @@ class MainDrawer extends Component {
     }
   }
 
+  async openLink(url) {
+    try {
+      if (await InAppBrowser.isAvailable()) {
+        await InAppBrowser.open(url, {
+          dismissButtonStyle: 'close',
+          preferredBarTintColor: colors.primary,
+          preferredControlTintColor: 'white',
+          readerMode: false,
+          animated: true,
+          modalPresentationStyle: 'pageSheet',
+          modalTransitionStyle: 'coverVertical',
+          modalEnabled: true,
+          enableBarCollapsing: false,
+          // Android Properties
+          showTitle: true,
+          toolbarColor: colors.primary,
+          secondaryToolbarColor: 'black',
+          enableUrlBarHiding: true,
+          enableDefaultShare: true,
+          forceCloseOnRedirection: false,
+          animations: {
+            startEnter: 'slide_in_right',
+            startExit: 'slide_out_left',
+            endEnter: 'slide_in_left',
+            endExit: 'slide_out_right',
+          },
+        });
+      } else {
+        Linking.openURL(url);
+      }
+    } catch (err) {
+      Toast({text: err.message, type: 'danger'});
+    }
+  }
+
   openTermsAndConditions() {
     const url = 'https://marketeer.ph/components/pages/termsandconditions';
 
-    Linking.openURL(url);
+    this.openLink(url);
   }
 
   openPrivacyPolicy() {
     const url = 'https://marketeer.ph/components/pages/privacypolicy';
 
-    Linking.openURL(url);
+    this.openLink(url);
   }
 
   openContactUs() {
     const url = 'https://marketeer.ph/components/pages/contactus';
 
-    Linking.openURL(url);
+    this.openLink(url);
   }
 
   customDrawer = (props) => {

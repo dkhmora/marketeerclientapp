@@ -8,6 +8,7 @@ import {
   Image,
   Linking,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -16,6 +17,8 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import BackButton from '../components/BackButton';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
+import Toast from '../components/Toast';
 @inject('generalStore')
 @inject('authStore')
 @observer
@@ -147,23 +150,57 @@ class SignUpScreen extends Component {
     });
   }
 
-  openMerchantSignUpForm() {
-    const merchantFormUrl =
-      'https://marketeer.ph/components/pages/partnermerchantsignup';
+  async openLink(url) {
+    try {
+      if (await InAppBrowser.isAvailable()) {
+        await InAppBrowser.open(url, {
+          dismissButtonStyle: 'close',
+          preferredBarTintColor: colors.primary,
+          preferredControlTintColor: 'white',
+          readerMode: false,
+          animated: true,
+          modalPresentationStyle: 'pageSheet',
+          modalTransitionStyle: 'coverVertical',
+          modalEnabled: true,
+          enableBarCollapsing: false,
+          // Android Properties
+          showTitle: true,
+          toolbarColor: colors.primary,
+          secondaryToolbarColor: 'black',
+          enableUrlBarHiding: true,
+          enableDefaultShare: true,
+          forceCloseOnRedirection: false,
+          animations: {
+            startEnter: 'slide_in_right',
+            startExit: 'slide_out_left',
+            endEnter: 'slide_in_left',
+            endExit: 'slide_out_right',
+          },
+        });
+      } else {
+        Linking.openURL(url);
+      }
+    } catch (err) {
+      Toast({text: err.message, type: 'danger'});
+    }
+  }
 
-    Linking.openURL(merchantFormUrl);
+  openMerchantSignUpForm() {
+    const url = 'https://marketeer.ph/components/pages/partnermerchantsignup';
+
+    this.openLink(url);
   }
 
   openTermsAndConditions() {
     const url = 'https://marketeer.ph/components/pages/termsandconditions';
 
-    Linking.openURL(url);
+    this.openLink(url);
   }
 
   openPrivacyPolicy() {
     const url = 'https://marketeer.ph/components/pages/privacypolicy';
 
-    Linking.openURL(url);
+    this.openLink(url);
   }
 
   render() {
@@ -216,20 +253,22 @@ class SignUpScreen extends Component {
               while also supporting your local businesses!
             </Text>
 
-            <View
-              style={{
-                flexDirection: 'row',
-                width: '100%',
-                paddingVertical: 20,
-              }}>
-              <Text style={styles.text_subtext}>
-                Are you a merchant? Come and join us! Register
-              </Text>
+            {Platform.OS === 'android' && (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  width: '100%',
+                  paddingVertical: 20,
+                }}>
+                <Text style={styles.text_subtext}>
+                  Are you a merchant? Come and join us! Register
+                </Text>
 
-              <TouchableOpacity onPress={() => this.openMerchantSignUpForm()}>
-                <Text style={styles.touchable_text}> here</Text>
-              </TouchableOpacity>
-            </View>
+                <TouchableOpacity onPress={() => this.openMerchantSignUpForm()}>
+                  <Text style={styles.touchable_text}> here</Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
             <Text style={styles.text_footer}>Full Name</Text>
 
@@ -249,12 +288,7 @@ class SignUpScreen extends Component {
 
               {nameCheck ? (
                 <Animatable.View useNativeDriver animation="bounceIn">
-                  <Icon
-                    name="check-circle"
-                    color="#388e3c"
-                    size={20}
-                    style={{marginRight: 25}}
-                  />
+                  <Icon name="check-circle" color="#388e3c" size={20} />
                 </Animatable.View>
               ) : null}
             </View>
@@ -277,12 +311,7 @@ class SignUpScreen extends Component {
 
               {emailCheck ? (
                 <Animatable.View useNativeDriver animation="bounceIn">
-                  <Icon
-                    name="check-circle"
-                    color="#388e3c"
-                    size={20}
-                    style={{marginRight: 25}}
-                  />
+                  <Icon name="check-circle" color="#388e3c" size={20} />
                 </Animatable.View>
               ) : null}
             </View>
@@ -314,12 +343,7 @@ class SignUpScreen extends Component {
 
               {phoneCheck ? (
                 <Animatable.View useNativeDriver animation="bounceIn">
-                  <Icon
-                    name="check-circle"
-                    color="#388e3c"
-                    size={20}
-                    style={{marginRight: 25}}
-                  />
+                  <Icon name="check-circle" color="#388e3c" size={20} />
                 </Animatable.View>
               ) : null}
             </View>
@@ -341,17 +365,6 @@ class SignUpScreen extends Component {
                 onChangeText={(value) => this.handlePasswordChange(value)}
               />
 
-              {passwordCheck ? (
-                <Animatable.View useNativeDriver animation="bounceIn">
-                  <Icon
-                    name="check-circle"
-                    color="#388e3c"
-                    size={20}
-                    style={{marginRight: 5}}
-                  />
-                </Animatable.View>
-              ) : null}
-
               <TouchableOpacity onPress={this.updateSecureTextEntry}>
                 {secureTextEntry ? (
                   <Icon name="eye" color="grey" size={20} />
@@ -359,6 +372,12 @@ class SignUpScreen extends Component {
                   <Icon name="eye-off" color="grey" size={20} />
                 )}
               </TouchableOpacity>
+
+              {passwordCheck ? (
+                <Animatable.View useNativeDriver animation="bounceIn">
+                  <Icon name="check-circle" color="#388e3c" size={20} />
+                </Animatable.View>
+              ) : null}
             </View>
 
             <Text style={styles.text_footer}>Confirm Password</Text>
@@ -380,17 +399,6 @@ class SignUpScreen extends Component {
                 }
               />
 
-              {confirmPasswordCheck ? (
-                <Animatable.View useNativeDriver animation="bounceIn">
-                  <Icon
-                    name="check-circle"
-                    color="#388e3c"
-                    size={20}
-                    style={{marginRight: 5}}
-                  />
-                </Animatable.View>
-              ) : null}
-
               <TouchableOpacity onPress={this.updateConfirmSecureTextEntry}>
                 {confirm_secureTextEntry ? (
                   <Icon name="eye" color="grey" size={20} />
@@ -398,6 +406,12 @@ class SignUpScreen extends Component {
                   <Icon name="eye-off" color="grey" size={20} />
                 )}
               </TouchableOpacity>
+
+              {confirmPasswordCheck ? (
+                <Animatable.View useNativeDriver animation="bounceIn">
+                  <Icon name="check-circle" color="#388e3c" size={20} />
+                </Animatable.View>
+              ) : null}
             </View>
 
             <View
