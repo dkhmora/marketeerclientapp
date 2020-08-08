@@ -5,9 +5,7 @@ import {
   TouchableOpacity,
   StatusBar,
   Image,
-  ActivityIndicator,
   SafeAreaView,
-  ScrollView,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -18,6 +16,7 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import Toast from '../components/Toast';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import BackButton from '../components/BackButton';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -69,7 +68,7 @@ class PhoneVerificationScreen extends Component {
               break;
             case firebase.auth.PhoneAuthState.ERROR:
               Toast({
-                text: 'Error, something went wrong. Please try again later.',
+                text: 'Error: Something went wrong. Please try again later.',
                 type: 'danger',
                 duration: 6000,
               });
@@ -140,19 +139,19 @@ class PhoneVerificationScreen extends Component {
 
             Toast({
               text:
-                'Error, too many phone code requests. Please try again later.',
+                'Error: Too many phone code requests. Please try again later.',
               type: 'danger',
             });
           } else if (err.code === 'auth/missing-verification-code') {
             Toast({
-              text: 'Error, missing verification code. Please try again.',
+              text: 'Error: Missing verification code. Please try again.',
               type: 'danger',
             });
           } else if (err.code === 'auth/invalid-verification-code') {
             this.setState({code: ''});
 
             Toast({
-              text: 'Error, invalid verification code. Please try again.',
+              text: 'Error: Invalid verification code. Please try again.',
               type: 'danger',
             });
           } else if (err.code === 'auth/credential-already-in-use') {
@@ -160,7 +159,7 @@ class PhoneVerificationScreen extends Component {
 
             Toast({
               text:
-                'Error, phone number is already in use. Please try again with a different phone number.',
+                'Error: Phone number is already in use. Please try again with a different phone number.',
               type: 'danger',
             });
           } else {
@@ -175,21 +174,21 @@ class PhoneVerificationScreen extends Component {
           if (err.code === 'auth/quota-exceeded') {
             Toast({
               text:
-                'Error, too many phone code requests. Please try again later.',
+                'Error: Too many phone code requests. Please try again later.',
               type: 'danger',
             });
           }
 
           if (err.code === 'auth/missing-verification-code') {
             Toast({
-              text: 'Error, missing verification code. Please try again.',
+              text: 'Error: Missing verification code. Please try again.',
               type: 'danger',
             });
           }
 
           if (err.code === 'auth/invalid-verification-code') {
             Toast({
-              text: 'Error, invalid verification code. Please try again.',
+              text: 'Error: Invalid verification code. Please try again.',
               type: 'danger',
             });
           }
@@ -197,7 +196,7 @@ class PhoneVerificationScreen extends Component {
           if (err.code === 'auth/credential-already-in-use') {
             Toast({
               text:
-                'Error, phone number is already in use. Please try again with a different phone number.',
+                'Error: Phone number is already in use. Please try again with a different phone number.',
               type: 'danger',
             });
           }
@@ -211,6 +210,7 @@ class PhoneVerificationScreen extends Component {
 
   render() {
     const {phoneNumber} = this.props.route.params;
+    const {navigation} = this.props;
     const {code} = this.state;
 
     return (
@@ -226,6 +226,8 @@ class PhoneVerificationScreen extends Component {
             justifyContent: 'center',
             paddingTop: StatusBar.currentHeight,
           }}>
+          <BackButton navigation={navigation} />
+
           <SafeAreaView style={{flexDirection: 'row'}}>
             <Image
               source={require('../../assets/images/logo.png')}

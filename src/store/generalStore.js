@@ -103,7 +103,7 @@ class generalStore {
           if (granted !== 'granted') {
             Toast({
               text:
-                'Error, location permissions not granted. Please set location manually.',
+                'Error: Location permissions not granted. Please set location manually.',
               duration: 8000,
               type: 'danger',
               buttonText: 'Okay',
@@ -139,7 +139,7 @@ class generalStore {
         if (granted !== 'granted') {
           Toast({
             text:
-              'Error, location permissions not granted. Please set location manually.',
+              'Error: Location permissions not granted. Please set location manually.',
             duration: 6000,
             type: 'danger',
             buttonText: 'Okay',

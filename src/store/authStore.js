@@ -100,14 +100,14 @@ class authStore {
         err.code === 'auth/invalid-email' &&
           Toast({
             type: 'danger',
-            text: 'Error, invalid email. Please try again.',
+            text: 'Error: Invalid email. Please try again.',
           });
 
         err.code === 'auth/user-not-found' &&
           Toast({
             type: 'danger',
             text:
-              'Error, the user was not found. Please try again or sign up for an account.',
+              'Error: The user was not found. Please try again or sign up for an account.',
           });
       });
   }
@@ -134,14 +134,14 @@ class authStore {
       .catch((err) => {
         if (err.code === 'auth/invalid-password') {
           Toast({
-            text: 'Error, invalid password. No details have been changed.',
+            text: 'Error: Invalid password. No details have been changed.',
             type: 'danger',
           });
         }
 
         if (err.code === 'auth/wrong-password') {
           Toast({
-            text: 'Error, wrong password. Please try again.',
+            text: 'Error: Wrong password. Please try again.',
             type: 'danger',
           });
         }
@@ -166,21 +166,21 @@ class authStore {
         if (err.code === 'auth/quota-exceeded') {
           Toast({
             text:
-              'Error, too many phone code requests. Please try again later.',
+              'Error: Too many phone code requests. Please try again later.',
             type: 'danger',
           });
         }
 
         if (err.code === 'auth/missing-verification-code') {
           Toast({
-            text: 'Error, missing verification code. Please try again.',
+            text: 'Error: Missing verification code. Please try again.',
             type: 'danger',
           });
         }
 
         if (err.code === 'auth/invalid-verification-code') {
           Toast({
-            text: 'Error, invalid verification code. Please try again.',
+            text: 'Error: Invalid verification code. Please try again.',
             type: 'danger',
           });
         }
@@ -188,7 +188,7 @@ class authStore {
         if (err.code === 'auth/credential-already-in-use') {
           Toast({
             text:
-              'Error, phone number is already in use. Please try again with a different phone number.',
+              'Error: Phone number is already in use. Please try again with a different phone number.',
             type: 'danger',
           });
         }
@@ -279,7 +279,7 @@ class authStore {
             })
             .catch((err) => {
               Toast({
-                text: 'Error, something went wrong. Please try again.',
+                text: 'Error: Something went wrong. Please try again.',
                 duration: 3500,
               });
 
@@ -288,7 +288,7 @@ class authStore {
         })
         .catch((err) => {
           Toast({
-            text: 'Error, wrong phone number or password. Please try again.',
+            text: 'Error: Wrong phone number or password. Please try again.',
             duration: 3500,
           });
 

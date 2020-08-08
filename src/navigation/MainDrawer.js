@@ -59,11 +59,13 @@ class MainDrawer extends Component {
 
       this.props.authStore
         .signOut()
-        .then(() => this.props.authStore.checkAuthStatus())
         .then(() => {
-          this.props.generalStore.appReady = true;
+          this.props.shopStore.resetData();
+          this.props.authStore.checkAuthStatus();
         })
         .then(() => {
+          this.props.generalStore.appReady = true;
+
           Toast({
             text: 'Signed out successfully',
             duration: 3500,
@@ -71,7 +73,7 @@ class MainDrawer extends Component {
         });
     } else {
       Toast({
-        text: 'Failed to authenticate',
+        text: 'Error: Failed to authenticate',
         duration: 3500,
         type: 'danger',
       });

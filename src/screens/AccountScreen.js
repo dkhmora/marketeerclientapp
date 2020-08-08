@@ -58,7 +58,7 @@ class AccountScreen extends Component {
         .catch((err) => {
           if (err.code === 'auth/wrong-password') {
             Toast({
-              text: 'Error, wrong password. Please try again.',
+              text: 'Error: Wrong password. Please try again.',
               type: 'danger',
             });
           }

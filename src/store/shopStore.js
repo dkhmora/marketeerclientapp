@@ -192,6 +192,12 @@ class shopStore {
       });
   }
 
+  @action resetData() {
+    this.storeCartItems = {};
+    this.storeSelectedDeliveryMethod = {};
+    this.itemCategories = [];
+  }
+
   @action getStoreDetails(merchantId) {
     const store = this.storeList.find(
       (element) => element.merchantId === merchantId,
