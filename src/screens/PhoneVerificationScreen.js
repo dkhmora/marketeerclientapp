@@ -118,11 +118,9 @@ class PhoneVerificationScreen extends Component {
       this.props.authStore
         .createUser(name, email, password, phoneNumber, credential, navigation)
         .then(() => {
-          console.log('jhaha');
           this.props.generalStore.appReady = true;
 
           if (checkout) {
-            console.log('1');
             this.props.shopStore
               .setCartItems(this.props.authStore.userId)
               .then(() => {
@@ -131,7 +129,6 @@ class PhoneVerificationScreen extends Component {
                   .replace('Set Location', {checkout: true});
               });
           } else {
-            console.log('2');
             navigation.dangerouslyGetParent().navigate('Home');
           }
         })

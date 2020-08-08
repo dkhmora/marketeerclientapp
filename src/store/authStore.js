@@ -203,9 +203,7 @@ class authStore {
     password,
     phoneNumber,
     phoneCredential,
-    navigation,
   ) {
-    console.log('createuser');
     return await this.linkCurrentUserWithPhoneNumber(phoneCredential)
       .then(async () => await this.linkCurrentUserWithEmail(email, password))
       .then(
@@ -251,7 +249,6 @@ class authStore {
   }
 
   @action async linkCurrentUserWithPhoneNumber(phoneCredential) {
-    console.log('link');
     return await auth().currentUser.linkWithCredential(phoneCredential);
   }
 

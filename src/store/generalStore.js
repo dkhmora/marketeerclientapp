@@ -103,7 +103,7 @@ class generalStore {
           if (granted !== 'granted') {
             Toast({
               text:
-                'Error, location permissions is required. Please enable location permissions.',
+                'Error, location permissions not granted. Please set location manually.',
               duration: 8000,
               type: 'danger',
               buttonText: 'Okay',
@@ -128,64 +128,22 @@ class generalStore {
   }
 
   @action async setCurrentLocation() {
-    return new Promise((resolve, reject) => {
-      if (Platform.OS === 'ios') {
-        Geolocation.requestAuthorization();
-      } else {
-        PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        ).then((granted) => {
-          if (granted !== 'granted') {
-            Toast({
-              text:
-                'Error, location permissions is required. Please enable location permissions.',
-              duration: 8000,
-              type: 'danger',
-              buttonText: 'Okay',
-            });
-          }
-        });
-      }
+    if (Platform.OS === 'ios') {
+      Geolocation.requestAuthorization();
+    }
 
-      this.addressLoading = true;
-
-      Geolocation.getCurrentPosition(
-        async (position) => {
-          this.deliverToCurrentLocation = true;
-          this.deliverToSetLocation = false;
-          this.deliverToLastDeliveryLocation = false;
-
-          const coords = {
-            latitude: parseFloat(position.coords.latitude),
-            longitude: parseFloat(position.coords.longitude),
-          };
-
-          this.currentLocationGeohash = geohash.encode(
-            coords.latitude,
-            coords.longitude,
-            12,
-          );
-
-          this.currentLocationDetails = await this.getAddressFromCoordinates({
-            ...coords,
+    return await new Promise((resolve, reject) => {
+      PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      ).then((granted) => {
+        if (granted !== 'granted') {
+          Toast({
+            text:
+              'Error, location permissions not granted. Please set location manually.',
+            duration: 6000,
+            type: 'danger',
+            buttonText: 'Okay',
           });
-
-          this.currentLocation = {...coords};
-
-          resolve();
-        },
-        (err) => {
-          Toast({text: err.message, type: 'danger'});
-
-          if (err.code === 2) {
-            Toast({
-              text:
-                'Error: Cannot get location coordinates. Please set your coordinates manually.',
-              duration: 8000,
-              type: 'danger',
-              buttonText: 'Okay',
-            });
-          }
 
           if (this.navigation) {
             this.appReady = true;
@@ -195,15 +153,67 @@ class generalStore {
               locationError: true,
             });
           }
+        } else {
+          this.addressLoading = true;
 
-          reject();
-        },
-        {
-          timeout: 20000,
-        },
-      );
-    }).then(() => {
-      this.addressLoading = false;
+          return Geolocation.getCurrentPosition(
+            async (position) => {
+              this.deliverToCurrentLocation = true;
+              this.deliverToSetLocation = false;
+              this.deliverToLastDeliveryLocation = false;
+
+              const coords = {
+                latitude: parseFloat(position.coords.latitude),
+                longitude: parseFloat(position.coords.longitude),
+              };
+
+              this.currentLocationGeohash = await geohash.encode(
+                coords.latitude,
+                coords.longitude,
+                12,
+              );
+
+              this.currentLocationDetails = await this.getAddressFromCoordinates(
+                {
+                  ...coords,
+                },
+              );
+
+              this.currentLocation = {...coords};
+
+              this.appReady = true;
+              this.addressLoading = false;
+
+              resolve();
+            },
+            (err) => {
+              if (err.code === 2) {
+                Toast({
+                  text:
+                    'Error: Cannot get location coordinates. Please set your coordinates manually.',
+                  duration: 6000,
+                  type: 'danger',
+                  buttonText: 'Okay',
+                });
+              } else {
+                Toast({text: err.message, type: 'danger'});
+              }
+
+              if (this.navigation) {
+                this.appReady = true;
+                this.addressLoading = false;
+                this.navigation.navigate('Set Location', {
+                  checkout: false,
+                  locationError: true,
+                });
+              }
+            },
+            {
+              timeout: 20000,
+            },
+          );
+        }
+      });
     });
   }
 

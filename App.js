@@ -90,9 +90,7 @@ class App extends React.Component {
 
               shopStore.resetData();
 
-              generalStore.setCurrentLocation().then(() => {
-                generalStore.appReady = true;
-              });
+              generalStore.setCurrentLocation();
             }
 
             AppState.addEventListener('change', (state) => {

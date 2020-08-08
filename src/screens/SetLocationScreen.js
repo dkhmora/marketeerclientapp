@@ -165,22 +165,23 @@ class SetLocationScreen extends Component {
   }
 
   _onMapReady = () => {
-    if (Platform.OS === 'android') {
-      PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      ).then((granted) => {
-        if (granted !== 'granted') {
-          Toast({
-            text:
-              'Error, location permissions is required. Please enable location permissions.',
-            duration: 0,
-            type: 'danger',
-            buttonText: 'Okay',
-          });
-        }
-      });
-    } else {
-      Geolocation.requestAuthorization();
+    if (!this.props.route.params.locationError) {
+      if (Platform.OS === 'android') {
+        PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        ).then((granted) => {
+          if (granted !== 'granted') {
+            Toast({
+              text: 'Location Permissions not granted.',
+              duration: 0,
+              type: 'danger',
+              buttonText: 'Okay',
+            });
+          }
+        });
+      } else {
+        Geolocation.requestAuthorization();
+      }
     }
   };
 
