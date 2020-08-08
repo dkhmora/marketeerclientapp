@@ -88,8 +88,6 @@ class App extends React.Component {
                 shopStore.unsubscribeToGetCartItems();
               }
 
-              shopStore.resetData();
-
               generalStore.setCurrentLocation();
             }
 
