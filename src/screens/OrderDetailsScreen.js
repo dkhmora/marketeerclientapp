@@ -67,6 +67,75 @@ class OrderDetailsScreen extends Component {
             }}>
             <CardItem header bordered style={{backgroundColor: colors.primary}}>
               <Text style={{color: colors.icons, fontSize: 20}}>
+                Order Details
+              </Text>
+            </CardItem>
+
+            <CardItem bordered>
+              <Left>
+                <Text style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
+                  Order Status:
+                </Text>
+              </Left>
+
+              <Right>
+                <Text
+                  style={{
+                    color: colors.primary,
+                    fontSize: 16,
+                    textAlign: 'right',
+                  }}>
+                  {orderStatus}
+                </Text>
+              </Right>
+            </CardItem>
+
+            <CardItem bordered>
+              <Left>
+                <Text style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
+                  Delivery Method:
+                </Text>
+              </Left>
+
+              <Right>
+                <Text
+                  style={{
+                    color: colors.text_primary,
+                    fontSize: 16,
+                    textAlign: 'right',
+                  }}>
+                  {order.deliveryMethod}
+                </Text>
+              </Right>
+            </CardItem>
+
+            <CardItem bordered>
+              <Left>
+                <Text style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
+                  Payment Method:
+                </Text>
+              </Left>
+
+              <Right>
+                <Text
+                  style={{
+                    color: colors.text_primary,
+                    fontSize: 16,
+                    textAlign: 'right',
+                  }}>
+                  {order.paymentMethod}
+                </Text>
+              </Right>
+            </CardItem>
+          </Card>
+
+          <Card
+            style={{
+              borderRadius: 10,
+              overflow: 'hidden',
+            }}>
+            <CardItem header bordered style={{backgroundColor: colors.primary}}>
+              <Text style={{color: colors.icons, fontSize: 20}}>
                 Order Items
               </Text>
             </CardItem>

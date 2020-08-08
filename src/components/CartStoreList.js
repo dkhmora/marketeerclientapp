@@ -20,6 +20,7 @@ class CartStoreList extends Component {
       onTouchEnd,
       onTouchStart,
       onTouchCancel,
+      cart,
     } = this.props;
 
     return (
@@ -33,6 +34,7 @@ class CartStoreList extends Component {
             {dataSource.map((merchantId, index) => {
               return (
                 <CartStoreCard
+                  cart={cart}
                   checkout={checkout}
                   merchantId={merchantId}
                   key={index}

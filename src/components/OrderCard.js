@@ -32,18 +32,10 @@ class OrderCard extends PureComponent {
 
     this.state = {
       url: require('../../assets/images/placeholder.jpg'),
-      storeDetails: null,
       ready: false,
       addReviewModal: false,
       reviewedOnDevice: false,
     };
-
-    this.props.shopStore
-      .getStoreDetailsFromMerchantId(this.props.order.merchantId)
-      .then((storeDetails) => {
-        this.setState({storeDetails});
-        this.getDisplayImageUrl(storeDetails.displayImage);
-      });
   }
 
   @observable confirmationModal = false;
@@ -77,12 +69,18 @@ class OrderCard extends PureComponent {
     this.confirmationModal = false;
   }
 
-  getDisplayImageUrl = async (imageRef) => {
-    const ref = storage().ref(imageRef);
+  componentDidMount() {
+    this.getDisplayImageUrl();
+  }
+
+  async getDisplayImageUrl() {
+    const {merchantId} = this.props.order;
+
+    const ref = storage().ref(`/images/merchants/${merchantId}/display.jpg`);
     const link = await ref.getDownloadURL();
 
     this.setState({url: {uri: link}, ready: true});
-  };
+  }
 
   handleViewOrderItems() {
     const {navigation, order} = this.props;
@@ -126,8 +124,7 @@ class OrderCard extends PureComponent {
 
   openOrderChat() {
     const {navigation, order} = this.props;
-    const {userAddress, orderId, userOrderNumber} = order;
-    const {storeName} = this.state.storeDetails;
+    const {userAddress, userOrderNumber, storeName} = order;
 
     navigation.navigate('Order Chat', {
       storeName,
@@ -144,12 +141,11 @@ class OrderCard extends PureComponent {
 
   CardHeader = ({
     imageUrl,
-    imagePath,
     imageReady,
     paymentMethod,
     userOrderNumber,
     orderStatus,
-    storeDetails,
+    storeName,
   }) => {
     return (
       <CardItem button header bordered onPress={() => this.openOrderChat()}>
@@ -164,7 +160,7 @@ class OrderCard extends PureComponent {
               flexDirection: 'row',
               alignItems: 'center',
             }}>
-            {imagePath && imageReady ? (
+            {imageUrl && imageReady ? (
               <FastImage
                 source={imageUrl}
                 style={{
@@ -197,7 +193,7 @@ class OrderCard extends PureComponent {
                 <Text
                   numberOfLines={2}
                   style={{color: colors.text_primary, fontSize: 18}}>
-                  {storeDetails.storeName}
+                  {storeName}
                 </Text>
 
                 <View
@@ -273,7 +269,7 @@ class OrderCard extends PureComponent {
   };
 
   render() {
-    const {navigation, order, reviewed} = this.props;
+    const {order, reviewed} = this.props;
 
     const {
       userOrderNumber,
@@ -282,155 +278,82 @@ class OrderCard extends PureComponent {
       deliveryPrice,
       paymentMethod,
       createdAt,
+      storeName,
     } = order;
     const {url, ready, addReviewModal} = this.state;
 
     return (
       <View>
-        <View style={{flex: 1}}>
-          <AddReviewModal
-            order={order}
-            isVisible={addReviewModal}
-            closeModal={() => this.setState({addReviewModal: false})}
-            onReviewSubmit={() => this.setState({reviewedOnDevice: true})}
-          />
+        <AddReviewModal
+          order={order}
+          isVisible={addReviewModal}
+          closeModal={() => this.setState({addReviewModal: false})}
+          onReviewSubmit={() => this.setState({reviewedOnDevice: true})}
+        />
 
-          <Modal
-            isVisible={this.confirmationModal}
-            transparent={true}
-            style={{alignItems: 'center'}}>
-            <Card
+        <Card style={{borderRadius: 8, overflow: 'hidden'}}>
+          <View style={{height: 175}}>
+            <this.CardHeader
+              imageUrl={url}
+              imageReady={ready}
+              userOrderNumber={userOrderNumber}
+              paymentMethod={paymentMethod}
+              orderStatus={this.orderStatus}
+              storeName={storeName}
+            />
+
+            <View
               style={{
-                borderRadius: 16,
-                overflow: 'hidden',
-                width: '100%',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingHorizontal: 15,
+                paddingVertical: 5,
               }}>
-              <CardItem header>
-                <Left>
-                  <Body>
-                    <H3>Are you sure?</H3>
-                  </Body>
-                </Left>
-              </CardItem>
-
-              <CardItem>
-                <Body>
-                  <Textarea
-                    rowSpan={6}
-                    maxLength={600}
-                    bordered
-                    placeholder="Reason for Cancellation"
-                    value={this.cancelReason}
-                    onChangeText={(value) => (this.cancelReason = value)}
-                    style={{borderRadius: 24, width: '100%'}}
-                  />
-
-                  <Text note style={{alignSelf: 'flex-end', marginRight: 16}}>
-                    Character Limit: {this.cancelReason.length}/600
-                  </Text>
-                </Body>
-              </CardItem>
-
-              <CardItem>
-                <Body>
-                  <Text note style={{textAlign: 'justify', width: '100%'}}>
-                    You can no longer bring back an order after it has been
-                    cancelled.
-                  </Text>
-                </Body>
-              </CardItem>
-
-              <CardItem footer>
-                <Left />
-
-                <Right style={{flexDirection: 'row', marginRight: 25}}>
-                  <Button
-                    transparent
-                    onPress={this.closeConfirmationModal.bind(this)}>
-                    <Text>Cancel</Text>
-                  </Button>
-
-                  <Button
-                    transparent
-                    onPress={this.handleCancelOrder.bind(this)}>
-                    <Text>Confirm</Text>
-                  </Button>
-                </Right>
-              </CardItem>
-            </Card>
-          </Modal>
-        </View>
-
-        {this.state.storeDetails ? (
-          <Card style={{borderRadius: 8, overflow: 'hidden'}}>
-            <View style={{height: 175}}>
-              <this.CardHeader
-                imageUrl={url}
-                imagePath={this.state.storeDetails.displayImage}
-                imageReady={ready}
-                userOrderNumber={userOrderNumber}
-                paymentMethod={paymentMethod}
-                orderStatus={this.orderStatus}
-                storeDetails={this.state.storeDetails}
+              <Button
+                title={`View Full Order (${quantity} items)`}
+                onPress={this.handleViewOrderItems.bind(this)}
+                titleStyle={{color: colors.icons}}
+                buttonStyle={{backgroundColor: colors.accent}}
+                containerStyle={{
+                  borderRadius: 24,
+                  marginRight: 10,
+                  flex: 1,
+                }}
               />
 
               <View
                 style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
+                  flexDirection: 'column',
                   alignItems: 'center',
-                  paddingHorizontal: 15,
-                  paddingVertical: 5,
+                  justifyContent: 'center',
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: colors.text_secondary,
+                  padding: 5,
                 }}>
-                <Button
-                  title={`View Full Order (${quantity} items)`}
-                  onPress={this.handleViewOrderItems.bind(this)}
-                  titleStyle={{color: colors.icons}}
-                  buttonStyle={{backgroundColor: colors.accent}}
-                  containerStyle={{
-                    borderRadius: 24,
-                    marginRight: 10,
-                    flex: 1,
-                  }}
-                />
-
-                <View
+                <Text
                   style={{
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: 10,
-                    borderWidth: 1,
-                    borderColor: colors.text_secondary,
-                    padding: 5,
+                    color: colors.primary,
+                    fontSize: 16,
+                    fontFamily: 'ProductSans-Bold',
+                    textAlign: 'center',
                   }}>
-                  <Text
-                    style={{
-                      color: colors.primary,
-                      fontSize: 16,
-                      fontFamily: 'ProductSans-Bold',
-                      textAlign: 'center',
-                    }}>
-                    ₱{subTotal + (deliveryPrice ? deliveryPrice : 0)}
-                  </Text>
+                  ₱{subTotal + (deliveryPrice ? deliveryPrice : 0)}
+                </Text>
 
-                  <Text>Total Amount</Text>
-                </View>
+                <Text>Total Amount</Text>
               </View>
-
-              <this.CardFooter
-                createdAt={createdAt}
-                paymentMethod={paymentMethod}
-                orderStatus={this.orderStatus}
-                reviewed={reviewed}
-              />
             </View>
-          </Card>
-        ) : (
-          <View style={{padding: 10, height: 175}}>
-            <OrderCardLoader />
+
+            <this.CardFooter
+              createdAt={createdAt}
+              paymentMethod={paymentMethod}
+              orderStatus={this.orderStatus}
+              reviewed={reviewed}
+            />
           </View>
-        )}
+        </Card>
       </View>
     );
   }

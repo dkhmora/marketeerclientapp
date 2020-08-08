@@ -72,11 +72,11 @@ class shopStore {
     return true;
   }
 
-  @computed get totalCartSubTotal() {
+  @computed get totalCartSubTotalAmount() {
     let amount = 0;
 
     if (this.storeCartItems) {
-      Object.keys(this.storeCartItems).map((merchantId) => {
+      Object.keys(this.storeCartItems).map(async (merchantId) => {
         const storeDetails = this.getStoreDetails(merchantId);
         let storeTotal = 0;
 
@@ -89,16 +89,18 @@ class shopStore {
         if (
           this.storeSelectedDeliveryMethod[merchantId] === 'Own Delivery' &&
           storeDetails.freeDeliveryMinimum > storeTotal &&
-          storeDetails.freeDelivery
+          !storeDetails.freeDelivery
         ) {
           amount += storeDetails.ownDeliveryServiceFee;
         }
 
         amount += storeTotal;
       });
+
+      return amount;
     }
 
-    return amount;
+    return 0;
   }
 
   @computed get cartStores() {
@@ -124,7 +126,9 @@ class shopStore {
         .get()
         .then((document) => {
           if (document.exists) {
-            return resolve(document.data());
+            const store = {...document.data(), merchantId: document.id};
+
+            return resolve(store);
           }
         })
         .catch((err) => {
@@ -165,7 +169,6 @@ class shopStore {
     storeSelectedDeliveryMethod,
     storeSelectedPaymentMethod,
   }) {
-    const userId = auth().currentUser.uid;
     this.cartUpdateTimeout ? clearTimeout(this.cartUpdateTimeout) : null;
 
     return await this.updateCartItemsInstantly()

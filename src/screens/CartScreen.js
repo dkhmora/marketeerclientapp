@@ -73,6 +73,7 @@ class CartScreen extends Component {
             },
           ]}>
           <CartStoreList
+            cart
             emptyCartText={`This seems lonely...${'\n'}
               ${'\n'}Go back and visit a store now and add items to your cart!`}
           />
@@ -116,7 +117,7 @@ class CartScreen extends Component {
                 color: colors.icons,
                 fontSize: 26,
               }}>
-              ₱ {this.props.shopStore.totalCartSubTotal}
+              ₱ {this.props.shopStore.totalCartSubTotalAmount}
             </Text>
 
             <Text

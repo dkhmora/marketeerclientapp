@@ -138,7 +138,7 @@ class SlidingCartPanel extends Component {
                 fontFamily: 'ProductSans-Black',
                 textAlignVertical: 'center',
               }}>
-              ₱ {this.props.shopStore.totalCartSubTotal}
+              ₱ {this.props.shopStore.totalCartSubTotalAmount}
             </Text>
 
             <Button

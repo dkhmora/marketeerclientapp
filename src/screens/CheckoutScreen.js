@@ -211,7 +211,7 @@ class CheckoutScreen extends Component {
                 color: colors.icons,
                 fontSize: 26,
               }}>
-              ₱ {this.props.shopStore.totalCartSubTotal}
+              ₱ {this.props.shopStore.totalCartSubTotalAmount}
             </Text>
 
             <Text
