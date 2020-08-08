@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
-import {View} from 'react-native';
+import {View, ActivityIndicator} from 'react-native';
 import {Picker} from 'native-base';
 import {Card, Text, Image} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
 import CartListItem from './CartListItem';
 import {colors} from '../../assets/colors';
 import storage from '@react-native-firebase/storage';
-import {observable, computed} from 'mobx';
+import {observable, computed, when} from 'mobx';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -18,17 +18,20 @@ class CartStoreCard extends Component {
 
   @observable url = null;
 
-  @computed get storeDetails() {
-    return this.props.shopStore.getStoreDetails(this.props.merchantId);
-  }
+  @observable storeDetails = {};
 
   @computed get orderTotal() {
-    const {ownDeliveryServiceFee} = this.storeDetails;
+    if (this.storeDetails) {
+      const {ownDeliveryServiceFee} = this.storeDetails;
 
-    return this.props.shopStore.storeSelectedShipping[this.props.merchantId] ===
-      'Own Delivery'
-      ? this.subTotal + ownDeliveryServiceFee
-      : this.subTotal;
+      return this.props.shopStore.storeSelectedDeliveryMethod[
+        this.props.merchantId
+      ] === 'Own Delivery'
+        ? this.subTotal + ownDeliveryServiceFee
+        : this.subTotal;
+    }
+
+    return null;
   }
 
   @computed get subTotal() {
@@ -80,37 +83,71 @@ class CartStoreCard extends Component {
     ).storeName;
   }
 
-  getImage = async (imageRef) => {
-    const ref = storage().ref(imageRef);
+  async getImage() {
+    const {merchantId} = this.props;
+
+    const ref = storage().ref(`/images/merchants/${merchantId}/display.jpg`);
     const link = await ref.getDownloadURL();
     this.url = {uri: link};
-  };
+  }
 
-  componentDidMount() {
-    const {displayImage} = this.storeDetails;
+  async getStoreDetails() {
+    this.storeDetails = await this.props.shopStore.getStoreDetailsFromMerchantId(
+      this.props.merchantId,
+    );
+  }
 
-    if (displayImage) {
-      this.getImage(displayImage);
-    } else {
-      this.url = require('../../assets/images/placeholder.jpg');
+  async getStoreItemsSnapshot() {
+    this.props.shopStore.setStoreItems(
+      this.props.merchantId,
+      this.storeDetails.itemCategories,
+    );
+  }
+
+  async componentDidMount() {
+    const {checkout} = this.props;
+
+    this.getImage();
+
+    await this.getStoreDetails();
+
+    if (this.props.cart) {
+      this.getStoreItemsSnapshot();
     }
 
-    this.props.shopStore.storeSelectedShipping[
-      this.props.merchantId
-    ] = this.storeDetails.shippingMethods[0];
+    if (checkout) {
+      when(
+        () =>
+          this.storeDetails.deliveryMethods &&
+          this.storeDetails.deliveryMethods.length > 0 &&
+          this.storeDetails.paymentMethods &&
+          this.storeDetails.paymentMethods.length > 0,
+        () => {
+          if (this.storeDetails.deliveryMethods.includes('Own Delivery')) {
+            this.props.shopStore.storeSelectedDeliveryMethod[
+              this.props.merchantId
+            ] = 'Own Delivery';
+          } else {
+            this.props.shopStore.storeSelectedDeliveryMethod[
+              this.props.merchantId
+            ] = this.storeDetails.deliveryMethods[0];
+          }
 
-    this.props.shopStore.storeSelectedPaymentMethod[
-      this.props.merchantId
-    ] = this.storeDetails.paymentMethods[0];
+          this.props.shopStore.storeSelectedPaymentMethod[
+            this.props.merchantId
+          ] = this.storeDetails.paymentMethods[0];
+        },
+      );
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.shopStore.storeSelectedDeliveryMethod = {};
+    this.props.shopStore.storeSelectedPaymentMethod = {};
   }
 
   render() {
     const {merchantId, checkout} = this.props;
-    const {
-      shippingMethods,
-      paymentMethods,
-      ownDeliveryServiceFee,
-    } = this.storeDetails;
     const {storeName} = this;
 
     return (
@@ -138,8 +175,8 @@ class CartStoreCard extends Component {
           <Image
             source={this.url}
             style={{
-              height: 30,
-              width: 30,
+              height: 40,
+              width: 40,
               marginRight: 10,
               borderRadius: 10,
               borderColor: colors.primary,
@@ -148,15 +185,31 @@ class CartStoreCard extends Component {
           />
 
           <Text
-            numberOfLines={2}
+            numberOfLines={3}
             style={{
-              width: '85%',
-              fontSize: 20,
+              fontSize: 19,
               fontFamily: 'ProductSans-Light',
+              maxWidth: '50%',
               flexWrap: 'wrap',
             }}>
             {storeName}
           </Text>
+
+          {this.storeDetails.freeDelivery && (
+            <Text
+              numberOfLines={2}
+              adjustsFontSizeToFit
+              style={{
+                fontSize: 16,
+                fontFamily: 'ProductSans-Bold',
+                flexShrink: 1,
+                color: colors.primary,
+                marginLeft: 10,
+              }}>
+              Free Delivery (₱{this.storeDetails.freeDeliveryMinimum} Min.
+              Order)
+            </Text>
+          )}
         </View>
         <View>
           {this.cartItems.map((item) => {
@@ -214,29 +267,36 @@ class CartStoreCard extends Component {
                 <Text style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
                   Delivery Fee
                 </Text>
-
-                {this.props.shopStore.storeSelectedShipping[merchantId] !==
-                  'Own Delivery' && (
-                  <Text
-                    numberOfLines={2}
-                    style={{
-                      fontSize: 13,
-                      textAlignVertical: 'center',
-                      paddingLeft: 5,
-                      paddingRight: 15,
-                      flexShrink: 1,
-                    }}>
-                    (To be paid in cash upon receiving order)
-                  </Text>
-                )}
               </View>
 
-              <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
-                {this.props.shopStore.storeSelectedShipping[merchantId] ===
-                'Own Delivery'
-                  ? `₱${ownDeliveryServiceFee}`
-                  : `₱80 - ₱250`}
-              </Text>
+              {this.props.shopStore.storeSelectedDeliveryMethod[merchantId] ===
+                'Own Delivery' && this.storeDetails ? (
+                <Text
+                  style={{
+                    fontFamily: 'ProductSans-Black',
+                    fontSize: 18,
+                    textAlignVertical: 'center',
+                    color:
+                      this.subTotal >= this.storeDetails.freeDeliveryMinimum &&
+                      this.storeDetails.freeDelivery
+                        ? colors.primary
+                        : colors.text_primary,
+                  }}>
+                  {this.subTotal >= this.storeDetails.freeDeliveryMinimum &&
+                  this.storeDetails.freeDelivery
+                    ? 'Free Delivery'
+                    : `₱${this.storeDetails.ownDeliveryServiceFee}`}
+                </Text>
+              ) : (
+                <Text
+                  style={{
+                    fontFamily: 'ProductSans-Black',
+                    fontSize: 14,
+                    textAlignVertical: 'center',
+                  }}>
+                  (Please discuss with merchant)
+                </Text>
+              )}
             </View>
 
             <View
@@ -257,90 +317,137 @@ class CartStoreCard extends Component {
           </View>
         )}
 
-        {checkout && (
+        {this.storeDetails ? (
+          checkout && (
+            <View
+              style={{
+                flex: 1,
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: colors.divider,
+                marginHorizontal: 10,
+                marginTop: 10,
+                flexDirection: 'column',
+              }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  marginTop: 5,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingHorizontal: 8,
+                }}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontFamily: 'ProductSans-Light',
+                  }}>
+                  Delivery Method:
+                </Text>
+
+                {this.storeDetails.deliveryMethods &&
+                this.storeDetails.deliveryMethods.length > 0 ? (
+                  <Picker
+                    mode="dropdown"
+                    style={{flex: 1}}
+                    selectedValue={
+                      this.props.shopStore.storeSelectedDeliveryMethod[
+                        merchantId
+                      ]
+                    }
+                    onValueChange={(value) => {
+                      this.props.shopStore.storeSelectedDeliveryMethod[
+                        merchantId
+                      ] = value;
+                    }}>
+                    {this.storeDetails.deliveryMethods &&
+                      this.storeDetails.deliveryMethods.map((method, index) => {
+                        const label =
+                          method === 'Own Delivery'
+                            ? `${method} (₱ ${this.storeDetails.ownDeliveryServiceFee})`
+                            : `${method}`;
+
+                        return (
+                          <Picker.Item
+                            label={label}
+                            value={method}
+                            key={index}
+                          />
+                        );
+                      })}
+                  </Picker>
+                ) : (
+                  <Text
+                    style={{
+                      flex: 1,
+                      paddingHorizontal: 10,
+                      paddingVertical: 18,
+                      fontFamily: 'ProductSans-Regular',
+                      fontStyle: 'italic',
+                    }}>
+                    No delivery method available
+                  </Text>
+                )}
+              </View>
+
+              <View
+                style={{
+                  flexDirection: 'row',
+                  marginTop: 5,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingHorizontal: 8,
+                }}>
+                <Text style={{fontSize: 16, fontFamily: 'ProductSans-Light'}}>
+                  Payment Method:
+                </Text>
+                {this.storeDetails.paymentMethods &&
+                this.storeDetails.paymentMethods.length > 0 ? (
+                  <Picker
+                    mode="dropdown"
+                    style={{flex: 1}}
+                    selectedValue={
+                      this.props.shopStore.storeSelectedPaymentMethod[
+                        merchantId
+                      ]
+                    }
+                    onValueChange={(value) => {
+                      this.props.shopStore.storeSelectedPaymentMethod[
+                        merchantId
+                      ] = value;
+                    }}>
+                    {this.storeDetails.paymentMethods &&
+                      this.storeDetails.paymentMethods.map((method, index) => {
+                        return (
+                          <Picker.Item
+                            label={method}
+                            value={method}
+                            key={index}
+                          />
+                        );
+                      })}
+                  </Picker>
+                ) : (
+                  <Text style={{paddingTop: 10}}>
+                    No payment method available
+                  </Text>
+                )}
+              </View>
+            </View>
+          )
+        ) : (
           <View
             style={{
-              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 20,
               borderRadius: 10,
               borderWidth: 1,
               borderColor: colors.divider,
               marginHorizontal: 10,
               marginTop: 10,
-              flexDirection: 'column',
             }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                marginTop: 5,
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingHorizontal: 8,
-              }}>
-              <Text style={{fontSize: 16, fontFamily: 'ProductSans-Light'}}>
-                Shipping Method:
-              </Text>
-
-              <Picker
-                mode="dropdown"
-                style={{flex: 1}}
-                selectedValue={
-                  this.props.shopStore.storeSelectedShipping[merchantId]
-                }
-                onValueChange={(value) => {
-                  this.props.shopStore.storeSelectedShipping[
-                    merchantId
-                  ] = value;
-                }}>
-                {shippingMethods.length > 0 ? (
-                  shippingMethods.map((method, index) => {
-                    const label =
-                      method === 'Own Delivery'
-                        ? `${method} (₱ ${ownDeliveryServiceFee})`
-                        : `${method} (₱80 - ₱250)`;
-
-                    return (
-                      <Picker.Item label={label} value={method} key={index} />
-                    );
-                  })
-                ) : (
-                  <Text>No shipping method available for your location</Text>
-                )}
-              </Picker>
-            </View>
-
-            <View
-              style={{
-                flexDirection: 'row',
-                marginTop: 5,
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingHorizontal: 8,
-              }}>
-              <Text style={{fontSize: 16, fontFamily: 'ProductSans-Light'}}>
-                Payment Method:
-              </Text>
-              <Picker
-                mode="dropdown"
-                style={{flex: 1}}
-                selectedValue={
-                  this.props.shopStore.storeSelectedPaymentMethod[merchantId]
-                }
-                onValueChange={(value) => {
-                  this.props.shopStore.storeSelectedPaymentMethod[
-                    merchantId
-                  ] = value;
-                }}>
-                {paymentMethods.length > 0 ? (
-                  paymentMethods.map((method, index) => {
-                    return (
-                      <Picker.Item label={method} value={method} key={index} />
-                    );
-                  })
-                ) : (
-                  <Text>No payment method available</Text>
-                )}
-              </Picker>
-            </View>
+            <ActivityIndicator size="small" color={colors.primary} />
           </View>
         )}
       </Card>

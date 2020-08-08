@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {FlatList, View, RefreshControl} from 'react-native';
+import {FlatList, View, RefreshControl, ActivityIndicator} from 'react-native';
 import StoreCategoryCard from './StoreCategoryCard';
 import {Text} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
@@ -27,8 +27,15 @@ class StoreCategoryList extends Component {
     });
   }
 
+  renderItem = ({item, index}) => (
+    <StoreCategoryCard
+      item={item}
+      navigation={this.props.navigation}
+      key={`${item.name}${index}`}
+    />
+  );
+
   render() {
-    const {navigation} = this.props;
     const {refreshing} = this.state;
 
     if (this.props.shopStore.storeCategories) {
@@ -37,13 +44,7 @@ class StoreCategoryList extends Component {
           <FlatList
             style={{paddingHorizontal: 15}}
             data={this.props.shopStore.storeCategories.slice()}
-            renderItem={({item, index}) => (
-              <StoreCategoryCard
-                item={item}
-                navigation={navigation}
-                key={index}
-              />
-            )}
+            renderItem={this.renderItem}
             refreshControl={
               <RefreshControl
                 colors={[colors.primary, colors.dark]}
@@ -51,7 +52,7 @@ class StoreCategoryList extends Component {
                 onRefresh={this.onRefresh.bind(this)}
               />
             }
-            keyExtractor={(store) => store.name}
+            keyExtractor={(store, index) => `${store.name}${index}`}
             showsVerticalScrollIndicator={false}
           />
         </View>
@@ -59,8 +60,13 @@ class StoreCategoryList extends Component {
     }
 
     return (
-      <View style={{flex: 1}}>
-        <Text>No categories</Text>
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <ActivityIndicator color={colors.primary} size="large" />
       </View>
     );
   }

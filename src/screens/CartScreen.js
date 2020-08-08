@@ -1,24 +1,12 @@
 import React, {Component} from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  Platform,
-  StyleSheet,
-  ScrollView,
-  StatusBar,
-  Image,
-  SafeAreaView,
-} from 'react-native';
+import {View, Text, StatusBar, Image, SafeAreaView} from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
-import {Icon, SocialIcon, Button} from 'react-native-elements';
+import {Icon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import CartStoreList from '../components/CartStoreList';
 import BackButton from '../components/BackButton';
-import {computed} from 'mobx';
 
 @inject('shopStore')
 @inject('authStore')
@@ -50,7 +38,7 @@ class CartScreen extends Component {
         <Animatable.View
           animation="fadeInUp"
           useNativeDriver
-          duration={800}
+          duration={600}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
@@ -75,9 +63,18 @@ class CartScreen extends Component {
 
         <Animatable.View
           useNativeDriver
+          duration={600}
           animation="fadeInUpBig"
-          style={[styles.footer, {paddingBottom: 100, paddingHorizontal: 10}]}>
+          style={[
+            styles.footer,
+            {
+              paddingBottom: 100,
+              paddingHorizontal: 10,
+              overflow: 'hidden',
+            },
+          ]}>
           <CartStoreList
+            cart
             emptyCartText={`This seems lonely...${'\n'}
               ${'\n'}Go back and visit a store now and add items to your cart!`}
           />
@@ -85,6 +82,7 @@ class CartScreen extends Component {
 
         <Animatable.View
           useNativeDriver
+          duration={700}
           animation="fadeInUpBig"
           style={{
             flexDirection: 'row',
@@ -121,7 +119,7 @@ class CartScreen extends Component {
                 color: colors.icons,
                 fontSize: 26,
               }}>
-              ₱ {this.props.shopStore.totalCartSubTotal}
+              ₱ {this.props.shopStore.totalCartSubTotalAmount}
             </Text>
 
             <Text
@@ -133,30 +131,34 @@ class CartScreen extends Component {
             </Text>
           </View>
 
-          <Button
-            onPress={() => this.handleCheckout()}
-            disabled={
-              this.props.shopStore.totalCartItemQuantity <= 0 ||
-              !this.props.shopStore.validCheckout
-            }
-            raised
-            icon={<Icon name="arrow-right" color={colors.icons} />}
-            iconRight
-            title="Checkout"
-            titleStyle={{
-              color: colors.icons,
-              fontFamily: 'ProductSans-Black',
-              fontSize: 22,
-              marginRight: '20%',
-            }}
-            buttonStyle={{height: '100%', backgroundColor: colors.accent}}
-            containerStyle={{
-              height: '100%',
-              flex: 1,
-              borderRadius: 24,
-              padding: 0,
-            }}
-          />
+          <View style={{borderRadius: 24, overflow: 'hidden', flex: 1}}>
+            <Button
+              onPress={() => this.handleCheckout()}
+              disabled={
+                this.props.shopStore.totalCartItemQuantity <= 0 ||
+                !this.props.shopStore.validCheckout
+              }
+              raised
+              icon={<Icon name="arrow-right" color={colors.icons} />}
+              iconRight
+              title="Checkout"
+              titleStyle={{
+                color: colors.icons,
+                fontFamily: 'ProductSans-Black',
+                fontSize: 22,
+                marginRight: '20%',
+              }}
+              buttonStyle={{
+                height: '100%',
+                borderRadius: 24,
+                backgroundColor: colors.accent,
+              }}
+              containerStyle={{
+                height: '100%',
+                padding: 0,
+              }}
+            />
+          </View>
         </Animatable.View>
       </SafeAreaView>
     );

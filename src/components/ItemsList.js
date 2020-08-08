@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
-import {FlatList} from 'react-native';
-import {Container, View, Fab, Icon, Button} from 'native-base';
-import {observer, inject} from 'mobx-react';
+import {FlatList, View} from 'react-native';
+import {observer} from 'mobx-react';
 // Custom Components
 import ItemCard from './ItemCard';
 @observer
@@ -25,8 +24,22 @@ class ItemsList extends Component {
     return data;
   }
 
+  renderItem = ({item, index}) =>
+    item.empty ? (
+      <View
+        style={{flex: 1, backgroundColor: 'transparent'}}
+        key={item.itemId}
+      />
+    ) : (
+      <ItemCard
+        item={item}
+        merchantId={this.props.route.params.merchantId}
+        key={index}
+      />
+    );
+
   render() {
-    const {items, merchantId} = this.props.route.params;
+    const {items} = this.props.route.params;
     const dataSource = [...items];
 
     const numColumns = 2;
@@ -36,16 +49,9 @@ class ItemsList extends Component {
         <FlatList
           data={this.formatData(dataSource, numColumns)}
           numColumns={numColumns}
-          renderItem={({item, index}) =>
-            item.empty ? (
-              <View
-                style={{flex: 1, backgroundColor: 'transparent'}}
-                key={index}
-              />
-            ) : (
-              <ItemCard item={item} merchantId={merchantId} key={index} />
-            )
-          }
+          initialNumToRender={10}
+          maxToRenderPerBatch={4}
+          renderItem={this.renderItem}
           keyExtractor={(item, index) => `${item.itemId}`}
           showsVerticalScrollIndicator={false}
         />

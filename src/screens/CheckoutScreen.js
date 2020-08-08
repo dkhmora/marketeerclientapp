@@ -1,20 +1,8 @@
 import React, {Component} from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  Platform,
-  StyleSheet,
-  ScrollView,
-  StatusBar,
-  Image,
-  SafeAreaView,
-  ActivityIndicator,
-} from 'react-native';
+import {View, Text, StatusBar, Image, SafeAreaView} from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
-import {Icon, SocialIcon, Button} from 'react-native-elements';
+import {Icon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import CartStoreList from '../components/CartStoreList';
@@ -28,28 +16,21 @@ import Toast from '../components/Toast';
 class CheckoutScreen extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      loading: false,
-    };
   }
 
   async handlePlaceOrder() {
     const {navigation} = this.props;
-    const {userId} = this.props.authStore;
     const {
       currentLocation,
       currentLocationDetails,
       currentLocationGeohash,
-      updateCoordinates,
       deliverToCurrentLocation,
       deliverToLastDeliveryLocation,
       deliverToSetLocation,
       userDetails,
     } = this.props.generalStore;
     const {
-      storeCartItems,
-      storeSelectedShipping,
+      storeSelectedDeliveryMethod,
       storeSelectedPaymentMethod,
     } = this.props.shopStore;
 
@@ -57,69 +38,63 @@ class CheckoutScreen extends Component {
 
     let deliveryCoordinates = null;
     let deliveryAddress = null;
+    let deliveryCoordinatesGeohash = null;
 
     if (deliverToCurrentLocation || deliverToSetLocation) {
       deliveryCoordinates = currentLocation;
       deliveryAddress = currentLocationDetails;
+      deliveryCoordinatesGeohash = currentLocationGeohash;
     } else if (deliverToLastDeliveryLocation) {
-      deliveryCoordinates = userDetails.lastDeliveryLocation;
-      deliveryAddress = userDetails.lastDeliveryLocationAddress;
+      deliveryCoordinates = userDetails.addresses.Home.coordinates;
+      deliveryAddress = userDetails.Home.address;
+      deliveryCoordinatesGeohash = userDetails.Home.geohash;
     }
 
-    this.setState({loading: true});
+    this.props.generalStore.appReady = false;
 
     const userCoordinates = await this.props.generalStore.getUserLocation();
 
     this.props.shopStore
       .placeOrder({
         deliveryCoordinates,
+        deliveryCoordinatesGeohash,
         deliveryAddress,
         userCoordinates,
         userName,
-        storeCartItems,
-        storeSelectedShipping,
+        storeSelectedDeliveryMethod,
         storeSelectedPaymentMethod,
       })
       .then(async (response) => {
-        this.setState({loading: false});
-
-        if (response.data.s === 200) {
-          Toast({
-            text: 'Orders Placed! Thank you for shopping at Marketeer!',
-            duration: 5000,
-          });
-
-          navigation.replace('Home');
-        }
+        this.props.generalStore.appReady = true;
 
         if (response.data.s === 400) {
           Toast({
             text: response.data.m,
             type: 'danger',
-            duration: 8000,
-          });
-
-          await this.props.shopStore.cartStores.map(async (merchantId) => {
-            const storeDetails = await this.props.shopStore.getStoreDetailsFromMerchantId(
-              merchantId,
-            );
-
-            this.props.shopStore.setStoreItems(
-              merchantId,
-              storeDetails.itemCategories,
-            );
+            duration: 6000,
           });
 
           navigation.replace('Cart');
+        } else {
+          let responses = '';
+
+          await response.data.map((res) => {
+            if (res.s === 200) {
+              responses = `${responses !== '' ? `${responses}; ` : ''}${
+                res.m
+              }; Thank you for shopping at Marketeer!`;
+            }
+          });
+
+          if (responses) {
+            Toast({
+              text: responses,
+              duration: 5000,
+            });
+
+            navigation.replace('Home');
+          }
         }
-      })
-      .then(() => {
-        updateCoordinates(
-          userId,
-          currentLocation,
-          currentLocationGeohash,
-          currentLocationDetails,
-        );
       });
   }
 
@@ -132,7 +107,6 @@ class CheckoutScreen extends Component {
 
   render() {
     const {navigation} = this.props;
-    const {loading} = this.state;
 
     return (
       <SafeAreaView style={styles.container}>
@@ -141,7 +115,7 @@ class CheckoutScreen extends Component {
         <Animatable.View
           animation="fadeInUp"
           useNativeDriver
-          duration={800}
+          duration={600}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
@@ -166,8 +140,12 @@ class CheckoutScreen extends Component {
 
         <Animatable.View
           useNativeDriver
+          duration={600}
           animation="fadeInUpBig"
-          style={[styles.footer, {paddingBottom: 100, paddingHorizontal: 10}]}>
+          style={[
+            styles.footer,
+            {paddingBottom: 100, paddingHorizontal: 10, overflow: 'hidden'},
+          ]}>
           <CartStoreList
             checkout
             emptyCartText={`This seems lonely...${'\n'}
@@ -177,6 +155,7 @@ class CheckoutScreen extends Component {
 
         <Animatable.View
           useNativeDriver
+          duration={700}
           animation="fadeInUpBig"
           style={{
             flexDirection: 'row',
@@ -213,57 +192,50 @@ class CheckoutScreen extends Component {
                 color: colors.icons,
                 fontSize: 26,
               }}>
-              ₱ {this.props.shopStore.totalCartSubTotal}
+              ₱ {this.props.shopStore.totalCartSubTotalAmount}
             </Text>
 
             <Text
+              numberOfLines={1}
+              adjustsFontSizeToFit
               style={{
                 color: colors.icons,
                 fontSize: 16,
+                textAlign: 'center',
               }}>
               Total Amount
             </Text>
           </View>
 
-          <Button
-            onPress={() => this.handlePlaceOrder()}
-            raised
-            disabled={loading}
-            icon={<Icon name="arrow-right" color={colors.icons} />}
-            iconRight
-            title="Place Order"
-            titleStyle={{
-              color: colors.icons,
-              fontFamily: 'ProductSans-Black',
-              fontSize: 22,
-              marginRight: '20%',
-            }}
-            buttonStyle={{height: '100%', backgroundColor: colors.accent}}
-            containerStyle={{
-              height: '100%',
-              flex: 1,
-              borderRadius: 24,
-              padding: 0,
-            }}
-          />
-        </Animatable.View>
-
-        {loading && (
-          <View
-            style={{
-              width: '100%',
-              height: '120%',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'rgba(0,0,0,0.5)',
-            }}>
-            <ActivityIndicator size="large" color={colors.primary} />
+          <View style={{borderRadius: 24, overflow: 'hidden', flex: 1}}>
+            <Button
+              onPress={() => this.handlePlaceOrder()}
+              raised
+              disabled={
+                this.props.generalStore.appReady === false ||
+                !this.props.shopStore.validPlaceOrder
+              }
+              icon={<Icon name="arrow-right" color={colors.icons} />}
+              iconRight
+              title="Place Order"
+              titleStyle={{
+                color: colors.icons,
+                fontFamily: 'ProductSans-Black',
+                fontSize: 22,
+                marginRight: '20%',
+              }}
+              buttonStyle={{
+                height: '100%',
+                backgroundColor: colors.accent,
+                borderRadius: 24,
+              }}
+              containerStyle={{
+                height: '100%',
+                padding: 0,
+              }}
+            />
           </View>
-        )}
+        </Animatable.View>
       </SafeAreaView>
     );
   }

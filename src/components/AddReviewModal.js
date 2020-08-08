@@ -16,7 +16,6 @@ class AddReviewModal extends PureComponent {
       reviewTitle: '',
       reviewBody: '',
       rating: 5,
-      loading: false,
     };
   }
 
@@ -40,12 +39,12 @@ class AddReviewModal extends PureComponent {
       reviewTitle,
     };
 
-    this.setState({loading: true});
+    this.props.generalStore.appReady = false;
 
     addReview({review}).then(() => {
       Toast({text: 'Successfully submitted review!'});
 
-      this.setState({loading: false});
+      this.props.generalStore.appReady = true;
 
       onReviewSubmit();
 
@@ -55,33 +54,18 @@ class AddReviewModal extends PureComponent {
 
   render() {
     const {isVisible, closeModal, order, ...otherProps} = this.props;
-    const {rating, loading} = this.state;
+    const {rating} = this.state;
 
     return (
       <Overlay
         {...otherProps}
         isVisible={isVisible}
         onBackdropPress={() => this.handleBackdropPress()}
-        windowBackgroundColor="rgba(255, 255, 255, .5)"
-        overlayBackgroundColor="red"
+        statusBarTranslucent
         width="auto"
         height="auto"
         overlayStyle={{borderRadius: 10, padding: 0}}>
         <View style={{width: '80%'}}>
-          {loading && (
-            <View
-              style={{
-                height: '100%',
-                width: '100%',
-                position: 'absolute',
-                backgroundColor: 'rgba(0,0,0,0.5)',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <ActivityIndicator size="large" color={colors.primary} />
-            </View>
-          )}
-
           <View style={{padding: 15}}>
             <Text
               style={{

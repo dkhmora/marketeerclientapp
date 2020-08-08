@@ -2,8 +2,6 @@ import React, {Component} from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
-  Platform,
   StatusBar,
   Image,
   ImageBackground,
@@ -15,7 +13,6 @@ import {Icon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import SlidingCartPanel from '../components/SlidingCartPanel';
-import {SafeAreaView} from 'react-native-safe-area-context';
 import ItemCategoriesTab from '../navigation/ItemCategoriesTab';
 import StoreDetailsModal from '../components/StoreDetailsModal';
 
@@ -72,7 +69,7 @@ class StoreScreen extends Component {
         <Animatable.View
           useNativeDriver
           animation="fadeInUp"
-          duration={800}
+          duration={600}
           style={{flexDirection: 'row', paddingBottom: 20}}>
           <ImageBackground
             source={{uri: coverImageUrl}}
@@ -86,13 +83,12 @@ class StoreScreen extends Component {
               paddingBottom: 40 + STATUS_BAR_HEIGHT,
               paddingHorizontal: 5,
               alignItems: 'center',
-              justifyContent: 'flex-start',
               backgroundColor: 'rgba(0,0,0,0.2)',
             }}>
             <Animatable.View
               useNativeDriver
               animation="fadeIn"
-              duration={800}
+              duration={600}
               style={{
                 flex: 1,
                 height: SCREEN_HEIGHT,
@@ -108,7 +104,7 @@ class StoreScreen extends Component {
             <Animatable.View
               animation="fadeInUp"
               useNativeDriver
-              duration={800}
+              duration={600}
               style={{paddingHorizontal: 10}}>
               <Button
                 onPress={() => navigation.goBack()}
@@ -126,7 +122,7 @@ class StoreScreen extends Component {
             <Animatable.Image
               animation="fadeInUp"
               useNativeDriver
-              duration={800}
+              duration={600}
               source={{uri: displayImageUrl}}
               style={{
                 height: 75,
@@ -140,7 +136,7 @@ class StoreScreen extends Component {
             <Animatable.View
               animation="fadeInUp"
               useNativeDriver
-              duration={800}
+              duration={600}
               style={{
                 flex: 1,
                 flexDirection: 'row',
@@ -186,7 +182,7 @@ class StoreScreen extends Component {
           style={{
             width: 200,
             height: 150,
-            resizeMode: 'center',
+            resizeMode: 'contain',
             position: 'absolute',
             top: '50%',
             left: '25%',
@@ -195,7 +191,7 @@ class StoreScreen extends Component {
 
         <Animatable.View
           animation="fadeInUpBig"
-          duration={700}
+          duration={600}
           useNativeDriver
           style={[
             styles.footer,
@@ -213,15 +209,7 @@ class StoreScreen extends Component {
           />
         </Animatable.View>
 
-        {Platform.OS === 'ios' ? (
-          <SafeAreaView>
-            <SafeAreaView>
-              <SlidingCartPanel navigation={navigation} />
-            </SafeAreaView>
-          </SafeAreaView>
-        ) : (
-          <SlidingCartPanel navigation={navigation} />
-        )}
+        <SlidingCartPanel navigation={navigation} />
       </View>
     );
   }

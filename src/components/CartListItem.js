@@ -89,6 +89,7 @@ class CartListItem extends Component {
           key={item.itemId}
           source={url}
           style={{
+            backgroundColor: colors.primary,
             height: 55,
             width: 55,
             borderColor: colors.primary,

@@ -1,21 +1,24 @@
 import React, {Component} from 'react';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import ItemsList from '../components/ItemsList';
-import {View} from 'react-native';
-import {Text} from 'react-native-elements';
+import {View, ActivityIndicator, Dimensions} from 'react-native';
 import {computed} from 'mobx';
+import {colors} from '../../assets/colors';
 
 const ItemTab = createMaterialTopTabNavigator();
+const SCREEN_WIDTH = Dimensions.get('screen').width;
 
 class ItemCategoriesTab extends Component {
   constructor(props) {
     super(props);
   }
 
-  @computed get scrollEnabled() {
+  @computed get tabWidth() {
     const {storeCategoryItems} = this.props;
 
-    return storeCategoryItems && storeCategoryItems.size >= 3 ? true : false;
+    return storeCategoryItems && storeCategoryItems.size > 5
+      ? 'auto'
+      : SCREEN_WIDTH / storeCategoryItems.size;
   }
 
   TabScreens(storeCategoryItems) {
@@ -41,12 +44,20 @@ class ItemCategoriesTab extends Component {
 
   render() {
     const {storeCategoryItems, style} = this.props;
-    const {scrollEnabled} = this;
 
     if (storeCategoryItems) {
       return (
         <View style={[style, {flex: 1}]}>
-          <ItemTab.Navigator tabBarOptions={{scrollEnabled}}>
+          <ItemTab.Navigator
+            lazy
+            lazyPreloadDistance={0.5}
+            tabBarOptions={{
+              scrollEnabled: true,
+              tabStyle: {width: this.tabWidth},
+              indicatorStyle: {
+                backgroundColor: colors.primary,
+              },
+            }}>
             {storeCategoryItems && this.TabScreens(storeCategoryItems)}
           </ItemTab.Navigator>
         </View>
@@ -57,15 +68,10 @@ class ItemCategoriesTab extends Component {
       <View
         style={{
           flex: 1,
-          paddingHorizontal: 15,
-          paddingVertical: 20,
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-        <Text style={{fontSize: 18}}>
-          Oh no! This store currently has no items yet. Please check back again
-          later.
-        </Text>
+        <ActivityIndicator color={colors.primary} size="large" />
       </View>
     );
   }

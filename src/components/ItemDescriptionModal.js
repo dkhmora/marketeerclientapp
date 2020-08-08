@@ -16,6 +16,7 @@ class ItemDescriptionModal extends Component {
       description,
       name,
       url,
+      discountedPrice,
       price,
       unit,
       stock,
@@ -27,8 +28,7 @@ class ItemDescriptionModal extends Component {
         {...otherProps}
         isVisible={isVisible}
         onBackdropPress={onBackdropPress}
-        windowBackgroundColor="rgba(255, 255, 255, .5)"
-        overlayBackgroundColor="red"
+        statusBarTranslucent
         width="auto"
         height="auto"
         overlayStyle={{borderRadius: 10, padding: 0}}>
@@ -42,7 +42,7 @@ class ItemDescriptionModal extends Component {
                 width: null,
                 height: 300,
                 aspectRatio: 1,
-                backgroundColor: '#e1e4e8',
+                backgroundColor: colors.primary,
               }}
               resizeMode={FastImage.resizeMode.contain}
             />
@@ -55,7 +55,7 @@ class ItemDescriptionModal extends Component {
                 width: null,
                 height: 300,
                 aspectRatio: 1,
-                backgroundColor: '#e1e4e8',
+                backgroundColor: colors.primary,
               }}
               resizeMode={FastImage.resizeMode.contain}
             />
@@ -76,14 +76,30 @@ class ItemDescriptionModal extends Component {
               }}>
               {name}
             </Text>
-            <Text
-              style={{
-                color: colors.text_primary,
-                fontSize: 18,
-                fontFamily: 'ProductSans-Black',
-              }}>
-              ₱{price}/{unit}
-            </Text>
+
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              {discountedPrice && (
+                <Text
+                  style={{
+                    textDecorationLine: 'line-through',
+                    textDecorationStyle: 'solid',
+                    color: colors.text_secondary,
+                    fontSize: 16,
+                    marginRight: 5,
+                  }}>
+                  ₱{price}
+                </Text>
+              )}
+
+              <Text
+                style={{
+                  color: colors.text_primary,
+                  fontFamily: 'ProductSans-Black',
+                  fontSize: 18,
+                }}>
+                ₱{discountedPrice ? discountedPrice : price}/{unit}
+              </Text>
+            </View>
 
             <View style={{padding: 10, marginBottom: 20}}>
               <Text style={{fontSize: 18}}>{description}</Text>

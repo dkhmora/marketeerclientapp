@@ -64,8 +64,7 @@ class ForgotPasswordModal extends Component {
         {...otherProps}
         isVisible={isVisible}
         onBackdropPress={() => this.handleBackdropPress()}
-        windowBackgroundColor="rgba(255, 255, 255, .5)"
-        overlayBackgroundColor="red"
+        statusBarTranslucent
         width="auto"
         height="auto"
         overlayStyle={{borderRadius: 10, padding: 0}}>

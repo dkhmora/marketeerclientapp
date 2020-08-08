@@ -5,8 +5,6 @@ import {
   View,
   TouchableOpacity,
   Dimensions,
-  FlatList,
-  RefreshControl,
   ActivityIndicator,
 } from 'react-native';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
@@ -95,11 +93,8 @@ class MainScreen extends Component {
       return currentLocationDetails;
     } else if (deliverToSetLocation && currentLocationDetails) {
       return currentLocationDetails;
-    } else if (
-      userDetails.lastDeliveryLocationAddress &&
-      deliverToLastDeliveryLocation
-    ) {
-      return userDetails.lastDeliveryLocationAddress;
+    } else if (userDetails.addresses && deliverToLastDeliveryLocation) {
+      return userDetails.addresses.Home.address;
     } else {
       return 'Current Location';
     }
@@ -148,7 +143,7 @@ class MainScreen extends Component {
           icon={
             <Image
               source={require('../../assets/images/logo_cart.png')}
-              style={{width: 30, height: 30, resizeMode: 'center'}}
+              style={{width: 30, height: 30, resizeMode: 'contain'}}
               textStyle={{fontFamily: 'ProductSans-Light'}}
             />
           }
@@ -223,12 +218,30 @@ class MainScreen extends Component {
         style={{
           width: '100%',
           backgroundColor: '#fff',
+          borderBottomLeftRadius: 24,
+          borderBottomRightRadius: 24,
+          overflow: 'hidden',
           top: this.state.initialPosition,
           position: 'absolute',
         }}>
         <ListItem
           title="Current Location"
-          titleStyle={styles.header_topDrawerTitleText}
+          containerStyle={{
+            backgroundColor: this.props.generalStore.deliverToCurrentLocation
+              ? 'rgba(248, 187, 208, 0.4)'
+              : colors.icons,
+          }}
+          titleStyle={[
+            styles.header_topDrawerTitleText,
+            {
+              fontFamily: this.props.generalStore.deliverToCurrentLocation
+                ? 'ProductSans-Bold'
+                : 'ProductSans-Light',
+              color: this.props.generalStore.deliverToCurrentLocation
+                ? colors.primary
+                : colors.text_primary,
+            },
+          ]}
           subtitle={
             this.props.generalStore.currentLocationDetails &&
             this.props.generalStore.deliverToCurrentLocation
@@ -238,11 +251,6 @@ class MainScreen extends Component {
           leftIcon={<Icon name="map-pin" color={colors.primary} />}
           bottomDivider
           chevron
-          checkmark={
-            this.props.generalStore.deliverToCurrentLocation && (
-              <Icon name="check" color={colors.primary} />
-            )
-          }
           onPress={() => {
             this.props.generalStore.setCurrentLocation().then(() => {
               this.props.shopStore.getStoreList({
@@ -255,25 +263,36 @@ class MainScreen extends Component {
           }}
         />
 
-        {this.props.generalStore.userDetails.lastDeliveryLocation && (
+        {this.props.generalStore.userDetails.addresses && (
           <ListItem
             title="Last Delivery Location"
-            titleStyle={styles.header_topDrawerTitleText}
+            containerStyle={{
+              backgroundColor: this.props.generalStore
+                .deliverToLastDeliveryLocation
+                ? 'rgba(248, 187, 208, 0.4)'
+                : colors.icons,
+            }}
+            titleStyle={[
+              styles.header_topDrawerTitleText,
+              {
+                fontFamily: this.props.generalStore
+                  .deliverToLastDeliveryLocation
+                  ? 'ProductSans-Bold'
+                  : 'ProductSans-Light',
+                color: this.props.generalStore.deliverToLastDeliveryLocation
+                  ? colors.primary
+                  : colors.text_primary,
+              },
+            ]}
             subtitle={
-              this.props.generalStore.userDetails.lastDeliveryLocationAddress
-                ? this.props.generalStore.userDetails
-                    .lastDeliveryLocationAddress
+              this.props.generalStore.userDetails.addresses
+                ? this.props.generalStore.userDetails.addresses.Home.address
                 : null
             }
             subtitleStyle={styles.subtitleStyle}
             leftIcon={<Icon name="navigation" color={colors.primary} />}
             bottomDivider
             chevron
-            checkmark={
-              this.props.generalStore.deliverToLastDeliveryLocation && (
-                <Icon name="check" color={colors.primary} />
-              )
-            }
             onPress={() => {
               this.props.generalStore.setLastDeliveryLocation().then(() => {
                 this.props.shopStore.getStoreList({
@@ -289,7 +308,22 @@ class MainScreen extends Component {
 
         <ListItem
           title="Set Location"
-          titleStyle={styles.header_topDrawerTitleText}
+          containerStyle={{
+            backgroundColor: this.props.generalStore.deliverToSetLocation
+              ? 'rgba(248, 187, 208, 0.4)'
+              : colors.icons,
+          }}
+          titleStyle={[
+            styles.header_topDrawerTitleText,
+            {
+              fontFamily: this.props.generalStore.deliverToSetLocation
+                ? 'ProductSans-Bold'
+                : 'ProductSans-Light',
+              color: this.props.generalStore.deliverToSetLocation
+                ? colors.primary
+                : colors.text_primary,
+            },
+          ]}
           subtitle={
             this.props.generalStore.currentLocationDetails &&
             this.props.generalStore.deliverToSetLocation
@@ -299,11 +333,6 @@ class MainScreen extends Component {
           leftIcon={<Icon name="map" color={colors.primary} />}
           bottomDivider
           chevron
-          checkmark={
-            this.props.generalStore.deliverToSetLocation && (
-              <Icon name="check" color={colors.primary} />
-            )
-          }
           onPress={() => {
             navigation.navigate('Set Location', {checkout: false});
             this.hideLocationMenu();

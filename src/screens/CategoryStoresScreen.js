@@ -2,8 +2,6 @@ import React, {Component} from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
-  Platform,
   StatusBar,
   Image,
   ImageBackground,
@@ -14,11 +12,8 @@ import {observer, inject} from 'mobx-react';
 import {Icon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
-import SlidingCartPanel from '../components/SlidingCartPanel';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import ItemTabs from '../navigation/ItemCategoriesTab';
 import StoreList from '../components/StoreList';
-import BackButton from '../components/BackButton';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -147,7 +142,7 @@ class CategoryStoresScreen extends Component {
           style={{
             width: 200,
             height: 150,
-            resizeMode: 'center',
+            resizeMode: 'contain',
             position: 'absolute',
             top: '50%',
             left: '25%',

@@ -4,10 +4,10 @@ buildscript {
     ext {
         buildToolsVersion = "28.0.3"
         minSdkVersion = 27
-        compileSdkVersion = 28
-        targetSdkVersion = 28
+        compileSdkVersion = 29
+        targetSdkVersion = 29
         playServicesVersion = "17.0.0"
-        supportLibVersion   = "20.0.0"
+        supportLibVersion   = "28.0.0"
         androidMapsUtilsVersion = "+0.5"
     }
     repositories {
@@ -46,9 +46,9 @@ allprojects {
 ext {
     buildToolsVersion = "28.0.3"
     minSdkVersion = 27
-    compileSdkVersion = 28
-    targetSdkVersion = 28
+    compileSdkVersion = 29
+    targetSdkVersion = 29
     playServicesVersion = "17.0.0"
-    supportLibVersion   = "20.0.0"
+    supportLibVersion   = "28.0.0"
     androidMapsUtilsVersion = "+0.5"
 }

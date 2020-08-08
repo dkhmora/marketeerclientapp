@@ -38,9 +38,9 @@ class SetLocationScreen extends Component {
         longitudeDelta: 0.1,
       },
       editMode: false,
-      loading: false,
       newMarkerPosition: null,
       centerOfScreen: (Dimensions.get('window').height - 17) / 2,
+      currentUserLocation: null,
     };
   }
 
@@ -102,9 +102,7 @@ class SetLocationScreen extends Component {
 
     const coordinatesGeohash = await this.getGeohash(newMarkerPosition);
 
-    this.props.shopStore.getStoreList(coordinatesGeohash, newMarkerPosition);
-
-    this.setState({loading: true});
+    this.props.generalStore.appReady = false;
 
     this.props.generalStore.deliverToCurrentLocation = false;
     this.props.generalStore.deliverToLastDeliveryLocation = false;
@@ -119,13 +117,18 @@ class SetLocationScreen extends Component {
 
       Toast({text: 'Successfully set location!'});
 
-      this.setState({loading: false});
+      this.props.generalStore.appReady = true;
     } else {
       navigation.navigate('Home');
 
+      this.props.shopStore.getStoreList({
+        currentLocationGeohash: coordinatesGeohash,
+        locationCoordinates: newMarkerPosition,
+      });
+
       Toast({text: 'Successfully set location!'});
 
-      this.setState({loading: false});
+      this.props.generalStore.appReady = true;
     }
 
     this.setState({
@@ -161,14 +164,23 @@ class SetLocationScreen extends Component {
   }
 
   _onMapReady = () => {
-    if (Platform.OS === 'android') {
-      PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      ).then((granted) => {
-        console.log(granted); // just to ensure that permissions were granted
-      });
-    } else {
-      Geolocation.requestAuthorization();
+    if (!this.props.route.params.locationError) {
+      if (Platform.OS === 'android') {
+        PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        ).then((granted) => {
+          if (granted !== 'granted') {
+            Toast({
+              text: 'Location Permissions not granted.',
+              duration: 0,
+              type: 'danger',
+              buttonText: 'Okay',
+            });
+          }
+        });
+      } else {
+        Geolocation.requestAuthorization();
+      }
     }
   };
 
@@ -248,7 +260,16 @@ class SetLocationScreen extends Component {
           editMode: true,
         });
       })
-      .catch((error) => console.log(error.message));
+      .catch((error) => Toast({text: error.message, type: 'danger'}));
+  }
+
+  panToCurrentLocation() {
+    if (this.state.currentUserLocation) {
+      const {latitude, longitude} = this.state.currentUserLocation;
+      const coordinates = {latitude, longitude};
+
+      this.panMapToLocation(coordinates);
+    }
   }
 
   render() {
@@ -259,7 +280,6 @@ class SetLocationScreen extends Component {
       mapData,
       mapReady,
       editMode,
-      loading,
       saveChangesLoading,
     } = this.state;
     const {checkout, locationError} = this.props.route.params;
@@ -276,6 +296,9 @@ class SetLocationScreen extends Component {
               this.map = map;
             }}
             provider="google"
+            onUserLocationChange={(event) =>
+              this.setState({currentUserLocation: event.nativeEvent.coordinate})
+            }
             onRegionChangeComplete={this.handleRegionChange}
             showsUserLocation
             followsUserLocation
@@ -313,6 +336,8 @@ class SetLocationScreen extends Component {
         )}
         <View
           style={{
+            flexDirection: 'row',
+            width: '100%',
             position: 'absolute',
             alignSelf: 'center',
             justifyContent: 'center',
@@ -378,7 +403,7 @@ class SetLocationScreen extends Component {
                   icon={
                     <Image
                       source={require('../../assets/images/logo_cart.png')}
-                      style={{width: 27, height: 27, resizeMode: 'center'}}
+                      style={{width: 27, height: 27, resizeMode: 'contain'}}
                       textStyle={{fontFamily: 'ProductSans-Light'}}
                     />
                   }
@@ -393,6 +418,24 @@ class SetLocationScreen extends Component {
               )}
             </View>
           )}
+        </View>
+
+        <View
+          style={{
+            position: 'absolute',
+            bottom: '20%',
+            right: 20,
+          }}>
+          <Button
+            onPress={() => this.panToCurrentLocation()}
+            disabled={!this.state.currentUserLocation}
+            icon={<Icon name="crosshair" color={colors.icons} size={35} />}
+            titleStyle={{color: colors.icons}}
+            buttonStyle={{backgroundColor: colors.primary, borderRadius: 35}}
+            containerStyle={{
+              overflow: 'hidden',
+            }}
+          />
         </View>
 
         <BaseHeader
@@ -410,25 +453,6 @@ class SetLocationScreen extends Component {
             />
           }
         />
-
-        {loading && (
-          <View
-            style={[
-              StyleSheet.absoluteFillObject,
-              {
-                flex: 1,
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                backgroundColor: 'rgba(0,0,0,0.5)',
-                alignItems: 'center',
-                justifyContent: 'center',
-              },
-            ]}>
-            <ActivityIndicator animating color={colors.primary} size="large" />
-          </View>
-        )}
       </View>
     );
   }

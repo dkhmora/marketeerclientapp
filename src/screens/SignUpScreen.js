@@ -4,13 +4,11 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  Platform,
-  StyleSheet,
-  ScrollView,
   StatusBar,
   Image,
   Linking,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -18,6 +16,9 @@ import {Icon, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import BackButton from '../components/BackButton';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
+import Toast from '../components/Toast';
 @inject('generalStore')
 @inject('authStore')
 @observer
@@ -140,7 +141,7 @@ class SignUpScreen extends Component {
     const {name, email, password, phoneNumber} = this.state;
     const {checkout} = this.props.route.params;
 
-    this.props.navigation.navigate('Phone Verification', {
+    this.props.navigation.replace('Phone Verification', {
       name,
       email,
       password,
@@ -149,17 +150,57 @@ class SignUpScreen extends Component {
     });
   }
 
-  openMerchantSignUpForm() {
-    const merchantFormUrl =
-      'https://marketeer.ph/components/pages/partnermerchantsignup';
-
-    Linking.canOpenURL(merchantFormUrl).then((supported) => {
-      if (supported) {
-        Linking.openURL(merchantFormUrl);
+  async openLink(url) {
+    try {
+      if (await InAppBrowser.isAvailable()) {
+        await InAppBrowser.open(url, {
+          dismissButtonStyle: 'close',
+          preferredBarTintColor: colors.primary,
+          preferredControlTintColor: 'white',
+          readerMode: false,
+          animated: true,
+          modalPresentationStyle: 'pageSheet',
+          modalTransitionStyle: 'coverVertical',
+          modalEnabled: true,
+          enableBarCollapsing: false,
+          // Android Properties
+          showTitle: true,
+          toolbarColor: colors.primary,
+          secondaryToolbarColor: 'black',
+          enableUrlBarHiding: true,
+          enableDefaultShare: true,
+          forceCloseOnRedirection: false,
+          animations: {
+            startEnter: 'slide_in_right',
+            startExit: 'slide_out_left',
+            endEnter: 'slide_in_left',
+            endExit: 'slide_out_right',
+          },
+        });
       } else {
-        console.log("Don't know how to open URI: " + merchantFormUrl);
+        Linking.openURL(url);
       }
-    });
+    } catch (err) {
+      Toast({text: err.message, type: 'danger'});
+    }
+  }
+
+  openMerchantSignUpForm() {
+    const url = 'https://marketeer.ph/components/pages/partnermerchantsignup';
+
+    this.openLink(url);
+  }
+
+  openTermsAndConditions() {
+    const url = 'https://marketeer.ph/components/pages/termsandconditions';
+
+    this.openLink(url);
+  }
+
+  openPrivacyPolicy() {
+    const url = 'https://marketeer.ph/components/pages/privacypolicy';
+
+    this.openLink(url);
   }
 
   render() {
@@ -172,12 +213,11 @@ class SignUpScreen extends Component {
       secureTextEntry,
       confirm_secureTextEntry,
     } = this.state;
-    const {checkout} = this.props.route.params;
     const {navigation} = this.props;
 
     return (
       <View style={[styles.container, {paddingTop: 0}]}>
-        <StatusBar animated translucent backgroundColor={colors.primary} />
+        <StatusBar animated translucent backgroundColor={colors.statusBar} />
 
         <View
           style={{
@@ -185,7 +225,7 @@ class SignUpScreen extends Component {
             justifyContent: 'center',
             paddingTop: StatusBar.currentHeight,
           }}>
-          {checkout && <BackButton navigation={navigation} />}
+          <BackButton navigation={navigation} />
 
           <SafeAreaView style={{flexDirection: 'row'}}>
             <Image
@@ -193,7 +233,7 @@ class SignUpScreen extends Component {
               style={{
                 height: 150,
                 width: 200,
-                resizeMode: 'center',
+                resizeMode: 'contain',
                 marginVertical: 20,
               }}
             />
@@ -204,7 +244,7 @@ class SignUpScreen extends Component {
           useNativeDriver
           animation="fadeInUpBig"
           style={styles.footer}>
-          <ScrollView>
+          <KeyboardAwareScrollView>
             <Text style={styles.text_header}>Sign Up</Text>
 
             <Text style={[styles.text_subtext]}>
@@ -212,20 +252,22 @@ class SignUpScreen extends Component {
               while also supporting your local businesses!
             </Text>
 
-            <View
-              style={{
-                flexDirection: 'row',
-                width: '100%',
-                paddingVertical: 20,
-              }}>
-              <Text style={styles.text_subtext}>
-                Are you a merchant? Come and join us! Register
-              </Text>
+            {Platform.OS === 'android' && (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  width: '100%',
+                  paddingVertical: 20,
+                }}>
+                <Text style={styles.text_subtext}>
+                  Are you a merchant? Come and join us! Register
+                </Text>
 
-              <TouchableOpacity onPress={() => this.openMerchantSignUpForm()}>
-                <Text style={styles.touchable_text}> here</Text>
-              </TouchableOpacity>
-            </View>
+                <TouchableOpacity onPress={() => this.openMerchantSignUpForm()}>
+                  <Text style={styles.touchable_text}> here</Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
             <Text style={styles.text_footer}>Full Name</Text>
 
@@ -237,6 +279,7 @@ class SignUpScreen extends Component {
               <TextInput
                 placeholder="Gordon Norman"
                 maxLength={100}
+                placeholderTextColor={colors.text_secondary}
                 style={styles.textInput}
                 autoCapitalize="words"
                 onChangeText={(value) => this.handleNameChange(value)}
@@ -244,12 +287,7 @@ class SignUpScreen extends Component {
 
               {nameCheck ? (
                 <Animatable.View useNativeDriver animation="bounceIn">
-                  <Icon
-                    name="check-circle"
-                    color="#388e3c"
-                    size={20}
-                    style={{marginRight: 25}}
-                  />
+                  <Icon name="check-circle" color="#388e3c" size={20} />
                 </Animatable.View>
               ) : null}
             </View>
@@ -263,6 +301,7 @@ class SignUpScreen extends Component {
 
               <TextInput
                 placeholder="gordon_norman@gmail.com"
+                placeholderTextColor={colors.text_secondary}
                 maxLength={256}
                 style={styles.textInput}
                 autoCapitalize="none"
@@ -271,50 +310,48 @@ class SignUpScreen extends Component {
 
               {emailCheck ? (
                 <Animatable.View useNativeDriver animation="bounceIn">
-                  <Icon
-                    name="check-circle"
-                    color="#388e3c"
-                    size={20}
-                    style={{marginRight: 25}}
-                  />
+                  <Icon name="check-circle" color="#388e3c" size={20} />
                 </Animatable.View>
               ) : null}
             </View>
 
             <Text style={styles.text_footer}>Phone Number</Text>
 
-            <View style={styles.action}>
-              <View style={styles.icon_container}>
-                <Icon name="smartphone" color={colors.primary} size={20} />
+            <View style={[styles.action, {flexDirection: 'column'}]}>
+              <View style={{flexDirection: 'row'}}>
+                <View style={styles.icon_container}>
+                  <Icon name="smartphone" color={colors.primary} size={20} />
 
-                <Text
-                  style={[
-                    styles.text_subtext,
-                    {marginLeft: 5, marginRight: -5},
-                  ]}>
-                  (+63)
-                </Text>
+                  <Text
+                    style={[
+                      styles.text_subtext,
+                      {marginLeft: 5, marginRight: -5},
+                    ]}>
+                    (+63)
+                  </Text>
+                </View>
+
+                <TextInput
+                  placeholder="9173456789"
+                  placeholderTextColor={colors.text_secondary}
+                  keyboardType="numeric"
+                  maxLength={10}
+                  style={styles.textInput}
+                  autoCapitalize="none"
+                  onChangeText={(value) => this.handlePhoneChange(value)}
+                />
+
+                {phoneCheck ? (
+                  <Animatable.View useNativeDriver animation="bounceIn">
+                    <Icon name="check-circle" color="#388e3c" size={20} />
+                  </Animatable.View>
+                ) : null}
               </View>
 
-              <TextInput
-                placeholder="9173456789"
-                keyboardType="numeric"
-                maxLength={10}
-                style={styles.textInput}
-                autoCapitalize="none"
-                onChangeText={(value) => this.handlePhoneChange(value)}
-              />
-
-              {phoneCheck ? (
-                <Animatable.View useNativeDriver animation="bounceIn">
-                  <Icon
-                    name="check-circle"
-                    color="#388e3c"
-                    size={20}
-                    style={{marginRight: 25}}
-                  />
-                </Animatable.View>
-              ) : null}
+              <Text style={{color: colors.text_secondary, fontSize: 12}}>
+                We will send you a verification code here. *Standard rates may
+                apply
+              </Text>
             </View>
 
             <Text style={styles.text_footer}>Password</Text>
@@ -326,23 +363,13 @@ class SignUpScreen extends Component {
 
               <TextInput
                 placeholder="Password"
+                placeholderTextColor={colors.text_secondary}
                 secureTextEntry={secureTextEntry ? true : false}
                 maxLength={32}
                 style={styles.textInput}
                 autoCapitalize="none"
                 onChangeText={(value) => this.handlePasswordChange(value)}
               />
-
-              {passwordCheck ? (
-                <Animatable.View useNativeDriver animation="bounceIn">
-                  <Icon
-                    name="check-circle"
-                    color="#388e3c"
-                    size={20}
-                    style={{marginRight: 5}}
-                  />
-                </Animatable.View>
-              ) : null}
 
               <TouchableOpacity onPress={this.updateSecureTextEntry}>
                 {secureTextEntry ? (
@@ -351,6 +378,17 @@ class SignUpScreen extends Component {
                   <Icon name="eye-off" color="grey" size={20} />
                 )}
               </TouchableOpacity>
+
+              {passwordCheck ? (
+                <Animatable.View useNativeDriver animation="bounceIn">
+                  <Icon
+                    name="check-circle"
+                    color="#388e3c"
+                    size={20}
+                    style={{marginLeft: 5}}
+                  />
+                </Animatable.View>
+              ) : null}
             </View>
 
             <Text style={styles.text_footer}>Confirm Password</Text>
@@ -362,6 +400,7 @@ class SignUpScreen extends Component {
 
               <TextInput
                 placeholder="Confirm Password"
+                placeholderTextColor={colors.text_secondary}
                 secureTextEntry={confirm_secureTextEntry ? true : false}
                 maxLength={32}
                 style={styles.textInput}
@@ -371,17 +410,6 @@ class SignUpScreen extends Component {
                 }
               />
 
-              {confirmPasswordCheck ? (
-                <Animatable.View useNativeDriver animation="bounceIn">
-                  <Icon
-                    name="check-circle"
-                    color="#388e3c"
-                    size={20}
-                    style={{marginRight: 5}}
-                  />
-                </Animatable.View>
-              ) : null}
-
               <TouchableOpacity onPress={this.updateConfirmSecureTextEntry}>
                 {confirm_secureTextEntry ? (
                   <Icon name="eye" color="grey" size={20} />
@@ -389,24 +417,48 @@ class SignUpScreen extends Component {
                   <Icon name="eye-off" color="grey" size={20} />
                 )}
               </TouchableOpacity>
+
+              {confirmPasswordCheck ? (
+                <Animatable.View useNativeDriver animation="bounceIn">
+                  <Icon
+                    name="check-circle"
+                    color="#388e3c"
+                    size={20}
+                    style={{marginLeft: 5}}
+                  />
+                </Animatable.View>
+              ) : null}
             </View>
 
-            <View style={styles.textPrivate}>
-              <Text style={[styles.color_textPrivate, styles.text_subtext]}>
-                By signing up you agree to our{' '}
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                justifyContent: 'flex-start',
+                paddingTop: 30,
+                flexWrap: 'wrap',
+              }}>
+              <Text
+                style={{textAlign: 'justify', color: colors.text_secondary}}>
+                By using our service, you agree to our
               </Text>
 
-              <TouchableOpacity>
-                <Text style={styles.touchable_text}>Terms of service</Text>
+              <TouchableOpacity onPress={() => this.openTermsAndConditions()}>
+                <Text style={[styles.touchable_text, {textAlign: 'justify'}]}>
+                  {' '}
+                  Terms and Conditions{' '}
+                </Text>
               </TouchableOpacity>
 
-              <Text style={[styles.color_textPrivate, styles.text_subtext]}>
-                {' '}
+              <Text
+                style={{textAlign: 'justify', color: colors.text_secondary}}>
                 and{' '}
               </Text>
 
-              <TouchableOpacity>
-                <Text style={styles.touchable_text}>Privacy policy</Text>
+              <TouchableOpacity onPress={() => this.openPrivacyPolicy()}>
+                <Text style={[styles.touchable_text, {textAlign: 'justify'}]}>
+                  Privacy Policy
+                </Text>
               </TouchableOpacity>
             </View>
 
@@ -424,13 +476,21 @@ class SignUpScreen extends Component {
               title="Sign Up"
               type="outline"
               containerStyle={{
+                marginTop: 40,
+              }}
+              buttonStyle={{
+                height: 50,
                 borderRadius: 24,
                 borderWidth: 1,
-                marginTop: 40,
-                height: 50,
-                borderColor: emailCheck ? colors.primary : 'grey',
+                borderColor:
+                  nameCheck &&
+                  emailCheck &&
+                  phoneCheck &&
+                  passwordCheck &&
+                  confirmPasswordCheck
+                    ? colors.primary
+                    : 'grey',
               }}
-              buttonStyle={{height: 50}}
             />
 
             <View
@@ -448,7 +508,7 @@ class SignUpScreen extends Component {
                 <Text style={styles.touchable_text}>here</Text>
               </TouchableOpacity>
             </View>
-          </ScrollView>
+          </KeyboardAwareScrollView>
         </Animatable.View>
       </View>
     );

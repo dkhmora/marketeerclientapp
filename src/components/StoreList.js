@@ -6,13 +6,17 @@ import {
   StyleSheet,
   RefreshControl,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import {Text} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {inject, observer} from 'mobx-react';
 import * as Animatable from 'react-native-animatable';
-import {computed} from 'mobx';
+import {computed, when} from 'mobx';
+import {initialWindowMetrics} from 'react-native-safe-area-context';
 
+const inset = initialWindowMetrics && initialWindowMetrics.insets;
+const bottomPadding = Platform.OS === 'ios' ? inset.bottom : 0;
 @inject('shopStore')
 @inject('generalStore')
 @observer
@@ -24,6 +28,8 @@ class StoreList extends Component {
       refreshing: false,
       loading: true,
       onEndReachedCalledDuringMomentum: false,
+      currentLocation: null,
+      currentLocationGeohash: null,
     };
   }
 
@@ -33,11 +39,14 @@ class StoreList extends Component {
   }
 
   componentDidMount() {
-    const {categoryName} = this.props;
-
-    if (categoryName) {
-      this.getInitialStoreList();
-    }
+    when(
+      () =>
+        this.props.generalStore.currentLocation &&
+        this.props.generalStore.currentLocationGeohash,
+      () => {
+        this.getInitialStoreList();
+      },
+    );
 
     if (
       this.props.generalStore.appReady &&
@@ -52,17 +61,20 @@ class StoreList extends Component {
     const {categoryName} = this.props;
     const {currentLocationGeohash, currentLocation} = this.props.generalStore;
 
-    this.setState({refreshing: true});
-
-    this.props.shopStore
-      .getStoreList({
-        currentLocationGeohash,
-        locationCoordinates: currentLocation,
-        storeCategory: categoryName,
-      })
-      .then(() => {
-        this.setState({refreshing: false, loading: false});
-      });
+    this.setState(
+      {refreshing: true, currentLocationGeohash, currentLocation},
+      () => {
+        this.props.shopStore
+          .getStoreList({
+            currentLocationGeohash: this.state.currentLocationGeohash,
+            locationCoordinates: this.state.currentLocation,
+            storeCategory: categoryName,
+          })
+          .then(() => {
+            this.setState({refreshing: false, loading: false});
+          });
+      },
+    );
   }
 
   retrieveMoreStores() {
@@ -99,6 +111,7 @@ class StoreList extends Component {
   renderFooter = () => {
     return (
       <View style={{bottom: 50, width: '100%'}}>
+        <View style={{height: bottomPadding}} />
         {this.state.onEndReachedCalledDuringMomentum && (
           <Animatable.View
             animation="slideInUp"
@@ -124,17 +137,29 @@ class StoreList extends Component {
     );
   };
 
+  renderItem = ({item, index}) => (
+    <View key={item.merchantId}>
+      {index === 0 && (
+        <Text style={styles.listTitleText}>Stores Delivering To You</Text>
+      )}
+      <StoreCard store={item} navigation={this.props.navigation} />
+    </View>
+  );
+
   render() {
     const {categoryName} = this.props;
-    const {navigation} = this.props;
     const {refreshing, loading} = this.state;
 
     let dataSource = [];
 
-    if (!categoryName) {
-      dataSource = this.props.shopStore.storeList.slice();
-    } else if (categoryName && !loading) {
-      dataSource = this.props.shopStore.categoryStoreList[categoryName].slice();
+    if (!loading) {
+      if (!categoryName) {
+        dataSource = this.props.shopStore.storeList.slice();
+      } else {
+        dataSource = this.props.shopStore.categoryStoreList[
+          categoryName
+        ].slice();
+      }
     }
 
     return (
@@ -147,33 +172,27 @@ class StoreList extends Component {
           style={{paddingHorizontal: 15}}
           contentContainerStyle={{flexGrow: 1}}
           data={dataSource}
-          renderItem={({item, index}) => (
-            <View>
-              {index === 0 && (
-                <Text style={styles.listTitleText}>
-                  Stores Delivering To You
-                </Text>
-              )}
-              <StoreCard store={item} key={index} navigation={navigation} />
-            </View>
-          )}
+          renderItem={this.renderItem}
           ListEmptyComponent={
-            <View
-              style={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <Text
+            !loading && (
+              <View
                 style={{
-                  fontSize: 20,
-                  textAlign: 'center',
-                  paddingHorizontal: 15,
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}>
-                Sorry, there are no available stores in your area yet. But don't
-                worry, we are expanding. Come back and check us out again soon!
-              </Text>
-            </View>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    textAlign: 'center',
+                    paddingHorizontal: 15,
+                  }}>
+                  Sorry, there are no available stores in your area yet. But
+                  don't worry, we are expanding. Come back and check us out
+                  again soon!
+                </Text>
+              </View>
+            )
           }
           refreshControl={
             <RefreshControl

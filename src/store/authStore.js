@@ -4,6 +4,8 @@ import firebase from '@react-native-firebase/app';
 import firestore from '@react-native-firebase/firestore';
 import Toast from '../components/Toast';
 import '@react-native-firebase/functions';
+import {Platform} from 'react-native';
+import messaging from '@react-native-firebase/messaging';
 
 const functions = firebase.app().functions('asia-northeast1');
 class authStore {
@@ -60,6 +62,34 @@ class authStore {
     return null;
   }
 
+  @action async subscribeToNotifications() {
+    let authorizationStatus = null;
+
+    if (!this.guest) {
+      if (Platform.OS === 'ios') {
+        authorizationStatus = await messaging().requestPermission();
+      } else {
+        authorizationStatus = true;
+      }
+
+      if (authorizationStatus) {
+        return await messaging()
+          .getToken()
+          .then((token) => {
+            firestore()
+              .collection('users')
+              .doc(this.userId)
+              .update('fcmTokens', firestore.FieldValue.arrayUnion(token));
+          })
+          .catch((err) => Toast({text: err.message, type: 'danger'}));
+      }
+    }
+  }
+
+  @action async unsubscribeToNotifications() {
+    await messaging().deleteToken();
+  }
+
   @action async resetPassword(email) {
     await auth()
       .sendPasswordResetEmail(email)
@@ -70,14 +100,14 @@ class authStore {
         err.code === 'auth/invalid-email' &&
           Toast({
             type: 'danger',
-            text: 'Error, invalid email. Please try again.',
+            text: 'Error: Invalid email. Please try again.',
           });
 
         err.code === 'auth/user-not-found' &&
           Toast({
             type: 'danger',
             text:
-              'Error, the user was not found. Please try again or sign up for an account.',
+              'Error: The user was not found. Please try again or sign up for an account.',
           });
       });
   }
@@ -104,19 +134,19 @@ class authStore {
       .catch((err) => {
         if (err.code === 'auth/invalid-password') {
           Toast({
-            text: 'Error, invalid password. No details have been changed.',
+            text: 'Error: Invalid password. No details have been changed.',
             type: 'danger',
           });
         }
 
         if (err.code === 'auth/wrong-password') {
           Toast({
-            text: 'Error, wrong password. Please try again.',
+            text: 'Error: Wrong password. Please try again.',
             type: 'danger',
           });
         }
 
-        console.log(err.message);
+        Toast({text: err.message.message, type: 'danger'});
       });
   }
 
@@ -136,21 +166,21 @@ class authStore {
         if (err.code === 'auth/quota-exceeded') {
           Toast({
             text:
-              'Error, too many phone code requests. Please try again later.',
+              'Error: Too many phone code requests. Please try again later.',
             type: 'danger',
           });
         }
 
         if (err.code === 'auth/missing-verification-code') {
           Toast({
-            text: 'Error, missing verification code. Please try again.',
+            text: 'Error: Missing verification code. Please try again.',
             type: 'danger',
           });
         }
 
         if (err.code === 'auth/invalid-verification-code') {
           Toast({
-            text: 'Error, invalid verification code. Please try again.',
+            text: 'Error: Invalid verification code. Please try again.',
             type: 'danger',
           });
         }
@@ -158,12 +188,12 @@ class authStore {
         if (err.code === 'auth/credential-already-in-use') {
           Toast({
             text:
-              'Error, phone number is already in use. Please try again with a different phone number.',
+              'Error: Phone number is already in use. Please try again with a different phone number.',
             type: 'danger',
           });
         }
 
-        console.log(err);
+        Toast({text: err.message, type: 'danger'});
       });
   }
 
@@ -173,32 +203,21 @@ class authStore {
     password,
     phoneNumber,
     phoneCredential,
-    navigation,
   ) {
-    await this.linkCurrentUserWithPhoneNumber(phoneCredential)
-      .then(() => this.linkCurrentUserWithEmail(email, password))
-      .then(() => this.createUserDocuments(name, email, phoneNumber))
-      .then(() => console.log('Successfully created user documents'))
-      .then(() => this.checkAuthStatus())
+    return await this.linkCurrentUserWithPhoneNumber(phoneCredential)
+      .then(async () => await this.linkCurrentUserWithEmail(email, password))
+      .then(
+        async () => await this.createUserDocuments(name, email, phoneNumber),
+      )
+      .then(async () => await this.checkAuthStatus())
+      .then(async () => {
+        await this.subscribeToNotifications();
+      })
       .then(() => {
         Toast({
           text: 'Welcome to Marketeer!',
           duration: 4000,
         });
-      })
-      .catch((err) => {
-        this.userAuthenticated = false;
-        if (err.code === 'auth/credential-already-in-use') {
-          Toast({
-            text:
-              'Error: Phone number is already linked to another account, please use another mobile phone number',
-            type: 'danger',
-            duration: 6000,
-          });
-        }
-        navigation.goBack();
-
-        console.log(err);
       });
   }
 
@@ -226,17 +245,11 @@ class authStore {
       password,
     );
 
-    await auth()
-      .currentUser.linkWithCredential(emailCredential)
-      .then(() => console.log('Successfully linked anonymous user with email'));
+    return await auth().currentUser.linkWithCredential(emailCredential);
   }
 
   @action async linkCurrentUserWithPhoneNumber(phoneCredential) {
-    await auth()
-      .currentUser.linkWithCredential(phoneCredential)
-      .then(() =>
-        console.log('Successfully linked email account with phone number'),
-      );
+    return await auth().currentUser.linkWithCredential(phoneCredential);
   }
 
   @action async signIn(userCredential, password) {
@@ -257,6 +270,8 @@ class authStore {
             .then(() => {
               this.userAuthenticated = true;
 
+              this.subscribeToNotifications();
+
               Toast({
                 text: 'Signed in successfully',
                 duration: 3500,
@@ -264,26 +279,28 @@ class authStore {
             })
             .catch((err) => {
               Toast({
-                text: 'Error, something went wrong. Please try again.',
+                text: 'Error: Something went wrong. Please try again.',
                 duration: 3500,
               });
 
-              console.log(err);
+              Toast({text: err.message, type: 'danger'});
             });
         })
         .catch((err) => {
           Toast({
-            text: 'Error, wrong phone number or password. Please try again.',
+            text: 'Error: Wrong phone number or password. Please try again.',
             duration: 3500,
           });
 
-          console.log(err);
+          Toast({text: err.message, type: 'danger'});
         });
     } else {
       return await auth()
         .signInWithEmailAndPassword(userCredential, password)
         .then(() => {
           this.userAuthenticated = true;
+
+          this.subscribeToNotifications();
 
           Toast({
             text: 'Signed in successfully',
@@ -299,7 +316,7 @@ class authStore {
               duration: 6000,
             });
           }
-          console.log(err);
+          Toast({text: err.message, type: 'danger'});
         });
     }
   }
@@ -307,33 +324,30 @@ class authStore {
   @action async signOut() {
     return await auth()
       .signOut()
-      .then(() =>
-        auth()
-          .signInAnonymously()
-          .then(() => {
-            this.userAuthenticated = true;
-          }),
-      )
-      .catch((err) => console.log(err));
+      .then(() => {
+        this.unsubscribeToNotifications();
+      })
+      .then(() => {
+        this.signInAnonymously();
+      })
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
   @action async checkAuthStatus() {
     if (auth().currentUser) {
-      console.log('User is authenticated');
       this.userAuthenticated = true;
     } else {
-      console.log('signinanonymous');
-      await this.signInAnonymously();
+      return await this.signInAnonymously();
     }
   }
 
   @action async signInAnonymously() {
-    await auth()
+    return await auth()
       .signInAnonymously()
       .then(() => {
         this.userAuthenticated = true;
       })
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 }
 

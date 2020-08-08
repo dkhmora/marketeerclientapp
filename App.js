@@ -31,6 +31,7 @@ const generalStore = (window.store = new GeneralStore());
 const authStore = (window.store = new AuthStore());
 const shopStore = (window.store = new ShopStore());
 hydrate('list', generalStore);
+hydrate('object', shopStore);
 // @TODO: This is to hide a Warning caused by NativeBase after upgrading to RN 0.62
 import {YellowBox} from 'react-native';
 
@@ -41,58 +42,48 @@ YellowBox.ignoreWarnings([
 
 @observer
 class App extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      user: null,
+    };
+  }
+
   executeAuthStateListener() {
     this.authState = auth().onAuthStateChanged((user) => {
       authStore
         .checkAuthStatus()
         .then(() => {
           if (user) {
+            this.setState({user});
+
             const userId = user.uid;
 
             if (!authStore.guest) {
               authStore.reloadUser();
 
-              if (shopStore.cartStores.length === 0) {
+              if (shopStore.cartStores.length !== 0) {
+                shopStore.updateCartItemsInstantly().then(() => {
+                  shopStore.getCartItems(userId);
+                });
+              } else {
                 shopStore.getCartItems(userId);
               }
 
-              generalStore
-                .getUserDetails(userId)
-                .then(() => {
-                  if (generalStore.userDetails.lastDeliveryLocation) {
-                    return generalStore.setLastDeliveryLocation();
-                  } else {
-                    return generalStore.setCurrentLocation();
-                  }
-                })
-                .then(() => {
-                  const {
-                    currentLocation,
-                    currentLocationGeohash,
-                  } = generalStore;
+              generalStore.getUserDetails(userId);
 
-                  shopStore
-                    .getStoreList({
-                      currentLocationGeohash,
-                      locationCoordinates: currentLocation,
-                    })
-                    .then(() => {
-                      generalStore.appReady = true;
-                    });
-                });
+              generalStore.appReady = true;
             } else {
-              generalStore.setCurrentLocation().then(() => {
-                const {currentLocation, currentLocationGeohash} = generalStore;
+              if (shopStore.unsubscribeToGetCartItems) {
+                shopStore.unsubscribeToGetCartItems();
+              }
 
-                shopStore
-                  .getStoreList({
-                    currentLocationGeohash,
-                    locationCoordinates: currentLocation,
-                  })
-                  .then(() => {
-                    generalStore.appReady = true;
-                  });
-              });
+              if (generalStore.unsubscribeUserDetails) {
+                generalStore.unsubscribeUserDetails();
+              }
+
+              generalStore.setCurrentLocation();
             }
 
             AppState.addEventListener('change', (state) => {
@@ -117,7 +108,7 @@ class App extends React.Component {
         .then(() => {
           this.splashScreenTimer = setTimeout(
             this.hideSplashScreen.bind(this),
-            1000,
+            500,
           );
         });
     });

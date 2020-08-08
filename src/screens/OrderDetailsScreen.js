@@ -1,18 +1,9 @@
 import React, {Component} from 'react';
-import {
-  Container,
-  Card,
-  CardItem,
-  Left,
-  Right,
-  Body,
-  Button,
-  Icon,
-} from 'native-base';
-import {View, Platform, Linking, ActivityIndicator} from 'react-native';
+import {Card, CardItem, Left, Right, Body} from 'native-base';
+import {View, ActivityIndicator} from 'react-native';
 import {Text} from 'react-native-elements';
 import BaseHeader from '../components/BaseHeader';
-import {FlatList, ScrollView} from 'react-native-gesture-handler';
+import {ScrollView} from 'react-native-gesture-handler';
 import {colors} from '../../assets/colors';
 import CartListItem from '../components/CartListItem';
 import {inject, observer} from 'mobx-react';
@@ -37,7 +28,7 @@ class OrderDetailsScreen extends Component {
 
   render() {
     const {order, orderStatus} = this.props.route.params;
-    const {userOrderNumber, quantity, shippingPrice, totalAmount} = order;
+    const {userOrderNumber, quantity, deliveryPrice, subTotal} = order;
 
     const {navigation} = this.props;
 
@@ -76,6 +67,75 @@ class OrderDetailsScreen extends Component {
             }}>
             <CardItem header bordered style={{backgroundColor: colors.primary}}>
               <Text style={{color: colors.icons, fontSize: 20}}>
+                Order Details
+              </Text>
+            </CardItem>
+
+            <CardItem bordered>
+              <Left>
+                <Text style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
+                  Order Status:
+                </Text>
+              </Left>
+
+              <Right>
+                <Text
+                  style={{
+                    color: colors.primary,
+                    fontSize: 16,
+                    textAlign: 'right',
+                  }}>
+                  {orderStatus}
+                </Text>
+              </Right>
+            </CardItem>
+
+            <CardItem bordered>
+              <Left>
+                <Text style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
+                  Delivery Method:
+                </Text>
+              </Left>
+
+              <Right>
+                <Text
+                  style={{
+                    color: colors.text_primary,
+                    fontSize: 16,
+                    textAlign: 'right',
+                  }}>
+                  {order.deliveryMethod}
+                </Text>
+              </Right>
+            </CardItem>
+
+            <CardItem bordered>
+              <Left>
+                <Text style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
+                  Payment Method:
+                </Text>
+              </Left>
+
+              <Right>
+                <Text
+                  style={{
+                    color: colors.text_primary,
+                    fontSize: 16,
+                    textAlign: 'right',
+                  }}>
+                  {order.paymentMethod}
+                </Text>
+              </Right>
+            </CardItem>
+          </Card>
+
+          <Card
+            style={{
+              borderRadius: 10,
+              overflow: 'hidden',
+            }}>
+            <CardItem header bordered style={{backgroundColor: colors.primary}}>
+              <Text style={{color: colors.icons, fontSize: 20}}>
                 Order Items
               </Text>
             </CardItem>
@@ -84,7 +144,7 @@ class OrderDetailsScreen extends Component {
               <View>
                 {orderItems.map((item, index) => {
                   return (
-                    <View style={{marginHorizontal: 15}} key={item.itemId}>
+                    <View key={item.itemId}>
                       <CartListItem item={item} checkout />
                     </View>
                   );
@@ -119,12 +179,13 @@ class OrderDetailsScreen extends Component {
                   <Text
                     style={{
                       fontSize: 18,
-                      color: colors.primary,
+                      color: colors.text_primary,
                       fontFamily: 'ProductSans-Black',
                     }}>
-                    ₱{totalAmount}
+                    ₱{subTotal}
                   </Text>
                 </View>
+
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <Text
                     style={{
@@ -132,15 +193,19 @@ class OrderDetailsScreen extends Component {
                       color: colors.text_primary,
                       fontFamily: 'ProductSans-Light',
                     }}>
-                    Estimated Shipping Price:{' '}
+                    Delivery Price:{' '}
                   </Text>
                   <Text
                     style={{
                       fontSize: 18,
-                      color: colors.primary,
+                      color: colors.text_primary,
                       fontFamily: 'ProductSans-Black',
                     }}>
-                    ₱{shippingPrice}130-200
+                    {deliveryPrice && deliveryPrice > 0
+                      ? `₱${deliveryPrice}`
+                      : deliveryPrice === null
+                      ? '(Contact Merchant)'
+                      : '₱0 (Free Delivery)'}
                   </Text>
                 </View>
               </Right>
@@ -160,10 +225,10 @@ class OrderDetailsScreen extends Component {
                   <Text
                     style={{
                       fontSize: 18,
-                      color: colors.primary,
+                      color: colors.text_primary,
                       fontFamily: 'ProductSans-Black',
                     }}>
-                    ₱{totalAmount + 130} - ₱{totalAmount + 200}
+                    ₱{subTotal + (deliveryPrice ? deliveryPrice : 0)}
                   </Text>
                 </View>
               </Right>

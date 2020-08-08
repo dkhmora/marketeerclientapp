@@ -12,18 +12,25 @@ import {Icon, Badge, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import SlidingUpPanel from 'rn-sliding-up-panel';
 import CartStoreList from '../components/CartStoreList';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {initialWindowMetrics} from 'react-native-safe-area-context';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
+const SCREEN_WIDTH = Dimensions.get('window').width;
 const SLIDING_MENU_INITIAL_HEIGHT = 75;
 const SLIDING_MENU_EXTENDED_HEIGHT =
   SCREEN_HEIGHT - SLIDING_MENU_INITIAL_HEIGHT;
+const inset = initialWindowMetrics && initialWindowMetrics.insets;
+const bottomPadding = Platform.OS === 'ios' ? inset.bottom : 0;
 @inject('shopStore')
 @inject('authStore')
 @observer
 class SlidingCartPanel extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      allowDragging: true,
+    };
   }
 
   componentDidMount() {
@@ -53,6 +60,7 @@ class SlidingCartPanel extends Component {
         friction={0.4}
         minimumVelocityThreshold={0.6}
         minimumDistanceThreshold={3}
+        allowDragging={this.state.allowDragging}
         snappingPoints={[
           SLIDING_MENU_INITIAL_HEIGHT,
           SLIDING_MENU_EXTENDED_HEIGHT,
@@ -60,7 +68,7 @@ class SlidingCartPanel extends Component {
         allowMomentum
         draggableRange={{
           top: SLIDING_MENU_EXTENDED_HEIGHT,
-          bottom: SLIDING_MENU_INITIAL_HEIGHT,
+          bottom: SLIDING_MENU_INITIAL_HEIGHT + bottomPadding,
         }}
         containerStyle={{
           backgroundColor: '#fff',
@@ -107,7 +115,7 @@ class SlidingCartPanel extends Component {
                 style={{
                   height: 35,
                   width: 40,
-                  resizeMode: 'center',
+                  resizeMode: 'contain',
                   tintColor: colors.primary,
                   marginRight: 10,
                 }}
@@ -129,7 +137,7 @@ class SlidingCartPanel extends Component {
                 fontFamily: 'ProductSans-Black',
                 textAlignVertical: 'center',
               }}>
-              ₱ {this.props.shopStore.totalCartSubTotal}
+              ₱ {this.props.shopStore.totalCartSubTotalAmount}
             </Text>
 
             <Button
@@ -148,9 +156,8 @@ class SlidingCartPanel extends Component {
                 fontSize: 18,
                 marginRight: '20%',
               }}
-              buttonStyle={{backgroundColor: colors.accent}}
+              buttonStyle={{backgroundColor: colors.accent, borderRadius: 24}}
               containerStyle={{
-                borderRadius: 24,
                 padding: 0,
               }}
             />
@@ -162,7 +169,12 @@ class SlidingCartPanel extends Component {
               width: '100%',
               marginTop: 20,
             }}>
-            <CartStoreList emptyCartText="Your cart is empty" />
+            <CartStoreList
+              emptyCartText="Your cart is empty"
+              onTouchStart={() => this.setState({allowDragging: false})}
+              onTouchEnd={() => this.setState({allowDragging: true})}
+              onTouchCancel={() => this.setState({allowDragging: true})}
+            />
           </View>
 
           <Button
@@ -181,11 +193,14 @@ class SlidingCartPanel extends Component {
               fontSize: 18,
               marginRight: '20%',
             }}
-            buttonStyle={{height: 50, backgroundColor: colors.accent}}
-            containerStyle={{
+            buttonStyle={{
+              height: 50,
+              backgroundColor: colors.accent,
               borderRadius: 24,
+            }}
+            containerStyle={{
               padding: 0,
-              marginBottom: Platform.OS === 'ios' ? 80 : 50,
+              marginBottom: Platform.OS === 'ios' ? 80 : 30,
               width: '100%',
             }}
           />

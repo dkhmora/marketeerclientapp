@@ -27,11 +27,7 @@ class StoreCategoryCard extends Component {
     const imageSource = `/images/store_categories/${item.name}.jpg`;
 
     const ref = storage().ref(imageSource);
-    const link = await ref.getDownloadURL().catch((err) => {
-      if (err.code === '[storage/object-not-found]') {
-        console.log('No image');
-      }
-    });
+    const link = await ref.getDownloadURL();
 
     if (link) {
       this.setState({url: {uri: link}, ready: true});
@@ -70,23 +66,30 @@ class StoreCategoryCard extends Component {
             activeOpacity={0.85}
             style={{flex: 1, flexDirection: 'row'}}>
             <View style={{flex: 7, elevation: 10}}>
-              <FastImage source={url} style={{flex: 1, borderRadius: 10}} />
+              <FastImage
+                source={url}
+                style={{
+                  flex: 1,
+                  borderRadius: 10,
+                  backgroundColor: colors.primary,
+                }}
+              />
             </View>
 
             <View
               style={{
-                flex: 3,
+                flex: 3.25,
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: 10,
+                paddingLeft: 10,
               }}>
               <Text
                 adjustsFontSizeToFit
                 allowFontScaling
                 style={{
                   flex: 1,
-                  fontSize: Platform.OS === 'ios' ? 18 : 20,
+                  fontSize: Platform.OS === 'ios' ? 17.5 : 20,
                   color: colors.icons,
                   textAlign: 'center',
                 }}>

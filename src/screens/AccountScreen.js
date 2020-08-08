@@ -5,7 +5,6 @@ import {inject, observer} from 'mobx-react';
 import {Card, CardItem} from 'native-base';
 import {Text, Button, Icon, Input, Overlay} from 'react-native-elements';
 import {colors} from '../../assets/colors';
-import {computed} from 'mobx';
 import Toast from '../components/Toast';
 import {styles} from '../../assets/styles';
 
@@ -59,7 +58,7 @@ class AccountScreen extends Component {
         .catch((err) => {
           if (err.code === 'auth/wrong-password') {
             Toast({
-              text: 'Error, wrong password. Please try again.',
+              text: 'Error: Wrong password. Please try again.',
               type: 'danger',
             });
           }
@@ -125,6 +124,7 @@ class AccountScreen extends Component {
           isVisible={passwordInputModal}
           width="auto"
           height="auto"
+          statusBarTranslucent
           onBackdropPress={() =>
             this.setState({passwordInputModal: false, editMode: false})
           }

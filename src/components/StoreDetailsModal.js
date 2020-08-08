@@ -4,10 +4,9 @@ import {View, ActivityIndicator, FlatList, ImageBackground} from 'react-native';
 import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
 import {inject} from 'mobx-react';
-import {CardItem, Card} from 'native-base';
 import {Rating} from 'react-native-rating-element';
 import MapView, {Marker} from 'react-native-maps';
-import moment, {ISO_8601} from 'moment';
+import moment from 'moment';
 
 @inject('generalStore')
 class StoreDetailsModal extends Component {
@@ -72,7 +71,6 @@ class StoreDetailsModal extends Component {
               overlayContainerStyle={{
                 backgroundColor: colors.primary,
               }}
-              onPress={() => console.log('Works!')}
               activeOpacity={0.7}
               titleStyle={{
                 fontFamily: 'ProductSans-Light',
@@ -114,6 +112,10 @@ class StoreDetailsModal extends Component {
     );
   }
 
+  renderItem = ({item, index}) => (
+    <this.ReviewListItem item={item} key={item.orderId} />
+  );
+
   render() {
     const {
       isVisible,
@@ -131,8 +133,7 @@ class StoreDetailsModal extends Component {
         isVisible={isVisible}
         onShow={() => this.getReviews()}
         onBackdropPress={() => this.handleBackdropPress()}
-        windowBackgroundColor="rgba(255, 255, 255, .5)"
-        overlayBackgroundColor="red"
+        statusBarTranslucent
         width="90%"
         height="70%"
         overlayStyle={{
@@ -185,6 +186,7 @@ class StoreDetailsModal extends Component {
                       <FastImage
                         source={{uri: displayImageUrl}}
                         style={{
+                          backgroundColor: colors.primary,
                           borderRadius: 10,
                           width: 90,
                           aspectRatio: 1,
@@ -268,9 +270,7 @@ class StoreDetailsModal extends Component {
                   contentContainerStyle={{flexGrow: 1}}
                   data={reviews}
                   initialNumToRender={30}
-                  renderItem={({item, index}) => (
-                    <this.ReviewListItem item={item} key={index} />
-                  )}
+                  renderItem={this.renderItem}
                   ListEmptyComponent={
                     <View
                       style={{
@@ -311,9 +311,7 @@ class StoreDetailsModal extends Component {
                     color={colors.primary}
                     style={{paddingRight: 10}}
                   />
-                  <Text style={{fontSize: 16}}>
-                    {store.deliveryCoordinates.address}
-                  </Text>
+                  <Text style={{fontSize: 16}}>{store.address}</Text>
                 </View>
               </View>
 
@@ -334,21 +332,21 @@ class StoreDetailsModal extends Component {
                   }}
                   showsUserLocation
                   initialRegion={{
-                    latitude: store.deliveryCoordinates.latitude,
-                    longitude: store.deliveryCoordinates.longitude,
+                    latitude: store.storeLocation.latitude,
+                    longitude: store.storeLocation.longitude,
                     latitudeDelta: 0.009,
                     longitudeDelta: 0.009,
                   }}>
-                  {store.deliveryCoordinates.latitude &&
-                    store.deliveryCoordinates.longitude && (
+                  {store.storeLocation.latitude &&
+                    store.storeLocation.longitude && (
                       <Marker
                         ref={(marker) => {
                           this.marker = marker;
                         }}
                         tracksViewChanges={false}
                         coordinate={{
-                          latitude: store.deliveryCoordinates.latitude,
-                          longitude: store.deliveryCoordinates.longitude,
+                          latitude: store.storeLocation.latitude,
+                          longitude: store.storeLocation.longitude,
                         }}>
                         <View>
                           <Icon color={colors.primary} name="map-pin" />

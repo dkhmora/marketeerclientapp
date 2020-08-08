@@ -7,6 +7,7 @@ import {v4 as uuidv4} from 'uuid';
 import Geolocation from '@react-native-community/geolocation';
 import geohash from 'ngeohash';
 import firebase from '@react-native-firebase/app';
+import auth from '@react-native-firebase/auth';
 import '@react-native-firebase/functions';
 import {Platform, PermissionsAndroid} from 'react-native';
 import Toast from '../components/Toast';
@@ -50,7 +51,7 @@ class generalStore {
         return data;
       })
       .catch((err) => {
-        console.log(err);
+        Toast({text: err.message, type: 'danger'});
       });
   }
 
@@ -60,10 +61,17 @@ class generalStore {
         ...review,
       })
       .then((response) => {
-        console.log(response);
+        if (response.data.s === 200) {
+          Toast({text: 'Successfully submitted review'});
+        } else {
+          Toast({
+            text: response.data.m,
+            type: 'danger',
+          });
+        }
       })
       .catch((err) => {
-        console.log(err);
+        Toast({text: err.message, type: 'danger'});
       });
   }
 
@@ -71,11 +79,17 @@ class generalStore {
     return await functions
       .httpsCallable('getAddressFromCoordinates')({latitude, longitude})
       .then((response) => {
-        console.log(response);
+        if (response.data.s !== 200) {
+          Toast({
+            text: response.data.m,
+            type: 'danger',
+          });
+        }
+
         return response.data.locationDetails;
       })
       .catch((err) => {
-        console.log(err);
+        Toast({text: err.message, type: 'danger'});
       });
   }
 
@@ -87,7 +101,15 @@ class generalStore {
         PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         ).then((granted) => {
-          console.log(granted); // just to ensure that permissions were granted
+          if (granted !== 'granted') {
+            Toast({
+              text:
+                'Error: Location permissions not granted. Please set location manually.',
+              duration: 8000,
+              type: 'danger',
+              buttonText: 'Okay',
+            });
+          }
         });
       }
 
@@ -96,7 +118,7 @@ class generalStore {
           resolve(position.coords);
         },
         (err) => {
-          console.log(err);
+          Toast({text: err.message, type: 'danger'});
           reject();
         },
         {
@@ -107,83 +129,92 @@ class generalStore {
   }
 
   @action async setCurrentLocation() {
-    return new Promise((resolve, reject) => {
-      if (Platform.OS === 'ios') {
-        Geolocation.requestAuthorization();
-      } else {
-        PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        ).then((granted) => {
-          if (granted === 'granted') {
-            console.log(granted);
-          } else {
-            Toast({
-              text:
-                'Error, location permissions is required. Please enable location permissions.',
-              duration: 0,
-              type: 'danger',
-              buttonText: 'Okay',
-            });
-          }
-          console.log(granted); // just to ensure that permissions were granted
-        });
-      }
+    if (Platform.OS === 'ios') {
+      Geolocation.requestAuthorization();
+    }
 
-      this.addressLoading = true;
-
-      Geolocation.getCurrentPosition(
-        async (position) => {
-          this.deliverToCurrentLocation = true;
-          this.deliverToSetLocation = false;
-          this.deliverToLastDeliveryLocation = false;
-
-          const coords = {
-            latitude: parseFloat(position.coords.latitude),
-            longitude: parseFloat(position.coords.longitude),
-          };
-
-          this.currentLocationGeohash = geohash.encode(
-            coords.latitude,
-            coords.longitude,
-            12,
-          );
-
-          this.currentLocationDetails = await this.getAddressFromCoordinates({
-            ...coords,
+    return await new Promise((resolve, reject) => {
+      PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      ).then((granted) => {
+        if (granted !== 'granted') {
+          Toast({
+            text:
+              'Error: Location permissions not granted. Please set location manually.',
+            duration: 6000,
+            type: 'danger',
+            buttonText: 'Okay',
           });
 
-          this.currentLocation = {...coords};
-
-          resolve();
-        },
-        (err) => {
-          console.log(err);
-
-          if (err.code === 2) {
-            Toast({
-              text:
-                'Error: Cannot get location coordinates. Please set your coordinates manually.',
-              duration: 0,
-              type: 'danger',
-              buttonText: 'Okay',
-            });
-          }
-
           if (this.navigation) {
+            this.appReady = true;
+            this.addressLoading = false;
             this.navigation.navigate('Set Location', {
               checkout: false,
               locationError: true,
             });
           }
+        } else {
+          this.addressLoading = true;
 
-          reject();
-        },
-        {
-          timeout: 20000,
-        },
-      );
-    }).then(() => {
-      this.addressLoading = false;
+          return Geolocation.getCurrentPosition(
+            async (position) => {
+              this.deliverToCurrentLocation = true;
+              this.deliverToSetLocation = false;
+              this.deliverToLastDeliveryLocation = false;
+
+              const coords = {
+                latitude: parseFloat(position.coords.latitude),
+                longitude: parseFloat(position.coords.longitude),
+              };
+
+              this.currentLocationGeohash = await geohash.encode(
+                coords.latitude,
+                coords.longitude,
+                12,
+              );
+
+              this.currentLocationDetails = await this.getAddressFromCoordinates(
+                {
+                  ...coords,
+                },
+              );
+
+              this.currentLocation = {...coords};
+
+              this.appReady = true;
+              this.addressLoading = false;
+
+              resolve();
+            },
+            (err) => {
+              if (err.code === 2) {
+                Toast({
+                  text:
+                    'Error: Cannot get location coordinates. Please set your coordinates manually.',
+                  duration: 6000,
+                  type: 'danger',
+                  buttonText: 'Okay',
+                });
+              } else {
+                Toast({text: err.message, type: 'danger'});
+              }
+
+              if (this.navigation) {
+                this.appReady = true;
+                this.addressLoading = false;
+                this.navigation.navigate('Set Location', {
+                  checkout: false,
+                  locationError: true,
+                });
+              }
+            },
+            {
+              timeout: 20000,
+            },
+          );
+        }
+      });
     });
   }
 
@@ -193,45 +224,37 @@ class generalStore {
       this.deliverToSetLocation = false;
       this.deliverToLastDeliveryLocation = true;
 
-      this.currentLocationGeohash = this.userDetails.lastDeliveryLocationGeohash;
-      this.currentLocation = this.userDetails.lastDeliveryLocation;
-      this.currentLocationDetails = this.userDetails.lastDeliveryLocationAddress;
+      this.currentLocationGeohash = this.userDetails.addresses.Home.geohash;
+      this.currentLocation = this.userDetails.addresses.Home.coordinates;
+      this.currentLocationDetails = this.userDetails.addresses.Home.address;
 
       resolve();
     });
   }
 
-  @action async getUserDetails(userId) {
-    await firestore()
+  @action async getUserDetails() {
+    const userId = auth().currentUser.uid;
+
+    this.unsubscribeUserDetails = firestore()
       .collection('users')
       .doc(userId)
-      .get()
-      .then((document) => {
-        if (document.exists) {
-          this.userDetails = document.data();
+      .onSnapshot((documentSnapshot) => {
+        if (documentSnapshot) {
+          if (documentSnapshot.exists) {
+            this.userDetails = documentSnapshot.data();
+
+            if (documentSnapshot.data().addresses.Home) {
+              return this.setLastDeliveryLocation();
+            } else {
+              return this.setCurrentLocation();
+            }
+          }
+        } else {
+          this.unsubscribeUserDetails();
         }
 
         return null;
-      })
-      .catch((err) => console.log(err));
-  }
-
-  @action async updateCoordinates(
-    userId,
-    coordinates,
-    lastDeliveryLocationGeohash,
-    lastDeliveryLocationAddress,
-  ) {
-    await firestore()
-      .collection('users')
-      .doc(userId)
-      .update({
-        lastDeliveryLocation: {...coordinates},
-        lastDeliveryLocationGeohash,
-        lastDeliveryLocationAddress,
-      })
-      .then(() => console.log('Successfully updated user coordinates'))
-      .catch((err) => console.log(err));
+      });
   }
 
   @action async getImageURI(imageRef) {
@@ -282,8 +305,7 @@ class generalStore {
       .collection('orders')
       .doc(orderId)
       .update('messages', firestore.FieldValue.arrayUnion(message))
-      .then(() => console.log('Successfully sent the message'))
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
   @action async createImageMessage(orderId, messageId, user, imageLink) {
@@ -299,8 +321,7 @@ class generalStore {
       .collection('orders')
       .doc(orderId)
       .update('messages', firestore.FieldValue.arrayUnion(message))
-      .then(() => console.log('Successfully sent the message'))
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
   @action async sendImage(
@@ -330,8 +351,7 @@ class generalStore {
       .then((imageLink) =>
         this.createImageMessage(orderId, messageId, user, imageLink),
       )
-      .then(() => console.log('Image successfully uploaded and sent!'))
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
   @action async setOrders(userId) {
@@ -343,7 +363,6 @@ class generalStore {
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc, index) => {
-          console.log('updated');
           const order = {...doc.data(), orderId: doc.id};
 
           if (order.updatedAt > this.maxOrderUpdatedAt) {
@@ -365,7 +384,7 @@ class generalStore {
           .slice()
           .sort((a, b) => b.updatedAt - a.updatedAt);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
   @action async setOrderItems(orderId) {

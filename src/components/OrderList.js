@@ -1,16 +1,9 @@
 import React, {Component} from 'react';
-import {
-  FlatList,
-  ActivityIndicator,
-  Dimensions,
-  RefreshControl,
-  View,
-} from 'react-native';
+import {FlatList, RefreshControl, View} from 'react-native';
 import {observer, inject} from 'mobx-react';
 // Custom Components
 import OrderCard from './OrderCard';
 import {colors} from '../../assets/colors';
-import * as Animatable from 'react-native-animatable';
 import {Text} from 'react-native-elements';
 
 @inject('authStore')
@@ -44,8 +37,15 @@ class OrderList extends Component {
     this.retrieveInitial();
   }
 
+  renderItem = ({item, index}) => (
+    <OrderCard
+      order={item}
+      navigation={this.props.navigation}
+      key={item.orderId}
+    />
+  );
+
   render() {
-    const {navigation} = this.props;
     const dataSource = this.props.generalStore.orders.slice();
 
     return (
@@ -54,24 +54,26 @@ class OrderList extends Component {
         contentContainerStyle={{flexGrow: 1}}
         data={dataSource}
         initialNumToRender={10}
-        renderItem={({item, index}) => (
-          <OrderCard order={item} navigation={navigation} key={index} />
-        )}
+        renderItem={this.renderItem}
+        windowSize={10}
         keyExtractor={(item) => item.orderId}
         showsVerticalScrollIndicator={false}
+        maxToRenderPerBatch={5}
         ListEmptyComponent={
-          <View
-            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-            <Text
-              style={{
-                fontSize: 20,
-                textAlign: 'center',
-                paddingHorizontal: 15,
-              }}>
-              You haven't placed an order yet. Check out the best stores near
-              your area and place an order now!
-            </Text>
-          </View>
+          !this.state.loading && (
+            <View
+              style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  textAlign: 'center',
+                  paddingHorizontal: 15,
+                }}>
+                You haven't placed an order yet. Check out the best stores near
+                your area and place an order now!
+              </Text>
+            </View>
+          )
         }
         refreshControl={
           <RefreshControl

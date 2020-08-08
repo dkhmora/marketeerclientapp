@@ -1,10 +1,7 @@
 import React, {Component} from 'react';
-import {FlatList, View, ScrollView} from 'react-native';
-import {Card, Text, ListItem, Image} from 'react-native-elements';
+import {View, ScrollView} from 'react-native';
+import {Text} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
-import FastImage from 'react-native-fast-image';
-import CartListItem from './CartListItem';
-import {colors} from '../../assets/colors';
 import CartStoreCard from './CartStoreCard';
 
 @inject('shopStore')
@@ -17,21 +14,34 @@ class CartStoreList extends Component {
 
   render() {
     const dataSource = this.props.shopStore.cartStores.slice();
-    const {emptyCartText, checkout} = this.props;
+    const {
+      emptyCartText,
+      checkout,
+      onTouchEnd,
+      onTouchStart,
+      onTouchCancel,
+      cart,
+    } = this.props;
 
     return (
-      <View style={{flex: 1}}>
+      <View style={{flex: 1, marginVertical: -10}}>
         {dataSource.length > 0 ? (
-          <ScrollView style={{flex: 1}}>
+          <ScrollView
+            style={{flex: 1}}
+            onTouchEnd={() => onTouchEnd && onTouchEnd()}
+            onTouchStart={() => onTouchStart && onTouchStart()}
+            onTouchCancel={() => onTouchCancel && onTouchCancel()}>
             {dataSource.map((merchantId, index) => {
               return (
                 <CartStoreCard
+                  cart={cart}
                   checkout={checkout}
                   merchantId={merchantId}
                   key={index}
                 />
               );
             })}
+            <View style={{height: 10}} />
           </ScrollView>
         ) : (
           <View
