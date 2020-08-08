@@ -4,10 +4,9 @@ import {View, ActivityIndicator, FlatList, ImageBackground} from 'react-native';
 import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
 import {inject} from 'mobx-react';
-import {CardItem, Card} from 'native-base';
 import {Rating} from 'react-native-rating-element';
 import MapView, {Marker} from 'react-native-maps';
-import moment, {ISO_8601} from 'moment';
+import moment from 'moment';
 
 @inject('generalStore')
 class StoreDetailsModal extends Component {

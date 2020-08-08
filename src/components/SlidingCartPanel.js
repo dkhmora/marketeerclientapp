@@ -20,7 +20,6 @@ const SLIDING_MENU_INITIAL_HEIGHT = 75;
 const SLIDING_MENU_EXTENDED_HEIGHT =
   SCREEN_HEIGHT - SLIDING_MENU_INITIAL_HEIGHT;
 const inset = initialWindowMetrics && initialWindowMetrics.insets;
-const landScape = SCREEN_WIDTH > SCREEN_HEIGHT;
 const bottomPadding = Platform.OS === 'ios' ? inset.bottom : 0;
 @inject('shopStore')
 @inject('authStore')

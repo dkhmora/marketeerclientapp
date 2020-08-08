@@ -1,24 +1,13 @@
 import React, {PureComponent} from 'react';
-import {
-  Card,
-  CardItem,
-  Left,
-  Body,
-  Right,
-  View,
-  H3,
-  Textarea,
-} from 'native-base';
+import {Card, CardItem, Body, View} from 'native-base';
 import {ActionSheetIOS} from 'react-native';
 import moment from 'moment';
 import {observer, inject} from 'mobx-react';
-import Modal from 'react-native-modal';
 import {observable, action, computed} from 'mobx';
 import FastImage from 'react-native-fast-image';
 import {Button, Icon, Text} from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 import {colors} from '../../assets/colors';
-import OrderCardLoader from './OrderCardLoader';
 import AddReviewModal from './AddReviewModal';
 import Toast from './Toast';
 import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
