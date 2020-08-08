@@ -187,6 +187,7 @@ class StoreDetailsModal extends Component {
                       <FastImage
                         source={{uri: displayImageUrl}}
                         style={{
+                          backgroundColor: colors.primary,
                           borderRadius: 10,
                           width: 90,
                           aspectRatio: 1,

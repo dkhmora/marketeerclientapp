@@ -159,6 +159,7 @@ class OrderCard extends PureComponent {
                   borderWidth: 1,
                   borderColor: colors.primary,
                   marginRight: 10,
+                  backgroundColor: colors.primary,
                 }}
                 resizeMode={FastImage.resizeMode.cover}
               />
@@ -166,6 +167,7 @@ class OrderCard extends PureComponent {
               <Placeholder Animation={Fade}>
                 <PlaceholderMedia
                   style={{
+                    backgroundColor: colors.primary,
                     height: 35,
                     width: 35,
                     borderRadius: 10,

@@ -56,6 +56,7 @@ class ConfirmationModal extends PureComponent {
               <FastImage
                 source={{uri: image}}
                 style={{
+                  backgroundColor: colors.primary,
                   flex: 1,
                 }}
                 resizeMode={FastImage.resizeMode.contain}

@@ -66,7 +66,14 @@ class StoreCategoryCard extends Component {
             activeOpacity={0.85}
             style={{flex: 1, flexDirection: 'row'}}>
             <View style={{flex: 7, elevation: 10}}>
-              <FastImage source={url} style={{flex: 1, borderRadius: 10}} />
+              <FastImage
+                source={url}
+                style={{
+                  flex: 1,
+                  borderRadius: 10,
+                  backgroundColor: colors.primary,
+                }}
+              />
             </View>
 
             <View

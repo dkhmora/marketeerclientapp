@@ -93,6 +93,7 @@ class StoreCard extends Component {
               <FastImage
                 source={{uri: coverImageUrl}}
                 style={{
+                  backgroundColor: colors.primary,
                   position: 'absolute',
                   top: 0,
                   left: 0,
@@ -107,6 +108,7 @@ class StoreCard extends Component {
               <Placeholder Animation={Fade}>
                 <PlaceholderMedia
                   style={{
+                    backgroundColor: colors.primary,
                     position: 'absolute',
                     top: 0,
                     left: 0,
@@ -275,6 +277,7 @@ class StoreCard extends Component {
             <FastImage
               source={{uri: displayImageUrl}}
               style={{
+                backgroundColor: colors.primary,
                 position: 'absolute',
                 bottom: 95,
                 left: 20,
@@ -290,6 +293,7 @@ class StoreCard extends Component {
             <Placeholder Animation={Fade}>
               <PlaceholderMedia
                 style={{
+                  backgroundColor: colors.primary,
                   position: 'absolute',
                   bottom: 95,
                   left: 20,

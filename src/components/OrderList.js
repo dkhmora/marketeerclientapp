@@ -53,7 +53,7 @@ class OrderList extends Component {
         style={{flex: 1, paddingHorizontal: 10}}
         contentContainerStyle={{flexGrow: 1}}
         data={dataSource}
-        initialNumToRender={5}
+        initialNumToRender={10}
         renderItem={this.renderItem}
         windowSize={10}
         keyExtractor={(item) => item.orderId}

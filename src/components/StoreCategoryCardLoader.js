@@ -1,9 +1,4 @@
-import {
-  Placeholder,
-  PlaceholderMedia,
-  PlaceholderLine,
-  Fade,
-} from 'rn-placeholder';
+import {Placeholder, PlaceholderMedia, Fade} from 'rn-placeholder';
 import React from 'react';
 import {View} from 'react-native';
 import {Icon} from 'react-native-elements';
@@ -20,6 +15,7 @@ function StoreCategoryCardLoader() {
         <View style={{flex: 7, flexDirection: 'row', elevation: 10}}>
           <PlaceholderMedia
             style={{
+              backgroundColor: colors.primary,
               height: '100%',
               width: '100%',
               borderRadius: 10,
@@ -38,6 +34,7 @@ function StoreCategoryCardLoader() {
             style={{flex: 1, flexDirection: 'column', alignItems: 'center'}}>
             <PlaceholderMedia
               style={{
+                backgroundColor: colors.primary,
                 marginBottom: 10,
                 width: '80%',
                 height: 15,
@@ -46,6 +43,7 @@ function StoreCategoryCardLoader() {
             />
             <PlaceholderMedia
               style={{
+                backgroundColor: colors.primary,
                 marginBottom: 0,
                 width: '100%',
                 height: 15,

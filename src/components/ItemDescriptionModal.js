@@ -43,7 +43,7 @@ class ItemDescriptionModal extends Component {
                 width: null,
                 height: 300,
                 aspectRatio: 1,
-                backgroundColor: '#e1e4e8',
+                backgroundColor: colors.primary,
               }}
               resizeMode={FastImage.resizeMode.contain}
             />
@@ -56,7 +56,7 @@ class ItemDescriptionModal extends Component {
                 width: null,
                 height: 300,
                 aspectRatio: 1,
-                backgroundColor: '#e1e4e8',
+                backgroundColor: colors.primary,
               }}
               resizeMode={FastImage.resizeMode.contain}
             />

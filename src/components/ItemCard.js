@@ -264,11 +264,12 @@ class ItemCard extends PureComponent {
           </View>
 
           <CardItem cardBody>
-            {image !== '' ? (
+            {image ? (
               loading ? (
                 <Placeholder Animation={Fade}>
                   <PlaceholderMedia
                     style={{
+                      backgroundColor: colors.primary,
                       flex: 1,
                       marginTop: -10,
                       height: '100%',
@@ -281,10 +282,10 @@ class ItemCard extends PureComponent {
                 <FastImage
                   source={{uri: this.url}}
                   style={{
+                    backgroundColor: colors.primary,
                     aspectRatio: 1,
                     flex: 1,
                     marginTop: -10,
-                    backgroundColor: '#e1e4e8',
                   }}
                   resizeMode={FastImage.resizeMode.contain}
                 />
@@ -293,10 +294,10 @@ class ItemCard extends PureComponent {
               <FastImage
                 source={require('../../assets/images/placeholder.jpg')}
                 style={{
+                  backgroundColor: colors.primary,
                   aspectRatio: 1,
                   flex: 1,
                   marginTop: -10,
-                  backgroundColor: '#e1e4e8',
                 }}
                 resizeMode={FastImage.resizeMode.contain}
               />
