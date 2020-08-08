@@ -52,14 +52,10 @@ class MainDrawer extends Component {
     return this.userNameText.charAt(0);
   }
 
-  handleAuthentication(navigation) {
+  handleAuthentication() {
     if (this.props.authStore.guest && this.props.authStore.userAuthenticated) {
-      navigation.closeDrawer();
-
       this.props.navigation.navigate('Auth');
     } else if (this.props.authStore.userAuthenticated) {
-      navigation.closeDrawer();
-
       this.props.generalStore.appReady = false;
 
       this.props.authStore
@@ -244,7 +240,17 @@ class MainDrawer extends Component {
           <ListItem
             title={authenticationButtonText}
             leftIcon={authenticationIcon}
-            onPress={() => this.setState({signOutConfirmModal: true})}
+            onPress={() => {
+              if (
+                this.props.authStore.guest &&
+                this.props.authStore.userAuthenticated
+              ) {
+                this.handleAuthentication();
+              } else {
+                this.setState({signOutConfirmModal: true});
+              }
+              navigation.closeDrawer();
+            }}
           />
         </View>
       </DrawerContentScrollView>
