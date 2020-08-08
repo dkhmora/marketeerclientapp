@@ -40,7 +40,7 @@ class MainDrawer extends Component {
   @computed get userNameText() {
     const {userName} = this.props.authStore;
 
-    return userName ? userName : 'Guest Account';
+    return userName ? userName : 'Guest';
   }
 
   @computed get userInitial() {
