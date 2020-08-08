@@ -136,7 +136,7 @@ class CheckoutScreen extends Component {
         <Animatable.View
           animation="fadeInUp"
           useNativeDriver
-          duration={800}
+          duration={600}
           style={{
             flexDirection: 'row',
             alignItems: 'center',

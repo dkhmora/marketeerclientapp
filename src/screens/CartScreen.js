@@ -38,7 +38,7 @@ class CartScreen extends Component {
         <Animatable.View
           animation="fadeInUp"
           useNativeDriver
-          duration={800}
+          duration={600}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
@@ -63,6 +63,7 @@ class CartScreen extends Component {
 
         <Animatable.View
           useNativeDriver
+          duration={600}
           animation="fadeInUpBig"
           style={[
             styles.footer,
@@ -81,6 +82,7 @@ class CartScreen extends Component {
 
         <Animatable.View
           useNativeDriver
+          duration={700}
           animation="fadeInUpBig"
           style={{
             flexDirection: 'row',

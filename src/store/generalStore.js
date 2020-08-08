@@ -104,7 +104,7 @@ class generalStore {
             Toast({
               text:
                 'Error, location permissions is required. Please enable location permissions.',
-              duration: 0,
+              duration: 8000,
               type: 'danger',
               buttonText: 'Okay',
             });
@@ -139,7 +139,7 @@ class generalStore {
             Toast({
               text:
                 'Error, location permissions is required. Please enable location permissions.',
-              duration: 0,
+              duration: 8000,
               type: 'danger',
               buttonText: 'Okay',
             });
@@ -181,7 +181,7 @@ class generalStore {
             Toast({
               text:
                 'Error: Cannot get location coordinates. Please set your coordinates manually.',
-              duration: 0,
+              duration: 8000,
               type: 'danger',
               buttonText: 'Okay',
             });

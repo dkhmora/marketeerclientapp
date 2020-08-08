@@ -50,7 +50,7 @@ class ItemCategoriesTab extends Component {
         <View style={[style, {flex: 1}]}>
           <ItemTab.Navigator
             lazy
-            lazyPreloadDistance={1}
+            lazyPreloadDistance={0.5}
             tabBarOptions={{
               scrollEnabled: true,
               tabStyle: {width: this.tabWidth},

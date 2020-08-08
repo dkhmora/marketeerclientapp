@@ -16,6 +16,7 @@ class MainTab extends Component {
     return (
       <TabStores.Navigator
         lazy
+        lazyPreloadDistance={0.5}
         initialRouteName="Near You"
         tabBarOptions={{
           indicatorStyle: {width: '25%', left: '12.5%'},

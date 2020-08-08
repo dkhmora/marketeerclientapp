@@ -69,7 +69,7 @@ class StoreScreen extends Component {
         <Animatable.View
           useNativeDriver
           animation="fadeInUp"
-          duration={800}
+          duration={600}
           style={{flexDirection: 'row', paddingBottom: 20}}>
           <ImageBackground
             source={{uri: coverImageUrl}}
@@ -83,13 +83,12 @@ class StoreScreen extends Component {
               paddingBottom: 40 + STATUS_BAR_HEIGHT,
               paddingHorizontal: 5,
               alignItems: 'center',
-              justifyContent: 'flex-start',
               backgroundColor: 'rgba(0,0,0,0.2)',
             }}>
             <Animatable.View
               useNativeDriver
               animation="fadeIn"
-              duration={800}
+              duration={600}
               style={{
                 flex: 1,
                 height: SCREEN_HEIGHT,
@@ -105,7 +104,7 @@ class StoreScreen extends Component {
             <Animatable.View
               animation="fadeInUp"
               useNativeDriver
-              duration={800}
+              duration={600}
               style={{paddingHorizontal: 10}}>
               <Button
                 onPress={() => navigation.goBack()}
@@ -123,7 +122,7 @@ class StoreScreen extends Component {
             <Animatable.Image
               animation="fadeInUp"
               useNativeDriver
-              duration={800}
+              duration={600}
               source={{uri: displayImageUrl}}
               style={{
                 height: 75,
@@ -137,7 +136,7 @@ class StoreScreen extends Component {
             <Animatable.View
               animation="fadeInUp"
               useNativeDriver
-              duration={800}
+              duration={600}
               style={{
                 flex: 1,
                 flexDirection: 'row',
@@ -192,7 +191,7 @@ class StoreScreen extends Component {
 
         <Animatable.View
           animation="fadeInUpBig"
-          duration={700}
+          duration={600}
           useNativeDriver
           style={[
             styles.footer,
