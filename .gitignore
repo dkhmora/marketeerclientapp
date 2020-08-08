@@ -57,3 +57,7 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
+
+#Sensitive
+gradle.properties
+my-upload-key.keystore
