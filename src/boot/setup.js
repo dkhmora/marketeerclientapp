@@ -3,7 +3,7 @@ import App from '../App';
 // For theme
 import {colors} from '../../assets/colors';
 import {ThemeProvider} from 'react-native-elements';
-import {View, ActivityIndicator} from 'react-native';
+import {View, ActivityIndicator, StatusBar} from 'react-native';
 import {inject, observer} from 'mobx-react';
 
 const theme = {
@@ -60,6 +60,7 @@ class Setup extends Component {
               justifyContent: 'center',
               backgroundColor: 'rgba(0,0,0,0.5)',
             }}>
+            <StatusBar translucent backgroundColor="rgba(233, 30, 99,0.009)" />
             <ActivityIndicator size="large" color={colors.primary} />
           </View>
         )}

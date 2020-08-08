@@ -213,12 +213,11 @@ class SignUpScreen extends Component {
       secureTextEntry,
       confirm_secureTextEntry,
     } = this.state;
-    const {checkout} = this.props.route.params;
     const {navigation} = this.props;
 
     return (
       <View style={[styles.container, {paddingTop: 0}]}>
-        <StatusBar animated translucent backgroundColor={colors.primary} />
+        <StatusBar animated translucent backgroundColor={colors.statusBar} />
 
         <View
           style={{
@@ -318,34 +317,41 @@ class SignUpScreen extends Component {
 
             <Text style={styles.text_footer}>Phone Number</Text>
 
-            <View style={styles.action}>
-              <View style={styles.icon_container}>
-                <Icon name="smartphone" color={colors.primary} size={20} />
+            <View style={[styles.action, {flexDirection: 'column'}]}>
+              <View style={{flexDirection: 'row'}}>
+                <View style={styles.icon_container}>
+                  <Icon name="smartphone" color={colors.primary} size={20} />
 
-                <Text
-                  style={[
-                    styles.text_subtext,
-                    {marginLeft: 5, marginRight: -5},
-                  ]}>
-                  (+63)
-                </Text>
+                  <Text
+                    style={[
+                      styles.text_subtext,
+                      {marginLeft: 5, marginRight: -5},
+                    ]}>
+                    (+63)
+                  </Text>
+                </View>
+
+                <TextInput
+                  placeholder="9173456789"
+                  placeholderTextColor={colors.text_secondary}
+                  keyboardType="numeric"
+                  maxLength={10}
+                  style={styles.textInput}
+                  autoCapitalize="none"
+                  onChangeText={(value) => this.handlePhoneChange(value)}
+                />
+
+                {phoneCheck ? (
+                  <Animatable.View useNativeDriver animation="bounceIn">
+                    <Icon name="check-circle" color="#388e3c" size={20} />
+                  </Animatable.View>
+                ) : null}
               </View>
 
-              <TextInput
-                placeholder="9173456789"
-                placeholderTextColor={colors.text_secondary}
-                keyboardType="numeric"
-                maxLength={10}
-                style={styles.textInput}
-                autoCapitalize="none"
-                onChangeText={(value) => this.handlePhoneChange(value)}
-              />
-
-              {phoneCheck ? (
-                <Animatable.View useNativeDriver animation="bounceIn">
-                  <Icon name="check-circle" color="#388e3c" size={20} />
-                </Animatable.View>
-              ) : null}
+              <Text style={{color: colors.text_secondary, fontSize: 12}}>
+                We will send you a verification code here. *Standard rates may
+                apply
+              </Text>
             </View>
 
             <Text style={styles.text_footer}>Password</Text>
@@ -375,7 +381,12 @@ class SignUpScreen extends Component {
 
               {passwordCheck ? (
                 <Animatable.View useNativeDriver animation="bounceIn">
-                  <Icon name="check-circle" color="#388e3c" size={20} />
+                  <Icon
+                    name="check-circle"
+                    color="#388e3c"
+                    size={20}
+                    style={{marginLeft: 5}}
+                  />
                 </Animatable.View>
               ) : null}
             </View>
@@ -409,7 +420,12 @@ class SignUpScreen extends Component {
 
               {confirmPasswordCheck ? (
                 <Animatable.View useNativeDriver animation="bounceIn">
-                  <Icon name="check-circle" color="#388e3c" size={20} />
+                  <Icon
+                    name="check-circle"
+                    color="#388e3c"
+                    size={20}
+                    style={{marginLeft: 5}}
+                  />
                 </Animatable.View>
               ) : null}
             </View>
@@ -460,13 +476,21 @@ class SignUpScreen extends Component {
               title="Sign Up"
               type="outline"
               containerStyle={{
+                marginTop: 40,
+              }}
+              buttonStyle={{
+                height: 50,
                 borderRadius: 24,
                 borderWidth: 1,
-                marginTop: 40,
-                height: 50,
-                borderColor: emailCheck ? colors.primary : 'grey',
+                borderColor:
+                  nameCheck &&
+                  emailCheck &&
+                  phoneCheck &&
+                  passwordCheck &&
+                  confirmPasswordCheck
+                    ? colors.primary
+                    : 'grey',
               }}
-              buttonStyle={{height: 50}}
             />
 
             <View

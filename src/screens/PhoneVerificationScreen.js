@@ -6,6 +6,8 @@ import {
   StatusBar,
   Image,
   ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -15,6 +17,7 @@ import firebase from '@react-native-firebase/app';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import Toast from '../components/Toast';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -26,12 +29,14 @@ class PhoneVerificationScreen extends Component {
 
     this.state = {
       verificationId: null,
-      loading: true,
+      code: '',
     };
   }
 
   componentDidMount() {
     const {phoneNumber} = this.props.route.params;
+
+    this.props.generalStore.appReady = false;
 
     this.signInWithPhoneNumber(phoneNumber, false);
   }
@@ -39,7 +44,7 @@ class PhoneVerificationScreen extends Component {
   handleResend() {
     const {phoneNumber} = this.props.route.params;
 
-    this.setState({loading: true});
+    this.props.generalStore.appReady = false;
 
     this.signInWithPhoneNumber(phoneNumber, true);
   }
@@ -80,13 +85,11 @@ class PhoneVerificationScreen extends Component {
               break;
           }
 
-          this.setState({
-            loading: false,
-          });
+          this.props.generalStore.appReady = true;
         },
         (error) => {
           Toast({
-            text: `Error verifying phone number: ${error}`,
+            text: `Error verifying phone number: ${error.message}`,
             type: 'danger',
           });
         },
@@ -109,55 +112,62 @@ class PhoneVerificationScreen extends Component {
       code,
     );
 
+    this.props.generalStore.appReady = false;
+
     if (this.props.authStore.guest) {
       this.props.authStore
         .createUser(name, email, password, phoneNumber, credential, navigation)
         .then(() => {
+          console.log('jhaha');
+          this.props.generalStore.appReady = true;
+
           if (checkout) {
+            console.log('1');
             this.props.shopStore
               .setCartItems(this.props.authStore.userId)
               .then(() => {
                 navigation
                   .dangerouslyGetParent()
                   .replace('Set Location', {checkout: true});
-              })
-              .catch((err) => {
-                if (err.code === 'auth/quota-exceeded') {
-                  Toast({
-                    text:
-                      'Error, too many phone code requests. Please try again later.',
-                    type: 'danger',
-                  });
-                }
-
-                if (err.code === 'auth/missing-verification-code') {
-                  Toast({
-                    text: 'Error, missing verification code. Please try again.',
-                    type: 'danger',
-                  });
-                }
-
-                if (err.code === 'auth/invalid-verification-code') {
-                  Toast({
-                    text: 'Error, invalid verification code. Please try again.',
-                    type: 'danger',
-                  });
-                }
-
-                if (err.code === 'auth/credential-already-in-use') {
-                  Toast({
-                    text:
-                      'Error, phone number is already in use. Please try again with a different phone number.',
-                    type: 'danger',
-                  });
-                }
-
-                navigation.replace('Home');
-
-                Toast({text: err.message, type: 'danger'});
               });
           } else {
-            navigation.dangerouslyGetParent().replace('Home');
+            console.log('2');
+            navigation.dangerouslyGetParent().navigate('Home');
+          }
+        })
+        .catch((err) => {
+          this.props.generalStore.appReady = true;
+
+          if (err.code === 'auth/quota-exceeded') {
+            navigation.replace('Home');
+
+            Toast({
+              text:
+                'Error, too many phone code requests. Please try again later.',
+              type: 'danger',
+            });
+          } else if (err.code === 'auth/missing-verification-code') {
+            Toast({
+              text: 'Error, missing verification code. Please try again.',
+              type: 'danger',
+            });
+          } else if (err.code === 'auth/invalid-verification-code') {
+            this.setState({code: ''});
+
+            Toast({
+              text: 'Error, invalid verification code. Please try again.',
+              type: 'danger',
+            });
+          } else if (err.code === 'auth/credential-already-in-use') {
+            navigation.replace('Sign Up');
+
+            Toast({
+              text:
+                'Error, phone number is already in use. Please try again with a different phone number.',
+              type: 'danger',
+            });
+          } else {
+            Toast({text: err.message, type: 'danger'});
           }
         });
     } else {
@@ -204,27 +214,39 @@ class PhoneVerificationScreen extends Component {
 
   render() {
     const {phoneNumber} = this.props.route.params;
-    const {loading} = this.state;
+    const {code} = this.state;
 
     return (
       <View style={styles.container}>
         <StatusBar animated backgroundColor={colors.primary} />
 
-        <View style={styles.header}>
-          <Image
-            source={require('../../assets/images/logo.png')}
-            style={{
-              height: 150,
-              width: 200,
-              resizeMode: 'contain',
-            }}
-          />
-        </View>
+        <Animatable.View
+          duration={800}
+          useNativeDriver
+          animation="fadeInUp"
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingTop: StatusBar.currentHeight,
+          }}>
+          <SafeAreaView style={{flexDirection: 'row'}}>
+            <Image
+              source={require('../../assets/images/logo.png')}
+              style={{
+                height: 150,
+                width: 200,
+                resizeMode: 'contain',
+                marginVertical: 20,
+              }}
+            />
+          </SafeAreaView>
+        </Animatable.View>
+
         <Animatable.View
           useNativeDriver
           animation="fadeInUpBig"
           style={styles.footer}>
-          <View style={{flex: 1}}>
+          <KeyboardAwareScrollView style={{flex: 1}}>
             <View style={{flex: 1, justifyContent: 'flex-start'}}>
               <Text style={styles.text_header}>SMS Verification</Text>
               <Text style={styles.text_subtext}>
@@ -235,6 +257,8 @@ class PhoneVerificationScreen extends Component {
               <OTPInputView
                 pinCount={6}
                 autoFocusOnLoad
+                code={code}
+                onCodeChanged={(otpCode) => this.setState({code: otpCode})}
                 codeInputFieldStyle={{
                   borderRadius: 24,
                   borderColor: '#666',
@@ -242,8 +266,8 @@ class PhoneVerificationScreen extends Component {
                 }}
                 codeInputHighlightStyle={{borderColor: colors.primary}}
                 keyboardType="number-pad"
-                onCodeFilled={(code) => {
-                  this.confirmCode(code);
+                onCodeFilled={(fullCode) => {
+                  this.confirmCode(fullCode);
                 }}
                 style={{width: '95%', height: 100, alignSelf: 'center'}}
               />
@@ -263,25 +287,8 @@ class PhoneVerificationScreen extends Component {
                 </TouchableOpacity>
               </View>
             </View>
-          </View>
+          </KeyboardAwareScrollView>
         </Animatable.View>
-
-        {loading && (
-          <View
-            style={{
-              height: '100%',
-              width: '100%',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'rgba(0,0,0,0.5)',
-            }}>
-            <ActivityIndicator size="large" color={colors.primary} />
-          </View>
-        )}
       </View>
     );
   }

@@ -73,7 +73,7 @@ class authStore {
       }
 
       if (authorizationStatus) {
-        await messaging()
+        return await messaging()
           .getToken()
           .then((token) => {
             firestore()
@@ -205,32 +205,21 @@ class authStore {
     phoneCredential,
     navigation,
   ) {
-    await this.linkCurrentUserWithPhoneNumber(phoneCredential)
-      .then(() => this.linkCurrentUserWithEmail(email, password))
-      .then(() => this.createUserDocuments(name, email, phoneNumber))
-      .then(() => this.checkAuthStatus())
-      .then(() => {
-        this.subscribeToNotifications();
+    console.log('createuser');
+    return await this.linkCurrentUserWithPhoneNumber(phoneCredential)
+      .then(async () => await this.linkCurrentUserWithEmail(email, password))
+      .then(
+        async () => await this.createUserDocuments(name, email, phoneNumber),
+      )
+      .then(async () => await this.checkAuthStatus())
+      .then(async () => {
+        await this.subscribeToNotifications();
       })
       .then(() => {
         Toast({
           text: 'Welcome to Marketeer!',
           duration: 4000,
         });
-      })
-      .catch((err) => {
-        this.userAuthenticated = false;
-        if (err.code === 'auth/credential-already-in-use') {
-          Toast({
-            text:
-              'Error: Phone number is already linked to another account, please use another mobile phone number',
-            type: 'danger',
-            duration: 6000,
-          });
-        }
-        navigation.goBack();
-
-        Toast({text: err.message, type: 'danger'});
       });
   }
 
@@ -258,11 +247,12 @@ class authStore {
       password,
     );
 
-    await auth().currentUser.linkWithCredential(emailCredential);
+    return await auth().currentUser.linkWithCredential(emailCredential);
   }
 
   @action async linkCurrentUserWithPhoneNumber(phoneCredential) {
-    await auth().currentUser.linkWithCredential(phoneCredential);
+    console.log('link');
+    return await auth().currentUser.linkWithCredential(phoneCredential);
   }
 
   @action async signIn(userCredential, password) {
@@ -350,12 +340,12 @@ class authStore {
     if (auth().currentUser) {
       this.userAuthenticated = true;
     } else {
-      await this.signInAnonymously();
+      return await this.signInAnonymously();
     }
   }
 
   @action async signInAnonymously() {
-    await auth()
+    return await auth()
       .signInAnonymously()
       .then(() => {
         this.userAuthenticated = true;

@@ -277,13 +277,14 @@ class LoginScreen extends Component {
               type="outline"
               disabled={!userCredentialCheck}
               containerStyle={{
+                marginTop: 40,
+              }}
+              buttonStyle={{
+                height: 50,
                 borderRadius: 24,
                 borderWidth: 1,
-                marginTop: 40,
-                height: 50,
                 borderColor: userCredentialCheck ? colors.primary : 'grey',
               }}
-              buttonStyle={{height: 50}}
             />
 
             <View

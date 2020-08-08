@@ -221,6 +221,9 @@ class MainScreen extends Component {
         style={{
           width: '100%',
           backgroundColor: '#fff',
+          borderBottomLeftRadius: 24,
+          borderBottomRightRadius: 24,
+          overflow: 'hidden',
           top: this.state.initialPosition,
           position: 'absolute',
         }}>
