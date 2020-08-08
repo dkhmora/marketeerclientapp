@@ -161,6 +161,7 @@ class CheckoutScreen extends Component {
 
         <Animatable.View
           useNativeDriver
+          duration={600}
           animation="fadeInUpBig"
           style={[
             styles.footer,
@@ -175,6 +176,7 @@ class CheckoutScreen extends Component {
 
         <Animatable.View
           useNativeDriver
+          duration={700}
           animation="fadeInUpBig"
           style={{
             flexDirection: 'row',
