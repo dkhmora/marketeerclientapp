@@ -125,7 +125,7 @@ class ItemCard extends PureComponent {
 
     this.props.shopStore.addCartItemToStorage(item, merchantId);
 
-    if (this.cartItemQuantity < item.stock) {
+    if (this.cartItemQuantity <= item.stock) {
       this.props.shopStore.updateCartItems();
     }
 

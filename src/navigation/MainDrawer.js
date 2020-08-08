@@ -60,6 +60,8 @@ class MainDrawer extends Component {
       this.props.authStore
         .signOut()
         .then(() => {
+          this.props.generalStore.orders = [];
+          this.props.generalStore.maxOrderUpdatedAt = 0;
           this.props.shopStore.resetData();
           this.props.authStore.checkAuthStatus();
         })

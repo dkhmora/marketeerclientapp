@@ -78,34 +78,31 @@ class CheckoutScreen extends Component {
       .then(async (response) => {
         this.setState({loading: false});
 
-        if (response.data[0].s === 200) {
-          Toast({
-            text: 'Orders Placed! Thank you for shopping at Marketeer!',
-            duration: 5000,
-          });
-
-          navigation.replace('Home');
-        }
-
         if (response.data.s === 400) {
           Toast({
             text: response.data.m,
             type: 'danger',
-            duration: 8000,
-          });
-
-          await this.props.shopStore.cartStores.map(async (merchantId) => {
-            const storeDetails = await this.props.shopStore.getStoreDetailsFromMerchantId(
-              merchantId,
-            );
-
-            this.props.shopStore.setStoreItems(
-              merchantId,
-              storeDetails.itemCategories,
-            );
+            duration: 6000,
           });
 
           navigation.replace('Cart');
+        } else {
+          let responses = '';
+
+          await response.data.map((res) => {
+            if (res.s === 200) {
+              responses = `${responses}; ${res.m}; Thank you for shopping at Marketeer!`;
+            }
+          });
+
+          if (responses) {
+            Toast({
+              text: responses,
+              duration: 5000,
+            });
+
+            navigation.replace('Home');
+          }
         }
       })
       .then(() => {

@@ -41,7 +41,7 @@ class shopStore {
   }
 
   @computed get validCheckout() {
-    if (this.validItemQuantity && this.validItemQuantity.length > 0) {
+    if (this.validItemQuantity) {
       if (Object.values(this.validItemQuantity).includes(false)) {
         return false;
       }
@@ -185,6 +185,8 @@ class shopStore {
         });
       })
       .then(async (response) => {
+        this.getCartItems();
+
         return response;
       })
       .catch((err) => {
@@ -222,7 +224,9 @@ class shopStore {
     return 0;
   }
 
-  @action getCartItems(userId) {
+  @action getCartItems() {
+    const userId = auth().currentUser.uid;
+
     this.unsubscribeToGetCartItems && this.unsubscribeToGetCartItems();
 
     this.unsubscribeToGetCartItems = userCartCollection
@@ -277,6 +281,10 @@ class shopStore {
 
         if (storeCart[cartItemIndex].quantity <= 0) {
           storeCart.splice(cartItemIndex, 1);
+
+          delete this.validItemQuantity[item.itemId];
+
+          console.log(this.validItemQuantity);
 
           if (!this.storeCartItems[merchantId].length) {
             delete this.storeCartItems[merchantId];

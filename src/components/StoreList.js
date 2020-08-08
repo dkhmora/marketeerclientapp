@@ -6,13 +6,17 @@ import {
   StyleSheet,
   RefreshControl,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import {Text} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {inject, observer} from 'mobx-react';
 import * as Animatable from 'react-native-animatable';
 import {computed, when} from 'mobx';
+import {initialWindowMetrics} from 'react-native-safe-area-context';
 
+const inset = initialWindowMetrics && initialWindowMetrics.insets;
+const bottomPadding = Platform.OS === 'ios' ? inset.bottom : 0;
 @inject('shopStore')
 @inject('generalStore')
 @observer
@@ -107,6 +111,7 @@ class StoreList extends Component {
   renderFooter = () => {
     return (
       <View style={{bottom: 50, width: '100%'}}>
+        <View style={{height: bottomPadding}} />
         {this.state.onEndReachedCalledDuringMomentum && (
           <Animatable.View
             animation="slideInUp"
@@ -143,7 +148,6 @@ class StoreList extends Component {
 
   render() {
     const {categoryName} = this.props;
-    const {navigation} = this.props;
     const {refreshing, loading} = this.state;
 
     let dataSource = [];
