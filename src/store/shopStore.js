@@ -164,6 +164,7 @@ class shopStore {
 
   @action async placeOrder({
     deliveryCoordinates,
+    deliveryCoordinatesGeohash,
     deliveryAddress,
     userCoordinates,
     userName,
@@ -177,6 +178,7 @@ class shopStore {
         return await functions.httpsCallable('placeOrder')({
           orderInfo: JSON.stringify({
             deliveryCoordinates,
+            deliveryCoordinatesGeohash,
             deliveryAddress,
             userCoordinates,
             userName,
@@ -284,8 +286,6 @@ class shopStore {
           storeCart.splice(cartItemIndex, 1);
 
           delete this.validItemQuantity[item.itemId];
-
-          console.log(this.validItemQuantity);
 
           if (!this.storeCartItems[merchantId].length) {
             delete this.storeCartItems[merchantId];

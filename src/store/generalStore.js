@@ -7,6 +7,7 @@ import {v4 as uuidv4} from 'uuid';
 import Geolocation from '@react-native-community/geolocation';
 import geohash from 'ngeohash';
 import firebase from '@react-native-firebase/app';
+import auth from '@react-native-firebase/auth';
 import '@react-native-firebase/functions';
 import {Platform, PermissionsAndroid} from 'react-native';
 import Toast from '../components/Toast';
@@ -223,44 +224,33 @@ class generalStore {
       this.deliverToSetLocation = false;
       this.deliverToLastDeliveryLocation = true;
 
-      this.currentLocationGeohash = this.userDetails.lastDeliveryLocationGeohash;
-      this.currentLocation = this.userDetails.lastDeliveryLocation;
-      this.currentLocationDetails = this.userDetails.lastDeliveryLocationAddress;
+      this.currentLocationGeohash = this.userDetails.addresses.Home.geohash;
+      this.currentLocation = this.userDetails.addresses.Home.coordinates;
+      this.currentLocationDetails = this.userDetails.addresses.Home.address;
 
       resolve();
     });
   }
 
-  @action async getUserDetails(userId) {
-    await firestore()
+  @action async getUserDetails() {
+    const userId = auth().currentUser.uid;
+
+    this.unsubscribeUserDetails = firestore()
       .collection('users')
       .doc(userId)
-      .get()
-      .then((document) => {
-        if (document.exists) {
-          this.userDetails = document.data();
+      .onSnapshot((documentSnapshot) => {
+        if (documentSnapshot.exists) {
+          this.userDetails = documentSnapshot.data();
+
+          if (documentSnapshot.data().addresses.Home) {
+            return this.setLastDeliveryLocation();
+          } else {
+            return this.setCurrentLocation();
+          }
         }
 
         return null;
-      })
-      .catch((err) => Toast({text: err.message, type: 'danger'}));
-  }
-
-  @action async updateCoordinates(
-    userId,
-    coordinates,
-    lastDeliveryLocationGeohash,
-    lastDeliveryLocationAddress,
-  ) {
-    await firestore()
-      .collection('users')
-      .doc(userId)
-      .update({
-        lastDeliveryLocation: {...coordinates},
-        lastDeliveryLocationGeohash,
-        lastDeliveryLocationAddress,
-      })
-      .catch((err) => Toast({text: err.message, type: 'danger'}));
+      });
   }
 
   @action async getImageURI(imageRef) {

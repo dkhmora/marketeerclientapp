@@ -1,12 +1,5 @@
 import React, {Component} from 'react';
-import {
-  View,
-  Text,
-  StatusBar,
-  Image,
-  SafeAreaView,
-  ActivityIndicator,
-} from 'react-native';
+import {View, Text, StatusBar, Image, SafeAreaView} from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
 import {Icon, Button} from 'react-native-elements';
@@ -23,27 +16,20 @@ import Toast from '../components/Toast';
 class CheckoutScreen extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      loading: false,
-    };
   }
 
   async handlePlaceOrder() {
     const {navigation} = this.props;
-    const {userId} = this.props.authStore;
     const {
       currentLocation,
       currentLocationDetails,
       currentLocationGeohash,
-      updateCoordinates,
       deliverToCurrentLocation,
       deliverToLastDeliveryLocation,
       deliverToSetLocation,
       userDetails,
     } = this.props.generalStore;
     const {
-      storeCartItems,
       storeSelectedDeliveryMethod,
       storeSelectedPaymentMethod,
     } = this.props.shopStore;
@@ -52,31 +38,34 @@ class CheckoutScreen extends Component {
 
     let deliveryCoordinates = null;
     let deliveryAddress = null;
+    let deliveryCoordinatesGeohash = null;
 
     if (deliverToCurrentLocation || deliverToSetLocation) {
       deliveryCoordinates = currentLocation;
       deliveryAddress = currentLocationDetails;
+      deliveryCoordinatesGeohash = currentLocationGeohash;
     } else if (deliverToLastDeliveryLocation) {
-      deliveryCoordinates = userDetails.lastDeliveryLocation;
-      deliveryAddress = userDetails.lastDeliveryLocationAddress;
+      deliveryCoordinates = userDetails.addresses.Home.coordinates;
+      deliveryAddress = userDetails.Home.address;
+      deliveryCoordinatesGeohash = userDetails.Home.geohash;
     }
 
-    this.setState({loading: true});
+    this.props.generalStore.appReady = false;
 
     const userCoordinates = await this.props.generalStore.getUserLocation();
 
     this.props.shopStore
       .placeOrder({
         deliveryCoordinates,
+        deliveryCoordinatesGeohash,
         deliveryAddress,
         userCoordinates,
         userName,
-        storeCartItems,
         storeSelectedDeliveryMethod,
         storeSelectedPaymentMethod,
       })
       .then(async (response) => {
-        this.setState({loading: false});
+        this.props.generalStore.appReady = true;
 
         if (response.data.s === 400) {
           Toast({
@@ -106,14 +95,6 @@ class CheckoutScreen extends Component {
             navigation.replace('Home');
           }
         }
-      })
-      .then(() => {
-        updateCoordinates(
-          userId,
-          currentLocation,
-          currentLocationGeohash,
-          currentLocationDetails,
-        );
       });
   }
 
@@ -126,7 +107,6 @@ class CheckoutScreen extends Component {
 
   render() {
     const {navigation} = this.props;
-    const {loading} = this.state;
 
     return (
       <SafeAreaView style={styles.container}>
@@ -231,7 +211,10 @@ class CheckoutScreen extends Component {
             <Button
               onPress={() => this.handlePlaceOrder()}
               raised
-              disabled={loading || !this.props.shopStore.validPlaceOrder}
+              disabled={
+                this.props.generalStore.appReady === false ||
+                !this.props.shopStore.validPlaceOrder
+              }
               icon={<Icon name="arrow-right" color={colors.icons} />}
               iconRight
               title="Place Order"
@@ -253,23 +236,6 @@ class CheckoutScreen extends Component {
             />
           </View>
         </Animatable.View>
-
-        {loading && (
-          <View
-            style={{
-              width: '100%',
-              height: '120%',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'rgba(0,0,0,0.5)',
-            }}>
-            <ActivityIndicator size="large" color={colors.primary} />
-          </View>
-        )}
       </SafeAreaView>
     );
   }

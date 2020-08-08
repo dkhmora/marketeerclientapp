@@ -71,21 +71,16 @@ class App extends React.Component {
                 shopStore.getCartItems(userId);
               }
 
-              generalStore
-                .getUserDetails(userId)
-                .then(() => {
-                  if (generalStore.userDetails.lastDeliveryLocation) {
-                    return generalStore.setLastDeliveryLocation();
-                  } else {
-                    return generalStore.setCurrentLocation();
-                  }
-                })
-                .then(() => {
-                  generalStore.appReady = true;
-                });
+              generalStore.getUserDetails(userId);
+
+              generalStore.appReady = true;
             } else {
               if (shopStore.unsubscribeToGetCartItems) {
                 shopStore.unsubscribeToGetCartItems();
+              }
+
+              if (generalStore.unsubscribeUserDetails) {
+                generalStore.unsubscribeUserDetails();
               }
 
               generalStore.setCurrentLocation();
