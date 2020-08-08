@@ -30,7 +30,6 @@ class LoginScreen extends Component {
     this.state = {
       userCredential: '',
       password: '',
-      loading: false,
       userCredentialCheck: false,
       secureTextEntry: true,
       forgotPasswordModal: false,
@@ -72,15 +71,16 @@ class LoginScreen extends Component {
     const {checkout} = this.props.route.params;
     const {navigation} = this.props;
 
-    this.setState({loading: true});
+    this.props.generalStore.appReady = false;
+
     this.props.authStore.signIn(userCredential, password).then(() => {
-      this.setState({loading: false}, () => {
-        checkout
-          ? navigation
-              .dangerouslyGetParent()
-              .replace('Set Location', {checkout: true})
-          : navigation.dangerouslyGetParent().replace('Home');
-      });
+      this.props.generalStore.appReady = false;
+
+      checkout
+        ? navigation
+            .dangerouslyGetParent()
+            .replace('Set Location', {checkout: true})
+        : navigation.dangerouslyGetParent().replace('Home');
     });
   }
 
@@ -133,7 +133,7 @@ class LoginScreen extends Component {
 
   render() {
     const {navigation} = this.props;
-    const {userCredentialCheck, loading} = this.state;
+    const {userCredentialCheck} = this.state;
     const {checkout} = this.props.route.params;
     const titleText = checkout ? 'Login to Checkout' : 'Login';
 
@@ -316,23 +316,6 @@ class LoginScreen extends Component {
             */}
           </KeyboardAwareScrollView>
         </Animatable.View>
-
-        {loading && (
-          <View
-            style={{
-              height: '100%',
-              width: '100%',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'rgba(0,0,0,0.5)',
-            }}>
-            <ActivityIndicator size="large" color={colors.primary} />
-          </View>
-        )}
       </View>
     );
   }

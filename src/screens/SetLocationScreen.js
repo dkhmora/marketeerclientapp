@@ -38,7 +38,6 @@ class SetLocationScreen extends Component {
         longitudeDelta: 0.1,
       },
       editMode: false,
-      loading: false,
       newMarkerPosition: null,
       centerOfScreen: (Dimensions.get('window').height - 17) / 2,
       currentUserLocation: null,
@@ -103,7 +102,7 @@ class SetLocationScreen extends Component {
 
     const coordinatesGeohash = await this.getGeohash(newMarkerPosition);
 
-    this.setState({loading: true});
+    this.props.generalStore.appReady = false;
 
     this.props.generalStore.deliverToCurrentLocation = false;
     this.props.generalStore.deliverToLastDeliveryLocation = false;
@@ -118,7 +117,7 @@ class SetLocationScreen extends Component {
 
       Toast({text: 'Successfully set location!'});
 
-      this.setState({loading: false});
+      this.props.generalStore.appReady = true;
     } else {
       navigation.navigate('Home');
 
@@ -129,7 +128,7 @@ class SetLocationScreen extends Component {
 
       Toast({text: 'Successfully set location!'});
 
-      this.setState({loading: false});
+      this.props.generalStore.appReady = true;
     }
 
     this.setState({
@@ -281,7 +280,6 @@ class SetLocationScreen extends Component {
       mapData,
       mapReady,
       editMode,
-      loading,
       saveChangesLoading,
     } = this.state;
     const {checkout, locationError} = this.props.route.params;
@@ -455,25 +453,6 @@ class SetLocationScreen extends Component {
             />
           }
         />
-
-        {loading && (
-          <View
-            style={[
-              StyleSheet.absoluteFillObject,
-              {
-                flex: 1,
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                backgroundColor: 'rgba(0,0,0,0.5)',
-                alignItems: 'center',
-                justifyContent: 'center',
-              },
-            ]}>
-            <ActivityIndicator animating color={colors.primary} size="large" />
-          </View>
-        )}
       </View>
     );
   }
