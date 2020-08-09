@@ -20,6 +20,15 @@ class MainTab extends Component {
         initialRouteName="Near You"
         tabBarOptions={{
           indicatorStyle: {width: '25%', left: '12.5%'},
+          style: {
+            shadowColor: '#000',
+            shadowOffset: {
+              width: 0,
+              height: 1,
+            },
+            shadowOpacity: 0.2,
+            shadowRadius: 1.41,
+          },
         }}>
         <TabStores.Screen name="Near You" component={StoreList} />
         <TabStores.Screen name="Categories" component={StoreCategoryList} />

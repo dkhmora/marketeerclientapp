@@ -193,7 +193,12 @@ class CheckoutScreen extends Component {
             </Text>
           </View>
 
-          <View style={{borderRadius: 24, overflow: 'hidden', flex: 1}}>
+          <View
+            style={{
+              borderRadius: 24,
+              overflow: 'hidden',
+              flex: 1,
+            }}>
             <Button
               onPress={() => this.handlePlaceOrder()}
               raised

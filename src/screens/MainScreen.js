@@ -54,12 +54,12 @@ class MainScreen extends Component {
         to: {opacity: 1},
       },
       slideIn: {
-        from: {translateY: -pixelsFromTop},
+        from: {translateY: -pixelsFromTop - 40},
         to: {translateY: pixelsFromTop},
       },
       slideOut: {
         from: {translateY: pixelsFromTop},
-        to: {translateY: -pixelsFromTop},
+        to: {translateY: -pixelsFromTop - 40},
       },
       fadeInOverlay: {
         from: {
@@ -223,6 +223,13 @@ class MainScreen extends Component {
           overflow: 'hidden',
           top: this.state.initialPosition,
           position: 'absolute',
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: 2,
+          },
+          shadowOpacity: 0.23,
+          shadowRadius: 2.62,
         }}>
         <ListItem
           title="Current Location"
@@ -419,7 +426,7 @@ class MainScreen extends Component {
           leftContainerStyle={{flex: 0}}
           rightContainerStyle={{flex: 0}}
           centerContainerStyle={{
-            flex: 1,
+            flex: 3,
             paddingHorizontal: 20,
           }}
         />

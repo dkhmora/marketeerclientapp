@@ -57,6 +57,15 @@ class ItemCategoriesTab extends Component {
               indicatorStyle: {
                 backgroundColor: colors.primary,
               },
+              style: {
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 1.41,
+              },
             }}>
             {storeCategoryItems && this.TabScreens(storeCategoryItems)}
           </ItemTab.Navigator>

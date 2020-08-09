@@ -282,69 +282,80 @@ class OrderCard extends PureComponent {
           onReviewSubmit={() => this.setState({reviewedOnDevice: true})}
         />
 
-        <Card style={{borderRadius: 8, overflow: 'hidden'}}>
-          <View style={{height: 175}}>
-            <this.CardHeader
-              imageUrl={url}
-              imageReady={ready}
-              userOrderNumber={userOrderNumber}
-              paymentMethod={paymentMethod}
-              orderStatus={this.orderStatus}
-              storeName={storeName}
-            />
-
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingHorizontal: 15,
-                paddingVertical: 5,
-              }}>
-              <Button
-                title={`View Full Order (${quantity} items)`}
-                onPress={this.handleViewOrderItems.bind(this)}
-                titleStyle={{color: colors.icons}}
-                buttonStyle={{backgroundColor: colors.accent}}
-                containerStyle={{
-                  borderRadius: 24,
-                  marginRight: 10,
-                  flex: 1,
-                }}
+        <View
+          style={{
+            shadowColor: '#000',
+            shadowOffset: {
+              width: 0,
+              height: 1,
+            },
+            shadowOpacity: 0.2,
+            shadowRadius: 1.41,
+          }}>
+          <Card style={{borderRadius: 8, overflow: 'hidden'}}>
+            <View style={{height: 175}}>
+              <this.CardHeader
+                imageUrl={url}
+                imageReady={ready}
+                userOrderNumber={userOrderNumber}
+                paymentMethod={paymentMethod}
+                orderStatus={this.orderStatus}
+                storeName={storeName}
               />
 
               <View
                 style={{
-                  flexDirection: 'column',
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 10,
-                  borderWidth: 1,
-                  borderColor: colors.text_secondary,
-                  padding: 5,
+                  paddingHorizontal: 15,
+                  paddingVertical: 5,
                 }}>
-                <Text
+                <Button
+                  title={`View Full Order (${quantity} items)`}
+                  onPress={this.handleViewOrderItems.bind(this)}
+                  titleStyle={{color: colors.icons}}
+                  buttonStyle={{backgroundColor: colors.accent}}
+                  containerStyle={{
+                    borderRadius: 24,
+                    marginRight: 10,
+                    flex: 1,
+                  }}
+                />
+
+                <View
                   style={{
-                    color: colors.primary,
-                    fontSize: 16,
-                    fontFamily: 'ProductSans-Bold',
-                    textAlign: 'center',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 10,
+                    borderWidth: 1,
+                    borderColor: colors.text_secondary,
+                    padding: 5,
                   }}>
-                  ₱{subTotal + (deliveryPrice ? deliveryPrice : 0)}
-                </Text>
+                  <Text
+                    style={{
+                      color: colors.primary,
+                      fontSize: 16,
+                      fontFamily: 'ProductSans-Bold',
+                      textAlign: 'center',
+                    }}>
+                    ₱{subTotal + (deliveryPrice ? deliveryPrice : 0)}
+                  </Text>
 
-                <Text>Total Amount</Text>
+                  <Text>Total Amount</Text>
+                </View>
               </View>
-            </View>
 
-            <this.CardFooter
-              createdAt={createdAt}
-              paymentMethod={paymentMethod}
-              orderStatus={this.orderStatus}
-              reviewed={reviewed}
-            />
-          </View>
-        </Card>
+              <this.CardFooter
+                createdAt={createdAt}
+                paymentMethod={paymentMethod}
+                orderStatus={this.orderStatus}
+                reviewed={reviewed}
+              />
+            </View>
+          </Card>
+        </View>
       </View>
     );
   }
