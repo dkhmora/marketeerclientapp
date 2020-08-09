@@ -1,8 +1,9 @@
 import React, {PureComponent} from 'react';
 import {Overlay, Text, Button} from 'react-native-elements';
-import {View, Dimensions, StatusBar} from 'react-native';
+import {View, Dimensions} from 'react-native';
 import {inject, observer} from 'mobx-react';
 import FastImage from 'react-native-fast-image';
+import {colors} from '../../assets/colors';
 
 @inject('authStore')
 @observer
