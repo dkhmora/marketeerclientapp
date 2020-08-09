@@ -12,6 +12,7 @@ import '@react-native-firebase/functions';
 import {Platform, PermissionsAndroid} from 'react-native';
 import Toast from '../components/Toast';
 import {persist} from 'mobx-persist';
+import messaging from '@react-native-firebase/messaging';
 
 const functions = firebase.app().functions('asia-northeast1');
 class generalStore {
@@ -30,6 +31,32 @@ class generalStore {
   @observable userDetails = {};
   @observable addressLoading = false;
   @observable navigation = null;
+
+  @action async subscribeToNotifications() {
+    let authorizationStatus = null;
+    const userId = auth().currentUser.uid;
+    const guest = auth().currentUser.isAnonymous;
+
+    if (!guest) {
+      if (Platform.OS === 'ios') {
+        authorizationStatus = await messaging().requestPermission();
+      } else {
+        authorizationStatus = true;
+      }
+
+      if (authorizationStatus) {
+        return await messaging()
+          .getToken()
+          .then((token) => {
+            firestore()
+              .collection('users')
+              .doc(userId)
+              .update('fcmTokens', firestore.FieldValue.arrayUnion(token));
+          })
+          .catch((err) => Toast({text: err.message, type: 'danger'}));
+      }
+    }
+  }
 
   @action async getStoreReviews(merchantId) {
     const storeOrderReviewsRef = firestore()
@@ -239,10 +266,18 @@ class generalStore {
       this.unsubscribeUserDetails = firestore()
         .collection('users')
         .doc(userId)
-        .onSnapshot((documentSnapshot) => {
+        .onSnapshot(async (documentSnapshot) => {
           if (documentSnapshot) {
             if (documentSnapshot.exists) {
               this.userDetails = documentSnapshot.data();
+
+              if (
+                !documentSnapshot
+                  .data()
+                  .fcmTokens.includes(await messaging().getToken())
+              ) {
+                this.subscribeToNotifications();
+              }
 
               if (documentSnapshot.data().addresses) {
                 return this.setLastDeliveryLocation();

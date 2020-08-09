@@ -336,6 +336,8 @@ class authStore {
   @action async checkAuthStatus() {
     if (auth().currentUser) {
       this.userAuthenticated = true;
+
+      // this.subscribeToNotifications();
     } else {
       return await this.signInAnonymously();
     }
