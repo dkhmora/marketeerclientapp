@@ -416,8 +416,11 @@ class MainScreen extends Component {
             animated: true,
           }}
           containerStyle={styles.header}
+          leftContainerStyle={{flex: 0}}
+          rightContainerStyle={{flex: 0}}
           centerContainerStyle={{
-            flex: 3,
+            flex: 1,
+            paddingHorizontal: 20,
           }}
         />
       </View>
