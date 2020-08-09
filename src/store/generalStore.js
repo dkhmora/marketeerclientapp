@@ -129,15 +129,11 @@ class generalStore {
   }
 
   @action async setCurrentLocation() {
-    if (Platform.OS === 'ios') {
-      Geolocation.requestAuthorization();
-    }
-
     return await new Promise((resolve, reject) => {
       PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       ).then((granted) => {
-        if (granted !== 'granted') {
+        if (Platform.OS === 'android' && granted !== 'granted') {
           Toast({
             text:
               'Error: Location permissions not granted. Please set location manually.',
@@ -155,6 +151,10 @@ class generalStore {
             });
           }
         } else {
+          if (Platform.OS === 'ios') {
+            Geolocation.requestAuthorization();
+          }
+
           this.addressLoading = true;
 
           return Geolocation.getCurrentPosition(
@@ -235,26 +235,28 @@ class generalStore {
   @action async getUserDetails() {
     const userId = auth().currentUser.uid;
 
-    this.unsubscribeUserDetails = firestore()
-      .collection('users')
-      .doc(userId)
-      .onSnapshot((documentSnapshot) => {
-        if (documentSnapshot) {
-          if (documentSnapshot.exists) {
-            this.userDetails = documentSnapshot.data();
+    if (!auth().currentUser.isAnonymous) {
+      this.unsubscribeUserDetails = firestore()
+        .collection('users')
+        .doc(userId)
+        .onSnapshot((documentSnapshot) => {
+          if (documentSnapshot) {
+            if (documentSnapshot.exists) {
+              this.userDetails = documentSnapshot.data();
 
-            if (documentSnapshot.data().addresses.Home) {
-              return this.setLastDeliveryLocation();
-            } else {
-              return this.setCurrentLocation();
+              if (documentSnapshot.data().addresses) {
+                return this.setLastDeliveryLocation();
+              } else {
+                return this.setCurrentLocation();
+              }
             }
+          } else {
+            this.unsubscribeUserDetails();
           }
-        } else {
-          this.unsubscribeUserDetails();
-        }
 
-        return null;
-      });
+          return null;
+        });
+    }
   }
 
   @action async getImageURI(imageRef) {
