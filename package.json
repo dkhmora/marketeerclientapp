@@ -16,6 +16,7 @@
     "postinstall": "patch-package",
     "createdebugapk": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && cd android && gradlew assembleDebug",
     "release": "cd android && gradlew clean && gradlew bundleRelease",
+    "runrelease": "npx react-native run-android --variant=release",
     "signingreport": "cd android && gradlew signingreport"
   },
   "dependencies": {
