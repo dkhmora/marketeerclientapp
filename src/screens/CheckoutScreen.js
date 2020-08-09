@@ -24,10 +24,6 @@ class CheckoutScreen extends Component {
       currentLocation,
       currentLocationDetails,
       currentLocationGeohash,
-      deliverToCurrentLocation,
-      deliverToLastDeliveryLocation,
-      deliverToSetLocation,
-      userDetails,
     } = this.props.generalStore;
     const {
       storeSelectedDeliveryMethod,
@@ -36,19 +32,9 @@ class CheckoutScreen extends Component {
 
     const {userName} = this.props.authStore;
 
-    let deliveryCoordinates = null;
-    let deliveryAddress = null;
-    let deliveryCoordinatesGeohash = null;
-
-    if (deliverToCurrentLocation || deliverToSetLocation) {
-      deliveryCoordinates = currentLocation;
-      deliveryAddress = currentLocationDetails;
-      deliveryCoordinatesGeohash = currentLocationGeohash;
-    } else if (deliverToLastDeliveryLocation) {
-      deliveryCoordinates = userDetails.addresses.Home.coordinates;
-      deliveryAddress = userDetails.Home.address;
-      deliveryCoordinatesGeohash = userDetails.Home.geohash;
-    }
+    const deliveryCoordinates = currentLocation;
+    const deliveryAddress = currentLocationDetails;
+    const deliveryCoordinatesGeohash = currentLocationGeohash;
 
     this.props.generalStore.appReady = false;
 
