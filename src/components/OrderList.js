@@ -41,6 +41,7 @@ class OrderList extends Component {
     <OrderCard
       order={item}
       navigation={this.props.navigation}
+      refresh={() => this.retrieveInitial()}
       key={item.orderId}
     />
   );

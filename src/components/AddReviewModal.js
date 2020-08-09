@@ -5,7 +5,6 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import {inject} from 'mobx-react';
 import {Rating} from 'react-native-rating-element';
-import Toast from './Toast';
 
 @inject('generalStore')
 class AddReviewModal extends PureComponent {
@@ -13,7 +12,6 @@ class AddReviewModal extends PureComponent {
     super(props);
 
     this.state = {
-      reviewTitle: '',
       reviewBody: '',
       rating: 5,
     };
@@ -29,26 +27,23 @@ class AddReviewModal extends PureComponent {
     const {addReview} = this.props.generalStore;
     const {order, closeModal, onReviewSubmit} = this.props;
     const {orderId, merchantId} = order;
-    const {rating, reviewBody, reviewTitle} = this.state;
+    const {rating, reviewBody} = this.state;
 
     const review = {
       orderId,
       merchantId,
       rating,
       reviewBody,
-      reviewTitle,
     };
 
     this.props.generalStore.appReady = false;
 
-    addReview({review}).then(() => {
-      Toast({text: 'Successfully submitted review!'});
+    closeModal();
 
+    addReview({review}).then(() => {
       this.props.generalStore.appReady = true;
 
       onReviewSubmit();
-
-      closeModal();
     });
   }
 
@@ -98,23 +93,14 @@ class AddReviewModal extends PureComponent {
               ratingBackgroundColor="#455A64"
             />
 
-            <View style={styles.action}>
+            <View style={[styles.action, {marginTop: 10}]}>
               <Input
-                placeholder="Review title"
-                maxLength={50}
-                style={styles.textInput}
-                autoCapitalize="none"
-                onChangeText={(value) => this.setState({reviewTitle: value})}
-              />
-            </View>
-
-            <View style={styles.action}>
-              <Input
-                placeholder="Write your review here..."
+                placeholder={`Tell others what you thought about ${order.storeName}!`}
                 multiline
-                numberOfLines={5}
+                numberOfLines={10}
                 maxLength={250}
                 style={styles.textInput}
+                inputStyle={{textAlignVertical: 'top'}}
                 autoCapitalize="none"
                 onChangeText={(value) => this.setState({reviewBody: value})}
               />
@@ -125,20 +111,22 @@ class AddReviewModal extends PureComponent {
                 flexDirection: 'row',
                 alignItems: 'flex-end',
                 justifyContent: 'flex-end',
+                marginTop: 40,
               }}>
               <Button
                 title="Cancel"
                 type="clear"
-                buttonStyle={{borderRadius: 24}}
-                containerStyle={{alignSelf: 'flex-end', paddingTop: 20}}
-                onPress={() => this.handleCancel()}
+                containerStyle={{alignSelf: 'flex-end', borderRadius: 30}}
+                onPress={() => closeModal()}
               />
 
               <Button
                 title="Confirm"
                 type="clear"
-                buttonStyle={{borderRadius: 24, marginLeft: 15}}
-                containerStyle={{alignSelf: 'flex-end', paddingTop: 20}}
+                containerStyle={{
+                  alignSelf: 'flex-end',
+                  borderRadius: 30,
+                }}
                 onPress={() => this.submitReview()}
               />
             </View>

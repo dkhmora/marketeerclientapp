@@ -23,7 +23,6 @@ class OrderCard extends PureComponent {
       url: require('../../assets/images/placeholder.jpg'),
       ready: false,
       addReviewModal: false,
-      reviewedOnDevice: false,
     };
   }
 
@@ -227,9 +226,8 @@ class OrderCard extends PureComponent {
     );
   };
 
-  CardFooter = ({createdAt, paymentMethod, orderStatus}) => {
+  CardFooter = ({orderStatus}) => {
     const {order} = this.props;
-    const {reviewedOnDevice} = this.state;
 
     return (
       <View
@@ -244,23 +242,21 @@ class OrderCard extends PureComponent {
         }}>
         <Text>Updated {this.timeStamp}</Text>
 
-        {orderStatus[0] === 'COMPLETED' &&
-          !order.reviewed &&
-          !reviewedOnDevice && (
-            <Button
-              title="Review"
-              type="clear"
-              onPress={() => this.openAddReviewModal()}
-              titleStyle={{color: colors.primary}}
-              containerStyle={{borderRadius: 24}}
-            />
-          )}
+        {orderStatus[0] === 'COMPLETED' && !order.reviewed && (
+          <Button
+            title="Review"
+            type="clear"
+            onPress={() => this.openAddReviewModal()}
+            titleStyle={{color: colors.primary}}
+            containerStyle={{borderRadius: 24}}
+          />
+        )}
       </View>
     );
   };
 
   render() {
-    const {order, reviewed} = this.props;
+    const {order, reviewed, refresh} = this.props;
 
     const {
       userOrderNumber,
@@ -279,7 +275,7 @@ class OrderCard extends PureComponent {
           order={order}
           isVisible={addReviewModal}
           closeModal={() => this.setState({addReviewModal: false})}
-          onReviewSubmit={() => this.setState({reviewedOnDevice: true})}
+          onReviewSubmit={() => refresh()}
         />
 
         <View

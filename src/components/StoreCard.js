@@ -176,6 +176,7 @@ class StoreCard extends Component {
                   borderBottomRightRadius: 8,
                   top: 0,
                   left: 0,
+                  elevation: 10,
                   padding: 7,
                   backgroundColor: colors.primary,
                 }}>

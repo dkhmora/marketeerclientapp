@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, ActivityIndicator} from 'react-native';
+import {View, ActivityIndicator, Platform} from 'react-native';
 import {Picker} from 'native-base';
 import {Card, Text, Image, Icon} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
@@ -354,7 +354,7 @@ class CartStoreCard extends Component {
                     style={{
                       fontSize: 16,
                       fontFamily: 'ProductSans-Light',
-                      flex: 1,
+                      flex: Platform.OS === 'ios' ? 1 : 0,
                     }}>
                     Delivery Method:
                   </Text>
@@ -418,7 +418,7 @@ class CartStoreCard extends Component {
                     style={{
                       fontSize: 16,
                       fontFamily: 'ProductSans-Light',
-                      flex: 1,
+                      flex: Platform.OS === 'ios' ? 1 : 0,
                     }}>
                     Payment Method:
                   </Text>

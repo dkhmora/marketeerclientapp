@@ -92,7 +92,9 @@ class generalStore {
           Toast({text: 'Successfully submitted review'});
         } else {
           Toast({
-            text: response.data.m,
+            text: response.data.m
+              ? response.data.m
+              : 'Error: Something went wrong. Please try again later.',
             type: 'danger',
           });
         }
