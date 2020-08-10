@@ -328,17 +328,30 @@ class ItemCard extends PureComponent {
                   padding: 5,
                   alignItems: 'center',
                 }}>
-                <Text style={{fontSize: 14}}>{stock}</Text>
+                {stock > 0 ? (
+                  <View style={{flexDirection: 'row'}}>
+                    <Text style={{fontSize: 14}}>{stock}</Text>
 
-                <Text
-                  style={{
-                    fontSize: 14,
-                    textAlign: 'center',
-                    color: colors.text_secondary,
-                  }}>
-                  {' '}
-                  Left
-                </Text>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        textAlign: 'center',
+                        color: colors.text_secondary,
+                      }}>
+                      {' '}
+                      Left
+                    </Text>
+                  </View>
+                ) : (
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      textAlign: 'center',
+                      color: colors.danger,
+                    }}>
+                    Out of Stock
+                  </Text>
+                )}
               </View>
             </CardItem>
 

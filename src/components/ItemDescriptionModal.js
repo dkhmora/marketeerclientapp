@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
 import {Overlay, Text} from 'react-native-elements';
-import {View} from 'react-native';
+import {View, Dimensions} from 'react-native';
 import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
 
+const SCREEN_WIDTH = Dimensions.get('screen').width * 0.8;
 class ItemDescriptionModal extends Component {
   constructor(props) {
     super(props);
@@ -32,7 +33,7 @@ class ItemDescriptionModal extends Component {
         width="auto"
         height="auto"
         overlayStyle={{borderRadius: 10, padding: 0}}>
-        <View>
+        <View style={{alignItems: 'center', maxWidth: SCREEN_WIDTH}}>
           {url ? (
             <FastImage
               source={{uri: url}}
@@ -40,9 +41,8 @@ class ItemDescriptionModal extends Component {
                 borderTopLeftRadius: 10,
                 borderTopRightRadius: 10,
                 width: null,
-                height: 300,
+                height: SCREEN_WIDTH,
                 aspectRatio: 1,
-                backgroundColor: colors.primary,
               }}
               resizeMode={FastImage.resizeMode.contain}
             />
@@ -68,6 +68,7 @@ class ItemDescriptionModal extends Component {
               backgroundColor: colors.icons,
               elevation: 10,
               marginTop: -10,
+              width: '100%',
             }}>
             <Text
               style={{
@@ -97,11 +98,12 @@ class ItemDescriptionModal extends Component {
                   fontFamily: 'ProductSans-Black',
                   fontSize: 18,
                 }}>
-                ₱{discountedPrice ? discountedPrice : price}/{unit}
+                ₱{discountedPrice ? discountedPrice : price}
+                {unit ? `/${unit}` : null}
               </Text>
             </View>
 
-            <View style={{padding: 10, marginBottom: 20}}>
+            <View style={{width: SCREEN_WIDTH, padding: 10, marginBottom: 20}}>
               <Text style={{fontSize: 18}}>{description}</Text>
             </View>
 
@@ -117,17 +119,30 @@ class ItemDescriptionModal extends Component {
                 alignItems: 'center',
                 alignSelf: 'flex-end',
               }}>
-              <Text style={{fontSize: 16}}>{stock}</Text>
+              {stock > 0 ? (
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={{fontSize: 16}}>{stock}</Text>
 
-              <Text
-                style={{
-                  fontSize: 16,
-                  textAlign: 'center',
-                  color: colors.text_secondary,
-                }}>
-                {' '}
-                Left
-              </Text>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      textAlign: 'center',
+                      color: colors.text_secondary,
+                    }}>
+                    {' '}
+                    Left
+                  </Text>
+                </View>
+              ) : (
+                <Text
+                  style={{
+                    fontSize: 16,
+                    textAlign: 'center',
+                    color: colors.danger,
+                  }}>
+                  Out of Stock
+                </Text>
+              )}
             </View>
           </View>
         </View>

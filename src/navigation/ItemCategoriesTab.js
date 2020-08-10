@@ -51,6 +51,7 @@ class ItemCategoriesTab extends Component {
           <ItemTab.Navigator
             lazy
             lazyPreloadDistance={0.5}
+            backBehavior="initialRoute"
             tabBarOptions={{
               scrollEnabled: true,
               tabStyle: {width: this.tabWidth},

@@ -24,6 +24,19 @@ class ItemsList extends Component {
     return data;
   }
 
+  componentDidMount() {
+    this.unsubscribeTabPress = this.props.navigation.addListener(
+      'tabPress',
+      (e) => {
+        this.flatList.scrollToOffset({animated: true, offset: 0});
+      },
+    );
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeTabPress && this.unsubscribeTabPress();
+  }
+
   renderItem = ({item, index}) =>
     item.empty ? (
       <View
@@ -47,6 +60,7 @@ class ItemsList extends Component {
     return (
       <View style={{flex: 1}}>
         <FlatList
+          ref={(flatList) => (this.flatList = flatList)}
           data={this.formatData(dataSource, numColumns)}
           numColumns={numColumns}
           initialNumToRender={10}
