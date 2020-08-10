@@ -1,5 +1,12 @@
 import React, {Component} from 'react';
-import {Overlay, Text, Avatar, ButtonGroup, Icon} from 'react-native-elements';
+import {
+  Overlay,
+  Text,
+  Avatar,
+  ButtonGroup,
+  Icon,
+  Button,
+} from 'react-native-elements';
 import {View, ActivityIndicator, FlatList, ImageBackground} from 'react-native';
 import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
@@ -18,12 +25,6 @@ class StoreDetailsModal extends Component {
       reviews: [],
       selectedIndex: 0,
     };
-  }
-
-  handleBackdropPress() {
-    const {closeModal} = this.props;
-
-    closeModal();
   }
 
   async getReviews() {
@@ -133,7 +134,7 @@ class StoreDetailsModal extends Component {
         {...otherProps}
         isVisible={isVisible}
         onShow={() => this.getReviews()}
-        onBackdropPress={() => this.handleBackdropPress()}
+        onBackdropPress={() => closeModal()}
         statusBarTranslucent
         width="90%"
         height="70%"
@@ -176,6 +177,18 @@ class StoreDetailsModal extends Component {
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}>
+                  <Button
+                    type="clear"
+                    onPress={() => closeModal()}
+                    icon={<Icon name="x" color={colors.icons} size={28} />}
+                    containerStyle={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      borderRadius: 30,
+                    }}
+                  />
+
                   <View
                     style={{
                       flex: 1,
@@ -189,9 +202,10 @@ class StoreDetailsModal extends Component {
                         style={{
                           backgroundColor: colors.primary,
                           borderRadius: 10,
+                          borderWidth: 1,
+                          borderColor: colors.primary,
                           width: 90,
                           aspectRatio: 1,
-                          backgroundColor: '#e1e4e8',
                           elevation: 10,
                           shadowColor: '#000',
                           shadowOffset: {
@@ -208,14 +222,20 @@ class StoreDetailsModal extends Component {
 
                     <View style={{flex: 1}}>
                       <Text
+                        numberOfLines={2}
+                        adjustsFontSizeToFit
                         style={{
                           color: colors.icons,
                           fontSize: 24,
                           marginBottom: 10,
+                          paddingRight: 30,
                         }}>
                         {store.storeName}
                       </Text>
+
                       <Text
+                        numberOfLines={5}
+                        adjustsFontSizeToFit
                         style={{
                           color: colors.icons,
                           fontSize: 16,
@@ -298,27 +318,66 @@ class StoreDetailsModal extends Component {
             <View
               style={{
                 flex: 1,
+                justifyContent: 'space-between',
               }}>
               <View
                 style={{
-                  flex: 0.1,
                   paddingHorizontal: 15,
-                  paddingVertical: 20,
-                  justifyContent: 'center',
+                  paddingVertical: 10,
+                  justifyContent: 'flex-start',
                 }}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Icon
-                    name="map-pin"
-                    color={colors.primary}
-                    style={{paddingRight: 10}}
-                  />
-                  <Text style={{fontSize: 16}}>{store.address}</Text>
-                </View>
+                {store.email && (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingVertical: 10,
+                    }}>
+                    <Icon
+                      name="mail"
+                      color={colors.primary}
+                      style={{paddingRight: 10}}
+                    />
+                    <Text style={{fontSize: 16}}>{store.email}</Text>
+                  </View>
+                )}
+
+                {store.website && (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingVertical: 10,
+                    }}>
+                    <Icon
+                      name="globe"
+                      color={colors.primary}
+                      style={{paddingRight: 10}}
+                    />
+                    <Text style={{fontSize: 16}}>{store.website}</Text>
+                  </View>
+                )}
+
+                {store.address && (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingVertical: 10,
+                    }}>
+                    <Icon
+                      name="map-pin"
+                      color={colors.primary}
+                      style={{paddingRight: 10}}
+                    />
+                    <Text style={{fontSize: 16}}>{store.address}</Text>
+                  </View>
+                )}
               </View>
 
               <View
                 style={{
-                  flex: 0.9,
+                  flex: 1,
                   overflow: 'hidden',
                   borderBottomRightRadius: 10,
                   borderBottomLeftRadius: 10,
@@ -327,6 +386,7 @@ class StoreDetailsModal extends Component {
                   style={{
                     flex: 1,
                   }}
+                  liteMode
                   provider="google"
                   ref={(map) => {
                     this.map = map;

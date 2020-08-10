@@ -55,6 +55,17 @@ class StoreList extends Component {
       this.props.generalStore.locationError = false;
       this.props.navigation.navigate('Set Location', {checkout: false});
     }
+
+    this.unsubscribeTabPress = this.props.navigation.addListener(
+      'tabPress',
+      (e) => {
+        this.flatList.scrollToOffset({animated: true, offset: 0});
+      },
+    );
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeTabPress && this.unsubscribeTabPress();
   }
 
   getInitialStoreList() {
@@ -169,6 +180,7 @@ class StoreList extends Component {
           justifyContent: 'center',
         }}>
         <FlatList
+          ref={(flatList) => (this.flatList = flatList)}
           style={{paddingHorizontal: 15}}
           contentContainerStyle={{flexGrow: 1}}
           data={dataSource}
