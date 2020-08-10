@@ -441,9 +441,14 @@ class CartStoreCard extends Component {
                       {this.storeDetails.paymentMethods &&
                         this.storeDetails.paymentMethods.map(
                           (method, index) => {
+                            const label =
+                              method === 'Online Payment'
+                                ? 'Online Payment (Through chat)'
+                                : `${method}`;
+
                             return (
                               <Picker.Item
-                                label={method}
+                                label={label}
                                 value={method}
                                 key={`${method}${index}`}
                               />
