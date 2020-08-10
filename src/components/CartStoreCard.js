@@ -386,7 +386,7 @@ class CartStoreCard extends Component {
                               <Picker.Item
                                 label={label}
                                 value={method}
-                                key={index}
+                                key={`${method}${index}`}
                               />
                             );
                           },
@@ -445,7 +445,7 @@ class CartStoreCard extends Component {
                               <Picker.Item
                                 label={method}
                                 value={method}
-                                key={index}
+                                key={`${method}${index}`}
                               />
                             );
                           },

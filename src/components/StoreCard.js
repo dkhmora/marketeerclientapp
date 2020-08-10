@@ -42,7 +42,7 @@ class StoreCard extends Component {
     paymentMethods.map((method, index) => {
       pills.push(
         <View
-          key={index}
+          key={`${method}${index}`}
           style={{
             borderRadius: 20,
             backgroundColor: colors.accent,

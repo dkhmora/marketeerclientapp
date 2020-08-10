@@ -34,7 +34,7 @@ class ItemsList extends Component {
       <ItemCard
         item={item}
         merchantId={this.props.route.params.merchantId}
-        key={index}
+        key={item.itemId}
       />
     );
 
