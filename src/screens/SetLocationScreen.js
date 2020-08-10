@@ -7,7 +7,6 @@ import {
   PermissionsAndroid,
   Platform,
   Dimensions,
-  ActivityIndicator,
 } from 'react-native';
 import {Icon, Button, Image} from 'react-native-elements';
 import {observer, inject} from 'mobx-react';
@@ -249,16 +248,26 @@ class SetLocationScreen extends Component {
   }
 
   openSearchModal() {
-    RNGooglePlaces.openAutocompleteModal({country: 'PH'}, ['location'])
+    RNGooglePlaces.openAutocompleteModal(
+      {country: 'PH', useOverlay: true, type: 'address'},
+      ['location', 'addressComponents'],
+    )
       .then((place) => {
         const coordinates = place.location;
+        const address = place.addressComponents;
+        const formattedAddress = `${address[1].name} ${address[0].name}, ${address[6].name} ${address[3].name}, ${address[5].name}`;
 
-        this.panMapToLocation(coordinates);
+        this.selectedLocationAddress = formattedAddress;
 
-        this.setState({
-          newMarkerPosition: {...coordinates},
-          editMode: true,
-        });
+        this.setState(
+          {
+            newMarkerPosition: {...coordinates},
+            editMode: false,
+          },
+          () => {
+            this.handleSetLocation();
+          },
+        );
       })
       .catch((error) => Toast({text: error.message, type: 'danger'}));
   }
