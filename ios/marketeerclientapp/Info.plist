@@ -48,8 +48,12 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Marketeer needs access to user's location in order to show nearby stores</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>Marketeer needs access to user's location in order to show nearby stores</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Marketeer needs access to the user's photos in order to send user photos through chat</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
@@ -95,6 +99,8 @@
 	<array>
 		<string>armv7</string>
 	</array>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
