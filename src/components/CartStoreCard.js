@@ -75,16 +75,6 @@ class CartStoreCard extends Component {
     return [];
   }
 
-  @computed get storeName() {
-    const {merchantId} = this.props;
-
-    const storeDetails = this.props.shopStore.storeList.find(
-      (item) => item.merchantId === merchantId,
-    );
-
-    return storeDetails ? storeDetails.storeName : '';
-  }
-
   async getImage() {
     const {merchantId} = this.props;
 
@@ -150,7 +140,7 @@ class CartStoreCard extends Component {
 
   render() {
     const {merchantId, checkout} = this.props;
-    const {storeName} = this;
+    const {storeDetails} = this;
 
     return (
       <View
@@ -196,18 +186,20 @@ class CartStoreCard extends Component {
               }}
             />
 
-            <Text
-              numberOfLines={3}
-              style={{
-                fontSize: 19,
-                fontFamily: 'ProductSans-Light',
-                maxWidth: '50%',
-                flexWrap: 'wrap',
-              }}>
-              {storeName}
-            </Text>
+            {storeDetails.storeName && (
+              <Text
+                numberOfLines={3}
+                style={{
+                  fontSize: 19,
+                  fontFamily: 'ProductSans-Light',
+                  maxWidth: '50%',
+                  flexWrap: 'wrap',
+                }}>
+                {storeDetails.storeName}
+              </Text>
+            )}
 
-            {this.storeDetails.freeDelivery && (
+            {storeDetails.freeDelivery && (
               <Text
                 numberOfLines={2}
                 adjustsFontSizeToFit
@@ -218,8 +210,7 @@ class CartStoreCard extends Component {
                   color: colors.primary,
                   marginLeft: 10,
                 }}>
-                Free Delivery (₱{this.storeDetails.freeDeliveryMinimum} Min.
-                Order)
+                Free Delivery (₱{storeDetails.freeDeliveryMinimum} Min. Order)
               </Text>
             )}
           </View>
@@ -284,23 +275,22 @@ class CartStoreCard extends Component {
 
                 {this.props.shopStore.storeSelectedDeliveryMethod[
                   merchantId
-                ] === 'Own Delivery' && this.storeDetails ? (
+                ] === 'Own Delivery' && storeDetails ? (
                   <Text
                     style={{
                       fontFamily: 'ProductSans-Black',
                       fontSize: 18,
                       textAlignVertical: 'center',
                       color:
-                        this.subTotal >=
-                          this.storeDetails.freeDeliveryMinimum &&
-                        this.storeDetails.freeDelivery
+                        this.subTotal >= storeDetails.freeDeliveryMinimum &&
+                        storeDetails.freeDelivery
                           ? colors.primary
                           : colors.text_primary,
                     }}>
-                    {this.subTotal >= this.storeDetails.freeDeliveryMinimum &&
-                    this.storeDetails.freeDelivery
+                    {this.subTotal >= storeDetails.freeDeliveryMinimum &&
+                    storeDetails.freeDelivery
                       ? 'Free Delivery'
-                      : `₱${this.storeDetails.ownDeliveryServiceFee}`}
+                      : `₱${storeDetails.ownDeliveryServiceFee}`}
                   </Text>
                 ) : (
                   <Text
@@ -332,7 +322,7 @@ class CartStoreCard extends Component {
             </View>
           )}
 
-          {this.storeDetails ? (
+          {storeDetails ? (
             checkout && (
               <View
                 style={{
@@ -361,8 +351,8 @@ class CartStoreCard extends Component {
                     Delivery Method:
                   </Text>
 
-                  {this.storeDetails.deliveryMethods &&
-                  this.storeDetails.deliveryMethods.length > 0 ? (
+                  {storeDetails.deliveryMethods &&
+                  storeDetails.deliveryMethods.length > 0 ? (
                     <Picker
                       mode="dropdown"
                       iosIcon={<Icon name="chevron-down" />}
@@ -376,23 +366,21 @@ class CartStoreCard extends Component {
                           merchantId
                         ] = value;
                       }}>
-                      {this.storeDetails.deliveryMethods &&
-                        this.storeDetails.deliveryMethods.map(
-                          (method, index) => {
-                            const label =
-                              method === 'Own Delivery'
-                                ? `${method} (₱ ${this.storeDetails.ownDeliveryServiceFee})`
-                                : `${method}`;
+                      {storeDetails.deliveryMethods &&
+                        storeDetails.deliveryMethods.map((method, index) => {
+                          const label =
+                            method === 'Own Delivery'
+                              ? `${method} (₱ ${storeDetails.ownDeliveryServiceFee})`
+                              : `${method}`;
 
-                            return (
-                              <Picker.Item
-                                label={label}
-                                value={method}
-                                key={`${method}${index}`}
-                              />
-                            );
-                          },
-                        )}
+                          return (
+                            <Picker.Item
+                              label={label}
+                              value={method}
+                              key={`${method}${index}`}
+                            />
+                          );
+                        })}
                     </Picker>
                   ) : (
                     <Text
@@ -424,8 +412,8 @@ class CartStoreCard extends Component {
                     }}>
                     Payment Method:
                   </Text>
-                  {this.storeDetails.paymentMethods &&
-                  this.storeDetails.paymentMethods.length > 0 ? (
+                  {storeDetails.paymentMethods &&
+                  storeDetails.paymentMethods.length > 0 ? (
                     <Picker
                       mode="dropdown"
                       style={{flex: 1}}
@@ -440,23 +428,21 @@ class CartStoreCard extends Component {
                           merchantId
                         ] = value;
                       }}>
-                      {this.storeDetails.paymentMethods &&
-                        this.storeDetails.paymentMethods.map(
-                          (method, index) => {
-                            const label =
-                              method === 'Online Payment'
-                                ? 'Online Payment (Through chat)'
-                                : `${method}`;
+                      {storeDetails.paymentMethods &&
+                        storeDetails.paymentMethods.map((method, index) => {
+                          const label =
+                            method === 'Online Payment'
+                              ? 'Online Payment (Through chat)'
+                              : `${method}`;
 
-                            return (
-                              <Picker.Item
-                                label={label}
-                                value={method}
-                                key={`${method}${index}`}
-                              />
-                            );
-                          },
-                        )}
+                          return (
+                            <Picker.Item
+                              label={label}
+                              value={method}
+                              key={`${method}${index}`}
+                            />
+                          );
+                        })}
                     </Picker>
                   ) : (
                     <Text style={{paddingTop: 10}}>
