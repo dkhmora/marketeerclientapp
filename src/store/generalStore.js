@@ -158,8 +158,10 @@ class generalStore {
   }
 
   @action async setCurrentLocation() {
-    return await new Promise((resolve, reject) => {
-      PermissionsAndroid.request(
+    this.addressLoading = true;
+
+    if (Platform.OS === 'android') {
+      await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       ).then((granted) => {
         if (Platform.OS === 'android' && granted !== 'granted') {
@@ -179,72 +181,62 @@ class generalStore {
               locationError: true,
             });
           }
-        } else {
-          if (Platform.OS === 'ios') {
-            Geolocation.requestAuthorization();
-          }
-
-          this.addressLoading = true;
-
-          return Geolocation.getCurrentPosition(
-            async (position) => {
-              this.deliverToCurrentLocation = true;
-              this.deliverToSetLocation = false;
-              this.deliverToLastDeliveryLocation = false;
-
-              const coords = {
-                latitude: parseFloat(position.coords.latitude),
-                longitude: parseFloat(position.coords.longitude),
-              };
-
-              this.currentLocationGeohash = await geohash.encode(
-                coords.latitude,
-                coords.longitude,
-                12,
-              );
-
-              this.currentLocationDetails = await this.getAddressFromCoordinates(
-                {
-                  ...coords,
-                },
-              );
-
-              this.currentLocation = {...coords};
-
-              this.appReady = true;
-              this.addressLoading = false;
-
-              resolve();
-            },
-            (err) => {
-              if (err.code === 2) {
-                Toast({
-                  text:
-                    'Error: Cannot get location coordinates. Please set your coordinates manually.',
-                  duration: 6000,
-                  type: 'danger',
-                  buttonText: 'Okay',
-                });
-              } else {
-                Toast({text: err.message, type: 'danger'});
-              }
-
-              if (this.navigation) {
-                this.appReady = true;
-                this.addressLoading = false;
-                this.navigation.navigate('Set Location', {
-                  checkout: false,
-                  locationError: true,
-                });
-              }
-            },
-            {
-              timeout: 20000,
-            },
-          );
         }
       });
-    });
+    }
+
+    Geolocation.getCurrentPosition(
+      async (position) => {
+        this.deliverToCurrentLocation = true;
+        this.deliverToSetLocation = false;
+        this.deliverToLastDeliveryLocation = false;
+
+        const coords = {
+          latitude: parseFloat(position.coords.latitude),
+          longitude: parseFloat(position.coords.longitude),
+        };
+
+        this.currentLocationGeohash = await geohash.encode(
+          coords.latitude,
+          coords.longitude,
+          12,
+        );
+
+        this.currentLocationDetails = await this.getAddressFromCoordinates({
+          ...coords,
+        });
+
+        this.currentLocation = {...coords};
+
+        this.appReady = true;
+        this.addressLoading = false;
+      },
+      (err) => {
+        if (err.code === 2) {
+          Toast({
+            text:
+              'Error: Cannot get location coordinates. Please set your coordinates manually.',
+            duration: 6000,
+            type: 'danger',
+            buttonText: 'Okay',
+          });
+        } else {
+          Toast({text: err.message, type: 'danger'});
+        }
+
+        if (this.navigation) {
+          this.appReady = true;
+          this.addressLoading = false;
+          this.navigation.navigate('Set Location', {
+            checkout: false,
+            locationError: true,
+          });
+        }
+      },
+      {
+        timeout: 20000,
+      },
+    );
   }
 
   @action async setLastDeliveryLocation() {

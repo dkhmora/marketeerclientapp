@@ -91,14 +91,23 @@ class App extends React.Component {
                 if (state === 'active') {
                   if (!authStore.guest && user) {
                     shopStore.getCartItems(userId);
+                    generalStore.getUserDetails(userId);
                   }
                 } else if (state === 'background') {
                   if (shopStore.unsubscribeToGetCartItems) {
                     shopStore.unsubscribeToGetCartItems();
                   }
+
+                  if (generalStore.unsubscribeUserDetails) {
+                    generalStore.unsubscribeUserDetails();
+                  }
                 } else if (state === 'inactive') {
                   if (shopStore.unsubscribeToGetCartItems) {
                     shopStore.unsubscribeToGetCartItems();
+                  }
+
+                  if (generalStore.unsubscribeUserDetails) {
+                    generalStore.unsubscribeUserDetails();
                   }
                 }
               }

@@ -32,7 +32,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -48,6 +48,8 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Marketeer needs access to the user's photos in order to send user photos through chat</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Marketeer needs access to user's location in order to show nearby stores</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
