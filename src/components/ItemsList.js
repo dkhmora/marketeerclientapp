@@ -3,6 +3,8 @@ import {FlatList, View} from 'react-native';
 import {observer} from 'mobx-react';
 // Custom Components
 import ItemCard from './ItemCard';
+import DeviceInfo from 'react-native-device-info';
+
 @observer
 class ItemsList extends Component {
   constructor(props) {
@@ -55,7 +57,8 @@ class ItemsList extends Component {
     const {items} = this.props.route.params;
     const dataSource = [...items];
 
-    const numColumns = 2;
+    const isTablet = DeviceInfo.isTablet();
+    const numColumns = isTablet ? 3 : 2;
 
     return (
       <View style={{flex: 1}}>

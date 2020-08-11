@@ -120,6 +120,7 @@ class BaseHeader extends Component {
           rightContainerStyle={{flex: 0}}
           centerContainerStyle={{
             flex: 1,
+            alignItems: 'center',
           }}
         />
       </View>

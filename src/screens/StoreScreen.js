@@ -141,6 +141,7 @@ class StoreScreen extends Component {
                 flex: 1,
                 flexDirection: 'row',
                 alignItems: 'center',
+                justifyContent: 'space-between',
               }}>
               <Text
                 adjustsFontSizeToFit
@@ -150,7 +151,7 @@ class StoreScreen extends Component {
                   {
                     color: colors.icons,
                     fontSize: 30,
-                    width: '80%',
+                    flex: 1,
                     paddingHorizontal: 10,
                   },
                 ]}>
