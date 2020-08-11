@@ -35,7 +35,7 @@ class MainScreen extends Component {
 
     this.state = {
       locationMenuOpen: false,
-      initialPosition: -200,
+      initialPosition: -400,
       image: '',
       url: '',
     };
@@ -52,14 +52,6 @@ class MainScreen extends Component {
       fadeIn: {
         from: {opacity: 0},
         to: {opacity: 1},
-      },
-      slideIn: {
-        from: {translateY: -pixelsFromTop - 40},
-        to: {translateY: pixelsFromTop},
-      },
-      slideOut: {
-        from: {translateY: pixelsFromTop},
-        to: {translateY: -pixelsFromTop - 40},
       },
       fadeInOverlay: {
         from: {
@@ -124,6 +116,21 @@ class MainScreen extends Component {
 
     return null;
   };
+
+  onLayout(event) {
+    const drawerHeight = event.nativeEvent.layout.height;
+
+    Animatable.initializeRegistryWithDefinitions({
+      slideIn: {
+        from: {translateY: -pixelsFromTop},
+        to: {translateY: pixelsFromTop},
+      },
+      slideOut: {
+        from: {translateY: pixelsFromTop},
+        to: {translateY: -pixelsFromTop - drawerHeight},
+      },
+    });
+  }
 
   rightComponent = ({cartQuantity}) => {
     const {navigation} = this.props;
@@ -215,6 +222,7 @@ class MainScreen extends Component {
         ref={(drawer) => (this.drawer = drawer)}
         duration={200}
         useNativeDriver
+        onLayout={(layout) => this.onLayout(layout)}
         style={{
           width: '100%',
           backgroundColor: '#fff',
