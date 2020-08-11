@@ -37,6 +37,8 @@ class OrderChatScreen extends Component {
 
   componentWillUnmount() {
     this.props.generalStore.unsubscribeGetMessages();
+
+    this.props.generalStore.setOrders(this.props.route.params.order.userId);
   }
 
   onSend(messages = []) {

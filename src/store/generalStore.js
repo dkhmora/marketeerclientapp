@@ -304,6 +304,20 @@ class generalStore {
     return link;
   }
 
+  @action async markMessagesAsRead(orderId) {
+    console.log('yes');
+
+    this.markMessagesAsReadTimeout &&
+      clearTimeout(this.markMessagesAsReadTimeout);
+
+    this.markMessagesAsReadTimeout = setTimeout(() => {
+      firestore().collection('orders').doc(orderId).update({
+        userUnreadCount: 0,
+        updatedAt: firestore.Timestamp.now().toMillis(),
+      });
+    }, 100);
+  }
+
   @action getMessages(orderId) {
     this.unsubscribeGetMessages && this.unsubscribeGetMessages();
     this.orderMessages = [];
@@ -313,6 +327,9 @@ class generalStore {
       .doc(orderId)
       .onSnapshot((documentSnapshot) => {
         if (documentSnapshot.exists) {
+          if (documentSnapshot.data().userUnreadCount !== 0) {
+            this.markMessagesAsRead(orderId);
+          }
           if (
             documentSnapshot.data().messages.length <= 0 &&
             this.orderMessages.length > 0
@@ -335,7 +352,11 @@ class generalStore {
     await firestore()
       .collection('orders')
       .doc(orderId)
-      .update('messages', firestore.FieldValue.arrayUnion(message))
+      .update({
+        messages: firestore.FieldValue.arrayUnion(message),
+        merchantUnreadCount: firestore.FieldValue.increment(1),
+        updatedAt: firestore.Timestamp.now().toMillis(),
+      })
       .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
@@ -351,7 +372,11 @@ class generalStore {
     await firestore()
       .collection('orders')
       .doc(orderId)
-      .update('messages', firestore.FieldValue.arrayUnion(message))
+      .update({
+        messages: firestore.FieldValue.arrayUnion(message),
+        merchantUnreadCount: firestore.FieldValue.increment(1),
+        updatedAt: firestore.Timestamp.now().toMillis(),
+      })
       .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 

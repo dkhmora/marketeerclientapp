@@ -5,7 +5,7 @@ import moment from 'moment';
 import {observer, inject} from 'mobx-react';
 import {observable, action, computed} from 'mobx';
 import FastImage from 'react-native-fast-image';
-import {Button, Icon, Text} from 'react-native-elements';
+import {Button, Icon, Text, Badge} from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 import {colors} from '../../assets/colors';
 import AddReviewModal from './AddReviewModal';
@@ -134,6 +134,7 @@ class OrderCard extends PureComponent {
     imageReady,
     paymentMethod,
     userOrderNumber,
+    userUnreadCount,
     orderStatus,
     storeName,
   }) => {
@@ -219,8 +220,23 @@ class OrderCard extends PureComponent {
               </View>
             </View>
           </View>
-          <View>
-            <Icon name="message-square" color={colors.primary} />
+          <View style={{alignItems: 'center'}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                paddingHorizontal: 5,
+                paddingTop: 5,
+              }}>
+              <Icon name="message-square" color={colors.primary} />
+
+              {userUnreadCount !== null && userUnreadCount > 0 && (
+                <Badge
+                  value={userUnreadCount}
+                  badgeStyle={{backgroundColor: colors.accent}}
+                  containerStyle={{position: 'absolute', top: 0, right: 0}}
+                />
+              )}
+            </View>
             <Text style={{color: colors.primary}}>Chat</Text>
           </View>
         </Body>
@@ -262,6 +278,7 @@ class OrderCard extends PureComponent {
 
     const {
       userOrderNumber,
+      userUnreadCount,
       quantity,
       subTotal,
       deliveryPrice,
@@ -270,6 +287,8 @@ class OrderCard extends PureComponent {
       storeName,
     } = order;
     const {url, ready, addReviewModal} = this.state;
+
+    console.log(userUnreadCount);
 
     return (
       <View style={{flex: 1, paddingHorizontal: 5}}>
@@ -297,6 +316,7 @@ class OrderCard extends PureComponent {
                 imageUrl={url}
                 imageReady={ready}
                 userOrderNumber={userOrderNumber}
+                userUnreadCount={userUnreadCount}
                 paymentMethod={paymentMethod}
                 orderStatus={this.orderStatus}
                 storeName={storeName}
