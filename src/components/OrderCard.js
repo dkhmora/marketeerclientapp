@@ -288,8 +288,6 @@ class OrderCard extends PureComponent {
     } = order;
     const {url, ready, addReviewModal} = this.state;
 
-    console.log(userUnreadCount);
-
     return (
       <View style={{flex: 1, paddingHorizontal: 5}}>
         <AddReviewModal
