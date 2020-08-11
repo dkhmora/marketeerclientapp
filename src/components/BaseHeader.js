@@ -68,7 +68,14 @@ class BaseHeader extends Component {
     }
 
     return (
-      <Text adjustsFontSizeToFit style={{fontSize: 20, color: colors.icons}}>
+      <Text
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        style={{
+          fontSize: 20,
+          color: colors.icons,
+          textAlign: 'left',
+        }}>
         {title}
       </Text>
     );
@@ -92,7 +99,7 @@ class BaseHeader extends Component {
       return rightComponent;
     }
 
-    return <View style={{flex: 1}}></View>;
+    return <View style={{width: 40}} />;
   };
 
   render() {
@@ -109,8 +116,11 @@ class BaseHeader extends Component {
             translucent: true,
           }}
           containerStyle={styles.header}
+          leftContainerStyle={{flex: 0}}
+          rightContainerStyle={{flex: 0}}
           centerContainerStyle={{
-            flex: 3,
+            flex: 1,
+            alignItems: 'center',
           }}
         />
       </View>

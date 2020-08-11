@@ -5,7 +5,7 @@ import moment from 'moment';
 import {observer, inject} from 'mobx-react';
 import {observable, action, computed} from 'mobx';
 import FastImage from 'react-native-fast-image';
-import {Button, Icon, Text} from 'react-native-elements';
+import {Button, Icon, Text, Badge} from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 import {colors} from '../../assets/colors';
 import AddReviewModal from './AddReviewModal';
@@ -23,7 +23,6 @@ class OrderCard extends PureComponent {
       url: require('../../assets/images/placeholder.jpg'),
       ready: false,
       addReviewModal: false,
-      reviewedOnDevice: false,
     };
   }
 
@@ -39,15 +38,17 @@ class OrderCard extends PureComponent {
   @computed get orderStatus() {
     const {orderStatus} = this.props.order;
 
-    const statusLabel = Object.entries(orderStatus).map(([key, value]) => {
-      if (value.status) {
-        return key.toUpperCase();
-      }
+    const statusLabel =
+      orderStatus &&
+      Object.entries(orderStatus).map(([key, value]) => {
+        if (value.status) {
+          return key.toUpperCase();
+        }
 
-      return;
-    });
+        return null;
+      });
 
-    return statusLabel.filter((item) => item != null);
+    return statusLabel ? statusLabel.filter((item) => item != null) : 'null';
   }
 
   @action openConfirmationModal() {
@@ -133,6 +134,7 @@ class OrderCard extends PureComponent {
     imageReady,
     paymentMethod,
     userOrderNumber,
+    userUnreadCount,
     orderStatus,
     storeName,
   }) => {
@@ -218,8 +220,23 @@ class OrderCard extends PureComponent {
               </View>
             </View>
           </View>
-          <View>
-            <Icon name="message-square" color={colors.primary} />
+          <View style={{alignItems: 'center'}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                paddingHorizontal: 5,
+                paddingTop: 5,
+              }}>
+              <Icon name="message-square" color={colors.primary} />
+
+              {userUnreadCount !== null && userUnreadCount > 0 && (
+                <Badge
+                  value={userUnreadCount}
+                  badgeStyle={{backgroundColor: colors.accent}}
+                  containerStyle={{position: 'absolute', top: 0, right: 0}}
+                />
+              )}
+            </View>
             <Text style={{color: colors.primary}}>Chat</Text>
           </View>
         </Body>
@@ -227,9 +244,8 @@ class OrderCard extends PureComponent {
     );
   };
 
-  CardFooter = ({createdAt, paymentMethod, orderStatus}) => {
+  CardFooter = ({orderStatus}) => {
     const {order} = this.props;
-    const {reviewedOnDevice} = this.state;
 
     return (
       <View
@@ -244,26 +260,25 @@ class OrderCard extends PureComponent {
         }}>
         <Text>Updated {this.timeStamp}</Text>
 
-        {orderStatus[0] === 'COMPLETED' &&
-          !order.reviewed &&
-          !reviewedOnDevice && (
-            <Button
-              title="Review"
-              type="clear"
-              onPress={() => this.openAddReviewModal()}
-              titleStyle={{color: colors.primary}}
-              containerStyle={{borderRadius: 24}}
-            />
-          )}
+        {orderStatus[0] === 'COMPLETED' && !order.reviewed && (
+          <Button
+            title="Review"
+            type="clear"
+            onPress={() => this.openAddReviewModal()}
+            titleStyle={{color: colors.primary}}
+            containerStyle={{borderRadius: 24}}
+          />
+        )}
       </View>
     );
   };
 
   render() {
-    const {order, reviewed} = this.props;
+    const {order, reviewed, refresh} = this.props;
 
     const {
       userOrderNumber,
+      userUnreadCount,
       quantity,
       subTotal,
       deliveryPrice,
@@ -274,77 +289,90 @@ class OrderCard extends PureComponent {
     const {url, ready, addReviewModal} = this.state;
 
     return (
-      <View>
+      <View style={{flex: 1, paddingHorizontal: 5}}>
         <AddReviewModal
           order={order}
           isVisible={addReviewModal}
           closeModal={() => this.setState({addReviewModal: false})}
-          onReviewSubmit={() => this.setState({reviewedOnDevice: true})}
+          onReviewSubmit={() => refresh()}
         />
 
-        <Card style={{borderRadius: 8, overflow: 'hidden'}}>
-          <View style={{height: 175}}>
-            <this.CardHeader
-              imageUrl={url}
-              imageReady={ready}
-              userOrderNumber={userOrderNumber}
-              paymentMethod={paymentMethod}
-              orderStatus={this.orderStatus}
-              storeName={storeName}
-            />
-
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingHorizontal: 15,
-                paddingVertical: 5,
-              }}>
-              <Button
-                title={`View Full Order (${quantity} items)`}
-                onPress={this.handleViewOrderItems.bind(this)}
-                titleStyle={{color: colors.icons}}
-                buttonStyle={{backgroundColor: colors.accent}}
-                containerStyle={{
-                  borderRadius: 24,
-                  marginRight: 10,
-                  flex: 1,
-                }}
+        <View
+          style={{
+            flex: 1,
+            shadowColor: '#000',
+            shadowOffset: {
+              width: 0,
+              height: 1,
+            },
+            shadowOpacity: 0.2,
+            shadowRadius: 1.41,
+          }}>
+          <Card style={{flex: 1, borderRadius: 8, overflow: 'hidden'}}>
+            <View style={{height: 175}}>
+              <this.CardHeader
+                imageUrl={url}
+                imageReady={ready}
+                userOrderNumber={userOrderNumber}
+                userUnreadCount={userUnreadCount}
+                paymentMethod={paymentMethod}
+                orderStatus={this.orderStatus}
+                storeName={storeName}
               />
 
               <View
                 style={{
-                  flexDirection: 'column',
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 10,
-                  borderWidth: 1,
-                  borderColor: colors.text_secondary,
-                  padding: 5,
+                  paddingHorizontal: 15,
+                  paddingVertical: 5,
                 }}>
-                <Text
+                <Button
+                  title={`View Full Order (${quantity} items)`}
+                  onPress={this.handleViewOrderItems.bind(this)}
+                  titleStyle={{color: colors.icons}}
+                  buttonStyle={{backgroundColor: colors.accent}}
+                  containerStyle={{
+                    borderRadius: 24,
+                    marginRight: 10,
+                    flex: 1,
+                  }}
+                />
+
+                <View
                   style={{
-                    color: colors.primary,
-                    fontSize: 16,
-                    fontFamily: 'ProductSans-Bold',
-                    textAlign: 'center',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 10,
+                    borderWidth: 1,
+                    borderColor: colors.text_secondary,
+                    padding: 5,
                   }}>
-                  ₱{subTotal + (deliveryPrice ? deliveryPrice : 0)}
-                </Text>
+                  <Text
+                    style={{
+                      color: colors.primary,
+                      fontSize: 16,
+                      fontFamily: 'ProductSans-Bold',
+                      textAlign: 'center',
+                    }}>
+                    ₱{subTotal + (deliveryPrice ? deliveryPrice : 0)}
+                  </Text>
 
-                <Text>Total Amount</Text>
+                  <Text>Total Amount</Text>
+                </View>
               </View>
-            </View>
 
-            <this.CardFooter
-              createdAt={createdAt}
-              paymentMethod={paymentMethod}
-              orderStatus={this.orderStatus}
-              reviewed={reviewed}
-            />
-          </View>
-        </Card>
+              <this.CardFooter
+                createdAt={createdAt}
+                paymentMethod={paymentMethod}
+                orderStatus={this.orderStatus}
+                reviewed={reviewed}
+              />
+            </View>
+          </Card>
+        </View>
       </View>
     );
   }

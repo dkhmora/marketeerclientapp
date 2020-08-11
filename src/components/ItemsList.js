@@ -3,6 +3,8 @@ import {FlatList, View} from 'react-native';
 import {observer} from 'mobx-react';
 // Custom Components
 import ItemCard from './ItemCard';
+import DeviceInfo from 'react-native-device-info';
+
 @observer
 class ItemsList extends Component {
   constructor(props) {
@@ -24,6 +26,19 @@ class ItemsList extends Component {
     return data;
   }
 
+  componentDidMount() {
+    this.unsubscribeTabPress = this.props.navigation.addListener(
+      'tabPress',
+      (e) => {
+        this.flatList.scrollToOffset({animated: true, offset: 0});
+      },
+    );
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeTabPress && this.unsubscribeTabPress();
+  }
+
   renderItem = ({item, index}) =>
     item.empty ? (
       <View
@@ -34,7 +49,7 @@ class ItemsList extends Component {
       <ItemCard
         item={item}
         merchantId={this.props.route.params.merchantId}
-        key={index}
+        key={item.itemId}
       />
     );
 
@@ -42,20 +57,21 @@ class ItemsList extends Component {
     const {items} = this.props.route.params;
     const dataSource = [...items];
 
-    const numColumns = 2;
+    const isTablet = DeviceInfo.isTablet();
+    const numColumns = isTablet ? 3 : 2;
 
     return (
-      <View style={{flex: 1}}>
-        <FlatList
-          data={this.formatData(dataSource, numColumns)}
-          numColumns={numColumns}
-          initialNumToRender={10}
-          maxToRenderPerBatch={4}
-          renderItem={this.renderItem}
-          keyExtractor={(item, index) => `${item.itemId}`}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
+      <FlatList
+        style={{flex: 1, paddingHorizontal: 5}}
+        ref={(flatList) => (this.flatList = flatList)}
+        data={this.formatData(dataSource, numColumns)}
+        numColumns={numColumns}
+        initialNumToRender={10}
+        maxToRenderPerBatch={4}
+        renderItem={this.renderItem}
+        keyExtractor={(item, index) => `${item.itemId}`}
+        showsVerticalScrollIndicator={false}
+      />
     );
   }
 }

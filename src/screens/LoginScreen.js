@@ -75,7 +75,7 @@ class LoginScreen extends Component {
     this.props.generalStore.appReady = false;
 
     this.props.authStore.signIn(userCredential, password).then(() => {
-      this.props.generalStore.appReady = false;
+      this.props.generalStore.appReady = true;
 
       checkout
         ? navigation

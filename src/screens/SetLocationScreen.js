@@ -249,16 +249,26 @@ class SetLocationScreen extends Component {
   }
 
   openSearchModal() {
-    RNGooglePlaces.openAutocompleteModal({country: 'PH'}, ['location'])
+    RNGooglePlaces.openAutocompleteModal(
+      {country: 'PH', useOverlay: true, type: 'address'},
+      ['location', 'addressComponents'],
+    )
       .then((place) => {
         const coordinates = place.location;
+        const address = place.addressComponents;
+        const formattedAddress = `${address[1].name} ${address[0].name}, ${address[6].name} ${address[3].name}, ${address[5].name}`;
 
-        this.panMapToLocation(coordinates);
+        this.selectedLocationAddress = formattedAddress;
 
-        this.setState({
-          newMarkerPosition: {...coordinates},
-          editMode: true,
-        });
+        this.setState(
+          {
+            newMarkerPosition: {...coordinates},
+            editMode: false,
+          },
+          () => {
+            this.handleSetLocation();
+          },
+        );
       })
       .catch((error) => Toast({text: error.message, type: 'danger'}));
   }
@@ -350,7 +360,9 @@ class SetLocationScreen extends Component {
                   iconLeft
                   icon={<Icon name="x" color={colors.icons} />}
                   onPress={() => this.handleCancelChanges()}
-                  buttonStyle={{backgroundColor: 'red'}}
+                  buttonStyle={{
+                    backgroundColor: 'red',
+                  }}
                   containerStyle={{
                     borderRadius: 24,
                     marginRight: 10,
@@ -373,7 +385,9 @@ class SetLocationScreen extends Component {
                 icon={<Icon name="save" color={colors.icons} />}
                 onPress={() => this.handleSetLocation()}
                 titleStyle={{color: colors.icons, marginLeft: 5}}
-                buttonStyle={{backgroundColor: colors.accent}}
+                buttonStyle={{
+                  backgroundColor: colors.accent,
+                }}
                 containerStyle={{
                   borderRadius: 24,
                   overflow: 'hidden',
@@ -431,7 +445,11 @@ class SetLocationScreen extends Component {
             disabled={!this.state.currentUserLocation}
             icon={<Icon name="crosshair" color={colors.icons} size={35} />}
             titleStyle={{color: colors.icons}}
-            buttonStyle={{backgroundColor: colors.primary, borderRadius: 35}}
+            buttonStyle={{
+              backgroundColor: colors.primary,
+              borderRadius: 35,
+              paddingBottom: Platform.OS === 'ios' ? 5 : null,
+            }}
             containerStyle={{
               overflow: 'hidden',
             }}
@@ -442,6 +460,11 @@ class SetLocationScreen extends Component {
           backButton={locationError ? false : true}
           navigation={navigation}
           title={headerTitle}
+          centerComponent={
+            saveChangesLoading ? (
+              <ActivityIndicator size="small" color={colors.icons} />
+            ) : null
+          }
           noLeftComponent={locationError ? true : false}
           rightComponent={
             <Button

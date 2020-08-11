@@ -51,11 +51,21 @@ class ItemCategoriesTab extends Component {
           <ItemTab.Navigator
             lazy
             lazyPreloadDistance={0.5}
+            backBehavior="initialRoute"
             tabBarOptions={{
               scrollEnabled: true,
               tabStyle: {width: this.tabWidth},
               indicatorStyle: {
                 backgroundColor: colors.primary,
+              },
+              style: {
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 1.41,
               },
             }}>
             {storeCategoryItems && this.TabScreens(storeCategoryItems)}

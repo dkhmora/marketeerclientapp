@@ -23,7 +23,7 @@ import AuthStore from './src/store/authStore';
 import ShopStore from './src/store/shopStore';
 
 import Setup from './src/boot/setup';
-import {AppState, Linking} from 'react-native';
+import {AppState, Linking, Platform} from 'react-native';
 import {create} from 'mobx-persist';
 
 const hydrate = create({storage: AsyncStorage});
@@ -34,6 +34,7 @@ hydrate('list', generalStore);
 hydrate('object', shopStore);
 // @TODO: This is to hide a Warning caused by NativeBase after upgrading to RN 0.62
 import {YellowBox} from 'react-native';
+import AlertModal from './src/components/AlertModal';
 
 YellowBox.ignoreWarnings([
   'Animated: `useNativeDriver` was not specified. This is a required option and must be explicitly set to `true` or `false`',
@@ -47,6 +48,8 @@ class App extends React.Component {
 
     this.state = {
       user: null,
+      appUrl: null,
+      appUpdateModal: false,
     };
   }
 
@@ -91,14 +94,23 @@ class App extends React.Component {
                 if (state === 'active') {
                   if (!authStore.guest && user) {
                     shopStore.getCartItems(userId);
+                    generalStore.getUserDetails(userId);
                   }
                 } else if (state === 'background') {
                   if (shopStore.unsubscribeToGetCartItems) {
                     shopStore.unsubscribeToGetCartItems();
                   }
+
+                  if (generalStore.unsubscribeUserDetails) {
+                    generalStore.unsubscribeUserDetails();
+                  }
                 } else if (state === 'inactive') {
                   if (shopStore.unsubscribeToGetCartItems) {
                     shopStore.unsubscribeToGetCartItems();
+                  }
+
+                  if (generalStore.unsubscribeUserDetails) {
+                    generalStore.unsubscribeUserDetails();
                   }
                 }
               }
@@ -120,25 +132,38 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    /* TODO: Remove comments before deploying in Play Store/App Store
-    VersionCheck.needUpdate().then(async (res) => {
-      if (res.isNeeded) {
-        console.log('Update needed', res.isNeeded);
-        // Linking.openURL(res.storeUrl); // open store if update is needed.
+    const provider = Platform.OS === 'android' ? 'playStore' : 'appStore';
+
+    VersionCheck.needUpdate({
+      provider,
+      forceUpdate: true,
+    }).then(async (res) => {
+      if (res) {
+        if (res.isNeeded) {
+          this.setState({appUpdateModal: true, appUrl: res.storeUrl});
+        } else {
+          shopStore.unsubscribeToGetCartItems &&
+            shopStore.unsubscribeToGetCartItems();
+
+          this.executeAuthStateListener();
+        }
       } else {
-        console.log('No update needed');
+        shopStore.unsubscribeToGetCartItems &&
+          shopStore.unsubscribeToGetCartItems();
+
         this.executeAuthStateListener();
       }
-    }); */
-
-    shopStore.unsubscribeToGetCartItems &&
-      shopStore.unsubscribeToGetCartItems();
-
-    this.executeAuthStateListener();
+    });
   }
 
   componentWillUnmount() {
     this.authState();
+  }
+
+  openAppUrl() {
+    if (this.state.appUrl) {
+      Linking.openURL(this.state.appUrl);
+    }
   }
 
   render() {
@@ -148,6 +173,18 @@ class App extends React.Component {
           generalStore={generalStore}
           authStore={authStore}
           shopStore={shopStore}>
+          <AlertModal
+            isVisible={this.state.appUpdateModal}
+            onConfirm={() => {
+              this.openAppUrl();
+            }}
+            buttonText={`Go to ${
+              Platform.OS === 'android' ? 'Play Store' : 'App Store'
+            }`}
+            title="Please update Marketeer"
+            body="Your Marketeer app is out of date. Please update in order to get all the latest features. Thank you."
+          />
+
           <Setup />
         </Provider>
       );

@@ -37,7 +37,7 @@ class CartStoreList extends Component {
                   cart={cart}
                   checkout={checkout}
                   merchantId={merchantId}
-                  key={index}
+                  key={merchantId}
                 />
               );
             })}

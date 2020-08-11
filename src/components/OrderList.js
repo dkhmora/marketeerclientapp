@@ -5,6 +5,7 @@ import {observer, inject} from 'mobx-react';
 import OrderCard from './OrderCard';
 import {colors} from '../../assets/colors';
 import {Text} from 'react-native-elements';
+import DeviceInfo from 'react-native-device-info';
 
 @inject('authStore')
 @inject('generalStore')
@@ -37,22 +38,42 @@ class OrderList extends Component {
     this.retrieveInitial();
   }
 
+  formatData(data, numColumns) {
+    const numberOfFullRows = Math.floor(data.length / numColumns);
+
+    let numberOfElementsLastRow = data.length - numberOfFullRows * numColumns;
+    while (
+      numberOfElementsLastRow !== numColumns &&
+      numberOfElementsLastRow !== 0
+    ) {
+      data.push({key: `blank-${numberOfElementsLastRow}`, empty: true});
+      numberOfElementsLastRow += 1;
+    }
+
+    return data;
+  }
+
   renderItem = ({item, index}) => (
     <OrderCard
       order={item}
       navigation={this.props.navigation}
+      refresh={() => this.retrieveInitial()}
       key={item.orderId}
     />
   );
 
   render() {
     const dataSource = this.props.generalStore.orders.slice();
+    const isTablet = DeviceInfo.isTablet();
+
+    const numOfColumns = isTablet ? 2 : 1;
 
     return (
       <FlatList
-        style={{flex: 1, paddingHorizontal: 10}}
+        style={{flex: 1, paddingHorizontal: 5}}
         contentContainerStyle={{flexGrow: 1}}
-        data={dataSource}
+        data={this.formatData(dataSource, numOfColumns)}
+        numColumns={numOfColumns}
         initialNumToRender={10}
         renderItem={this.renderItem}
         windowSize={10}

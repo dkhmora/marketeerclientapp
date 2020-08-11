@@ -54,57 +54,71 @@ class StoreCategoryCard extends Component {
     const {url, ready} = this.state;
 
     return (
-      <Card
+      <View
         style={{
-          borderRadius: 10,
-          height: 100,
-          backgroundColor: colors.primary,
+          flex: 1,
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: 1,
+          },
+          shadowOpacity: 0.2,
+          shadowRadius: 1.41,
+          paddingHorizontal: 5,
         }}>
-        {ready ? (
-          <TouchableOpacity
-            onPress={() => this.displayStores()}
-            activeOpacity={0.85}
-            style={{flex: 1, flexDirection: 'row'}}>
-            <View style={{flex: 7, elevation: 10}}>
-              <FastImage
-                source={url}
-                style={{
-                  flex: 1,
-                  borderRadius: 10,
-                  backgroundColor: colors.primary,
-                }}
-              />
-            </View>
+        <Card
+          style={{
+            borderRadius: 10,
+            height: 100,
+            backgroundColor: colors.primary,
+            elevation: 2,
+          }}>
+          {ready ? (
+            <TouchableOpacity
+              onPress={() => this.displayStores()}
+              activeOpacity={0.85}
+              style={{flex: 1, flexDirection: 'row'}}>
+              <View style={{flex: 7, elevation: 10}}>
+                <FastImage
+                  source={url}
+                  style={{
+                    flex: 1,
+                    borderRadius: 10,
+                    backgroundColor: colors.primary,
+                  }}
+                />
+              </View>
 
-            <View
-              style={{
-                flex: 3.25,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingLeft: 10,
-              }}>
-              <Text
-                adjustsFontSizeToFit
-                allowFontScaling
+              <View
                 style={{
-                  flex: 1,
-                  fontSize: Platform.OS === 'ios' ? 17.5 : 20,
-                  color: colors.icons,
-                  textAlign: 'center',
+                  flex: 3.25,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingLeft: 10,
                 }}>
-                {item.name}
-              </Text>
+                <Text
+                  adjustsFontSizeToFit
+                  allowFontScaling
+                  style={{
+                    flex: 1,
+                    fontSize: Platform.OS === 'ios' ? 17.5 : 20,
+                    color: colors.icons,
+                    textAlign: 'center',
+                  }}>
+                  {item.name}
+                </Text>
 
-              <Icon name="chevron-right" color={colors.icons} />
+                <Icon name="chevron-right" color={colors.icons} />
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <View>
+              <StoreCategoryCardLoader />
             </View>
-          </TouchableOpacity>
-        ) : (
-          <View>
-            <StoreCategoryCardLoader />
-          </View>
-        )}
-      </Card>
+          )}
+        </Card>
+      </View>
     );
   }
 }

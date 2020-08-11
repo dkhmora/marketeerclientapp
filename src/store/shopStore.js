@@ -513,13 +513,15 @@ class shopStore {
         const categoryItems = new Map();
         categoryItems.set('All', sortedItems);
 
-        itemCategories.map((category) => {
-          const items = sortedItems.filter(
-            (item) => item.category === category,
-          );
+        if (itemCategories) {
+          itemCategories.map((category) => {
+            const items = sortedItems.filter(
+              (item) => item.category === category,
+            );
 
-          categoryItems.set(category, items);
-        });
+            categoryItems.set(category, items);
+          });
+        }
 
         return categoryItems;
       })

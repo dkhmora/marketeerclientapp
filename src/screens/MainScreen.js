@@ -35,7 +35,7 @@ class MainScreen extends Component {
 
     this.state = {
       locationMenuOpen: false,
-      initialPosition: -200,
+      initialPosition: -400,
       image: '',
       url: '',
     };
@@ -52,14 +52,6 @@ class MainScreen extends Component {
       fadeIn: {
         from: {opacity: 0},
         to: {opacity: 1},
-      },
-      slideIn: {
-        from: {translateY: -pixelsFromTop},
-        to: {translateY: pixelsFromTop},
-      },
-      slideOut: {
-        from: {translateY: pixelsFromTop},
-        to: {translateY: -pixelsFromTop},
       },
       fadeInOverlay: {
         from: {
@@ -124,6 +116,21 @@ class MainScreen extends Component {
 
     return null;
   };
+
+  onLayout(event) {
+    const drawerHeight = event.nativeEvent.layout.height;
+
+    Animatable.initializeRegistryWithDefinitions({
+      slideIn: {
+        from: {translateY: -pixelsFromTop},
+        to: {translateY: pixelsFromTop},
+      },
+      slideOut: {
+        from: {translateY: pixelsFromTop},
+        to: {translateY: -pixelsFromTop - drawerHeight},
+      },
+    });
+  }
 
   rightComponent = ({cartQuantity}) => {
     const {navigation} = this.props;
@@ -215,6 +222,7 @@ class MainScreen extends Component {
         ref={(drawer) => (this.drawer = drawer)}
         duration={200}
         useNativeDriver
+        onLayout={(layout) => this.onLayout(layout)}
         style={{
           width: '100%',
           backgroundColor: '#fff',
@@ -223,6 +231,13 @@ class MainScreen extends Component {
           overflow: 'hidden',
           top: this.state.initialPosition,
           position: 'absolute',
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: 2,
+          },
+          shadowOpacity: 0.23,
+          shadowRadius: 2.62,
         }}>
         <ListItem
           title="Current Location"
@@ -416,8 +431,11 @@ class MainScreen extends Component {
             animated: true,
           }}
           containerStyle={styles.header}
+          leftContainerStyle={{flex: 0}}
+          rightContainerStyle={{flex: 0}}
           centerContainerStyle={{
             flex: 3,
+            paddingHorizontal: 20,
           }}
         />
       </View>

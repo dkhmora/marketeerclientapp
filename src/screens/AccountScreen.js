@@ -175,7 +175,18 @@ class AccountScreen extends Component {
           </View>
         </Overlay>
 
-        <View style={{paddingHorizontal: 15, paddingVertical: 10}}>
+        <View
+          style={{
+            paddingHorizontal: 15,
+            paddingVertical: 10,
+            shadowColor: '#000',
+            shadowOffset: {
+              width: 0,
+              height: 1,
+            },
+            shadowOpacity: 0.2,
+            shadowRadius: 1.41,
+          }}>
           <Card style={{borderRadius: 10, overflow: 'hidden'}}>
             <CardItem
               header
