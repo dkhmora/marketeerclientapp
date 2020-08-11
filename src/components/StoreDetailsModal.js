@@ -185,6 +185,7 @@ class StoreDetailsModal extends Component {
                       position: 'absolute',
                       top: 0,
                       right: 0,
+                      zIndex: 99,
                       borderRadius: 30,
                     }}
                   />
@@ -233,16 +234,18 @@ class StoreDetailsModal extends Component {
                         {store.storeName}
                       </Text>
 
-                      <Text
-                        numberOfLines={5}
-                        adjustsFontSizeToFit
-                        style={{
-                          color: colors.icons,
-                          fontSize: 16,
-                          flexWrap: 'wrap',
-                        }}>
-                        {store.storeDescription}
-                      </Text>
+                      {store.storeDescription && (
+                        <Text
+                          numberOfLines={5}
+                          adjustsFontSizeToFit
+                          style={{
+                            color: colors.icons,
+                            fontSize: 16,
+                            flexWrap: 'wrap',
+                          }}>
+                          {store.storeDescription}
+                        </Text>
+                      )}
                     </View>
                   </View>
 

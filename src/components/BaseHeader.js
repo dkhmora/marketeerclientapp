@@ -69,9 +69,13 @@ class BaseHeader extends Component {
 
     return (
       <Text
-        numberOfLines={2}
+        numberOfLines={1}
         adjustsFontSizeToFit
-        style={{fontSize: 20, color: colors.icons}}>
+        style={{
+          fontSize: 20,
+          color: colors.icons,
+          textAlign: 'left',
+        }}>
         {title}
       </Text>
     );

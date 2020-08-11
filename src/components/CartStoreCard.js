@@ -78,9 +78,11 @@ class CartStoreCard extends Component {
   @computed get storeName() {
     const {merchantId} = this.props;
 
-    return this.props.shopStore.storeList.find(
+    const storeDetails = this.props.shopStore.storeList.find(
       (item) => item.merchantId === merchantId,
-    ).storeName;
+    );
+
+    return storeDetails ? storeDetails.storeName : '';
   }
 
   async getImage() {
