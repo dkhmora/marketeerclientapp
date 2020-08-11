@@ -10,7 +10,7 @@
     "iosdevice": "react-native run-ios --device",
     "iphone8": "react-native run-ios --simulator='iPhone 8 Plus'",
     "iphonese": "react-native run-ios --simulator='iPhone SE (2nd generation)'",
-    "ipadpro": "react-native run-ios --simulator='iPad Pro (4th generation)'",
+    "ipadpro": "react-native run-ios --simulator='iPad Pro (12.9-inch) (4th generation)'",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint .",

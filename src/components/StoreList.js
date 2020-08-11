@@ -14,6 +14,7 @@ import {inject, observer} from 'mobx-react';
 import * as Animatable from 'react-native-animatable';
 import {computed, when} from 'mobx';
 import {initialWindowMetrics} from 'react-native-safe-area-context';
+import DeviceInfo from 'react-native-device-info';
 
 const inset = initialWindowMetrics && initialWindowMetrics.insets;
 const bottomPadding = Platform.OS === 'ios' ? inset.bottom : 0;
@@ -149,13 +150,27 @@ class StoreList extends Component {
   };
 
   renderItem = ({item, index}) => (
-    <View key={item.merchantId}>
-      {index === 0 && (
-        <Text style={styles.listTitleText}>Stores Delivering To You</Text>
-      )}
-      <StoreCard store={item} navigation={this.props.navigation} />
-    </View>
+    <StoreCard
+      store={item}
+      navigation={this.props.navigation}
+      key={item.merchantId}
+    />
   );
+
+  formatData(data, numColumns) {
+    const numberOfFullRows = Math.floor(data.length / numColumns);
+
+    let numberOfElementsLastRow = data.length - numberOfFullRows * numColumns;
+    while (
+      numberOfElementsLastRow !== numColumns &&
+      numberOfElementsLastRow !== 0
+    ) {
+      data.push({key: `blank-${numberOfElementsLastRow}`, empty: true});
+      numberOfElementsLastRow += 1;
+    }
+
+    return data;
+  }
 
   render() {
     const {categoryName} = this.props;
@@ -173,6 +188,10 @@ class StoreList extends Component {
       }
     }
 
+    const isTablet = DeviceInfo.isTablet();
+
+    const numOfColumns = isTablet ? 2 : 1;
+
     return (
       <View
         style={{
@@ -181,10 +200,14 @@ class StoreList extends Component {
         }}>
         <FlatList
           ref={(flatList) => (this.flatList = flatList)}
-          style={{paddingHorizontal: 15}}
+          style={{paddingHorizontal: 7.5}}
           contentContainerStyle={{flexGrow: 1}}
-          data={dataSource}
+          data={this.formatData(dataSource, numOfColumns)}
+          numColumns={numOfColumns}
           renderItem={this.renderItem}
+          ListHeaderComponent={
+            <Text style={styles.listTitleText}>Stores Delivering To You</Text>
+          }
           ListEmptyComponent={
             !loading && (
               <View

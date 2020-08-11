@@ -38,15 +38,17 @@ class OrderCard extends PureComponent {
   @computed get orderStatus() {
     const {orderStatus} = this.props.order;
 
-    const statusLabel = Object.entries(orderStatus).map(([key, value]) => {
-      if (value.status) {
-        return key.toUpperCase();
-      }
+    const statusLabel =
+      orderStatus &&
+      Object.entries(orderStatus).map(([key, value]) => {
+        if (value.status) {
+          return key.toUpperCase();
+        }
 
-      return;
-    });
+        return null;
+      });
 
-    return statusLabel.filter((item) => item != null);
+    return statusLabel ? statusLabel.filter((item) => item != null) : 'null';
   }
 
   @action openConfirmationModal() {
@@ -270,7 +272,7 @@ class OrderCard extends PureComponent {
     const {url, ready, addReviewModal} = this.state;
 
     return (
-      <View>
+      <View style={{flex: 1}}>
         <AddReviewModal
           order={order}
           isVisible={addReviewModal}
@@ -280,6 +282,7 @@ class OrderCard extends PureComponent {
 
         <View
           style={{
+            flex: 1,
             shadowColor: '#000',
             shadowOffset: {
               width: 0,
@@ -288,7 +291,7 @@ class OrderCard extends PureComponent {
             shadowOpacity: 0.2,
             shadowRadius: 1.41,
           }}>
-          <Card style={{borderRadius: 8, overflow: 'hidden'}}>
+          <Card style={{flex: 1, borderRadius: 8, overflow: 'hidden'}}>
             <View style={{height: 175}}>
               <this.CardHeader
                 imageUrl={url}

@@ -66,13 +66,14 @@ class OrderList extends Component {
     const dataSource = this.props.generalStore.orders.slice();
     const isTablet = DeviceInfo.isTablet();
 
-    const numOfColumns = isTablet ? 3 : 1;
+    const numOfColumns = isTablet ? 2 : 1;
 
     return (
       <FlatList
         style={{flex: 1, paddingHorizontal: 10}}
         contentContainerStyle={{flexGrow: 1}}
         data={this.formatData(dataSource, numOfColumns)}
+        numColumns={numOfColumns}
         initialNumToRender={10}
         renderItem={this.renderItem}
         windowSize={10}

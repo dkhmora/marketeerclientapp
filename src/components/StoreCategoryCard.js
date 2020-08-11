@@ -56,6 +56,7 @@ class StoreCategoryCard extends Component {
     return (
       <View
         style={{
+          flex: 1,
           shadowColor: '#000',
           shadowOffset: {
             width: 0,
@@ -63,6 +64,7 @@ class StoreCategoryCard extends Component {
           },
           shadowOpacity: 0.2,
           shadowRadius: 1.41,
+          paddingHorizontal: 7.5,
         }}>
         <Card
           style={{
