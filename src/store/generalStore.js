@@ -305,8 +305,6 @@ class generalStore {
   }
 
   @action async markMessagesAsRead(orderId) {
-    console.log('yes');
-
     this.markMessagesAsReadTimeout &&
       clearTimeout(this.markMessagesAsReadTimeout);
 
@@ -330,6 +328,7 @@ class generalStore {
           if (documentSnapshot.data().userUnreadCount !== 0) {
             this.markMessagesAsRead(orderId);
           }
+
           if (
             documentSnapshot.data().messages.length <= 0 &&
             this.orderMessages.length > 0
