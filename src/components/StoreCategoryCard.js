@@ -64,7 +64,7 @@ class StoreCategoryCard extends Component {
           },
           shadowOpacity: 0.2,
           shadowRadius: 1.41,
-          paddingHorizontal: 7.5,
+          paddingHorizontal: 5,
         }}>
         <Card
           style={{

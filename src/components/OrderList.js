@@ -70,7 +70,7 @@ class OrderList extends Component {
 
     return (
       <FlatList
-        style={{flex: 1, paddingHorizontal: 10}}
+        style={{flex: 1, paddingHorizontal: 5}}
         contentContainerStyle={{flexGrow: 1}}
         data={this.formatData(dataSource, numOfColumns)}
         numColumns={numOfColumns}

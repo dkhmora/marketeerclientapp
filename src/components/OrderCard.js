@@ -272,7 +272,7 @@ class OrderCard extends PureComponent {
     const {url, ready, addReviewModal} = this.state;
 
     return (
-      <View style={{flex: 1}}>
+      <View style={{flex: 1, paddingHorizontal: 5}}>
         <AddReviewModal
           order={order}
           isVisible={addReviewModal}

@@ -176,8 +176,7 @@ class ItemCard extends PureComponent {
         style={{
           flex: 1,
           flexDirection: 'column',
-          marginHorizontal: 6,
-          marginVertical: 3,
+          paddingHorizontal: 5,
         }}>
         <ItemDescriptionModal
           isVisible={this.state.overlay}

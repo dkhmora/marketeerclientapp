@@ -200,7 +200,7 @@ class StoreList extends Component {
         }}>
         <FlatList
           ref={(flatList) => (this.flatList = flatList)}
-          style={{paddingHorizontal: 7.5}}
+          style={{paddingHorizontal: 5}}
           contentContainerStyle={{flexGrow: 1}}
           data={this.formatData(dataSource, numOfColumns)}
           numColumns={numOfColumns}

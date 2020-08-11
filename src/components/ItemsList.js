@@ -61,18 +61,17 @@ class ItemsList extends Component {
     const numColumns = isTablet ? 3 : 2;
 
     return (
-      <View style={{flex: 1}}>
-        <FlatList
-          ref={(flatList) => (this.flatList = flatList)}
-          data={this.formatData(dataSource, numColumns)}
-          numColumns={numColumns}
-          initialNumToRender={10}
-          maxToRenderPerBatch={4}
-          renderItem={this.renderItem}
-          keyExtractor={(item, index) => `${item.itemId}`}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
+      <FlatList
+        style={{flex: 1, paddingHorizontal: 5}}
+        ref={(flatList) => (this.flatList = flatList)}
+        data={this.formatData(dataSource, numColumns)}
+        numColumns={numColumns}
+        initialNumToRender={10}
+        maxToRenderPerBatch={4}
+        renderItem={this.renderItem}
+        keyExtractor={(item, index) => `${item.itemId}`}
+        showsVerticalScrollIndicator={false}
+      />
     );
   }
 }
