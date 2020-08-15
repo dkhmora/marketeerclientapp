@@ -300,6 +300,8 @@ class authStore {
             text: 'Signed in successfully',
             duration: 3500,
           });
+
+          return {data: {s: 200}};
         });
     }
   }
