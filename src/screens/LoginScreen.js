@@ -74,15 +74,40 @@ class LoginScreen extends Component {
 
     this.props.generalStore.appReady = false;
 
-    this.props.authStore.signIn(userCredential, password).then(() => {
-      this.props.generalStore.appReady = true;
+    this.props.authStore
+      .signIn(userCredential, password)
+      .then((response) => {
+        this.props.generalStore.appReady = true;
 
-      checkout
-        ? navigation
-            .dangerouslyGetParent()
-            .replace('Set Location', {checkout: true})
-        : navigation.dangerouslyGetParent().replace('Home');
-    });
+        if (response.data.s === 200) {
+          checkout
+            ? navigation
+                .dangerouslyGetParent()
+                .replace('Set Location', {checkout: true})
+            : navigation.dangerouslyGetParent().replace('Home');
+        }
+      })
+      .catch((err) => {
+        this.props.generalStore.appReady = true;
+
+        if (
+          err.code === 'auth/user-not-found' ||
+          err.code === 'auth/wrong-password'
+        ) {
+          Toast({
+            text:
+              'Wrong email or password. Please create an account or try again.',
+            type: 'danger',
+            duration: 6000,
+          });
+        } else {
+          Toast({
+            text: err.message,
+            type: 'danger',
+            duration: 3500,
+          });
+        }
+      });
   }
 
   async openLink(url) {

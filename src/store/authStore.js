@@ -265,34 +265,28 @@ class authStore {
           password,
         })
         .then((response) => {
-          auth()
-            .signInWithCustomToken(response.data.t)
-            .then(() => {
-              this.userAuthenticated = true;
+          if (response.data.s === 200) {
+            auth()
+              .signInWithCustomToken(response.data.t)
+              .then(() => {
+                this.userAuthenticated = true;
 
-              this.subscribeToNotifications();
+                this.subscribeToNotifications();
 
-              Toast({
-                text: 'Signed in successfully',
-                duration: 3500,
+                Toast({
+                  text: 'Signed in successfully',
+                  duration: 3500,
+                });
               });
-            })
-            .catch((err) => {
-              Toast({
-                text: 'Error: Something went wrong. Please try again.',
-                duration: 3500,
-              });
-
-              Toast({text: err.message, type: 'danger'});
+          } else {
+            Toast({
+              text: response.data.m,
+              type: 'danger',
+              duration: 3500,
             });
-        })
-        .catch((err) => {
-          Toast({
-            text: 'Error: Wrong phone number or password. Please try again.',
-            duration: 3500,
-          });
+          }
 
-          Toast({text: err.message, type: 'danger'});
+          return response;
         });
     } else {
       return await auth()
@@ -306,17 +300,6 @@ class authStore {
             text: 'Signed in successfully',
             duration: 3500,
           });
-        })
-        .catch((err) => {
-          if (err.code === 'auth/user-not-found') {
-            Toast({
-              text:
-                'Wrong email or password. Please create an account or try again.',
-              type: 'danger',
-              duration: 6000,
-            });
-          }
-          Toast({text: err.message, type: 'danger'});
         });
     }
   }
