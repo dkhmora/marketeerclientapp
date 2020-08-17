@@ -9,7 +9,7 @@ import {
   Dimensions,
   ActivityIndicator,
 } from 'react-native';
-import {Icon, Button, Image} from 'react-native-elements';
+import {Icon, Button, Image, Text} from 'react-native-elements';
 import {observer, inject} from 'mobx-react';
 import Geolocation from '@react-native-community/geolocation';
 import {colors} from '../../assets/colors';
@@ -18,6 +18,7 @@ import Toast from '../components/Toast';
 import BaseHeader from '../components/BaseHeader';
 import RNGooglePlaces from 'react-native-google-places';
 import {computed, observable} from 'mobx';
+import {Card, CardItem} from 'native-base';
 
 @inject('authStore')
 @inject('shopStore')
@@ -476,6 +477,27 @@ class SetLocationScreen extends Component {
             />
           }
         />
+
+        {checkout && (
+          <Card
+            style={{
+              alignSelf: 'center',
+              borderRadius: 20,
+              overflow: 'hidden',
+            }}>
+            <CardItem style={{alignItems: 'center', justifyContent: 'center'}}>
+              <Text
+                numberOfLines={2}
+                adjustsFontSizeToFit
+                style={{
+                  fontFamily: 'ProductSans-Bold',
+                  fontSize: 16,
+                }}>
+                Please confirm your delivery location
+              </Text>
+            </CardItem>
+          </Card>
+        )}
       </View>
     );
   }
