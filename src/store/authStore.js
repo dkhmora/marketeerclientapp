@@ -203,11 +203,20 @@ class authStore {
     password,
     phoneNumber,
     phoneCredential,
+    birthdate,
+    title,
   ) {
     return await this.linkCurrentUserWithPhoneNumber(phoneCredential)
       .then(async () => await this.linkCurrentUserWithEmail(email, password))
       .then(
-        async () => await this.createUserDocuments(name, email, phoneNumber),
+        async () =>
+          await this.createUserDocuments(
+            name,
+            email,
+            phoneNumber,
+            birthdate,
+            title,
+          ),
       )
       .then(async () => await this.checkAuthStatus())
       .then(async () => {
@@ -221,8 +230,15 @@ class authStore {
       });
   }
 
-  @action async createUserDocuments(name, email, phoneNumber) {
+  @action async createUserDocuments(
+    name,
+    email,
+    phoneNumber,
+    birthdate,
+    title,
+  ) {
     const userId = await auth().currentUser.uid;
+    const gender = title === 'Mr' ? 'Male' : 'Female';
 
     await firestore()
       .collection('users')
@@ -231,6 +247,8 @@ class authStore {
         name,
         email,
         phoneNumber,
+        birthdate,
+        gender,
         updatedAt: firestore.Timestamp.now().toMillis(),
         createdAt: firestore.Timestamp.now().toMillis(),
       })

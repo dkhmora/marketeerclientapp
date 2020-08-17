@@ -9,6 +9,7 @@ import {
   Linking,
   SafeAreaView,
   Platform,
+  Picker,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -19,6 +20,8 @@ import BackButton from '../components/BackButton';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import Toast from '../components/Toast';
+import {DatePicker} from 'native-base';
+import moment, {ISO_8601} from 'moment';
 @inject('generalStore')
 @inject('authStore')
 @observer
@@ -31,6 +34,9 @@ class SignUpScreen extends Component {
       email: '',
       phoneNumber: '',
       password: '',
+      selectedBirthdate: null,
+      maxDate: moment().subtract(18, 'years').toDate(),
+      selectedTitle: 'Mr',
       passwordCheck: false,
       confirmPasswordCheck: false,
       confirmPassword: '',
@@ -138,7 +144,14 @@ class SignUpScreen extends Component {
   };
 
   handleSignUp() {
-    const {name, email, password, phoneNumber} = this.state;
+    const {
+      name,
+      email,
+      password,
+      phoneNumber,
+      selectedBirthdate,
+      selectedTitle,
+    } = this.state;
     const {checkout} = this.props.route.params;
 
     this.props.navigation.replace('Phone Verification', {
@@ -147,6 +160,8 @@ class SignUpScreen extends Component {
       password,
       phoneNumber,
       checkout,
+      selectedBirthdate,
+      selectedTitle,
     });
   }
 
@@ -212,6 +227,9 @@ class SignUpScreen extends Component {
       phoneCheck,
       secureTextEntry,
       confirm_secureTextEntry,
+      maxDate,
+      selectedBirthdate,
+      selectedTitle,
     } = this.state;
     const {navigation} = this.props;
 
@@ -269,6 +287,22 @@ class SignUpScreen extends Component {
               </View>
             )}
 
+            <Text style={styles.text_footer}>Title</Text>
+
+            <View style={[styles.action]}>
+              <Picker
+                style={{flex: 1}}
+                mode="dropdown"
+                selectedValue={selectedTitle}
+                iosIcon={<Icon name="chevron-down" />}
+                onValueChange={(value) =>
+                  this.setState({selectedTitle: value})
+                }>
+                <Picker.Item label="Mr" value="Mr" />
+                <Picker.Item label="Mrs" value="Mrs" />
+              </Picker>
+            </View>
+
             <Text style={styles.text_footer}>Full Name</Text>
 
             <View style={styles.action}>
@@ -290,6 +324,80 @@ class SignUpScreen extends Component {
                   <Icon name="check-circle" color="#388e3c" size={20} />
                 </Animatable.View>
               ) : null}
+            </View>
+
+            <Text style={styles.text_footer}>Birthdate</Text>
+
+            <View
+              style={[
+                styles.action,
+                {
+                  marginTop: 0,
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                },
+              ]}>
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <View style={styles.icon_container}>
+                  <Icon name="calendar" color={colors.primary} size={20} />
+                </View>
+
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}>
+                  <DatePicker
+                    maximumDate={maxDate}
+                    locale={'en'}
+                    timeZoneOffsetInMinutes={undefined}
+                    modalTransparent={false}
+                    animationType={'fade'}
+                    androidMode={'default'}
+                    placeHolderText="Select date"
+                    textStyle={{color: colors.primary}}
+                    placeHolderTextStyle={{
+                      color: colors.text_secondary,
+                      fontSize: 15,
+                      fontWeight: 'bold',
+                    }}
+                    onDateChange={(newDate) =>
+                      this.setState({selectedBirthdate: newDate})
+                    }
+                    disabled={false}
+                  />
+
+                  {selectedBirthdate ? (
+                    <Animatable.View useNativeDriver animation="bounceIn">
+                      <Icon name="check-circle" color="#388e3c" size={20} />
+                    </Animatable.View>
+                  ) : null}
+                </View>
+              </View>
+
+              <View style={{flexDirection: 'row'}}>
+                <Text style={{color: colors.text_secondary, fontSize: 12}}>
+                  You must be atleast{' '}
+                </Text>
+                <Text
+                  style={{
+                    fontFamily: 'ProductSans-Bold',
+                    color: colors.text_secondary,
+                    fontSize: 12,
+                  }}>
+                  18 years of age{' '}
+                </Text>
+                <Text style={{color: colors.text_secondary, fontSize: 12}}>
+                  to use Marketeer
+                </Text>
+              </View>
             </View>
 
             <Text style={styles.text_footer}>Email Address</Text>
@@ -487,7 +595,8 @@ class SignUpScreen extends Component {
                   emailCheck &&
                   phoneCheck &&
                   passwordCheck &&
-                  confirmPasswordCheck
+                  confirmPasswordCheck &&
+                  selectedBirthdate
                     ? colors.primary
                     : 'grey',
               }}
