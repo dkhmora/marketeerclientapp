@@ -215,7 +215,7 @@ class authStore {
       })
       .then(() => {
         Toast({
-          text: 'Welcome to Marketeer!',
+          text: `Welcome to Marketeer, ${name}!`,
           duration: 4000,
         });
       });
@@ -268,13 +268,13 @@ class authStore {
           if (response.data.s === 200) {
             auth()
               .signInWithCustomToken(response.data.t)
-              .then(() => {
+              .then((user) => {
                 this.userAuthenticated = true;
 
                 this.subscribeToNotifications();
 
                 Toast({
-                  text: 'Signed in successfully',
+                  text: `Welcome back to Marketeer, ${user.user.displayName}!`,
                   duration: 3500,
                 });
               });
@@ -291,13 +291,13 @@ class authStore {
     } else {
       return await auth()
         .signInWithEmailAndPassword(userCredential, password)
-        .then(() => {
+        .then((user) => {
           this.userAuthenticated = true;
 
           this.subscribeToNotifications();
 
           Toast({
-            text: 'Signed in successfully',
+            text: `Welcome back to Marketeer, ${user.user.displayName}!`,
             duration: 3500,
           });
 

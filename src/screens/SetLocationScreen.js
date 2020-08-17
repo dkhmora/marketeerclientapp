@@ -245,7 +245,7 @@ class SetLocationScreen extends Component {
       );
 
       this.setState({saveChangesLoading: false});
-    }, 1000);
+    }, 100);
   }
 
   openSearchModal() {
