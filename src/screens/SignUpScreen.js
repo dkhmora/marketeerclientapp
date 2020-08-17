@@ -368,9 +368,13 @@ class SignUpScreen extends Component {
                       fontSize: 15,
                       fontWeight: 'bold',
                     }}
-                    onDateChange={(newDate) =>
-                      this.setState({selectedBirthdate: newDate})
-                    }
+                    onDateChange={(newDate) => {
+                      this.setState({
+                        selectedBirthdate: moment(newDate, ISO_8601).format(
+                          'YYYY-MM-DD',
+                        ),
+                      });
+                    }}
                     disabled={false}
                   />
 
