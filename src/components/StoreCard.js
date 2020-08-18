@@ -254,8 +254,7 @@ class StoreCard extends Component {
                       flexWrap: 'wrap',
                     },
                   ]}>
-                  {store.storeDescription}asdad asdasdsa asd asdsa dsa a dada as
-                  asasa as adasadadasda sa as das a as das das as dasd sa as
+                  {store.storeDescription}
                 </Text>
 
                 <View
