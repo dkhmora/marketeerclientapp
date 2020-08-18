@@ -76,16 +76,18 @@ class MainScreen extends Component {
     const {
       userDetails,
       currentLocationDetails,
-      deliverToCurrentLocation,
-      deliverToSetLocation,
-      deliverToLastDeliveryLocation,
+      selectedDeliveryLabel,
     } = this.props.generalStore;
 
-    if (deliverToCurrentLocation && currentLocationDetails) {
+    if (
+      selectedDeliveryLabel === 'Current Location' ||
+      selectedDeliveryLabel === 'Set Location'
+    ) {
       return currentLocationDetails;
-    } else if (deliverToSetLocation && currentLocationDetails) {
-      return currentLocationDetails;
-    } else if (userDetails.addresses && deliverToLastDeliveryLocation) {
+    } else if (
+      selectedDeliveryLabel === 'Last Delivery Location' &&
+      userDetails.addresses
+    ) {
       return userDetails.addresses.Home.address;
     } else {
       return 'Current Location';
@@ -242,24 +244,30 @@ class MainScreen extends Component {
         <ListItem
           title="Current Location"
           containerStyle={{
-            backgroundColor: this.props.generalStore.deliverToCurrentLocation
-              ? 'rgba(248, 187, 208, 0.4)'
-              : colors.icons,
+            backgroundColor:
+              this.props.generalStore.selectedDeliveryLabel ===
+              'Current Location'
+                ? 'rgba(248, 187, 208, 0.4)'
+                : colors.icons,
           }}
           titleStyle={[
             styles.header_topDrawerTitleText,
             {
-              fontFamily: this.props.generalStore.deliverToCurrentLocation
-                ? 'ProductSans-Bold'
-                : 'ProductSans-Light',
-              color: this.props.generalStore.deliverToCurrentLocation
-                ? colors.primary
-                : colors.text_primary,
+              fontFamily:
+                this.props.generalStore.selectedDeliveryLabel ===
+                'Current Location'
+                  ? 'ProductSans-Bold'
+                  : 'ProductSans-Light',
+              color:
+                this.props.generalStore.selectedDeliveryLabel ===
+                'Current Location'
+                  ? colors.primary
+                  : colors.text_primary,
             },
           ]}
           subtitle={
-            this.props.generalStore.currentLocationDetails &&
-            this.props.generalStore.deliverToCurrentLocation
+            !this.props.generalStore.addressLoading &&
+            this.props.generalStore.selectedDeliveryLabel === 'Current Location'
               ? this.props.generalStore.currentLocationDetails
               : null
           }
@@ -282,21 +290,25 @@ class MainScreen extends Component {
           <ListItem
             title="Last Delivery Location"
             containerStyle={{
-              backgroundColor: this.props.generalStore
-                .deliverToLastDeliveryLocation
-                ? 'rgba(248, 187, 208, 0.4)'
-                : colors.icons,
+              backgroundColor:
+                this.props.generalStore.selectedDeliveryLabel ===
+                'Last Delivery Location'
+                  ? 'rgba(248, 187, 208, 0.4)'
+                  : colors.icons,
             }}
             titleStyle={[
               styles.header_topDrawerTitleText,
               {
-                fontFamily: this.props.generalStore
-                  .deliverToLastDeliveryLocation
-                  ? 'ProductSans-Bold'
-                  : 'ProductSans-Light',
-                color: this.props.generalStore.deliverToLastDeliveryLocation
-                  ? colors.primary
-                  : colors.text_primary,
+                fontFamily:
+                  this.props.generalStore.selectedDeliveryLabel ===
+                  'Last Delivery Location'
+                    ? 'ProductSans-Bold'
+                    : 'ProductSans-Light',
+                color:
+                  this.props.generalStore.selectedDeliveryLabel ===
+                  'Last Delivery Location'
+                    ? colors.primary
+                    : colors.text_primary,
               },
             ]}
             subtitle={
@@ -324,24 +336,27 @@ class MainScreen extends Component {
         <ListItem
           title="Set Location"
           containerStyle={{
-            backgroundColor: this.props.generalStore.deliverToSetLocation
-              ? 'rgba(248, 187, 208, 0.4)'
-              : colors.icons,
+            backgroundColor:
+              this.props.generalStore.selectedDeliveryLabel === 'Set Location'
+                ? 'rgba(248, 187, 208, 0.4)'
+                : colors.icons,
           }}
           titleStyle={[
             styles.header_topDrawerTitleText,
             {
-              fontFamily: this.props.generalStore.deliverToSetLocation
-                ? 'ProductSans-Bold'
-                : 'ProductSans-Light',
-              color: this.props.generalStore.deliverToSetLocation
-                ? colors.primary
-                : colors.text_primary,
+              fontFamily:
+                this.props.generalStore.selectedDeliveryLabel === 'Set Location'
+                  ? 'ProductSans-Bold'
+                  : 'ProductSans-Light',
+              color:
+                this.props.generalStore.selectedDeliveryLabel === 'Set Location'
+                  ? colors.primary
+                  : colors.text_primary,
             },
           ]}
           subtitle={
-            this.props.generalStore.currentLocationDetails &&
-            this.props.generalStore.deliverToSetLocation
+            !this.props.generalStore.addressLoading &&
+            this.props.generalStore.selectedDeliveryLabel === 'Set Location'
               ? this.props.generalStore.currentLocationDetails
               : null
           }
@@ -400,7 +415,6 @@ class MainScreen extends Component {
 
   render() {
     const {locationMenuOpen} = this.state;
-    const {appReady} = this.props.generalStore;
     const {deliverToText} = this;
 
     return (
