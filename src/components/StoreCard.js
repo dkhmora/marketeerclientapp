@@ -88,7 +88,6 @@ class StoreCard extends Component {
             margin: 0,
             borderRadius: 8,
             elevation: 2,
-            height: 266,
             overflow: 'hidden',
           }}>
           <TouchableOpacity
@@ -222,11 +221,8 @@ class StoreCard extends Component {
               style={{
                 flexDirection: 'column',
                 width: '100%',
-                height: 65,
+                marginTop: -55,
                 borderRadius: 8,
-                paddingBottom: 20,
-                position: 'relative',
-                bottom: 40,
               }}>
               <View
                 style={{
@@ -241,6 +237,7 @@ class StoreCard extends Component {
                       fontFamily: 'ProductSans-Regular',
                       textAlign: 'left',
                       alignSelf: 'flex-start',
+                      flexWrap: 'wrap',
                     },
                   ]}>
                   {store.storeName}
@@ -254,10 +251,11 @@ class StoreCard extends Component {
                       fontFamily: 'ProductSans-light',
                       textAlign: 'left',
                       alignSelf: 'flex-start',
-                      height: 32,
+                      flexWrap: 'wrap',
                     },
                   ]}>
-                  {store.storeDescription}
+                  {store.storeDescription}asdad asdasdsa asd asdsa dsa a dada as
+                  asasa as adasadadasda sa as das a as das das as dasd sa as
                 </Text>
 
                 <View
@@ -265,7 +263,6 @@ class StoreCard extends Component {
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                     alignItems: 'flex-end',
-                    marginTop: 5,
                   }}>
                   <View
                     style={{
@@ -292,7 +289,7 @@ class StoreCard extends Component {
                 style={{
                   backgroundColor: colors.primary,
                   position: 'absolute',
-                  bottom: 95,
+                  top: 80,
                   left: 20,
                   width: 80,
                   height: 80,

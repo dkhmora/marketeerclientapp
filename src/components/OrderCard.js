@@ -138,8 +138,16 @@ class OrderCard extends PureComponent {
     orderStatus,
     storeName,
   }) => {
+    const orderStatusText =
+      orderStatus[0] === 'PAID' ? 'PROCESSING' : orderStatus;
+
     return (
-      <CardItem button header bordered onPress={() => this.openOrderChat()}>
+      <CardItem
+        button
+        header
+        bordered
+        onPress={() => this.openOrderChat()}
+        style={{paddingTop: 8, paddingBottom: 8}}>
         <Body
           style={{
             flexDirection: 'row',
@@ -216,7 +224,7 @@ class OrderCard extends PureComponent {
                   Order # {userOrderNumber}
                 </Text>
 
-                <Text style={{color: colors.primary}}>{orderStatus}</Text>
+                <Text style={{color: colors.primary}}>{orderStatusText}</Text>
               </View>
             </View>
           </View>
@@ -256,11 +264,10 @@ class OrderCard extends PureComponent {
           justifyContent: 'space-between',
           paddingHorizontal: 15,
           paddingBottom: 5,
-          height: 40,
         }}>
         <Text>Updated {this.timeStamp}</Text>
 
-        {orderStatus[0] === 'COMPLETED' && !order.reviewed && (
+        {orderStatus[0] === 'COMPLETED' && !order.reviewed ? (
           <Button
             title="Review"
             type="clear"
@@ -268,6 +275,8 @@ class OrderCard extends PureComponent {
             titleStyle={{color: colors.primary}}
             containerStyle={{borderRadius: 24}}
           />
+        ) : (
+          <View style={{height: 34}} />
         )}
       </View>
     );
@@ -309,7 +318,7 @@ class OrderCard extends PureComponent {
             shadowRadius: 1.41,
           }}>
           <Card style={{flex: 1, borderRadius: 8, overflow: 'hidden'}}>
-            <View style={{height: 175}}>
+            <View>
               <this.CardHeader
                 imageUrl={url}
                 imageReady={ready}
