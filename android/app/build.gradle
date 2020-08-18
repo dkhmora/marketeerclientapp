@@ -132,8 +132,8 @@ android {
         applicationId "com.marketeerph.marketeerclientapp.android"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 5
-        versionName "1.1.1"
+        versionCode 9
+        versionName "1.1.4"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
     }

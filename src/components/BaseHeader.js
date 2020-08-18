@@ -69,7 +69,7 @@ class BaseHeader extends Component {
 
     return (
       <Text
-        numberOfLines={1}
+        numberOfLines={2}
         adjustsFontSizeToFit
         style={{
           fontSize: 20,

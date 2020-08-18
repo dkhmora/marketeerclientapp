@@ -6,10 +6,12 @@ import {Button, Icon, Avatar, Text} from 'react-native-elements';
 import {GiftedChat, Bubble, Send} from 'react-native-gifted-chat';
 import {inject, observer} from 'mobx-react';
 import ImagePicker from 'react-native-image-crop-picker';
-import {observable} from 'mobx';
+import {observable, computed} from 'mobx';
 import {colors} from '../../assets/colors';
 import Toast from '../components/Toast';
 import ConfirmationModal from '../components/ConfirmationModal';
+import moment from 'moment';
+import firestore from '@react-native-firebase/firestore';
 
 @inject('generalStore')
 @inject('authStore')
@@ -29,6 +31,22 @@ class OrderChatScreen extends Component {
   }
 
   @observable imagePath = '';
+
+  @computed get chatDisabled() {
+    const {order, orderStatus} = this.props.route.params;
+
+    if (
+      orderStatus[0] === 'CANCELLED' ||
+      firestore.Timestamp.now().toMillis() >=
+        moment(order.orderStatus.completed.updatedAt, 'x')
+          .add(4, 'days')
+          .format('x')
+    ) {
+      return true;
+    }
+
+    return false;
+  }
 
   componentDidMount() {
     const {order} = this.props.route.params;
@@ -96,7 +114,12 @@ class OrderChatScreen extends Component {
           justifyContent: 'center',
           flexDirection: 'row',
         }}>
-        <Text>Chat is disabled since order is {orderStatus[0]}</Text>
+        <Text style={{textAlign: 'center', textAlignVertical: 'center'}}>
+          Chat is disabled since order{' '}
+          {orderStatus[0] === 'is CANCELLED'
+            ? orderStatus[0]
+            : 'is COMPLETED and has surpassed 4 days'}
+        </Text>
       </View>
     );
   }
@@ -111,7 +134,10 @@ class OrderChatScreen extends Component {
 
   renderActions() {
     return (
-      <View style={{flexDirection: 'row'}}>
+      <View
+        style={{
+          flexDirection: 'row',
+        }}>
         <Button
           type="clear"
           onPress={() => this.handleSelectImage()}
@@ -147,12 +173,8 @@ class OrderChatScreen extends Component {
 
   render() {
     const {navigation} = this.props;
-    const {
-      order,
-      storeName,
-      userOrderNumber,
-      orderStatus,
-    } = this.props.route.params;
+    const {order, storeName, userOrderNumber} = this.props.route.params;
+    const {chatDisabled} = this;
 
     const headerTitle = `${storeName} | Order # ${userOrderNumber}`;
 
@@ -186,24 +208,10 @@ class OrderChatScreen extends Component {
             textStyle={{color: colors.primary}}
             renderAvatar={this.renderAvatar}
             renderBubble={this.renderBubble}
-            renderActions={
-              !(
-                orderStatus[0] === 'CANCELLED' || orderStatus[0] === 'COMPLETED'
-              )
-                ? this.renderActions.bind(this)
-                : null
-            }
-            renderSend={
-              !(
-                orderStatus[0] === 'CANCELLED' || orderStatus[0] === 'COMPLETED'
-              )
-                ? this.renderSend
-                : null
-            }
+            renderActions={!chatDisabled ? this.renderActions.bind(this) : null}
+            renderSend={!chatDisabled ? this.renderSend : null}
             renderComposer={
-              orderStatus[0] === 'CANCELLED' || orderStatus[0] === 'COMPLETED'
-                ? this.renderComposer.bind(this)
-                : null
+              chatDisabled ? this.renderComposer.bind(this) : null
             }
             textInputStyle={{
               fontFamily: 'ProductSans-Light',
@@ -211,11 +219,7 @@ class OrderChatScreen extends Component {
               borderBottomColor: colors.primary,
             }}
             listViewProps={{marginBottom: 20}}
-            alwaysShowSend={
-              !(
-                orderStatus[0] === 'CANCELLED' || orderStatus[0] === 'COMPLETED'
-              )
-            }
+            alwaysShowSend={!chatDisabled}
             showAvatarForEveryMessage
             messages={dataSource}
             onSend={(messages) => this.onSend(messages)}

@@ -9,7 +9,7 @@ import {
   Dimensions,
   ActivityIndicator,
 } from 'react-native';
-import {Icon, Button, Image} from 'react-native-elements';
+import {Icon, Button, Image, Text} from 'react-native-elements';
 import {observer, inject} from 'mobx-react';
 import Geolocation from '@react-native-community/geolocation';
 import {colors} from '../../assets/colors';
@@ -18,6 +18,7 @@ import Toast from '../components/Toast';
 import BaseHeader from '../components/BaseHeader';
 import RNGooglePlaces from 'react-native-google-places';
 import {computed, observable} from 'mobx';
+import {Card, CardItem} from 'native-base';
 
 @inject('authStore')
 @inject('shopStore')
@@ -30,6 +31,7 @@ class SetLocationScreen extends Component {
     this.state = {
       saveChangesLoading: false,
       previousAddress: this.props.generalStore.currentLocationDetails,
+      selectedLocationAddress: null,
       mapReady: false,
       mapData: {
         latitude: 14.629636,
@@ -44,11 +46,9 @@ class SetLocationScreen extends Component {
     };
   }
 
-  @observable selectedLocationAddress = null;
-
   @computed get headerTitle() {
     const {currentLocationDetails} = this.props.generalStore;
-    const {selectedLocationAddress} = this;
+    const {selectedLocationAddress} = this.state;
 
     if (selectedLocationAddress) {
       return selectedLocationAddress;
@@ -104,11 +104,9 @@ class SetLocationScreen extends Component {
 
     this.props.generalStore.appReady = false;
 
-    this.props.generalStore.deliverToCurrentLocation = false;
-    this.props.generalStore.deliverToLastDeliveryLocation = false;
-    this.props.generalStore.deliverToSetLocation = true;
+    this.props.generalStore.selectedDeliveryLabel = 'Set Location';
 
-    this.props.generalStore.currentLocationDetails = this.selectedLocationAddress;
+    this.props.generalStore.currentLocationDetails = this.state.selectedLocationAddress;
     this.props.generalStore.currentLocationGeohash = coordinatesGeohash;
     this.props.generalStore.currentLocation = newMarkerPosition;
 
@@ -210,12 +208,11 @@ class SetLocationScreen extends Component {
     this.setState({
       mapData: {...markerPosition, latitudeDelta: 0.009, longitudeDelta: 0.009},
       newMarkerPosition: null,
+      selectedLocationAddress: null,
       editMode: false,
     });
 
     clearTimeout(this.getAddressTimeout);
-
-    this.selectedLocationAddress = null;
 
     this.panMapToMarker();
   }
@@ -238,14 +235,15 @@ class SetLocationScreen extends Component {
     this.setState({saveChangesLoading: true});
 
     this.getAddressTimeout = setTimeout(async () => {
-      this.selectedLocationAddress = await this.props.generalStore.getAddressFromCoordinates(
-        {
-          ...mapData,
-        },
-      );
-
-      this.setState({saveChangesLoading: false});
-    }, 1000);
+      this.setState({
+        selectedLocationAddress: await this.props.generalStore.getAddressFromCoordinates(
+          {
+            ...mapData,
+          },
+        ),
+        saveChangesLoading: false,
+      });
+    }, 100);
   }
 
   openSearchModal() {
@@ -258,10 +256,9 @@ class SetLocationScreen extends Component {
         const address = place.addressComponents;
         const formattedAddress = `${address[1].name} ${address[0].name}, ${address[6].name} ${address[3].name}, ${address[5].name}`;
 
-        this.selectedLocationAddress = formattedAddress;
-
         this.setState(
           {
+            selectedLocationAddress: formattedAddress,
             newMarkerPosition: {...coordinates},
             editMode: false,
           },
@@ -476,6 +473,27 @@ class SetLocationScreen extends Component {
             />
           }
         />
+
+        {checkout && (
+          <Card
+            style={{
+              alignSelf: 'center',
+              borderRadius: 20,
+              overflow: 'hidden',
+            }}>
+            <CardItem style={{alignItems: 'center', justifyContent: 'center'}}>
+              <Text
+                numberOfLines={2}
+                adjustsFontSizeToFit
+                style={{
+                  fontFamily: 'ProductSans-Bold',
+                  fontSize: 16,
+                }}>
+                Please confirm your delivery location
+              </Text>
+            </CardItem>
+          </Card>
+        )}
       </View>
     );
   }

@@ -19,14 +19,13 @@ class generalStore {
   @observable appReady = false;
   @persist('list') @observable orders = [];
   @persist @observable maxOrderUpdatedAt = 0;
+  @observable firstLoad = true;
   @observable orderItems = [];
   @observable orderMessages = [];
   @observable unsubscribeGetMessages = null;
   @observable currentLocation = null;
   @observable currentLocationDetails = null;
-  @observable deliverToCurrentLocation = false;
-  @observable deliverToLastDeliveryLocation = true;
-  @observable deliverToSetLocation = false;
+  @observable selectedDeliveryLabel = null;
   @observable currentLocationGeohash = null;
   @observable userDetails = {};
   @observable addressLoading = false;
@@ -158,20 +157,72 @@ class generalStore {
   }
 
   @action async setCurrentLocation() {
-    this.addressLoading = true;
+    return new Promise(async (resolve, reject) => {
+      this.addressLoading = true;
 
-    if (Platform.OS === 'android') {
-      await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      ).then((granted) => {
-        if (Platform.OS === 'android' && granted !== 'granted') {
-          Toast({
-            text:
-              'Error: Location permissions not granted. Please set location manually.',
-            duration: 6000,
-            type: 'danger',
-            buttonText: 'Okay',
+      if (Platform.OS === 'android') {
+        await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        ).then((granted) => {
+          if (Platform.OS === 'android' && granted !== 'granted') {
+            Toast({
+              text:
+                'Error: Location permissions not granted. Please set location manually.',
+              duration: 6000,
+              type: 'danger',
+              buttonText: 'Okay',
+            });
+
+            if (this.navigation) {
+              this.appReady = true;
+              this.addressLoading = false;
+              this.navigation.navigate('Set Location', {
+                checkout: false,
+                locationError: true,
+              });
+            }
+          }
+        });
+      }
+
+      Geolocation.getCurrentPosition(
+        async (position) => {
+          this.selectedDeliveryLabel = 'Current Location';
+
+          const coords = {
+            latitude: parseFloat(position.coords.latitude),
+            longitude: parseFloat(position.coords.longitude),
+          };
+
+          this.currentLocationGeohash = await geohash.encode(
+            coords.latitude,
+            coords.longitude,
+            12,
+          );
+
+          this.currentLocationDetails = await this.getAddressFromCoordinates({
+            ...coords,
           });
+
+          this.currentLocation = {...coords};
+
+          this.appReady = true;
+          this.addressLoading = false;
+
+          resolve();
+        },
+        (err) => {
+          if (err.code === 2) {
+            Toast({
+              text:
+                'Error: Cannot get location coordinates. Please set your coordinates manually.',
+              duration: 6000,
+              type: 'danger',
+              buttonText: 'Okay',
+            });
+          } else {
+            Toast({text: err.message, type: 'danger'});
+          }
 
           if (this.navigation) {
             this.appReady = true;
@@ -181,69 +232,17 @@ class generalStore {
               locationError: true,
             });
           }
-        }
-      });
-    }
-
-    Geolocation.getCurrentPosition(
-      async (position) => {
-        this.deliverToCurrentLocation = true;
-        this.deliverToSetLocation = false;
-        this.deliverToLastDeliveryLocation = false;
-
-        const coords = {
-          latitude: parseFloat(position.coords.latitude),
-          longitude: parseFloat(position.coords.longitude),
-        };
-
-        this.currentLocationGeohash = await geohash.encode(
-          coords.latitude,
-          coords.longitude,
-          12,
-        );
-
-        this.currentLocationDetails = await this.getAddressFromCoordinates({
-          ...coords,
-        });
-
-        this.currentLocation = {...coords};
-
-        this.appReady = true;
-        this.addressLoading = false;
-      },
-      (err) => {
-        if (err.code === 2) {
-          Toast({
-            text:
-              'Error: Cannot get location coordinates. Please set your coordinates manually.',
-            duration: 6000,
-            type: 'danger',
-            buttonText: 'Okay',
-          });
-        } else {
-          Toast({text: err.message, type: 'danger'});
-        }
-
-        if (this.navigation) {
-          this.appReady = true;
-          this.addressLoading = false;
-          this.navigation.navigate('Set Location', {
-            checkout: false,
-            locationError: true,
-          });
-        }
-      },
-      {
-        timeout: 20000,
-      },
-    );
+        },
+        {
+          timeout: 20000,
+        },
+      );
+    });
   }
 
   @action async setLastDeliveryLocation() {
     return new Promise((resolve, reject) => {
-      this.deliverToCurrentLocation = false;
-      this.deliverToSetLocation = false;
-      this.deliverToLastDeliveryLocation = true;
+      this.selectedDeliveryLabel = 'Last Delivery Location';
 
       this.currentLocationGeohash = this.userDetails.addresses.Home.geohash;
       this.currentLocation = this.userDetails.addresses.Home.coordinates;
@@ -273,10 +272,14 @@ class generalStore {
                 this.subscribeToNotifications();
               }
 
-              if (documentSnapshot.data().addresses) {
-                return this.setLastDeliveryLocation();
-              } else {
-                return this.setCurrentLocation();
+              if (this.firstLoad) {
+                this.firstLoad = false;
+
+                if (documentSnapshot.data().addresses) {
+                  return this.setLastDeliveryLocation();
+                } else {
+                  return this.setCurrentLocation();
+                }
               }
             }
           } else {

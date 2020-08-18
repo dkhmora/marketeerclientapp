@@ -55,80 +55,67 @@ class App extends React.Component {
 
   executeAuthStateListener() {
     this.authState = auth().onAuthStateChanged((user) => {
-      authStore
-        .checkAuthStatus()
-        .then(() => {
-          if (user) {
-            this.setState({user});
+      authStore.checkAuthStatus().then(() => {
+        if (user) {
+          this.setState({user});
 
-            const userId = user.uid;
+          const userId = user.uid;
 
-            if (!authStore.guest) {
-              authStore.reloadUser();
+          if (!authStore.guest) {
+            authStore.reloadUser();
 
-              if (shopStore.cartStores.length !== 0) {
-                shopStore.updateCartItemsInstantly().then(() => {
-                  shopStore.getCartItems(userId);
-                });
-              } else {
+            if (shopStore.cartStores.length !== 0) {
+              shopStore.updateCartItemsInstantly().then(() => {
                 shopStore.getCartItems(userId);
-              }
-
-              generalStore.getUserDetails(userId);
-
-              generalStore.appReady = true;
+              });
             } else {
-              if (shopStore.unsubscribeToGetCartItems) {
-                shopStore.unsubscribeToGetCartItems();
-              }
-
-              if (generalStore.unsubscribeUserDetails) {
-                generalStore.unsubscribeUserDetails();
-              }
-
-              generalStore.setCurrentLocation();
+              shopStore.getCartItems(userId);
             }
 
-            AppState.addEventListener('change', (state) => {
-              if (!authStore.guest) {
-                if (state === 'active') {
-                  if (!authStore.guest && user) {
-                    shopStore.getCartItems(userId);
-                    generalStore.getUserDetails(userId);
-                  }
-                } else if (state === 'background') {
-                  if (shopStore.unsubscribeToGetCartItems) {
-                    shopStore.unsubscribeToGetCartItems();
-                  }
+            generalStore.getUserDetails(userId);
 
-                  if (generalStore.unsubscribeUserDetails) {
-                    generalStore.unsubscribeUserDetails();
-                  }
-                } else if (state === 'inactive') {
-                  if (shopStore.unsubscribeToGetCartItems) {
-                    shopStore.unsubscribeToGetCartItems();
-                  }
+            generalStore.appReady = true;
+          } else {
+            if (shopStore.unsubscribeToGetCartItems) {
+              shopStore.unsubscribeToGetCartItems();
+            }
 
-                  if (generalStore.unsubscribeUserDetails) {
-                    generalStore.unsubscribeUserDetails();
-                  }
+            if (generalStore.unsubscribeUserDetails) {
+              generalStore.unsubscribeUserDetails();
+            }
+
+            generalStore.setCurrentLocation();
+          }
+
+          AppState.addEventListener('change', (state) => {
+            if (!authStore.guest) {
+              if (state === 'active') {
+                if (!authStore.guest && user) {
+                  shopStore.getCartItems(userId);
+                  generalStore.getUserDetails(userId);
+                }
+              } else if (state === 'background') {
+                if (shopStore.unsubscribeToGetCartItems) {
+                  shopStore.unsubscribeToGetCartItems();
+                }
+
+                if (generalStore.unsubscribeUserDetails) {
+                  generalStore.unsubscribeUserDetails();
+                }
+              } else if (state === 'inactive') {
+                if (shopStore.unsubscribeToGetCartItems) {
+                  shopStore.unsubscribeToGetCartItems();
+                }
+
+                if (generalStore.unsubscribeUserDetails) {
+                  generalStore.unsubscribeUserDetails();
                 }
               }
-            });
-          }
-        })
-        .then(() => {
-          this.splashScreenTimer = setTimeout(
-            this.hideSplashScreen.bind(this),
-            500,
-          );
-        });
+            }
+          });
+        }
+      });
     });
-  }
-
-  hideSplashScreen() {
-    SplashScreen.hide();
-    this.splashScreenTimer && clearTimeout(this.splashScreenTimer);
   }
 
   componentDidMount() {
@@ -145,11 +132,15 @@ class App extends React.Component {
           shopStore.unsubscribeToGetCartItems &&
             shopStore.unsubscribeToGetCartItems();
 
+          setTimeout(() => SplashScreen.hide(), 200);
+
           this.executeAuthStateListener();
         }
       } else {
         shopStore.unsubscribeToGetCartItems &&
           shopStore.unsubscribeToGetCartItems();
+
+        setTimeout(() => SplashScreen.hide(), 200);
 
         this.executeAuthStateListener();
       }

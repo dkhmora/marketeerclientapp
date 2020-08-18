@@ -103,6 +103,8 @@ class PhoneVerificationScreen extends Component {
       password,
       phoneNumber,
       checkout,
+      selectedBirthdate,
+      selectedTitle,
     } = this.props.route.params;
     const {verificationId} = this.state;
 
@@ -115,7 +117,15 @@ class PhoneVerificationScreen extends Component {
 
     if (this.props.authStore.guest) {
       this.props.authStore
-        .createUser(name, email, password, phoneNumber, credential, navigation)
+        .createUser(
+          name,
+          email,
+          password,
+          phoneNumber,
+          credential,
+          selectedBirthdate,
+          selectedTitle,
+        )
         .then(() => {
           this.props.generalStore.appReady = true;
 

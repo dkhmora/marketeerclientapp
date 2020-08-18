@@ -203,11 +203,20 @@ class authStore {
     password,
     phoneNumber,
     phoneCredential,
+    birthdate,
+    title,
   ) {
     return await this.linkCurrentUserWithPhoneNumber(phoneCredential)
       .then(async () => await this.linkCurrentUserWithEmail(email, password))
       .then(
-        async () => await this.createUserDocuments(name, email, phoneNumber),
+        async () =>
+          await this.createUserDocuments(
+            name,
+            email,
+            phoneNumber,
+            birthdate,
+            title,
+          ),
       )
       .then(async () => await this.checkAuthStatus())
       .then(async () => {
@@ -215,14 +224,21 @@ class authStore {
       })
       .then(() => {
         Toast({
-          text: 'Welcome to Marketeer!',
+          text: `Welcome to Marketeer, ${name}!`,
           duration: 4000,
         });
       });
   }
 
-  @action async createUserDocuments(name, email, phoneNumber) {
+  @action async createUserDocuments(
+    name,
+    email,
+    phoneNumber,
+    birthdate,
+    title,
+  ) {
     const userId = await auth().currentUser.uid;
+    const gender = title === 'Mr' ? 'Male' : 'Female';
 
     await firestore()
       .collection('users')
@@ -231,6 +247,8 @@ class authStore {
         name,
         email,
         phoneNumber,
+        birthdate,
+        gender,
         updatedAt: firestore.Timestamp.now().toMillis(),
         createdAt: firestore.Timestamp.now().toMillis(),
       })
@@ -268,13 +286,13 @@ class authStore {
           if (response.data.s === 200) {
             auth()
               .signInWithCustomToken(response.data.t)
-              .then(() => {
+              .then((user) => {
                 this.userAuthenticated = true;
 
                 this.subscribeToNotifications();
 
                 Toast({
-                  text: 'Signed in successfully',
+                  text: `Welcome back to Marketeer, ${user.user.displayName}!`,
                   duration: 3500,
                 });
               });
@@ -291,13 +309,13 @@ class authStore {
     } else {
       return await auth()
         .signInWithEmailAndPassword(userCredential, password)
-        .then(() => {
+        .then((user) => {
           this.userAuthenticated = true;
 
           this.subscribeToNotifications();
 
           Toast({
-            text: 'Signed in successfully',
+            text: `Welcome back to Marketeer, ${user.user.displayName}!`,
             duration: 3500,
           });
 

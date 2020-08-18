@@ -370,7 +370,7 @@ class CartStoreCard extends Component {
                         storeDetails.deliveryMethods.map((method, index) => {
                           const label =
                             method === 'Own Delivery'
-                              ? `${method} (₱ ${storeDetails.ownDeliveryServiceFee})`
+                              ? `Store Delivery (₱${storeDetails.ownDeliveryServiceFee})`
                               : `${method}`;
 
                           return (
