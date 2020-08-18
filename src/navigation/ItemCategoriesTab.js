@@ -53,6 +53,7 @@ class ItemCategoriesTab extends Component {
             lazyPreloadDistance={0.5}
             backBehavior="initialRoute"
             tabBarOptions={{
+              allowFontScaling: false,
               scrollEnabled: true,
               tabStyle: {width: this.tabWidth},
               indicatorStyle: {

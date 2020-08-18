@@ -234,6 +234,8 @@ class ItemCard extends PureComponent {
                   }}>
                   <View style={{flex: 1, flexDirection: 'column'}}>
                     <Text
+                      maxFontSizeMultiplier={1.5}
+                      numberOfLines={1}
                       style={{
                         color: colors.text_secondary,
                         fontFamily: 'ProductSans-Regular',
@@ -244,6 +246,7 @@ class ItemCard extends PureComponent {
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                       {discountedPrice && (
                         <Text
+                          maxFontSizeMultiplier={1}
                           style={{
                             textDecorationLine: 'line-through',
                             textDecorationStyle: 'solid',
@@ -256,6 +259,7 @@ class ItemCard extends PureComponent {
                       )}
 
                       <Text
+                        maxFontSizeMultiplier={1}
                         style={{
                           color: colors.text_primary,
                           fontFamily: 'ProductSans-Black',
@@ -329,9 +333,12 @@ class ItemCard extends PureComponent {
                 }}>
                 {stock > 0 ? (
                   <View style={{flexDirection: 'row'}}>
-                    <Text style={{fontSize: 14}}>{stock}</Text>
+                    <Text maxFontSizeMultiplier={1} style={{fontSize: 14}}>
+                      {stock}
+                    </Text>
 
                     <Text
+                      maxFontSizeMultiplier={1}
                       style={{
                         fontSize: 14,
                         textAlign: 'center',

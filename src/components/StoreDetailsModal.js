@@ -334,6 +334,7 @@ class StoreDetailsModal extends Component {
                       flexDirection: 'row',
                       alignItems: 'center',
                       paddingVertical: 10,
+                      maxWidth: '90%',
                     }}>
                     <Icon
                       name="mail"
@@ -350,6 +351,7 @@ class StoreDetailsModal extends Component {
                       flexDirection: 'row',
                       alignItems: 'center',
                       paddingVertical: 10,
+                      maxWidth: '90%',
                     }}>
                     <Icon
                       name="globe"
@@ -364,8 +366,9 @@ class StoreDetailsModal extends Component {
                   <View
                     style={{
                       flexDirection: 'row',
-                      alignItems: 'center',
+                      alignItems: 'flex-start',
                       paddingVertical: 10,
+                      maxWidth: '90%',
                     }}>
                     <Icon
                       name="map-pin"
