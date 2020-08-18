@@ -257,8 +257,7 @@ class StoreCard extends Component {
                       minHeight: 28,
                     },
                   ]}>
-                  {store.storeDescription}asdasdsadasdasdasdasdasdasdsadsa asd
-                  as a as as as as asdsada
+                  {store.storeDescription}
                 </Text>
 
                 <View
