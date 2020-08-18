@@ -129,7 +129,7 @@ class StoreScreen extends Component {
                 width: 75,
                 borderRadius: 8,
                 borderWidth: 1,
-                borderColor: 'rgba(0,0,0,0.6)',
+                borderColor: colors.primary,
               }}
             />
 

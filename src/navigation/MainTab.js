@@ -19,6 +19,7 @@ class MainTab extends Component {
         lazyPreloadDistance={0.5}
         initialRouteName="Near You"
         tabBarOptions={{
+          allowFontScaling: false,
           indicatorStyle: {width: '25%', left: '12.5%'},
           style: {
             shadowColor: '#000',

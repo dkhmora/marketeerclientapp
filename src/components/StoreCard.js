@@ -223,11 +223,15 @@ class StoreCard extends Component {
                 width: '100%',
                 marginTop: -55,
                 borderRadius: 8,
+                paddingLeft: 10,
+                paddingRight: 10,
+                paddingBottom: 10,
               }}>
               <View
                 style={{
                   width: '100%',
                   flexDirection: 'column',
+                  paddingTop: 5,
                 }}>
                 <Text
                   numberOfLines={1}
@@ -249,9 +253,8 @@ class StoreCard extends Component {
                     styles.text_subtext,
                     {
                       fontFamily: 'ProductSans-light',
-                      textAlign: 'left',
-                      alignSelf: 'flex-start',
                       flexWrap: 'wrap',
+                      minHeight: 28,
                     },
                   ]}>
                   {store.storeDescription}
@@ -262,6 +265,7 @@ class StoreCard extends Component {
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                     alignItems: 'flex-end',
+                    paddingTop: 5,
                   }}>
                   <View
                     style={{

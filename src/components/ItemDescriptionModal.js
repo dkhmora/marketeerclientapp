@@ -71,6 +71,7 @@ class ItemDescriptionModal extends Component {
               width: '100%',
             }}>
             <Text
+              maxFontSizeMultiplier={1.5}
               style={{
                 fontSize: 24,
                 fontFamily: 'ProductSans-Regular',
@@ -81,6 +82,7 @@ class ItemDescriptionModal extends Component {
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               {discountedPrice && (
                 <Text
+                  maxFontSizeMultiplier={1.5}
                   style={{
                     textDecorationLine: 'line-through',
                     textDecorationStyle: 'solid',
@@ -93,6 +95,7 @@ class ItemDescriptionModal extends Component {
               )}
 
               <Text
+                maxFontSizeMultiplier={1.5}
                 style={{
                   color: colors.text_primary,
                   fontFamily: 'ProductSans-Black',
@@ -104,7 +107,17 @@ class ItemDescriptionModal extends Component {
             </View>
 
             <View style={{width: SCREEN_WIDTH, padding: 10, marginBottom: 20}}>
-              <Text style={{fontSize: 18}}>{description}</Text>
+              {description ? (
+                <Text maxFontSizeMultiplier={1.5} style={{fontSize: 18}}>
+                  {description}
+                </Text>
+              ) : (
+                <Text
+                  maxFontSizeMultiplier={1.5}
+                  style={{fontSize: 14, color: colors.text_secondary}}>
+                  No description
+                </Text>
+              )}
             </View>
 
             <View
@@ -121,9 +134,12 @@ class ItemDescriptionModal extends Component {
               }}>
               {stock > 0 ? (
                 <View style={{flexDirection: 'row'}}>
-                  <Text style={{fontSize: 16}}>{stock}</Text>
+                  <Text maxFontSizeMultiplier={1.5} style={{fontSize: 16}}>
+                    {stock}
+                  </Text>
 
                   <Text
+                    maxFontSizeMultiplier={1.5}
                     style={{
                       fontSize: 16,
                       textAlign: 'center',
