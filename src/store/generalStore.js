@@ -31,6 +31,17 @@ class generalStore {
   @observable addressLoading = false;
   @observable navigation = null;
 
+  @action async cancelOrder(orderId, cancelReason) {
+    return await functions
+      .httpsCallable('cancelOrder')({orderId, cancelReason})
+      .then((response) => {
+        return response;
+      })
+      .catch((err) => {
+        Toast({text: err.message, type: 'danger'});
+      });
+  }
+
   @action async subscribeToNotifications() {
     let authorizationStatus = null;
     const userId = auth().currentUser.uid;
