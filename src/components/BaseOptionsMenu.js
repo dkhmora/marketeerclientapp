@@ -1,9 +1,10 @@
-import React, {Component} from 'react';
+import React, {PureComponent} from 'react';
 import {Platform, ActionSheetIOS} from 'react-native';
-import {Button, Icon} from 'native-base';
+import {Button, Icon} from 'react-native-elements';
 import OptionsMenu from 'react-native-options-menu';
+import {colors} from '../../assets/colors';
 
-class BaseOptionsMenu extends Component {
+class BaseOptionsMenu extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -47,24 +48,42 @@ class BaseOptionsMenu extends Component {
   }
 
   render() {
-    const {options, actions, destructiveIndex} = this.props;
+    const {options, actions, destructiveIndex, optionsIcon} = this.props;
     const {iconStyle} = this.props;
 
-    const OptionsIcon = () => {
-      return <Icon name="more" style={{...iconStyle}} />;
+    const ActionSheetButton = () => {
+      return (
+        <Button
+          type="clear"
+          icon={
+            <Icon
+              name={optionsIcon ? optionsIcon : 'more-vertical'}
+              color={colors.icons}
+              style={{...iconStyle}}
+            />
+          }
+          color={colors.icons}
+          containerStyle={{borderRadius: 24}}
+          onPress={() => this.openOptions()}
+        />
+      );
     };
 
     return Platform.OS === 'android' ? (
       <OptionsMenu
-        customButton={<OptionsIcon />}
+        customButton={
+          <Icon
+            name={optionsIcon ? optionsIcon : 'more-vertical'}
+            color={colors.icons}
+            style={{...iconStyle}}
+          />
+        }
         destructiveIndex={destructiveIndex}
         options={options}
         actions={actions}
       />
     ) : (
-      <Button transparent onPress={() => this.openOptions()}>
-        <OptionsIcon />
-      </Button>
+      <ActionSheetButton />
     );
   }
 }

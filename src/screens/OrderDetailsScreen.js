@@ -1,12 +1,15 @@
 import React, {Component} from 'react';
 import {Card, CardItem, Left, Right, Body} from 'native-base';
 import {View, ActivityIndicator} from 'react-native';
-import {Text} from 'react-native-elements';
+import {Text, Input, Icon} from 'react-native-elements';
 import BaseHeader from '../components/BaseHeader';
 import {ScrollView} from 'react-native-gesture-handler';
 import {colors} from '../../assets/colors';
 import CartListItem from '../components/CartListItem';
 import {inject, observer} from 'mobx-react';
+import ConfirmationModal from '../components/ConfirmationModal';
+import * as Animatable from 'react-native-animatable';
+import Toast from '../components/Toast';
 
 @inject('generalStore')
 @observer
@@ -19,11 +22,76 @@ class OrderDetailsScreen extends Component {
     this.state = {
       orderItems: null,
       ready: false,
+      confirmCancelOrderModal: false,
+      cancelReasonCheck: false,
+      cancelReasonInput: '',
+      cancelOrderLoading: false,
     };
 
     this.props.generalStore.getOrderItems(orderId).then((orderItems) => {
       this.setState({orderItems, ready: true});
     });
+  }
+
+  handleCancelReasonChange = (cancelReasonInput) => {
+    this.setState({cancelReasonInput});
+
+    if (cancelReasonInput !== '') {
+      this.setState({
+        cancelReasonCheck: true,
+      });
+    } else {
+      this.setState({
+        cancelReasonCheck: false,
+      });
+    }
+  };
+
+  handleCancelOrder() {
+    this.setState({cancelOrderLoading: true}, () => {
+      this.props.generalStore
+        .cancelOrder(
+          this.props.route.params.order.orderId,
+          this.state.cancelReasonInput,
+        )
+        .then((response) => {
+          this.setState({
+            cancelOrderLoading: false,
+            confirmCancelOrderModal: false,
+            cancelReasonInput: '',
+            cancelReasonCheck: false,
+          });
+
+          this.closeModal();
+
+          if (response.data.s !== 500 && response.data.s !== 400) {
+            Toast({
+              text: `Order # ${
+                this.props.generalStore.selectedCancelOrder
+                  ? this.props.generalStore.selectedCancelOrder
+                      .merchantOrderNumber
+                  : ''
+              } successfully cancelled!`,
+              type: 'success',
+              duration: 3500,
+            });
+          } else {
+            this.props.navigation.goBack();
+
+            Toast({
+              text: response.data.m,
+              type: 'danger',
+              duration: 3500,
+            });
+          }
+        });
+    });
+  }
+
+  closeModal() {
+    if (!this.state.cancelOrderLoading) {
+      this.setState({confirmCancelOrderModal: false, cancelReasonInput: ''});
+    }
   }
 
   render() {
@@ -32,25 +100,75 @@ class OrderDetailsScreen extends Component {
 
     const {navigation} = this.props;
 
-    const {orderItems, ready} = this.state;
+    const {
+      orderItems,
+      ready,
+      confirmCancelOrderModal,
+      cancelReasonCheck,
+      cancelReasonInput,
+      cancelOrderLoading,
+    } = this.state;
 
     const cancelReason = order.orderStatus.cancelled.reason;
-
-    const actions = [
-      {
-        name: 'Accept Order',
-        action: 'navigation.navigate("Order List")',
-      },
-    ];
 
     return (
       <View style={{flex: 1}}>
         <BaseHeader
           title={`Order #${userOrderNumber} Details`}
           backButton
-          optionsButton
-          actions={actions}
+          optionsIcon="help-circle"
+          options={orderStatus[0] === 'PENDING' ? ['Cancel Order'] : null}
+          actions={[
+            () => {
+              this.setState({confirmCancelOrderModal: true});
+            },
+          ]}
           navigation={navigation}
+        />
+
+        <ConfirmationModal
+          isVisible={confirmCancelOrderModal}
+          closeModal={() => this.closeModal()}
+          title={`Cancel Order #${order.userOrderNumber}`}
+          loading={cancelOrderLoading}
+          body={
+            <View>
+              <Input
+                numberOfLines={8}
+                multiline
+                maxLength={600}
+                disabled={cancelOrderLoading}
+                placeholder="Reason for Cancellation"
+                placeholderTextColor={colors.text_secondary}
+                value={cancelReasonInput}
+                onChangeText={(value) => this.handleCancelReasonChange(value)}
+                style={{
+                  borderRadius: 24,
+                }}
+                inputStyle={{textAlignVertical: 'top'}}
+              />
+
+              {cancelReasonCheck ? (
+                <Animatable.View
+                  useNativeDriver
+                  animation="bounceIn"
+                  style={{position: 'absolute', right: 10, bottom: '50%'}}>
+                  <Icon name="check-circle" color="#388e3c" size={20} />
+                </Animatable.View>
+              ) : null}
+
+              <Text
+                style={{
+                  alignSelf: 'flex-end',
+                  justifyContent: 'flex-start',
+                }}>
+                Character Limit: {cancelReasonInput.length}/600
+              </Text>
+            </View>
+          }
+          onConfirm={() => {
+            this.handleCancelOrder();
+          }}
         />
 
         <ScrollView

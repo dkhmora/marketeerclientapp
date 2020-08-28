@@ -115,10 +115,10 @@ class OrderChatScreen extends Component {
           flexDirection: 'row',
         }}>
         <Text style={{textAlign: 'center', textAlignVertical: 'center'}}>
-          Chat is disabled since order{' '}
-          {orderStatus[0] === 'is CANCELLED'
+          Chat is disabled since order is{' '}
+          {orderStatus[0] === 'CANCELLED'
             ? orderStatus[0]
-            : 'is COMPLETED and has surpassed 4 days'}
+            : 'COMPLETED and has surpassed 4 days'}
         </Text>
       </View>
     );
