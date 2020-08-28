@@ -117,7 +117,13 @@ class OrderDetailsScreen extends Component {
           title={`Order #${userOrderNumber} Details`}
           backButton
           optionsIcon="help-circle"
-          options={orderStatus[0] === 'PENDING' ? ['Cancel Order'] : null}
+          options={
+            orderStatus[0] === 'PENDING' ||
+            orderStatus[0] === 'UNPAID' ||
+            (orderStatus[0] === 'PAID' && order.paymentMethod === 'COD')
+              ? ['Cancel Order']
+              : null
+          }
           actions={[
             () => {
               this.setState({confirmCancelOrderModal: true});
@@ -216,7 +222,7 @@ class OrderDetailsScreen extends Component {
                       fontSize: 16,
                       textAlign: 'right',
                     }}>
-                    {orderStatus}
+                    {orderStatus[0] !== 'PAID' ? orderStatus : 'PROCESSING'}
                   </Text>
                 </Right>
               </CardItem>
