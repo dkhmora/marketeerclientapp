@@ -7,6 +7,7 @@ import {View, Image} from 'react-native';
 import {observer, inject} from 'mobx-react';
 import {styles} from '../../assets/styles';
 import {colors} from '../../assets/colors';
+import Toast from './Toast';
 
 @inject('shopStore')
 @inject('authStore')
@@ -50,9 +51,37 @@ class CartListItem extends Component {
   }
 
   getImage = async () => {
-    const ref = storage().ref(this.props.item.image);
-    const link = await ref.getDownloadURL();
-    this.setState({url: {uri: link}});
+    const {storeId, item} = this.props;
+    const {itemId, image, updatedAt} = item;
+    const itemImagePath = `/images/stores/${storeId}/items/${itemId}_${updatedAt}.jpg`;
+
+    const ref = storage().ref(itemImagePath);
+    const link = await ref.getDownloadURL().catch((err) => {
+      if (err.code === 'storage/object-not-found') {
+        return null;
+      }
+
+      Toast({text: err.message});
+    });
+
+    if (link) {
+      this.setState({url: {uri: link}});
+    }
+
+    if (image && !link) {
+      const secondRef = storage().ref(image);
+      const secondLink = await secondRef.getDownloadURL().catch((err) => {
+        if (err.code === 'storage/object-not-found') {
+          return null;
+        }
+
+        Toast({text: err.message});
+      });
+
+      if (secondLink) {
+        this.setState({url: {uri: secondLink}});
+      }
+    }
   };
 
   componentDidMount() {

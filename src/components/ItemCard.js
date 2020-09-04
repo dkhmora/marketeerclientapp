@@ -11,6 +11,7 @@ import FastImage from 'react-native-fast-image';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import ItemDescriptionModal from './ItemDescriptionModal';
 import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
+import Toast from './Toast';
 @inject('authStore')
 @inject('shopStore')
 @observer
@@ -73,9 +74,37 @@ class ItemCard extends PureComponent {
   }
 
   getImage = async () => {
-    const ref = storage().ref(this.props.item.image);
-    const link = await ref.getDownloadURL();
-    this.url = link;
+    const {storeId, item} = this.props;
+    const {itemId, image, updatedAt} = item;
+
+    const itemImagePath = `/images/stores/${storeId}/items/${itemId}_${updatedAt}.jpg`;
+    const ref = storage().ref(itemImagePath);
+    const link = await ref.getDownloadURL().catch((err) => {
+      if (err.code === 'storage/object-not-found') {
+        return null;
+      }
+
+      Toast({text: err.message});
+    });
+
+    if (link) {
+      this.url = link;
+    }
+
+    if (image && !link) {
+      const secondRef = storage().ref(image);
+      const secondLink = await secondRef.getDownloadURL().catch((err) => {
+        if (err.code === 'storage/object-not-found') {
+          return null;
+        }
+
+        Toast({text: err.message});
+      });
+
+      if (secondLink) {
+        this.url = secondLink;
+      }
+    }
   };
 
   componentDidUpdate() {

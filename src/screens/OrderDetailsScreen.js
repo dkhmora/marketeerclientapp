@@ -107,6 +107,7 @@ class OrderDetailsScreen extends Component {
       paymentMethod,
       deliveryMethod,
       storeName,
+      storeId,
     } = order;
     const {userName} = this.props.authStore;
 
@@ -309,7 +310,7 @@ class OrderDetailsScreen extends Component {
                   {orderItems.map((item, index) => {
                     return (
                       <View key={item.itemId}>
-                        <CartListItem item={item} checkout />
+                        <CartListItem item={item} storeId={storeId} checkout />
                       </View>
                     );
                   })}

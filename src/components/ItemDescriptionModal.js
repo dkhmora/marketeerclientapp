@@ -53,9 +53,8 @@ class ItemDescriptionModal extends Component {
                 borderTopLeftRadius: 10,
                 borderTopRightRadius: 10,
                 width: null,
-                height: 300,
+                height: SCREEN_WIDTH,
                 aspectRatio: 1,
-                backgroundColor: colors.primary,
               }}
               resizeMode={FastImage.resizeMode.contain}
             />
