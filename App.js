@@ -158,30 +158,26 @@ class App extends React.Component {
   }
 
   render() {
-    if (authStore.userAuthenticated) {
-      return (
-        <Provider
-          generalStore={generalStore}
-          authStore={authStore}
-          shopStore={shopStore}>
-          <AlertModal
-            isVisible={this.state.appUpdateModal}
-            onConfirm={() => {
-              this.openAppUrl();
-            }}
-            buttonText={`Go to ${
-              Platform.OS === 'android' ? 'Play Store' : 'App Store'
-            }`}
-            title="Please update Marketeer"
-            body="Your Marketeer app is out of date. Please update in order to get all the latest features. Thank you."
-          />
+    return (
+      <Provider
+        generalStore={generalStore}
+        authStore={authStore}
+        shopStore={shopStore}>
+        <AlertModal
+          isVisible={this.state.appUpdateModal}
+          onConfirm={() => {
+            this.openAppUrl();
+          }}
+          buttonText={`Go to ${
+            Platform.OS === 'android' ? 'Play Store' : 'App Store'
+          }`}
+          title="Please update Marketeer"
+          body="Your Marketeer app is out of date. Please update in order to get all the latest features. Thank you."
+        />
 
-          <Setup />
-        </Provider>
-      );
-    } else {
-      return null;
-    }
+        {authStore.userAuthenticated && <Setup />}
+      </Provider>
+    );
   }
 }
 
