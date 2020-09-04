@@ -360,10 +360,7 @@ class shopStore {
             storeCategory
           ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
-        .catch((err) => {
-          console.log(err.message);
-          Toast({text: err.message, type: 'danger'});
-        });
+        .catch((err) => Toast({text: err.message, type: 'danger'}));
     } else if (currentLocationGeohash && locationCoordinates && storeCategory) {
       return await storesCollection
         .where('visibleToPublic', '==', true)
@@ -390,10 +387,7 @@ class shopStore {
             storeCategory
           ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
-        .catch((err) => {
-          console.log(err.message);
-          Toast({text: err.message, type: 'danger'});
-        });
+        .catch((err) => Toast({text: err.message, type: 'danger'}));
     } else if (currentLocationGeohash && locationCoordinates && lastVisible) {
       return await storesCollection
         .where('visibleToPublic', '==', true)
@@ -421,10 +415,7 @@ class shopStore {
             locationCoordinates,
           );
         })
-        .catch((err) => {
-          console.log(err.message);
-          Toast({text: err.message, type: 'danger'});
-        });
+        .catch((err) => Toast({text: err.message, type: 'danger'}));
     } else if (currentLocationGeohash && locationCoordinates) {
       return await storesCollection
         .where('visibleToPublic', '==', true)
@@ -451,10 +442,7 @@ class shopStore {
             locationCoordinates,
           );
         })
-        .catch((err) => {
-          console.log(err.message);
-          Toast({text: err.message, type: 'danger'});
-        });
+        .catch((err) => Toast({text: err.message, type: 'danger'}));
     }
   }
 
