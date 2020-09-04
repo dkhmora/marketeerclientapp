@@ -39,7 +39,7 @@ class OrderChatScreen extends Component {
       orderStatus[0] === 'CANCELLED' ||
       firestore.Timestamp.now().toMillis() >=
         moment(order.orderStatus.completed.updatedAt, 'x')
-          .add(4, 'days')
+          .add(7, 'days')
           .format('x')
     ) {
       return true;
@@ -115,10 +115,10 @@ class OrderChatScreen extends Component {
           flexDirection: 'row',
         }}>
         <Text style={{textAlign: 'center', textAlignVertical: 'center'}}>
-          Chat is disabled since order{' '}
-          {orderStatus[0] === 'is CANCELLED'
+          Chat is disabled since order is{' '}
+          {orderStatus[0] === 'CANCELLED'
             ? orderStatus[0]
-            : 'is COMPLETED and has surpassed 4 days'}
+            : 'COMPLETED and has surpassed 7 days'}
         </Text>
       </View>
     );
@@ -194,7 +194,7 @@ class OrderChatScreen extends Component {
             this.props.generalStore.sendImage(
               order.orderId,
               order.userId,
-              order.merchantId,
+              order.storeId,
               this.state.user,
               this.imagePath,
             );

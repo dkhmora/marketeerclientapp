@@ -82,12 +82,19 @@ class BaseHeader extends Component {
   };
 
   rightComponent = () => {
-    const {actions, options, destructiveIndex, rightComponent} = this.props;
+    const {
+      actions,
+      options,
+      optionsIcon,
+      destructiveIndex,
+      rightComponent,
+    } = this.props;
 
     if (options && actions) {
       return (
         <BaseOptionsMenu
-          iconStyle={{color: colors.primary, marginRight: 10}}
+          iconStyle={{color: colors.icons, marginRight: 10}}
+          optionsIcon={optionsIcon}
           options={options}
           actions={actions}
           destructiveIndex={destructiveIndex}

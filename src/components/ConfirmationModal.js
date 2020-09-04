@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 import {Overlay, Text, Button} from 'react-native-elements';
-import {View, Dimensions} from 'react-native';
+import {View, Dimensions, ActivityIndicator} from 'react-native';
 import {inject, observer} from 'mobx-react';
 import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
@@ -13,7 +13,16 @@ class ConfirmationModal extends PureComponent {
   }
 
   render() {
-    const {closeModal, isVisible, onConfirm, title, body, image} = this.props;
+    const {
+      closeModal,
+      isVisible,
+      onConfirm,
+      title,
+      body,
+      image,
+      loading,
+      confirmDisabled,
+    } = this.props;
 
     return (
       <Overlay
@@ -21,13 +30,14 @@ class ConfirmationModal extends PureComponent {
         onBackdropPress={() => {
           closeModal();
         }}
-        statusBarTranslucent
         width="80%"
         height="auto"
+        animationType="fade"
+        statusBarTranslucent
         overlayStyle={{
+          width: '80%',
           borderRadius: 10,
           padding: 15,
-          width: '80%',
         }}>
         <View style={{flexDirection: 'column'}}>
           <Text
@@ -39,14 +49,18 @@ class ConfirmationModal extends PureComponent {
             {title}
           </Text>
 
-          {body && (
-            <Text
-              style={{
-                fontSize: 20,
-              }}>
-              {body}
-            </Text>
-          )}
+          <View>
+            {typeof body === 'string' ? (
+              <Text
+                style={{
+                  fontSize: 20,
+                }}>
+                {body}
+              </Text>
+            ) : (
+              body
+            )}
+          </View>
 
           {image && (
             <View
@@ -56,7 +70,6 @@ class ConfirmationModal extends PureComponent {
               <FastImage
                 source={{uri: image}}
                 style={{
-                  backgroundColor: colors.primary,
                   flex: 1,
                 }}
                 resizeMode={FastImage.resizeMode.contain}
@@ -71,25 +84,32 @@ class ConfirmationModal extends PureComponent {
               justifyContent: 'flex-end',
               marginTop: 40,
             }}>
-            <Button
-              title="Cancel"
-              type="clear"
-              containerStyle={{
-                alignSelf: 'flex-end',
-                borderRadius: 30,
-              }}
-              onPress={() => closeModal()}
-            />
+            {loading ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <View style={{flexDirection: 'row'}}>
+                <Button
+                  title="Cancel"
+                  type="clear"
+                  containerStyle={{
+                    alignSelf: 'flex-end',
+                    borderRadius: 30,
+                  }}
+                  onPress={() => closeModal()}
+                />
 
-            <Button
-              title="Confirm"
-              type="clear"
-              containerStyle={{
-                alignSelf: 'flex-end',
-                borderRadius: 30,
-              }}
-              onPress={() => onConfirm()}
-            />
+                <Button
+                  title="Confirm"
+                  type="clear"
+                  disabled={confirmDisabled}
+                  containerStyle={{
+                    alignSelf: 'flex-end',
+                    borderRadius: 30,
+                  }}
+                  onPress={() => onConfirm()}
+                />
+              </View>
+            )}
           </View>
         </View>
       </Overlay>

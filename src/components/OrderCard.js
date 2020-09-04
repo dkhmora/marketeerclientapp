@@ -64,9 +64,9 @@ class OrderCard extends PureComponent {
   }
 
   async getDisplayImageUrl() {
-    const {merchantId} = this.props.order;
+    const {storeId} = this.props.order;
 
-    const ref = storage().ref(`/images/merchants/${merchantId}/display.jpg`);
+    const ref = storage().ref(`/images/stores/${storeId}/display.jpg`);
     const link = await ref.getDownloadURL();
 
     this.setState({url: {uri: link}, ready: true});
@@ -80,10 +80,10 @@ class OrderCard extends PureComponent {
   }
 
   handleCancelOrder() {
-    const {merchantId, orderId, userOrderNumber} = this.props.order;
+    const {storeId, orderId, userOrderNumber} = this.props.order;
 
     this.props.generalStore
-      .cancelOrder(merchantId, orderId, this.cancelReason)
+      .cancelOrder(storeId, orderId, this.cancelReason)
       .then(() => {
         Toast({
           text: `Order # ${userOrderNumber} successfully cancelled!`,

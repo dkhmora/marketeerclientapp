@@ -1,14 +1,18 @@
 import React, {Component} from 'react';
 import {Card, CardItem, Left, Right, Body} from 'native-base';
 import {View, ActivityIndicator} from 'react-native';
-import {Text} from 'react-native-elements';
+import {Text, Input, Icon} from 'react-native-elements';
 import BaseHeader from '../components/BaseHeader';
 import {ScrollView} from 'react-native-gesture-handler';
 import {colors} from '../../assets/colors';
 import CartListItem from '../components/CartListItem';
 import {inject, observer} from 'mobx-react';
+import ConfirmationModal from '../components/ConfirmationModal';
+import * as Animatable from 'react-native-animatable';
+import Toast from '../components/Toast';
 
 @inject('generalStore')
+@inject('authStore')
 @observer
 class OrderDetailsScreen extends Component {
   constructor(props) {
@@ -19,6 +23,10 @@ class OrderDetailsScreen extends Component {
     this.state = {
       orderItems: null,
       ready: false,
+      confirmCancelOrderModal: false,
+      cancelReasonCheck: false,
+      cancelReasonInput: '',
+      cancelOrderLoading: false,
     };
 
     this.props.generalStore.getOrderItems(orderId).then((orderItems) => {
@@ -26,31 +34,160 @@ class OrderDetailsScreen extends Component {
     });
   }
 
+  handleCancelReasonChange = (cancelReasonInput) => {
+    this.setState({cancelReasonInput});
+
+    if (cancelReasonInput !== '') {
+      this.setState({
+        cancelReasonCheck: true,
+      });
+    } else {
+      this.setState({
+        cancelReasonCheck: false,
+      });
+    }
+  };
+
+  handleCancelOrder() {
+    const {order} = this.props.route.params;
+    const {userOrderNumber} = order;
+
+    this.setState({cancelOrderLoading: true}, () => {
+      this.props.generalStore
+        .cancelOrder(
+          this.props.route.params.order.orderId,
+          this.state.cancelReasonInput,
+        )
+        .then((response) => {
+          this.setState({
+            cancelOrderLoading: false,
+            confirmCancelOrderModal: false,
+            cancelReasonInput: '',
+            cancelReasonCheck: false,
+          });
+
+          this.closeModal();
+
+          if (response.data.s !== 500 && response.data.s !== 400) {
+            Toast({
+              text: `Order # ${userOrderNumber} successfully cancelled!`,
+              type: 'success',
+              duration: 3500,
+            });
+          } else {
+            this.props.navigation.goBack();
+
+            Toast({
+              text: response.data.m,
+              type: 'danger',
+              duration: 3500,
+            });
+          }
+        });
+    });
+  }
+
+  closeModal() {
+    if (!this.state.cancelOrderLoading) {
+      this.setState({
+        confirmCancelOrderModal: false,
+        cancelReasonInput: '',
+        cancelReasonCheck: false,
+      });
+    }
+  }
+
   render() {
     const {order, orderStatus} = this.props.route.params;
-    const {userOrderNumber, quantity, deliveryPrice, subTotal} = order;
+    const {
+      userOrderNumber,
+      quantity,
+      deliveryPrice,
+      subTotal,
+      paymentMethod,
+      deliveryMethod,
+      storeName,
+    } = order;
+    const {userName} = this.props.authStore;
 
     const {navigation} = this.props;
 
-    const {orderItems, ready} = this.state;
+    const {
+      orderItems,
+      ready,
+      confirmCancelOrderModal,
+      cancelReasonCheck,
+      cancelReasonInput,
+      cancelOrderLoading,
+    } = this.state;
 
     const cancelReason = order.orderStatus.cancelled.reason;
-
-    const actions = [
-      {
-        name: 'Accept Order',
-        action: 'navigation.navigate("Order List")',
-      },
-    ];
 
     return (
       <View style={{flex: 1}}>
         <BaseHeader
           title={`Order #${userOrderNumber} Details`}
           backButton
-          optionsButton
-          actions={actions}
+          optionsIcon="help-circle"
+          options={
+            orderStatus[0] === 'PENDING' ||
+            orderStatus[0] === 'UNPAID' ||
+            (orderStatus[0] === 'PAID' && paymentMethod === 'COD')
+              ? ['Cancel Order']
+              : null
+          }
+          actions={[
+            () => {
+              this.setState({confirmCancelOrderModal: true});
+            },
+          ]}
           navigation={navigation}
+        />
+
+        <ConfirmationModal
+          isVisible={confirmCancelOrderModal}
+          closeModal={() => this.closeModal()}
+          title={`Cancel Order #${userOrderNumber}`}
+          loading={cancelOrderLoading}
+          confirmDisabled={!cancelReasonCheck}
+          body={
+            <View>
+              <Input
+                numberOfLines={8}
+                multiline
+                maxLength={600}
+                disabled={cancelOrderLoading}
+                placeholder="Reason for Cancellation"
+                placeholderTextColor={colors.text_secondary}
+                value={cancelReasonInput}
+                onChangeText={(value) => this.handleCancelReasonChange(value)}
+                style={{
+                  borderRadius: 24,
+                }}
+                inputStyle={{textAlignVertical: 'top'}}
+              />
+
+              {cancelReasonCheck ? (
+                <Animatable.View
+                  useNativeDriver
+                  animation="bounceIn"
+                  style={{position: 'absolute', right: 10, bottom: '50%'}}>
+                  <Icon name="check-circle" color="#388e3c" size={20} />
+                </Animatable.View>
+              ) : null}
+
+              <Text
+                style={{
+                  alignSelf: 'flex-end',
+                  justifyContent: 'flex-start',
+                }}>
+                Character Limit: {cancelReasonInput.length}/600
+              </Text>
+            </View>
+          }
+          onConfirm={() => {
+            this.handleCancelOrder();
+          }}
         />
 
         <ScrollView
@@ -98,7 +235,7 @@ class OrderDetailsScreen extends Component {
                       fontSize: 16,
                       textAlign: 'right',
                     }}>
-                    {orderStatus}
+                    {orderStatus[0] !== 'PAID' ? orderStatus : 'PROCESSING'}
                   </Text>
                 </Right>
               </CardItem>
@@ -117,7 +254,7 @@ class OrderDetailsScreen extends Component {
                       fontSize: 16,
                       textAlign: 'right',
                     }}>
-                    {order.deliveryMethod}
+                    {deliveryMethod}
                   </Text>
                 </Right>
               </CardItem>
@@ -136,7 +273,7 @@ class OrderDetailsScreen extends Component {
                       fontSize: 16,
                       textAlign: 'right',
                     }}>
-                    {order.paymentMethod}
+                    {paymentMethod}
                   </Text>
                 </Right>
               </CardItem>
@@ -231,7 +368,7 @@ class OrderDetailsScreen extends Component {
                       {deliveryPrice && deliveryPrice > 0
                         ? `₱${deliveryPrice}`
                         : deliveryPrice === null
-                        ? '(Contact Merchant)'
+                        ? '(Contact Store)'
                         : '₱0 (Free Delivery)'}
                     </Text>
                   </View>
@@ -252,7 +389,7 @@ class OrderDetailsScreen extends Component {
                     <Text
                       style={{
                         fontSize: 18,
-                        color: colors.text_primary,
+                        color: colors.primary,
                         fontFamily: 'ProductSans-Black',
                       }}>
                       ₱{subTotal + (deliveryPrice ? deliveryPrice : 0)}
@@ -284,15 +421,50 @@ class OrderDetailsScreen extends Component {
                   bordered
                   style={{backgroundColor: colors.primary}}>
                   <Text style={{color: colors.icons, fontSize: 20}}>
-                    Reason for Cancellation
+                    Order Cancellation Details
                   </Text>
                 </CardItem>
+
                 <CardItem>
-                  <Body>
-                    <Text style={{width: '100%', textAlign: 'justify'}}>
+                  <Left>
+                    <Text
+                      style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
+                      Cancelled By:
+                    </Text>
+                  </Left>
+
+                  <Right>
+                    <Text
+                      style={{
+                        color: colors.text_primary,
+                        fontSize: 16,
+                        textAlign: 'right',
+                      }}>
+                      {order.orderStatus.cancelled.byShopper
+                        ? `${userName} (Shopper)`
+                        : `${storeName} (Store)`}
+                    </Text>
+                  </Right>
+                </CardItem>
+
+                <CardItem>
+                  <Left>
+                    <Text
+                      style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
+                      Reason:
+                    </Text>
+                  </Left>
+
+                  <Right>
+                    <Text
+                      style={{
+                        color: colors.text_primary,
+                        fontSize: 16,
+                        textAlign: 'right',
+                      }}>
                       {cancelReason}
                     </Text>
-                  </Body>
+                  </Right>
                 </CardItem>
               </Card>
             </View>
