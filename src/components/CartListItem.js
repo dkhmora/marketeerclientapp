@@ -32,9 +32,9 @@ class CartListItem extends Component {
   @observable url = null;
 
   handleIncreaseQuantity() {
-    const {item, merchantId} = this.props;
+    const {item, storeId} = this.props;
 
-    this.props.shopStore.addCartItemToStorage(item, merchantId);
+    this.props.shopStore.addCartItemToStorage(item, storeId);
 
     if (!this.addButtonDisabled) {
       this.props.shopStore.updateCartItems();
@@ -42,9 +42,9 @@ class CartListItem extends Component {
   }
 
   handleDecreaseQuantity() {
-    const {item, merchantId} = this.props;
+    const {item, storeId} = this.props;
 
-    this.props.shopStore.deleteCartItemInStorage(item, merchantId);
+    this.props.shopStore.deleteCartItemInStorage(item, storeId);
 
     this.props.shopStore.updateCartItems();
   }

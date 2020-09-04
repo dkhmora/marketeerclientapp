@@ -25,7 +25,7 @@ class CartStoreCard extends Component {
       const {ownDeliveryServiceFee} = this.storeDetails;
 
       return this.props.shopStore.storeSelectedDeliveryMethod[
-        this.props.merchantId
+        this.props.storeId
       ] === 'Own Delivery'
         ? this.subTotal + ownDeliveryServiceFee
         : this.subTotal;
@@ -61,12 +61,12 @@ class CartStoreCard extends Component {
   }
 
   @computed get cartItems() {
-    return this.props.shopStore.storeCartItems[this.props.merchantId];
+    return this.props.shopStore.storeCartItems[this.props.storeId];
   }
 
   @computed get currentStoreItems() {
-    const {merchantId} = this.props;
-    const storeItems = this.props.shopStore.storeCategoryItems.get(merchantId);
+    const {storeId} = this.props;
+    const storeItems = this.props.shopStore.storeCategoryItems.get(storeId);
 
     if (storeItems) {
       return storeItems.get('All');
@@ -76,22 +76,22 @@ class CartStoreCard extends Component {
   }
 
   async getImage() {
-    const {merchantId} = this.props;
+    const {storeId} = this.props;
 
-    const ref = storage().ref(`/images/merchants/${merchantId}/display.jpg`);
+    const ref = storage().ref(`/images/stores/${storeId}/display.jpg`);
     const link = await ref.getDownloadURL();
     this.url = {uri: link};
   }
 
   async getStoreDetails() {
-    this.storeDetails = await this.props.shopStore.getStoreDetailsFromMerchantId(
-      this.props.merchantId,
+    this.storeDetails = await this.props.shopStore.getStoreDetailsFromStoreId(
+      this.props.storeId,
     );
   }
 
   async getStoreItemsSnapshot() {
     this.props.shopStore.setStoreItems(
-      this.props.merchantId,
+      this.props.storeId,
       this.storeDetails.itemCategories,
     );
   }
@@ -117,16 +117,16 @@ class CartStoreCard extends Component {
         () => {
           if (this.storeDetails.deliveryMethods.includes('Own Delivery')) {
             this.props.shopStore.storeSelectedDeliveryMethod[
-              this.props.merchantId
+              this.props.storeId
             ] = 'Own Delivery';
           } else {
             this.props.shopStore.storeSelectedDeliveryMethod[
-              this.props.merchantId
+              this.props.storeId
             ] = this.storeDetails.deliveryMethods[0];
           }
 
           this.props.shopStore.storeSelectedPaymentMethod[
-            this.props.merchantId
+            this.props.storeId
           ] = this.storeDetails.paymentMethods[0];
         },
       );
@@ -139,7 +139,7 @@ class CartStoreCard extends Component {
   }
 
   render() {
-    const {merchantId, checkout} = this.props;
+    const {storeId, checkout} = this.props;
     const {storeDetails} = this;
 
     return (
@@ -224,7 +224,7 @@ class CartStoreCard extends Component {
                 <CartListItem
                   item={item}
                   itemSnapshot={itemSnapshot}
-                  merchantId={merchantId}
+                  storeId={storeId}
                   checkout={checkout}
                   key={item.itemId}
                 />
@@ -273,9 +273,8 @@ class CartStoreCard extends Component {
                   </Text>
                 </View>
 
-                {this.props.shopStore.storeSelectedDeliveryMethod[
-                  merchantId
-                ] === 'Own Delivery' && storeDetails ? (
+                {this.props.shopStore.storeSelectedDeliveryMethod[storeId] ===
+                  'Own Delivery' && storeDetails ? (
                   <Text
                     style={{
                       fontFamily: 'ProductSans-Black',
@@ -299,7 +298,7 @@ class CartStoreCard extends Component {
                       fontSize: 14,
                       textAlignVertical: 'center',
                     }}>
-                    (Please discuss with merchant)
+                    (Please discuss with store)
                   </Text>
                 )}
               </View>
@@ -358,12 +357,12 @@ class CartStoreCard extends Component {
                       iosIcon={<Icon name="chevron-down" />}
                       selectedValue={
                         this.props.shopStore.storeSelectedDeliveryMethod[
-                          merchantId
+                          storeId
                         ]
                       }
                       onValueChange={(value) => {
                         this.props.shopStore.storeSelectedDeliveryMethod[
-                          merchantId
+                          storeId
                         ] = value;
                       }}>
                       {storeDetails.deliveryMethods &&
@@ -419,13 +418,11 @@ class CartStoreCard extends Component {
                       style={{flex: 1}}
                       iosIcon={<Icon name="chevron-down" />}
                       selectedValue={
-                        this.props.shopStore.storeSelectedPaymentMethod[
-                          merchantId
-                        ]
+                        this.props.shopStore.storeSelectedPaymentMethod[storeId]
                       }
                       onValueChange={(value) => {
                         this.props.shopStore.storeSelectedPaymentMethod[
-                          merchantId
+                          storeId
                         ] = value;
                       }}>
                       {storeDetails.paymentMethods &&

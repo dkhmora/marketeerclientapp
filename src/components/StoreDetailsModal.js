@@ -34,9 +34,7 @@ class StoreDetailsModal extends Component {
     if (reviews.length <= 0) {
       this.setState(
         {
-          reviews: await this.props.generalStore.getStoreReviews(
-            store.merchantId,
-          ),
+          reviews: await this.props.generalStore.getStoreReviews(store.storeId),
         },
         () => {
           this.setState({reviewsLoading: false});

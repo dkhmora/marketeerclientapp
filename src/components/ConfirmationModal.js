@@ -21,6 +21,7 @@ class ConfirmationModal extends PureComponent {
       body,
       image,
       loading,
+      confirmDisabled,
     } = this.props;
 
     return (
@@ -100,6 +101,7 @@ class ConfirmationModal extends PureComponent {
                 <Button
                   title="Confirm"
                   type="clear"
+                  disabled={confirmDisabled}
                   containerStyle={{
                     alignSelf: 'flex-end',
                     borderRadius: 30,

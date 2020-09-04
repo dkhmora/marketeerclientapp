@@ -68,10 +68,10 @@ class generalStore {
     }
   }
 
-  @action async getStoreReviews(merchantId) {
+  @action async getStoreReviews(storeId) {
     const storeOrderReviewsRef = firestore()
-      .collection('merchants')
-      .doc(merchantId)
+      .collection('stores')
+      .doc(storeId)
       .collection('order_reviews');
 
     return await storeOrderReviewsRef
@@ -367,7 +367,7 @@ class generalStore {
       .doc(orderId)
       .update({
         messages: firestore.FieldValue.arrayUnion(message),
-        merchantUnreadCount: firestore.FieldValue.increment(1),
+        storeUnreadCount: firestore.FieldValue.increment(1),
         updatedAt: firestore.Timestamp.now().toMillis(),
       })
       .catch((err) => Toast({text: err.message, type: 'danger'}));
@@ -387,19 +387,13 @@ class generalStore {
       .doc(orderId)
       .update({
         messages: firestore.FieldValue.arrayUnion(message),
-        merchantUnreadCount: firestore.FieldValue.increment(1),
+        storeUnreadCount: firestore.FieldValue.increment(1),
         updatedAt: firestore.Timestamp.now().toMillis(),
       })
       .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
-  @action async sendImage(
-    orderId,
-    customerUserId,
-    merchantId,
-    user,
-    imagePath,
-  ) {
+  @action async sendImage(orderId, customerUserId, storeId, user, imagePath) {
     const messageId = uuidv4();
     const imageRef = `/images/orders/${orderId}/order_chat/${messageId}`;
     const storageRef = storage().ref(imageRef);
@@ -408,7 +402,7 @@ class generalStore {
       .putFile(imagePath, {
         customMetadata: {
           customerUserId,
-          merchantId,
+          storeId,
         },
       })
       .then(() => {

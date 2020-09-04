@@ -10,7 +10,7 @@ import Toast from '../components/Toast';
 const functions = firebase.app().functions('asia-northeast1');
 
 const userCartCollection = firestore().collection('user_carts');
-const merchantsCollection = firestore().collection('merchants');
+const storesCollection = firestore().collection('stores');
 class shopStore {
   @persist('object') @observable storeCartItems = {};
   @observable storeDetails = {};
@@ -30,8 +30,8 @@ class shopStore {
     let quantity = 0;
 
     if (this.storeCartItems) {
-      Object.keys(this.storeCartItems).map((merchantId) => {
-        this.storeCartItems[merchantId].map((item) => {
+      Object.keys(this.storeCartItems).map((storeId) => {
+        this.storeCartItems[storeId].map((item) => {
           quantity = item.quantity + quantity;
         });
       });
@@ -76,17 +76,17 @@ class shopStore {
     let amount = 0;
 
     if (this.storeCartItems) {
-      Object.keys(this.storeCartItems).map(async (merchantId) => {
-        const storeDetails = this.getStoreDetails(merchantId);
+      Object.keys(this.storeCartItems).map(async (storeId) => {
+        const storeDetails = this.getStoreDetails(storeId);
         let storeTotal = 0;
 
-        this.storeCartItems[merchantId].map(async (item) => {
+        this.storeCartItems[storeId].map(async (item) => {
           let itemTotal = item.quantity * item.price;
 
           storeTotal += itemTotal;
         });
 
-        if (this.storeSelectedDeliveryMethod[merchantId] === 'Own Delivery') {
+        if (this.storeSelectedDeliveryMethod[storeId] === 'Own Delivery') {
           if (
             storeDetails.freeDeliveryMinimum > storeTotal ||
             !storeDetails.freeDelivery
@@ -113,21 +113,21 @@ class shopStore {
     return [];
   }
 
-  @action async getStoreDetailsFromMerchantId(merchantId) {
+  @action async getStoreDetailsFromStoreId(storeId) {
     return await new Promise(async (resolve, reject) => {
-      const storeDetails = await this.getStoreDetails(merchantId);
+      const storeDetails = await this.getStoreDetails(storeId);
 
       if (storeDetails) {
         return resolve(storeDetails);
       }
 
       return await firestore()
-        .collection('merchants')
-        .doc(merchantId)
+        .collection('stores')
+        .doc(storeId)
         .get()
         .then((document) => {
           if (document.exists) {
-            const store = {...document.data(), merchantId: document.id};
+            const store = {...document.data(), storeId: document.id};
 
             return resolve(store);
           }
@@ -203,18 +203,16 @@ class shopStore {
     this.itemCategories = [];
   }
 
-  @action getStoreDetails(merchantId) {
-    const store = this.storeList.find(
-      (element) => element.merchantId === merchantId,
-    );
+  @action getStoreDetails(storeId) {
+    const store = this.storeList.find((element) => element.storeId === storeId);
 
     return store;
   }
 
-  @action getCartItemQuantity(item, merchantId) {
+  @action getCartItemQuantity(item, storeId) {
     if (this.storeCartItems) {
-      if (this.storeCartItems[merchantId]) {
-        const cartItem = this.storeCartItems[merchantId].find(
+      if (this.storeCartItems[storeId]) {
+        const cartItem = this.storeCartItems[storeId].find(
           (storeCartItem) => storeCartItem.itemId === item.itemId,
         );
 
@@ -241,8 +239,8 @@ class shopStore {
       });
   }
 
-  @action async addCartItemToStorage(item, merchantId) {
-    const storeCartItems = this.storeCartItems[merchantId];
+  @action async addCartItemToStorage(item, storeId) {
+    const storeCartItems = this.storeCartItems[storeId];
     const dateNow = firestore.Timestamp.now().toMillis();
 
     const newItem = {
@@ -265,12 +263,12 @@ class shopStore {
         storeCartItems.push(newItem);
       }
     } else {
-      this.storeCartItems[merchantId] = [{...newItem}];
+      this.storeCartItems[storeId] = [{...newItem}];
     }
   }
 
-  @action async deleteCartItemInStorage(item, merchantId) {
-    const storeCart = this.storeCartItems[merchantId];
+  @action async deleteCartItemInStorage(item, storeId) {
+    const storeCart = this.storeCartItems[storeId];
     const dateNow = firestore.Timestamp.now().toMillis();
 
     if (storeCart) {
@@ -287,8 +285,8 @@ class shopStore {
 
           delete this.validItemQuantity[item.itemId];
 
-          if (!this.storeCartItems[merchantId].length) {
-            delete this.storeCartItems[merchantId];
+          if (!this.storeCartItems[storeId].length) {
+            delete this.storeCartItems[storeId];
           }
         }
       } else {
@@ -336,7 +334,7 @@ class shopStore {
       storeCategory &&
       lastVisible
     ) {
-      return await merchantsCollection
+      return await storesCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
         .where('creditData.creditThresholdReached', '==', false)
@@ -352,7 +350,7 @@ class shopStore {
           querySnapshot.forEach((documentSnapshot, index) => {
             list.push(documentSnapshot.data());
 
-            list[index].merchantId = documentSnapshot.id;
+            list[index].storeId = documentSnapshot.id;
           });
 
           return list;
@@ -362,9 +360,12 @@ class shopStore {
             storeCategory
           ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
-        .catch((err) => Toast({text: err.message, type: 'danger'}));
+        .catch((err) => {
+          console.log(err.message);
+          Toast({text: err.message, type: 'danger'});
+        });
     } else if (currentLocationGeohash && locationCoordinates && storeCategory) {
-      return await merchantsCollection
+      return await storesCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
         .where('creditData.creditThresholdReached', '==', false)
@@ -379,7 +380,7 @@ class shopStore {
           querySnapshot.forEach((documentSnapshot, index) => {
             list.push(documentSnapshot.data());
 
-            list[index].merchantId = documentSnapshot.id;
+            list[index].storeId = documentSnapshot.id;
           });
 
           return list;
@@ -389,9 +390,12 @@ class shopStore {
             storeCategory
           ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
-        .catch((err) => Toast({text: err.message, type: 'danger'}));
+        .catch((err) => {
+          console.log(err.message);
+          Toast({text: err.message, type: 'danger'});
+        });
     } else if (currentLocationGeohash && locationCoordinates && lastVisible) {
-      return await merchantsCollection
+      return await storesCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
         .where('creditData.creditThresholdReached', '==', false)
@@ -406,7 +410,7 @@ class shopStore {
           querySnapshot.forEach((documentSnapshot, index) => {
             list.push(documentSnapshot.data());
 
-            list[index].merchantId = documentSnapshot.id;
+            list[index].storeId = documentSnapshot.id;
           });
 
           return list;
@@ -417,9 +421,12 @@ class shopStore {
             locationCoordinates,
           );
         })
-        .catch((err) => Toast({text: err.message, type: 'danger'}));
+        .catch((err) => {
+          console.log(err.message);
+          Toast({text: err.message, type: 'danger'});
+        });
     } else if (currentLocationGeohash && locationCoordinates) {
-      return await merchantsCollection
+      return await storesCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
         .where('creditData.creditThresholdReached', '==', false)
@@ -433,7 +440,7 @@ class shopStore {
           querySnapshot.forEach((documentSnapshot, index) => {
             list.push(documentSnapshot.data());
 
-            list[index].merchantId = documentSnapshot.id;
+            list[index].storeId = documentSnapshot.id;
           });
 
           return list;
@@ -444,7 +451,10 @@ class shopStore {
             locationCoordinates,
           );
         })
-        .catch((err) => Toast({text: err.message, type: 'danger'}));
+        .catch((err) => {
+          console.log(err.message);
+          Toast({text: err.message, type: 'danger'});
+        });
     }
   }
 
@@ -487,13 +497,13 @@ class shopStore {
     return sortedList;
   }
 
-  @action async setStoreItems(merchantId, itemCategories) {
-    const merchantItemsCollection = firestore()
-      .collection('merchants')
-      .doc(merchantId)
+  @action async setStoreItems(storeId, itemCategories) {
+    const storeItemsCollection = firestore()
+      .collection('stores')
+      .doc(storeId)
       .collection('items');
 
-    await merchantItemsCollection
+    await storeItemsCollection
       .get()
       .then(async (querySnapshot) => {
         const allItems = [];
@@ -526,7 +536,7 @@ class shopStore {
         return categoryItems;
       })
       .then((categoryItems) => {
-        this.storeCategoryItems.set(merchantId, categoryItems);
+        this.storeCategoryItems.set(storeId, categoryItems);
       })
       .catch((err) => Toast({text: err.message, type: 'danger'}));
   }

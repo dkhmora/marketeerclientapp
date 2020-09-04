@@ -153,7 +153,7 @@ class StoreList extends Component {
     <StoreCard
       store={item}
       navigation={this.props.navigation}
-      key={item.merchantId}
+      key={item.storeId}
     />
   );
 
@@ -236,7 +236,7 @@ class StoreList extends Component {
               onRefresh={this.onRefresh.bind(this)}
             />
           }
-          keyExtractor={(item) => item.merchantId}
+          keyExtractor={(item) => item.storeId}
           showsVerticalScrollIndicator={false}
           onMomentumScrollBegin={() => {
             this.state.onEndReachedCalledDuringMomentum = false;

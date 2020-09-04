@@ -31,13 +31,13 @@ class CartStoreList extends Component {
             onTouchEnd={() => onTouchEnd && onTouchEnd()}
             onTouchStart={() => onTouchStart && onTouchStart()}
             onTouchCancel={() => onTouchCancel && onTouchCancel()}>
-            {dataSource.map((merchantId, index) => {
+            {dataSource.map((storeId, index) => {
               return (
                 <CartStoreCard
                   cart={cart}
                   checkout={checkout}
-                  merchantId={merchantId}
-                  key={merchantId}
+                  storeId={storeId}
+                  key={storeId}
                 />
               );
             })}

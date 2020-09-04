@@ -26,12 +26,12 @@ class AddReviewModal extends PureComponent {
   submitReview() {
     const {addReview} = this.props.generalStore;
     const {order, closeModal, onReviewSubmit} = this.props;
-    const {orderId, merchantId} = order;
+    const {orderId, storeId} = order;
     const {rating, reviewBody} = this.state;
 
     const review = {
       orderId,
-      merchantId,
+      storeId,
       rating,
       reviewBody,
     };

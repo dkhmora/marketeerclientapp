@@ -18,10 +18,10 @@ class ItemCard extends PureComponent {
   constructor(props) {
     super(props);
 
-    const {item, merchantId} = this.props;
+    const {item, storeId} = this.props;
     const itemQuantity = this.props.shopStore.getCartItemQuantity(
       item,
-      merchantId,
+      storeId,
     );
     const itemStock = item.stock;
 
@@ -37,11 +37,11 @@ class ItemCard extends PureComponent {
   @observable url = null;
 
   @computed get cartItemQuantity() {
-    const {item, merchantId} = this.props;
+    const {item, storeId} = this.props;
 
     if (this.props.shopStore.storeCartItems) {
-      if (this.props.shopStore.storeCartItems[merchantId]) {
-        const cartItem = this.props.shopStore.storeCartItems[merchantId].find(
+      if (this.props.shopStore.storeCartItems[storeId]) {
+        const cartItem = this.props.shopStore.storeCartItems[storeId].find(
           (storeCartItem) => storeCartItem.itemId === item.itemId,
         );
 
@@ -55,12 +55,12 @@ class ItemCard extends PureComponent {
   }
 
   @computed get cartItemIndex() {
-    const {item, merchantId} = this.props;
+    const {item, storeId} = this.props;
 
     if (this.props.shopStore.storeCartItems) {
-      if (this.props.shopStore.storeCartItems[merchantId]) {
+      if (this.props.shopStore.storeCartItems[storeId]) {
         const itemIndex = this.props.shopStore.storeCartItems[
-          merchantId
+          storeId
         ].findIndex((storeCartItem) => storeCartItem.itemId === item.itemId);
 
         if (itemIndex >= 0) {
@@ -121,9 +121,9 @@ class ItemCard extends PureComponent {
   }
 
   handleIncreaseQuantity() {
-    const {item, merchantId} = this.props;
+    const {item, storeId} = this.props;
 
-    this.props.shopStore.addCartItemToStorage(item, merchantId);
+    this.props.shopStore.addCartItemToStorage(item, storeId);
 
     if (this.cartItemQuantity <= item.stock) {
       this.props.shopStore.updateCartItems();
@@ -140,9 +140,9 @@ class ItemCard extends PureComponent {
   }
 
   handleDecreaseQuantity() {
-    const {item, merchantId} = this.props;
+    const {item, storeId} = this.props;
 
-    this.props.shopStore.deleteCartItemInStorage(item, merchantId);
+    this.props.shopStore.deleteCartItemInStorage(item, storeId);
 
     this.props.shopStore.updateCartItems();
 
