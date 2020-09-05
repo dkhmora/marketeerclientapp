@@ -28,6 +28,7 @@ class CheckoutScreen extends Component {
     const {
       storeSelectedDeliveryMethod,
       storeSelectedPaymentMethod,
+      storeUserEmail,
     } = this.props.shopStore;
 
     const {userName} = this.props.authStore;
@@ -39,6 +40,7 @@ class CheckoutScreen extends Component {
     this.props.generalStore.appReady = false;
 
     const userCoordinates = await this.props.generalStore.getUserLocation();
+    // const userEmail = 'dkhmora@gmail.com';
 
     this.props.shopStore
       .placeOrder({
@@ -49,6 +51,7 @@ class CheckoutScreen extends Component {
         userName,
         storeSelectedDeliveryMethod,
         storeSelectedPaymentMethod,
+        storeUserEmail,
       })
       .then(async (response) => {
         this.props.generalStore.appReady = true;
@@ -84,11 +87,18 @@ class CheckoutScreen extends Component {
       });
   }
 
+  componentDidMount() {
+    this.props.generalStore.setAppData();
+  }
+
   componentWillUnmount() {
     const {userId} = this.props.authStore;
     const {getCartItems, unsubscribeToGetCartItems} = this.props.shopStore;
 
     !unsubscribeToGetCartItems && getCartItems(userId);
+
+    this.props.shopStore.storeSelectedDeliveryMethod = {};
+    this.props.shopStore.storeSelectedPaymentMethod = {};
   }
 
   render() {

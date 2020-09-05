@@ -1,19 +1,33 @@
 import React, {Component} from 'react';
-import {View, ActivityIndicator, Platform} from 'react-native';
-import {Picker} from 'native-base';
-import {Card, Text, Image, Icon} from 'react-native-elements';
+import {View, ActivityIndicator, Linking, ScrollView} from 'react-native';
+import {Card, Text, Image, Icon, ListItem, Input} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
 import CartListItem from './CartListItem';
 import {colors} from '../../assets/colors';
 import storage from '@react-native-firebase/storage';
 import {observable, computed, when} from 'mobx';
+import SelectionModal from './SelectionModal';
+import FastImage from 'react-native-fast-image';
+import Hyperlink from 'react-native-hyperlink';
+import stripHtml from 'string-strip-html';
+import Toast from './Toast';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
+import * as Animatable from 'react-native-animatable';
 
 @inject('generalStore')
 @inject('shopStore')
+@inject('authStore')
 @observer
 class CartStoreCard extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      paymentOptionsModal: false,
+      deliveryOptionsModal: false,
+      selectedPaymentMethod: null,
+      emailCheck: false,
+    };
   }
 
   @observable url = null;
@@ -75,6 +89,49 @@ class CartStoreCard extends Component {
     return [];
   }
 
+  @computed get selectedPayment() {
+    const {selectedPaymentMethod} = this.state;
+
+    return selectedPaymentMethod
+      ? Object.values(selectedPaymentMethod)[0]
+      : null;
+  }
+
+  async openLink(url) {
+    try {
+      if (await InAppBrowser.isAvailable()) {
+        await InAppBrowser.open(url, {
+          dismissButtonStyle: 'close',
+          preferredBarTintColor: colors.primary,
+          preferredControlTintColor: 'white',
+          readerMode: false,
+          animated: true,
+          modalPresentationStyle: 'pageSheet',
+          modalTransitionStyle: 'coverVertical',
+          modalEnabled: true,
+          enableBarCollapsing: false,
+          // Android Properties
+          showTitle: true,
+          toolbarColor: colors.primary,
+          secondaryToolbarColor: 'black',
+          enableUrlBarHiding: true,
+          enableDefaultShare: true,
+          forceCloseOnRedirection: false,
+          animations: {
+            startEnter: 'slide_in_right',
+            startExit: 'slide_out_left',
+            endEnter: 'slide_in_left',
+            endExit: 'slide_out_right',
+          },
+        });
+      } else {
+        Linking.openURL(url);
+      }
+    } catch (err) {
+      Toast({text: err.message, type: 'danger'});
+    }
+  }
+
   async getImage() {
     const {storeId} = this.props;
 
@@ -96,8 +153,30 @@ class CartStoreCard extends Component {
     );
   }
 
+  handleEmailChange = (email) => {
+    this.props.shopStore.storeUserEmail[this.props.storeId] = email;
+
+    this.checkEmail(this.props.shopStore.storeUserEmail[this.props.storeId]);
+  };
+
+  checkEmail = (email) => {
+    const regexp = new RegExp(
+      /^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,5})$/,
+    );
+
+    if (email.length !== 0 && regexp.test(email)) {
+      this.setState({
+        emailCheck: true,
+      });
+    } else {
+      this.setState({
+        emailCheck: false,
+      });
+    }
+  };
+
   async componentDidMount() {
-    const {checkout} = this.props;
+    const {checkout, storeId} = this.props;
 
     this.getImage();
 
@@ -108,12 +187,16 @@ class CartStoreCard extends Component {
     }
 
     if (checkout) {
+      this.props.shopStore.storeUserEmail[
+        storeId
+      ] = this.props.authStore.userEmail;
+
+      this.checkEmail(this.props.shopStore.storeUserEmail[storeId]);
+
       when(
         () =>
           this.storeDetails.deliveryMethods &&
-          this.storeDetails.deliveryMethods.length > 0 &&
-          this.storeDetails.paymentMethods &&
-          this.storeDetails.paymentMethods.length > 0,
+          this.storeDetails.deliveryMethods.length > 0,
         () => {
           if (this.storeDetails.deliveryMethods.includes('Own Delivery')) {
             this.props.shopStore.storeSelectedDeliveryMethod[
@@ -124,23 +207,183 @@ class CartStoreCard extends Component {
               this.props.storeId
             ] = this.storeDetails.deliveryMethods[0];
           }
-
-          this.props.shopStore.storeSelectedPaymentMethod[
-            this.props.storeId
-          ] = this.storeDetails.paymentMethods[0];
         },
       );
     }
   }
 
-  componentWillUnmount() {
-    this.props.shopStore.storeSelectedDeliveryMethod = {};
-    this.props.shopStore.storeSelectedPaymentMethod = {};
+  renderPaymentMethods() {
+    const {storeId} = this.props;
+    const {selectedPaymentMethod} = this.state;
+    const {availablePaymentMethods} = this.props.generalStore;
+
+    if (Object.keys(availablePaymentMethods).length > 0) {
+      return (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentInsetAdjustmentBehavior="automatic">
+          {Object.entries(availablePaymentMethods).map(
+            ([key, value], index) => {
+              const paymentMethod = {[key]: value};
+
+              return (
+                <ListItem
+                  title={value.longName}
+                  subtitle={
+                    <Hyperlink
+                      linkStyle={{color: colors.accent}}
+                      onPress={(url, text) => this.openLink(url)}>
+                      <Text
+                        style={{
+                          color: colors.text_secondary,
+                        }}>
+                        {
+                          stripHtml(value.remarks, {
+                            dumpLinkHrefsNearby: {
+                              enabled: true,
+                              putOnNewLine: false,
+                              wrapHeads: '[',
+                              wrapTails: ']',
+                            },
+                          }).result
+                        }
+                      </Text>
+                    </Hyperlink>
+                  }
+                  topDivider
+                  leftElement={
+                    key === 'COD' ? (
+                      <View
+                        style={{
+                          width: '20%',
+                          height: 50,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                        <Icon name="dollar-sign" color="green" size={40} />
+                      </View>
+                    ) : (
+                      <FastImage
+                        source={{uri: value.logo}}
+                        style={{width: '20%', height: 50}}
+                        resizeMode={FastImage.resizeMode.contain}
+                      />
+                    )
+                  }
+                  disabled={value.status !== 'A'}
+                  key={key}
+                  containerStyle={{
+                    paddingBottom:
+                      index === Object.keys(availablePaymentMethods).length - 1
+                        ? 45
+                        : 15,
+                  }}
+                  rightIcon={
+                    selectedPaymentMethod &&
+                    selectedPaymentMethod[key] === paymentMethod[key] ? (
+                      <Icon name="check" color={colors.primary} />
+                    ) : null
+                  }
+                  onPress={() =>
+                    this.setState(
+                      {selectedPaymentMethod: paymentMethod},
+                      () => {
+                        this.props.shopStore.storeSelectedPaymentMethod[
+                          storeId
+                        ] = Object.keys(paymentMethod)[0];
+                      },
+                    )
+                  }
+                />
+              );
+            },
+          )}
+        </ScrollView>
+      );
+    }
+
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: colors.icons,
+        }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  renderDeliveryMethods() {
+    const {storeDetails} = this;
+    const {storeId} = this.props;
+    const {deliveryMethods} = storeDetails;
+    const storeSelectedDeliveryMethod = this.props.shopStore
+      .storeSelectedDeliveryMethod[storeId];
+
+    if (deliveryMethods) {
+      return (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentInsetAdjustmentBehavior="automatic">
+          {deliveryMethods
+            .slice()
+            .sort((a, b) => a > b)
+            .map((deliveryMethod, index) => {
+              return (
+                <ListItem
+                  title={deliveryMethod}
+                  key={`${deliveryMethod}-${index}`}
+                  bottomDivider
+                  rightIcon={
+                    storeSelectedDeliveryMethod &&
+                    storeSelectedDeliveryMethod === deliveryMethod ? (
+                      <Icon name="check" color={colors.primary} />
+                    ) : null
+                  }
+                  onPress={() =>
+                    (this.props.shopStore.storeSelectedDeliveryMethod[
+                      storeId
+                    ] = deliveryMethod)
+                  }
+                />
+              );
+            })}
+        </ScrollView>
+      );
+    }
+
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: colors.icons,
+        }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
   }
 
   render() {
     const {storeId, checkout} = this.props;
-    const {storeDetails} = this;
+    const {
+      storeSelectedDeliveryMethod,
+      storeSelectedPaymentMethod,
+      storeUserEmail,
+    } = this.props.shopStore;
+    const {
+      paymentOptionsModal,
+      deliveryOptionsModal,
+      selectedPaymentMethod,
+      emailCheck,
+    } = this.state;
+    const {storeDetails, selectedPayment} = this;
+    const selectedDelivery = storeSelectedDeliveryMethod[storeId];
+    const selectedPaymentKey = storeSelectedPaymentMethod[storeId];
+    const email = storeUserEmail[storeId];
 
     return (
       <View
@@ -153,6 +396,24 @@ class CartStoreCard extends Component {
           shadowOpacity: 0.2,
           shadowRadius: 1.41,
         }}>
+        <SelectionModal
+          isVisible={paymentOptionsModal}
+          title="Payment Method"
+          closeModal={() => this.setState({paymentOptionsModal: false})}
+          confirmDisabled={!selectedPaymentMethod}
+          renderItems={this.renderPaymentMethods()}
+        />
+
+        <SelectionModal
+          isVisible={deliveryOptionsModal}
+          title="Delivery Method"
+          closeModal={() => this.setState({deliveryOptionsModal: false})}
+          confirmDisabled={
+            !this.props.shopStore.storeSelectedDeliveryMethod[storeId]
+          }
+          renderItems={this.renderDeliveryMethods()}
+        />
+
         <Card
           containerStyle={{
             margin: 0,
@@ -326,125 +587,126 @@ class CartStoreCard extends Component {
               <View
                 style={{
                   flex: 1,
-                  borderRadius: 10,
-                  borderWidth: 1,
-                  borderColor: colors.divider,
                   marginHorizontal: 10,
                   marginTop: 10,
                   flexDirection: 'column',
                 }}>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    marginTop: 5,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    paddingHorizontal: 8,
+                    borderRadius: 10,
+                    elevation: 3,
+                    shadowColor: '#000',
+                    shadowOffset: {
+                      width: 0,
+                      height: 1,
+                    },
+                    shadowOpacity: 0.22,
+                    shadowRadius: 2.22,
+                    overflow: 'hidden',
+                    marginVertical: 5,
                   }}>
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      fontFamily: 'ProductSans-Light',
-                      flex: Platform.OS === 'ios' ? 1 : 0,
-                    }}>
-                    Delivery Method:
-                  </Text>
-
-                  {storeDetails.deliveryMethods &&
-                  storeDetails.deliveryMethods.length > 0 ? (
-                    <Picker
-                      mode="dropdown"
-                      iosIcon={<Icon name="chevron-down" />}
-                      selectedValue={
-                        this.props.shopStore.storeSelectedDeliveryMethod[
-                          storeId
-                        ]
-                      }
-                      onValueChange={(value) => {
-                        this.props.shopStore.storeSelectedDeliveryMethod[
-                          storeId
-                        ] = value;
-                      }}>
-                      {storeDetails.deliveryMethods &&
-                        storeDetails.deliveryMethods.map((method, index) => {
-                          const label =
-                            method === 'Own Delivery'
-                              ? `Store Delivery (₱${storeDetails.ownDeliveryServiceFee})`
-                              : `${method}`;
-
-                          return (
-                            <Picker.Item
-                              label={label}
-                              value={method}
-                              key={`${method}${index}`}
-                            />
-                          );
-                        })}
-                    </Picker>
-                  ) : (
-                    <Text
-                      style={{
-                        flex: 1,
-                        paddingHorizontal: 10,
-                        paddingVertical: 18,
-                        fontFamily: 'ProductSans-Regular',
-                        fontStyle: 'italic',
-                      }}>
-                      No delivery method available
-                    </Text>
-                  )}
+                  <ListItem
+                    title="Delivery Method"
+                    onPress={() => this.setState({deliveryOptionsModal: true})}
+                    subtitle={
+                      selectedDelivery
+                        ? selectedDelivery
+                        : 'Please select a delivery method'
+                    }
+                    subtitleStyle={{fontSize: 14, color: colors.primary}}
+                    titleStyle={{fontSize: 18}}
+                    chevron
+                  />
                 </View>
 
                 <View
                   style={{
-                    flexDirection: 'row',
+                    borderRadius: 10,
+                    elevation: 3,
+                    shadowColor: '#000',
+                    shadowOffset: {
+                      width: 0,
+                      height: 1,
+                    },
+                    shadowOpacity: 0.22,
+                    shadowRadius: 2.22,
+                    overflow: 'hidden',
                     marginTop: 5,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    paddingHorizontal: 8,
                   }}>
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      fontFamily: 'ProductSans-Light',
-                      flex: Platform.OS === 'ios' ? 1 : 0,
-                    }}>
-                    Payment Method:
-                  </Text>
-                  {storeDetails.paymentMethods &&
-                  storeDetails.paymentMethods.length > 0 ? (
-                    <Picker
-                      mode="dropdown"
-                      style={{flex: 1}}
-                      iosIcon={<Icon name="chevron-down" />}
-                      selectedValue={
-                        this.props.shopStore.storeSelectedPaymentMethod[storeId]
-                      }
-                      onValueChange={(value) => {
-                        this.props.shopStore.storeSelectedPaymentMethod[
-                          storeId
-                        ] = value;
-                      }}>
-                      {storeDetails.paymentMethods &&
-                        storeDetails.paymentMethods.map((method, index) => {
-                          const label =
-                            method === 'Online Payment'
-                              ? 'Online Payment (Through chat)'
-                              : `${method}`;
+                  <ListItem
+                    title="Payment Method"
+                    onPress={() => this.setState({paymentOptionsModal: true})}
+                    subtitle={
+                      selectedPayment
+                        ? selectedPayment.minAmount && selectedPayment.maxAmount
+                          ? `${selectedPayment.shortName} (₱${selectedPayment.minAmount} - ₱${selectedPayment.maxAmount})`
+                          : `${selectedPayment.longName}`
+                        : 'Please select a payment method'
+                    }
+                    subtitleStyle={{fontSize: 14, color: colors.primary}}
+                    titleStyle={{fontSize: 18}}
+                    chevron
+                  />
 
-                          return (
-                            <Picker.Item
-                              label={label}
-                              value={method}
-                              key={`${method}${index}`}
+                  {selectedPaymentKey && selectedPaymentKey !== 'COD' && (
+                    <ListItem
+                      topDivider
+                      title="Email Address"
+                      titleStyle={{fontSize: 18, flex: 0}}
+                      subtitle={
+                        <View style={{flexDirection: 'column'}}>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              width: '100%',
+                              alignItems: 'center',
+                            }}>
+                            <Input
+                              placeholder="gordon_norman@gmail.com"
+                              placeholderTextColor={colors.text_secondary}
+                              leftIcon={
+                                <Icon
+                                  name="mail"
+                                  color={colors.primary}
+                                  size={20}
+                                />
+                              }
+                              rightIcon={
+                                emailCheck ? (
+                                  <Animatable.View
+                                    useNativeDriver
+                                    animation="bounceIn">
+                                    <Icon
+                                      name="check-circle"
+                                      color="#388e3c"
+                                      size={20}
+                                    />
+                                  </Animatable.View>
+                                ) : null
+                              }
+                              inputStyle={{fontSize: 16}}
+                              containerStyle={{
+                                marginBottom: -20,
+                              }}
+                              maxLength={256}
+                              autoCapitalize="none"
+                              value={email}
+                              onChangeText={(value) =>
+                                this.handleEmailChange(value)
+                              }
                             />
-                          );
-                        })}
-                    </Picker>
-                  ) : (
-                    <Text style={{paddingTop: 10}}>
-                      No payment method available
-                    </Text>
+                          </View>
+
+                          <Text
+                            style={{
+                              color: colors.text_secondary,
+                              fontSize: 12,
+                            }}>
+                            We'll send you your receipt here
+                          </Text>
+                        </View>
+                      }
+                    />
                   )}
                 </View>
               </View>

@@ -16,7 +16,7 @@ class shopStore {
   @observable storeDetails = {};
   @observable storeSelectedDeliveryMethod = {};
   @observable storeSelectedPaymentMethod = {};
-  @observable storeCategories = [];
+  @observable storeUserEmail = {};
   @observable storeList = [];
   @observable categoryStoreList = {};
   @observable itemCategories = [];
@@ -50,14 +50,41 @@ class shopStore {
     return true;
   }
 
-  @computed get validPlaceOrder() {
-    if (this.cartStores.length > 0) {
-      const storeSelectedMethods = this.cartStores.map((storeName) => {
-        if (!this.storeSelectedPaymentMethod[storeName]) {
+  @computed get validStoreUserEmail() {
+    const emailRegexp = new RegExp(
+      /^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,5})$/,
+    );
+
+    if (Object.values(this.storeUserEmail).length > 0) {
+      return Object.entries(this.storeUserEmail).map(([storeId, email]) => {
+        if (
+          this.storeSelectedPaymentMethod[storeId] !== 'COD' &&
+          !emailRegexp.test(email)
+        ) {
           return false;
         }
 
-        if (!this.storeSelectedDeliveryMethod[storeName]) {
+        return true;
+      });
+    }
+
+    return true;
+  }
+
+  @computed get validPlaceOrder() {
+    if (this.cartStores.length > 0) {
+      const storeSelectedMethods = this.cartStores.map((storeId) => {
+        if (!this.storeSelectedPaymentMethod[storeId]) {
+          return false;
+        }
+
+        if (!this.storeSelectedDeliveryMethod[storeId]) {
+          return false;
+        }
+
+        console.log(this.validStoreUserEmail);
+
+        if (this.validStoreUserEmail.includes(false)) {
           return false;
         }
 
@@ -138,21 +165,6 @@ class shopStore {
     });
   }
 
-  @action async setStoreCategories() {
-    await firestore()
-      .collection('application')
-      .doc('client_config')
-      .get()
-      .then((document) => {
-        if (document.exists) {
-          this.storeCategories = document
-            .data()
-            .storeCategories.sort((a, b) => a.name > b.name);
-        }
-      })
-      .catch((err) => Toast({text: err.message, type: 'danger'}));
-  }
-
   @action async setCartItems(userId) {
     firestore()
       .collection('user_carts')
@@ -170,20 +182,24 @@ class shopStore {
     userName,
     storeSelectedDeliveryMethod,
     storeSelectedPaymentMethod,
+    storeUserEmail,
+    processId,
   }) {
     this.cartUpdateTimeout ? clearTimeout(this.cartUpdateTimeout) : null;
 
     return await this.updateCartItemsInstantly()
       .then(async () => {
-        return await functions.httpsCallable('placeOrder')({
+        return await functions.httpsCallable('placeOrderTest')({
           orderInfo: JSON.stringify({
             deliveryCoordinates,
             deliveryCoordinatesGeohash,
             deliveryAddress,
             userCoordinates,
             userName,
+            storeUserEmail,
             storeSelectedDeliveryMethod,
             storeSelectedPaymentMethod,
+            processId,
           }),
         });
       })
@@ -418,7 +434,7 @@ class shopStore {
         .catch((err) => Toast({text: err.message, type: 'danger'}));
     } else if (currentLocationGeohash && locationCoordinates) {
       return await storesCollection
-        .where('visibleToPublic', '==', true)
+        .where('devOnly', '==', true)
         .where('vacationMode', '==', false)
         .where('creditData.creditThresholdReached', '==', false)
         .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)

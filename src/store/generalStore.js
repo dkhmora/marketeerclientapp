@@ -30,6 +30,56 @@ class generalStore {
   @observable userDetails = {};
   @observable addressLoading = false;
   @observable navigation = null;
+  @observable storeCategories = [];
+  @observable availablePaymentMethods = {};
+  @observable additionalPaymentMethods = {
+    COD: {
+      longName: 'Cash On Delivery',
+      shortName: 'COD',
+      remarks: 'Pay in cash when you receive your order!',
+      cost: 0,
+      currencies: 'PHP',
+      status: 'A',
+      surcharge: 0,
+    },
+    BOG: {
+      longName: 'Bogus Bank',
+      shortName: 'Bogus Bank',
+      remarks: 'For Development Only',
+      cost: 0,
+      currencies: 'PHP',
+      status: 'A',
+      surcharge: 0,
+    },
+  };
+
+  @action async setAppData() {
+    await firestore()
+      .collection('application')
+      .doc('client_config')
+      .get()
+      .then(async (document) => {
+        if (document.exists) {
+          const data = document.data();
+          this.storeCategories = data.storeCategories.sort(
+            (a, b) => a.name > b.name,
+          );
+          let sortedAvailablePaymentMethods = {};
+
+          await Object.entries(data.availablePaymentMethods)
+            .sort((a, b) => a[1].longName > b[1].longName)
+            .map(([key, value], index) => {
+              sortedAvailablePaymentMethods[key] = value;
+            });
+
+          this.availablePaymentMethods = {
+            ...this.additionalPaymentMethods,
+            ...sortedAvailablePaymentMethods,
+          };
+        }
+      })
+      .catch((err) => Toast({text: err.message, type: 'danger'}));
+  }
 
   @action async cancelOrder(orderId, cancelReason) {
     return await functions
