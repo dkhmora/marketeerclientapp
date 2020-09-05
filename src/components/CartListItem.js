@@ -1,9 +1,9 @@
-import React, {Component} from 'react';
+import React, {PureComponent} from 'react';
 import FastImage from 'react-native-fast-image';
-import {Card, Text, ListItem, Button, Icon} from 'react-native-elements';
+import {Text, Button, Icon} from 'react-native-elements';
 import {observable, computed} from 'mobx';
 import storage from '@react-native-firebase/storage';
-import {View, Image} from 'react-native';
+import {View} from 'react-native';
 import {observer, inject} from 'mobx-react';
 import {styles} from '../../assets/styles';
 import {colors} from '../../assets/colors';
@@ -12,7 +12,7 @@ import Toast from './Toast';
 @inject('shopStore')
 @inject('authStore')
 @observer
-class CartListItem extends Component {
+class CartListItem extends PureComponent {
   constructor(props) {
     super(props);
 

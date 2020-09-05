@@ -63,7 +63,10 @@ class CheckoutScreen extends Component {
             duration: 6000,
           });
 
-          navigation.replace('Cart');
+          navigation.reset({
+            index: 0,
+            routes: [{name: 'Cart'}],
+          });
         } else {
           let responses = '';
 
@@ -81,7 +84,10 @@ class CheckoutScreen extends Component {
               duration: 5000,
             });
 
-            navigation.replace('Home');
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'Home'}],
+            });
           }
         }
       });

@@ -82,8 +82,6 @@ class shopStore {
           return false;
         }
 
-        console.log(this.validStoreUserEmail);
-
         if (this.validStoreUserEmail.includes(false)) {
           return false;
         }

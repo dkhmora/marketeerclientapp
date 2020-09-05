@@ -1,9 +1,9 @@
-import React, {Component} from 'react';
+import React, {PureComponent} from 'react';
 import {Overlay, Text, Button, Icon} from 'react-native-elements';
 import {View, SafeAreaView, StatusBar, Platform} from 'react-native';
 import {colors} from '../../assets/colors';
 
-class SelectionModal extends Component {
+class SelectionModal extends PureComponent {
   constructor(props) {
     super(props);
   }

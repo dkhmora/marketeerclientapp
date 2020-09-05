@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {PureComponent} from 'react';
 import {View, ActivityIndicator, Linking, ScrollView} from 'react-native';
 import {Card, Text, Image, Icon, ListItem, Input} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
@@ -18,7 +18,7 @@ import * as Animatable from 'react-native-animatable';
 @inject('shopStore')
 @inject('authStore')
 @observer
-class CartStoreCard extends Component {
+class CartStoreCard extends PureComponent {
   constructor(props) {
     super(props);
 
