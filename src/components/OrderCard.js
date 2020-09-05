@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 import {Card, CardItem, Body, View} from 'native-base';
-import {ActionSheetIOS} from 'react-native';
+import {ActionSheetIOS, Linking} from 'react-native';
 import moment from 'moment';
 import {observer, inject} from 'mobx-react';
 import {observable, action, computed} from 'mobx';
@@ -11,6 +11,7 @@ import {colors} from '../../assets/colors';
 import AddReviewModal from './AddReviewModal';
 import Toast from './Toast';
 import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -57,6 +58,42 @@ class OrderCard extends PureComponent {
 
   @action closeConfirmationModal() {
     this.confirmationModal = false;
+  }
+
+  async openLink(url) {
+    try {
+      if (await InAppBrowser.isAvailable()) {
+        await InAppBrowser.open(url, {
+          dismissButtonStyle: 'close',
+          preferredBarTintColor: colors.primary,
+          preferredControlTintColor: 'white',
+          readerMode: false,
+          animated: true,
+          modalPresentationStyle: 'pageSheet',
+          modalTransitionStyle: 'coverVertical',
+          modalEnabled: true,
+          enableBarCollapsing: false,
+          // Android Properties
+          showTitle: true,
+          toolbarColor: colors.primary,
+          secondaryToolbarColor: 'black',
+          enableUrlBarHiding: true,
+          enableDefaultShare: true,
+          forceCloseOnRedirection: false,
+          animations: {
+            startEnter: 'slide_in_right',
+            startExit: 'slide_out_left',
+            endEnter: 'slide_in_left',
+            endExit: 'slide_out_right',
+          },
+        });
+      } else {
+        Linking.openURL(url);
+      }
+      this.props.generalStore.appReady = true;
+    } catch (err) {
+      Toast({text: err.message, type: 'danger'});
+    }
   }
 
   componentDidMount() {
@@ -254,6 +291,7 @@ class OrderCard extends PureComponent {
 
   CardFooter = ({orderStatus}) => {
     const {order} = this.props;
+    const {paymentLink, paymentMethod, reviewed} = order;
 
     return (
       <View
@@ -264,10 +302,11 @@ class OrderCard extends PureComponent {
           justifyContent: 'space-between',
           paddingHorizontal: 15,
           paddingBottom: 5,
+          minHeight: 35,
         }}>
         <Text>Updated {this.timeStamp}</Text>
 
-        {orderStatus[0] === 'COMPLETED' && !order.reviewed ? (
+        {orderStatus[0] === 'COMPLETED' && !reviewed && (
           <Button
             title="Review"
             type="clear"
@@ -275,9 +314,22 @@ class OrderCard extends PureComponent {
             titleStyle={{color: colors.primary}}
             containerStyle={{borderRadius: 24}}
           />
-        ) : (
-          <View style={{height: 34}} />
         )}
+
+        {orderStatus[0] === 'UNPAID' &&
+          paymentMethod === 'Online Banking' &&
+          paymentLink && (
+            <Button
+              title="Pay Now"
+              type="clear"
+              onPress={() => {
+                this.props.generalStore.appReady = false;
+                this.openLink(paymentLink);
+              }}
+              titleStyle={{color: colors.primary}}
+              containerStyle={{borderRadius: 24}}
+            />
+          )}
       </View>
     );
   };

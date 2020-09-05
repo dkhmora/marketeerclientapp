@@ -40,7 +40,6 @@ class CheckoutScreen extends Component {
     this.props.generalStore.appReady = false;
 
     const userCoordinates = await this.props.generalStore.getUserLocation();
-    // const userEmail = 'dkhmora@gmail.com';
 
     this.props.shopStore
       .placeOrder({
