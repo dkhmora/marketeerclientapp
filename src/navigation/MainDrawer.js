@@ -12,6 +12,8 @@ import {computed} from 'mobx';
 import Toast from '../components/Toast';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import ConfirmationModal from '../components/ConfirmationModal';
+import dynamicLinks from '@react-native-firebase/dynamic-links';
+import messaging from '@react-native-firebase/messaging';
 
 @inject('authStore')
 @inject('shopStore')
@@ -26,8 +28,22 @@ class MainDrawer extends Component {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.props.generalStore.navigation = this.props.navigation;
+
+    this.initializeForegroundNotificationHandlers();
+
+    this.unsubscribe = dynamicLinks().onLink((link) =>
+      this.handleDynamicLink(link),
+    );
+
+    try {
+      const initialLink = await dynamicLinks().getInitialLink();
+
+      if (initialLink.url !== null) {
+        this.handleDynamicLink(initialLink);
+      }
+    } catch (error) {}
   }
 
   @computed get authenticationButtonText() {
@@ -51,6 +67,66 @@ class MainDrawer extends Component {
   @computed get userInitial() {
     return this.userNameText.charAt(0);
   }
+
+  initializeForegroundNotificationHandlers() {
+    messaging()
+      .getInitialNotification()
+      .then((notification) => {
+        if (notification) {
+          if (notification.data.type === 'order_message') {
+            this.props.navigation.navigate('Order Chat', {
+              orderId: notification.data.orderId,
+            });
+          }
+
+          if (notification.data.type === 'order_update') {
+          }
+        }
+      });
+  }
+
+  handleDynamicLink = (link) => {
+    switch (link.url) {
+      case 'https://marketeer.ph/order/payment/success':
+        Toast({text: 'Payment successful!', duration: 5000});
+        break;
+      case 'https://marketeer.ph/order/payment/failure':
+        Toast({
+          text: 'Error: Payment failure. Please try again later.',
+          type: 'danger',
+          duration: 5000,
+        });
+        break;
+      case 'https://marketeer.ph/order/payment/pending':
+        Toast({
+          text:
+            'Payment pending. Please check your email for payment instructions.',
+          type: 'info',
+          duration: 8000,
+        });
+        break;
+      case 'https://marketeer.ph/order/payment/unknown':
+        Toast({text: 'Payment status unknown', type: 'info'});
+        break;
+      case 'https://marketeer.ph/order/payment/refund':
+        Toast({text: 'Payment refunded', type: 'info'});
+        break;
+      case 'https://marketeer.ph/order/payment/chargeback':
+        Toast({text: 'Payment chargedback', type: 'info'});
+        break;
+      case 'https://marketeer.ph/order/payment/void':
+        Toast({text: 'Payment voided', type: 'info'});
+        break;
+      case 'https://marketeer.ph/order/payment/authorized':
+        Toast({text: 'Payment authorized', type: 'info'});
+        break;
+    }
+
+    this.props.navigation.reset({
+      index: 0,
+      routes: [{name: 'Home'}],
+    });
+  };
 
   handleAuthentication() {
     if (this.props.authStore.guest && this.props.authStore.userAuthenticated) {
