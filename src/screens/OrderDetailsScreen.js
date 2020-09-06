@@ -484,128 +484,6 @@ class OrderDetailsScreen extends Component {
                   </Card>
                 </View>
               )}
-              <View
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: {
-                    width: 0,
-                    height: 1,
-                  },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 1.41,
-                }}>
-                <Card
-                  style={{
-                    borderRadius: 10,
-                    overflow: 'hidden',
-                  }}>
-                  <CardItem
-                    header
-                    bordered
-                    style={{backgroundColor: colors.primary}}>
-                    <Text style={{color: colors.icons, fontSize: 20}}>
-                      Order Items
-                    </Text>
-                  </CardItem>
-
-                  {ready ? (
-                    <View>
-                      {orderItems.map((item, index) => {
-                        return (
-                          <View key={item.itemId}>
-                            <CartListItem
-                              item={item}
-                              storeId={storeId}
-                              checkout
-                            />
-                          </View>
-                        );
-                      })}
-                    </View>
-                  ) : (
-                    <PrimaryActivityIndicator />
-                  )}
-                  <CardItem
-                    bordered
-                    style={{
-                      borderTopWidth: 0.5,
-                      borderTopColor: colors.divider,
-                    }}>
-                    <Left>
-                      <Text note>{quantity} items</Text>
-                    </Left>
-                    <Right>
-                      <View
-                        style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text
-                          style={{
-                            fontSize: 15,
-                            color: colors.text_primary,
-                            fontFamily: 'ProductSans-Light',
-                          }}>
-                          Subtotal:{' '}
-                        </Text>
-                        <Text
-                          style={{
-                            fontSize: 18,
-                            color: colors.text_primary,
-                            fontFamily: 'ProductSans-Black',
-                          }}>
-                          ₱{subTotal}
-                        </Text>
-                      </View>
-
-                      <View
-                        style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text
-                          style={{
-                            fontSize: 15,
-                            color: colors.text_primary,
-                            fontFamily: 'ProductSans-Light',
-                          }}>
-                          Delivery Price:{' '}
-                        </Text>
-                        <Text
-                          style={{
-                            fontSize: 18,
-                            color: colors.text_primary,
-                            fontFamily: 'ProductSans-Black',
-                          }}>
-                          {deliveryPrice && deliveryPrice > 0
-                            ? `₱${deliveryPrice}`
-                            : deliveryPrice === null
-                            ? '(Contact Store)'
-                            : '₱0 (Free Delivery)'}
-                        </Text>
-                      </View>
-                    </Right>
-                  </CardItem>
-                  <CardItem footer bordered>
-                    <Left />
-                    <Right>
-                      <View
-                        style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text
-                          style={{
-                            fontSize: 15,
-                            color: colors.text_primary,
-                            fontFamily: 'ProductSans-Light',
-                          }}>
-                          Order Total:{' '}
-                        </Text>
-                        <Text
-                          style={{
-                            fontSize: 18,
-                            color: colors.primary,
-                            fontFamily: 'ProductSans-Black',
-                          }}>
-                          ₱{subTotal + (deliveryPrice ? deliveryPrice : 0)}
-                        </Text>
-                      </View>
-                    </Right>
-                  </CardItem>
-                </Card>
-              </View>
 
               {paymentMethod === 'Online Banking' &&
                 !order.orderStatus.pending.status &&
@@ -783,6 +661,129 @@ class OrderDetailsScreen extends Component {
                     </Card>
                   </View>
                 )}
+
+              <View
+                style={{
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 1,
+                  },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 1.41,
+                }}>
+                <Card
+                  style={{
+                    borderRadius: 10,
+                    overflow: 'hidden',
+                  }}>
+                  <CardItem
+                    header
+                    bordered
+                    style={{backgroundColor: colors.primary}}>
+                    <Text style={{color: colors.icons, fontSize: 20}}>
+                      Order Items
+                    </Text>
+                  </CardItem>
+
+                  {ready ? (
+                    <View>
+                      {orderItems.map((item, index) => {
+                        return (
+                          <View key={item.itemId}>
+                            <CartListItem
+                              item={item}
+                              storeId={storeId}
+                              checkout
+                            />
+                          </View>
+                        );
+                      })}
+                    </View>
+                  ) : (
+                    <PrimaryActivityIndicator />
+                  )}
+                  <CardItem
+                    bordered
+                    style={{
+                      borderTopWidth: 0.5,
+                      borderTopColor: colors.divider,
+                    }}>
+                    <Left>
+                      <Text note>{quantity} items</Text>
+                    </Left>
+                    <Right>
+                      <View
+                        style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <Text
+                          style={{
+                            fontSize: 15,
+                            color: colors.text_primary,
+                            fontFamily: 'ProductSans-Light',
+                          }}>
+                          Subtotal:{' '}
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: 18,
+                            color: colors.text_primary,
+                            fontFamily: 'ProductSans-Black',
+                          }}>
+                          ₱{subTotal}
+                        </Text>
+                      </View>
+
+                      <View
+                        style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <Text
+                          style={{
+                            fontSize: 15,
+                            color: colors.text_primary,
+                            fontFamily: 'ProductSans-Light',
+                          }}>
+                          Delivery Price:{' '}
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: 18,
+                            color: colors.text_primary,
+                            fontFamily: 'ProductSans-Black',
+                          }}>
+                          {deliveryPrice && deliveryPrice > 0
+                            ? `₱${deliveryPrice}`
+                            : deliveryPrice === null
+                            ? '(Contact Store)'
+                            : '₱0 (Free Delivery)'}
+                        </Text>
+                      </View>
+                    </Right>
+                  </CardItem>
+                  <CardItem footer bordered>
+                    <Left />
+                    <Right>
+                      <View
+                        style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <Text
+                          style={{
+                            fontSize: 15,
+                            color: colors.text_primary,
+                            fontFamily: 'ProductSans-Light',
+                          }}>
+                          Order Total:{' '}
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: 18,
+                            color: colors.primary,
+                            fontFamily: 'ProductSans-Black',
+                          }}>
+                          ₱{subTotal + (deliveryPrice ? deliveryPrice : 0)}
+                        </Text>
+                      </View>
+                    </Right>
+                  </CardItem>
+                </Card>
+              </View>
             </ScrollView>
           </View>
         ) : (

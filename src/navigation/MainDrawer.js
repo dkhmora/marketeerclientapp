@@ -72,7 +72,6 @@ class MainDrawer extends Component {
     messaging()
       .getInitialNotification()
       .then((notification) => {
-        console.log(notification);
         if (notification) {
           if (notification.data.type === 'order_message') {
             this.props.navigation.navigate('Order Chat', {
