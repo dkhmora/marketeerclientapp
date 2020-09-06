@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import {Card, CardItem, Left, Right, Body} from 'native-base';
-import {View, ActivityIndicator} from 'react-native';
-import {Text, Input, Icon} from 'react-native-elements';
+import {Card, CardItem, Left, Right} from 'native-base';
+import {View, ActivityIndicator, Linking} from 'react-native';
+import {Text, Input, Icon, Button} from 'react-native-elements';
 import BaseHeader from '../components/BaseHeader';
 import {ScrollView} from 'react-native-gesture-handler';
 import {colors} from '../../assets/colors';
@@ -10,6 +10,7 @@ import {inject, observer} from 'mobx-react';
 import ConfirmationModal from '../components/ConfirmationModal';
 import * as Animatable from 'react-native-animatable';
 import Toast from '../components/Toast';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 
 @inject('generalStore')
 @inject('authStore')
@@ -120,6 +121,42 @@ class OrderDetailsScreen extends Component {
     }
   }
 
+  async openLink(url) {
+    try {
+      if (await InAppBrowser.isAvailable()) {
+        await InAppBrowser.open(url, {
+          dismissButtonStyle: 'close',
+          preferredBarTintColor: colors.primary,
+          preferredControlTintColor: 'white',
+          readerMode: false,
+          animated: true,
+          modalPresentationStyle: 'pageSheet',
+          modalTransitionStyle: 'coverVertical',
+          modalEnabled: true,
+          enableBarCollapsing: false,
+          // Android Properties
+          showTitle: true,
+          toolbarColor: colors.primary,
+          secondaryToolbarColor: 'black',
+          enableUrlBarHiding: true,
+          enableDefaultShare: true,
+          forceCloseOnRedirection: false,
+          animations: {
+            startEnter: 'slide_in_right',
+            startExit: 'slide_out_left',
+            endEnter: 'slide_in_left',
+            endExit: 'slide_out_right',
+          },
+        });
+      } else {
+        Linking.openURL(url);
+      }
+      this.props.generalStore.appReady = true;
+    } catch (err) {
+      Toast({text: err.message, type: 'danger'});
+    }
+  }
+
   render() {
     const {order, orderStatus} = this.props.route.params;
     const {availablePaymentMethods} = this.props.generalStore;
@@ -133,6 +170,7 @@ class OrderDetailsScreen extends Component {
       storeName,
       storeId,
       processId,
+      paymentLink,
     } = order;
     const paymentGateway = processId
       ? availablePaymentMethods[processId]
@@ -520,10 +558,34 @@ class OrderDetailsScreen extends Component {
                   <CardItem
                     header
                     bordered
-                    style={{backgroundColor: colors.primary}}>
+                    style={{
+                      backgroundColor: colors.primary,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      height: 60,
+                      paddingBottom: 0,
+                      paddingTop: 0,
+                    }}>
                     <Text style={{color: colors.icons, fontSize: 20}}>
                       Payment Details
                     </Text>
+
+                    {orderStatus[0] === 'UNPAID' &&
+                      paymentMethod === 'Online Banking' &&
+                      paymentLink && (
+                        <Button
+                          title="Pay Now"
+                          onPress={() => {
+                            this.props.generalStore.appReady = false;
+                            this.openLink(paymentLink);
+                          }}
+                          titleStyle={{color: colors.icons}}
+                          buttonStyle={{
+                            backgroundColor: colors.accent,
+                          }}
+                          containerStyle={{borderRadius: 24}}
+                        />
+                      )}
                   </CardItem>
 
                   {orderPayment ? (
