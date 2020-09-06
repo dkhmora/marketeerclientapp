@@ -29,6 +29,7 @@ class CheckoutScreen extends Component {
       storeSelectedDeliveryMethod,
       storeSelectedPaymentMethod,
       storeUserEmail,
+      storeAssignedMerchantId,
     } = this.props.shopStore;
 
     const {userName} = this.props.authStore;
@@ -50,6 +51,7 @@ class CheckoutScreen extends Component {
         userName,
         storeSelectedDeliveryMethod,
         storeSelectedPaymentMethod,
+        storeAssignedMerchantId,
         storeUserEmail,
       })
       .then(async (response) => {
@@ -63,8 +65,8 @@ class CheckoutScreen extends Component {
           });
 
           navigation.reset({
-            index: 0,
-            routes: [{name: 'Cart'}],
+            index: 1,
+            routes: [{name: 'Home'}, {name: 'Cart'}],
           });
         } else {
           let responses = '';

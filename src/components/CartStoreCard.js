@@ -144,6 +144,10 @@ class CartStoreCard extends PureComponent {
     this.storeDetails = await this.props.shopStore.getStoreDetailsFromStoreId(
       this.props.storeId,
     );
+
+    this.props.shopStore.storeAssignedMerchantId[
+      this.props.storeId
+    ] = this.storeDetails.merchantId;
   }
 
   async getStoreItemsSnapshot() {

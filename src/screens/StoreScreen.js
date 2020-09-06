@@ -81,7 +81,7 @@ class StoreScreen extends Component {
               justifyContent: 'center',
               paddingTop: STATUS_BAR_HEIGHT + 20,
               paddingBottom: 40 + STATUS_BAR_HEIGHT,
-              paddingHorizontal: 5,
+              paddingHorizontal: 10,
               alignItems: 'center',
               backgroundColor: 'rgba(0,0,0,0.2)',
             }}>
@@ -101,23 +101,17 @@ class StoreScreen extends Component {
               }}
             />
 
-            <Animatable.View
-              animation="fadeInUp"
-              useNativeDriver
-              duration={600}
-              style={{paddingHorizontal: 10}}>
-              <Button
-                onPress={() => navigation.goBack()}
-                type="clear"
-                color={colors.icons}
-                icon={<Icon name="arrow-left" color={colors.primary} />}
-                buttonStyle={{borderRadius: 30}}
-                containerStyle={[
-                  styles.buttonContainer,
-                  {backgroundColor: '#fff', height: 40},
-                ]}
-              />
-            </Animatable.View>
+            <Button
+              onPress={() => navigation.goBack()}
+              type="clear"
+              color={colors.icons}
+              icon={<Icon name="arrow-left" color={colors.primary} />}
+              buttonStyle={{borderRadius: 30}}
+              containerStyle={[
+                styles.buttonContainer,
+                {backgroundColor: '#fff', height: 40},
+              ]}
+            />
 
             <Animatable.Image
               animation="fadeInUp"
@@ -130,6 +124,7 @@ class StoreScreen extends Component {
                 borderRadius: 8,
                 borderWidth: 1,
                 borderColor: colors.primary,
+                marginHorizontal: 10,
               }}
             />
 
@@ -152,7 +147,6 @@ class StoreScreen extends Component {
                     color: colors.icons,
                     fontSize: 30,
                     flex: 1,
-                    paddingHorizontal: 10,
                   },
                 ]}>
                 {store.storeName}
@@ -164,7 +158,7 @@ class StoreScreen extends Component {
                 buttonStyle={{borderRadius: 30}}
                 containerStyle={[
                   styles.buttonContainer,
-                  {marginRight: 5, backgroundColor: '#fff', height: 40},
+                  {backgroundColor: '#fff', height: 40},
                 ]}
                 icon={
                   <Icon

@@ -22,6 +22,7 @@ class OrderDetailsScreen extends Component {
 
     this.state = {
       orderItems: null,
+      orderPayment: null,
       ready: false,
       confirmCancelOrderModal: false,
       cancelReasonCheck: false,
@@ -32,6 +33,30 @@ class OrderDetailsScreen extends Component {
     this.props.generalStore.getOrderItems(orderId).then((orderItems) => {
       this.setState({orderItems, ready: true});
     });
+  }
+
+  componentDidMount() {
+    const {order} = this.props.route.params;
+    const {availablePaymentMethods} = this.props.generalStore;
+
+    if (order.paymentMethod === 'Online Banking') {
+      if (Object.keys(availablePaymentMethods).length === 0) {
+        this.props.generalStore.setAppData();
+      }
+
+      if (
+        order.orderStatus.unpaid.status ||
+        order.orderStatus.paid.status ||
+        order.orderStatus.shipped.status ||
+        order.orderStatus.completed.status
+      ) {
+        this.props.generalStore
+          .getOrderPayment(order.orderId)
+          .then((orderPayment) => {
+            this.setState({orderPayment, ready: true});
+          });
+      }
+    }
   }
 
   handleCancelReasonChange = (cancelReasonInput) => {
@@ -99,6 +124,7 @@ class OrderDetailsScreen extends Component {
 
   render() {
     const {order, orderStatus} = this.props.route.params;
+    const {availablePaymentMethods} = this.props.generalStore;
     const {
       userOrderNumber,
       quantity,
@@ -108,13 +134,18 @@ class OrderDetailsScreen extends Component {
       deliveryMethod,
       storeName,
       storeId,
+      processId,
     } = order;
+    const paymentGateway = processId
+      ? availablePaymentMethods[processId]
+      : null;
     const {userName} = this.props.authStore;
 
     const {navigation} = this.props;
 
     const {
       orderItems,
+      orderPayment,
       ready,
       confirmCancelOrderModal,
       cancelReasonCheck,
@@ -123,6 +154,26 @@ class OrderDetailsScreen extends Component {
     } = this.state;
 
     const cancelReason = order.orderStatus.cancelled.reason;
+
+    const paymentStatus =
+      orderPayment &&
+      (orderPayment.status === 'S'
+        ? 'Success'
+        : orderPayment.status === 'F'
+        ? 'Failure'
+        : orderPayment.status === 'P'
+        ? 'Pending'
+        : orderPayment.status === 'U'
+        ? 'Unknown'
+        : orderPayment.status === 'R'
+        ? 'Refund'
+        : orderPayment.status === 'K'
+        ? 'Chargedback'
+        : orderPayment.status === 'V'
+        ? 'Voided'
+        : orderPayment.status === 'A'
+        ? 'Authorized'
+        : 'Undefined');
 
     return (
       <View style={{flex: 1}}>
@@ -259,27 +310,78 @@ class OrderDetailsScreen extends Component {
                   </Text>
                 </Right>
               </CardItem>
-
-              <CardItem bordered>
-                <Left>
-                  <Text style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
-                    Payment Method:
-                  </Text>
-                </Left>
-
-                <Right>
-                  <Text
-                    style={{
-                      color: colors.text_primary,
-                      fontSize: 16,
-                      textAlign: 'right',
-                    }}>
-                    {paymentMethod}
-                  </Text>
-                </Right>
-              </CardItem>
             </Card>
           </View>
+
+          {orderStatus[0] === 'CANCELLED' && (
+            <View
+              style={{
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 1.41,
+              }}>
+              <Card
+                style={{
+                  borderRadius: 10,
+                  overflow: 'hidden',
+                }}>
+                <CardItem
+                  header
+                  bordered
+                  style={{backgroundColor: colors.primary}}>
+                  <Text style={{color: colors.icons, fontSize: 20}}>
+                    Order Cancellation Details
+                  </Text>
+                </CardItem>
+
+                <CardItem>
+                  <Left>
+                    <Text
+                      style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
+                      Cancelled By:
+                    </Text>
+                  </Left>
+
+                  <Right>
+                    <Text
+                      style={{
+                        color: colors.text_primary,
+                        fontSize: 16,
+                        textAlign: 'right',
+                      }}>
+                      {order.orderStatus.cancelled.byShopper
+                        ? `${userName} (Shopper)`
+                        : `${storeName} (Store)`}
+                    </Text>
+                  </Right>
+                </CardItem>
+
+                <CardItem>
+                  <Left>
+                    <Text
+                      style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
+                      Reason:
+                    </Text>
+                  </Left>
+
+                  <Right>
+                    <Text
+                      style={{
+                        color: colors.text_primary,
+                        fontSize: 16,
+                        textAlign: 'right',
+                      }}>
+                      {cancelReason}
+                    </Text>
+                  </Right>
+                </CardItem>
+              </Card>
+            </View>
+          )}
 
           <View
             style={{
@@ -401,7 +503,7 @@ class OrderDetailsScreen extends Component {
             </Card>
           </View>
 
-          {orderStatus[0] === 'CANCELLED' && (
+          {orderPayment && (
             <View
               style={{
                 shadowColor: '#000',
@@ -422,15 +524,15 @@ class OrderDetailsScreen extends Component {
                   bordered
                   style={{backgroundColor: colors.primary}}>
                   <Text style={{color: colors.icons, fontSize: 20}}>
-                    Order Cancellation Details
+                    Payment Details
                   </Text>
                 </CardItem>
 
-                <CardItem>
+                <CardItem bordered>
                   <Left>
                     <Text
                       style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
-                      Cancelled By:
+                      Payment Processor:
                     </Text>
                   </Left>
 
@@ -441,18 +543,36 @@ class OrderDetailsScreen extends Component {
                         fontSize: 16,
                         textAlign: 'right',
                       }}>
-                      {order.orderStatus.cancelled.byShopper
-                        ? `${userName} (Shopper)`
-                        : `${storeName} (Store)`}
+                      {paymentGateway.longName}
                     </Text>
                   </Right>
                 </CardItem>
 
-                <CardItem>
+                <CardItem bordered>
                   <Left>
                     <Text
                       style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
-                      Reason:
+                      Payment Status:
+                    </Text>
+                  </Left>
+
+                  <Right>
+                    <Text
+                      style={{
+                        color: colors.primary,
+                        fontSize: 16,
+                        textAlign: 'right',
+                      }}>
+                      {paymentStatus}
+                    </Text>
+                  </Right>
+                </CardItem>
+
+                <CardItem bordered>
+                  <Left>
+                    <Text
+                      style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
+                      Payment Description:
                     </Text>
                   </Left>
 
@@ -463,10 +583,52 @@ class OrderDetailsScreen extends Component {
                         fontSize: 16,
                         textAlign: 'right',
                       }}>
-                      {cancelReason}
+                      {orderPayment.description}
                     </Text>
                   </Right>
                 </CardItem>
+
+                <CardItem bordered>
+                  <Left>
+                    <Text
+                      style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
+                      Payment Amount:
+                    </Text>
+                  </Left>
+
+                  <Right>
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        color: colors.primary,
+                        fontFamily: 'ProductSans-Black',
+                      }}>
+                      ₱{orderPayment.paymentAmount}
+                    </Text>
+                  </Right>
+                </CardItem>
+
+                {paymentGateway && (
+                  <CardItem bordered>
+                    <Left>
+                      <Text
+                        style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
+                        Payment Gateway:
+                      </Text>
+                    </Left>
+
+                    <Right>
+                      <Text
+                        style={{
+                          color: colors.text_primary,
+                          fontSize: 16,
+                          textAlign: 'right',
+                        }}>
+                        {paymentGateway.longName}
+                      </Text>
+                    </Right>
+                  </CardItem>
+                )}
               </Card>
             </View>
           )}

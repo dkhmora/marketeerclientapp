@@ -520,6 +520,20 @@ class generalStore {
 
     return orderItems;
   }
+
+  @action async getOrderPayment(orderId) {
+    const orderItems = await firestore()
+      .collection('order_payments')
+      .doc(orderId)
+      .get()
+      .then((document) => {
+        if (document.exists) {
+          return document.data();
+        }
+      });
+
+    return orderItems;
+  }
 }
 
 export default generalStore;

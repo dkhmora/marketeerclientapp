@@ -87,17 +87,17 @@ class MainDrawer extends Component {
 
   handleDynamicLink = (link) => {
     switch (link.url) {
-      case 'https://marketeer.ph/order/payment/success':
+      case 'https://marketeer.ph/app/order/payment/success':
         Toast({text: 'Payment successful!', duration: 5000});
         break;
-      case 'https://marketeer.ph/order/payment/failure':
+      case 'https://marketeer.ph/app/order/payment/failure':
         Toast({
           text: 'Error: Payment failure. Please try again later.',
           type: 'danger',
           duration: 5000,
         });
         break;
-      case 'https://marketeer.ph/order/payment/pending':
+      case 'https://marketeer.ph/app/order/payment/pending':
         Toast({
           text:
             'Payment pending. Please check your email for payment instructions.',
@@ -105,19 +105,19 @@ class MainDrawer extends Component {
           duration: 8000,
         });
         break;
-      case 'https://marketeer.ph/order/payment/unknown':
+      case 'https://marketeer.ph/app/order/payment/unknown':
         Toast({text: 'Payment status unknown', type: 'info'});
         break;
-      case 'https://marketeer.ph/order/payment/refund':
+      case 'https://marketeer.ph/app/order/payment/refund':
         Toast({text: 'Payment refunded', type: 'info'});
         break;
-      case 'https://marketeer.ph/order/payment/chargeback':
+      case 'https://marketeer.ph/app/order/payment/chargeback':
         Toast({text: 'Payment chargedback', type: 'info'});
         break;
-      case 'https://marketeer.ph/order/payment/void':
+      case 'https://marketeer.ph/app/order/payment/void':
         Toast({text: 'Payment voided', type: 'info'});
         break;
-      case 'https://marketeer.ph/order/payment/authorized':
+      case 'https://marketeer.ph/app/order/payment/authorized':
         Toast({text: 'Payment authorized', type: 'info'});
         break;
     }

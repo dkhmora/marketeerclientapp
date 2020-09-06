@@ -16,6 +16,7 @@ class shopStore {
   @observable storeDetails = {};
   @observable storeSelectedDeliveryMethod = {};
   @observable storeSelectedPaymentMethod = {};
+  @observable storeAssignedMerchantId = {};
   @observable storeUserEmail = {};
   @observable storeList = [];
   @observable categoryStoreList = {};
@@ -180,6 +181,7 @@ class shopStore {
     userName,
     storeSelectedDeliveryMethod,
     storeSelectedPaymentMethod,
+    storeAssignedMerchantId,
     storeUserEmail,
     processId,
   }) {
@@ -197,6 +199,7 @@ class shopStore {
             storeUserEmail,
             storeSelectedDeliveryMethod,
             storeSelectedPaymentMethod,
+            storeAssignedMerchantId,
             processId,
           }),
         });
@@ -351,7 +354,7 @@ class shopStore {
       return await storesCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
-        .where('creditData.creditThresholdReached', '==', false)
+        .where('creditThresholdReached', '==', false)
         .where('storeCategory', '==', storeCategory)
         .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
         .orderBy('deliveryCoordinates.lowerRange')
@@ -374,12 +377,15 @@ class shopStore {
             storeCategory
           ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
-        .catch((err) => Toast({text: err.message, type: 'danger'}));
+        .catch((err) => {
+          console.log(err.message);
+          Toast({text: err.message, type: 'danger'});
+        });
     } else if (currentLocationGeohash && locationCoordinates && storeCategory) {
       return await storesCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
-        .where('creditData.creditThresholdReached', '==', false)
+        .where('creditThresholdReached', '==', false)
         .where('storeCategory', '==', storeCategory)
         .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
         .orderBy('deliveryCoordinates.lowerRange')
@@ -401,12 +407,15 @@ class shopStore {
             storeCategory
           ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
-        .catch((err) => Toast({text: err.message, type: 'danger'}));
+        .catch((err) => {
+          console.log(err.message);
+          Toast({text: err.message, type: 'danger'});
+        });
     } else if (currentLocationGeohash && locationCoordinates && lastVisible) {
       return await storesCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
-        .where('creditData.creditThresholdReached', '==', false)
+        .where('creditThresholdReached', '==', false)
         .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
         .orderBy('deliveryCoordinates.lowerRange')
         .startAfter(lastVisible)
@@ -429,12 +438,15 @@ class shopStore {
             locationCoordinates,
           );
         })
-        .catch((err) => Toast({text: err.message, type: 'danger'}));
+        .catch((err) => {
+          console.log(err.message);
+          Toast({text: err.message, type: 'danger'});
+        });
     } else if (currentLocationGeohash && locationCoordinates) {
       return await storesCollection
         .where('devOnly', '==', true)
         .where('vacationMode', '==', false)
-        .where('creditData.creditThresholdReached', '==', false)
+        .where('creditThresholdReached', '==', false)
         .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
         .orderBy('deliveryCoordinates.lowerRange')
         .limit(this.storeFetchLimit)
@@ -456,7 +468,10 @@ class shopStore {
             locationCoordinates,
           );
         })
-        .catch((err) => Toast({text: err.message, type: 'danger'}));
+        .catch((err) => {
+          console.log(err.message);
+          Toast({text: err.message, type: 'danger'});
+        });
     }
   }
 
