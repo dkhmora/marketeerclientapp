@@ -522,7 +522,7 @@ class generalStore {
   }
 
   @action async getOrderPayment(orderId) {
-    const orderItems = await firestore()
+    const orderPayment = await firestore()
       .collection('order_payments')
       .doc(orderId)
       .get()
@@ -532,7 +532,21 @@ class generalStore {
         }
       });
 
-    return orderItems;
+    return orderPayment;
+  }
+
+  @action async getOrderDetails(orderId) {
+    const orderDetails = await firestore()
+      .collection('orders')
+      .doc(orderId)
+      .get()
+      .then((document) => {
+        if (document.exists) {
+          return document.data();
+        }
+      });
+
+    return orderDetails;
   }
 }
 

@@ -72,6 +72,7 @@ class MainDrawer extends Component {
     messaging()
       .getInitialNotification()
       .then((notification) => {
+        console.log(notification);
         if (notification) {
           if (notification.data.type === 'order_message') {
             this.props.navigation.navigate('Order Chat', {
@@ -79,7 +80,13 @@ class MainDrawer extends Component {
             });
           }
 
-          if (notification.data.type === 'order_update') {
+          if (
+            notification.data.type === 'order_update' ||
+            notification.data.type === 'order_review'
+          ) {
+            this.props.navigation.navigate('Order Details', {
+              orderId: notification.data.orderId,
+            });
           }
         }
       });
@@ -123,8 +130,8 @@ class MainDrawer extends Component {
     }
 
     this.props.navigation.reset({
-      index: 0,
-      routes: [{name: 'Home'}],
+      index: 1,
+      routes: [{name: 'Home'}, {name: 'Orders'}],
     });
   };
 
