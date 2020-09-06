@@ -45,10 +45,8 @@ class OrderDetailsScreen extends Component {
       }
 
       if (
-        order.orderStatus.unpaid.status ||
-        order.orderStatus.paid.status ||
-        order.orderStatus.shipped.status ||
-        order.orderStatus.completed.status
+        !order.orderStatus.pending.status &&
+        !order.orderStatus.cancelled.status
       ) {
         this.props.generalStore
           .getOrderPayment(order.orderId)
@@ -312,7 +310,6 @@ class OrderDetailsScreen extends Component {
               </CardItem>
             </Card>
           </View>
-
           {orderStatus[0] === 'CANCELLED' && (
             <View
               style={{
@@ -382,7 +379,6 @@ class OrderDetailsScreen extends Component {
               </Card>
             </View>
           )}
-
           <View
             style={{
               shadowColor: '#000',
@@ -503,135 +499,165 @@ class OrderDetailsScreen extends Component {
             </Card>
           </View>
 
-          {orderPayment && (
-            <View
-              style={{
-                shadowColor: '#000',
-                shadowOffset: {
-                  width: 0,
-                  height: 1,
-                },
-                shadowOpacity: 0.2,
-                shadowRadius: 1.41,
-              }}>
-              <Card
+          {paymentMethod === 'Online Banking' &&
+            !order.orderStatus.pending.status &&
+            !order.orderStatus.cancelled.status && (
+              <View
                 style={{
-                  borderRadius: 10,
-                  overflow: 'hidden',
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 1,
+                  },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 1.41,
                 }}>
-                <CardItem
-                  header
-                  bordered
-                  style={{backgroundColor: colors.primary}}>
-                  <Text style={{color: colors.icons, fontSize: 20}}>
-                    Payment Details
-                  </Text>
-                </CardItem>
-
-                <CardItem bordered>
-                  <Left>
-                    <Text
-                      style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
-                      Payment Processor:
+                <Card
+                  style={{
+                    borderRadius: 10,
+                    overflow: 'hidden',
+                  }}>
+                  <CardItem
+                    header
+                    bordered
+                    style={{backgroundColor: colors.primary}}>
+                    <Text style={{color: colors.icons, fontSize: 20}}>
+                      Payment Details
                     </Text>
-                  </Left>
-
-                  <Right>
-                    <Text
-                      style={{
-                        color: colors.text_primary,
-                        fontSize: 16,
-                        textAlign: 'right',
-                      }}>
-                      {paymentGateway.longName}
-                    </Text>
-                  </Right>
-                </CardItem>
-
-                <CardItem bordered>
-                  <Left>
-                    <Text
-                      style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
-                      Payment Status:
-                    </Text>
-                  </Left>
-
-                  <Right>
-                    <Text
-                      style={{
-                        color: colors.primary,
-                        fontSize: 16,
-                        textAlign: 'right',
-                      }}>
-                      {paymentStatus}
-                    </Text>
-                  </Right>
-                </CardItem>
-
-                <CardItem bordered>
-                  <Left>
-                    <Text
-                      style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
-                      Payment Description:
-                    </Text>
-                  </Left>
-
-                  <Right>
-                    <Text
-                      style={{
-                        color: colors.text_primary,
-                        fontSize: 16,
-                        textAlign: 'right',
-                      }}>
-                      {orderPayment.description}
-                    </Text>
-                  </Right>
-                </CardItem>
-
-                <CardItem bordered>
-                  <Left>
-                    <Text
-                      style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
-                      Payment Amount:
-                    </Text>
-                  </Left>
-
-                  <Right>
-                    <Text
-                      style={{
-                        fontSize: 18,
-                        color: colors.primary,
-                        fontFamily: 'ProductSans-Black',
-                      }}>
-                      ₱{orderPayment.paymentAmount}
-                    </Text>
-                  </Right>
-                </CardItem>
-
-                {paymentGateway && (
-                  <CardItem bordered>
-                    <Left>
-                      <Text
-                        style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
-                        Payment Gateway:
-                      </Text>
-                    </Left>
-
-                    <Right>
-                      <Text
-                        style={{
-                          color: colors.text_primary,
-                          fontSize: 16,
-                          textAlign: 'right',
-                        }}>
-                        {paymentGateway.longName}
-                      </Text>
-                    </Right>
                   </CardItem>
-                )}
-              </Card>
-            </View>
-          )}
+
+                  {orderPayment ? (
+                    <View>
+                      <CardItem bordered>
+                        <Left>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              fontFamily: 'ProductSans-Bold',
+                            }}>
+                            Payment Processor:
+                          </Text>
+                        </Left>
+
+                        <Right>
+                          <Text
+                            style={{
+                              color: colors.text_primary,
+                              fontSize: 16,
+                              textAlign: 'right',
+                            }}>
+                            {paymentGateway.longName}
+                          </Text>
+                        </Right>
+                      </CardItem>
+
+                      <CardItem bordered>
+                        <Left>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              fontFamily: 'ProductSans-Bold',
+                            }}>
+                            Payment Status:
+                          </Text>
+                        </Left>
+
+                        <Right>
+                          <Text
+                            style={{
+                              color: colors.primary,
+                              fontSize: 16,
+                              textAlign: 'right',
+                            }}>
+                            {paymentStatus}
+                          </Text>
+                        </Right>
+                      </CardItem>
+
+                      <CardItem bordered>
+                        <Left>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              fontFamily: 'ProductSans-Bold',
+                            }}>
+                            Payment Description:
+                          </Text>
+                        </Left>
+
+                        <Right>
+                          <Text
+                            style={{
+                              color: colors.text_primary,
+                              fontSize: 16,
+                              textAlign: 'right',
+                            }}>
+                            {orderPayment.description}
+                          </Text>
+                        </Right>
+                      </CardItem>
+
+                      <CardItem bordered>
+                        <Left>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              fontFamily: 'ProductSans-Bold',
+                            }}>
+                            Payment Amount:
+                          </Text>
+                        </Left>
+
+                        <Right>
+                          <Text
+                            style={{
+                              fontSize: 18,
+                              color: colors.primary,
+                              fontFamily: 'ProductSans-Black',
+                            }}>
+                            ₱{orderPayment.paymentAmount}
+                          </Text>
+                        </Right>
+                      </CardItem>
+
+                      {paymentGateway && (
+                        <CardItem bordered>
+                          <Left>
+                            <Text
+                              style={{
+                                fontSize: 16,
+                                fontFamily: 'ProductSans-Bold',
+                              }}>
+                              Payment Gateway:
+                            </Text>
+                          </Left>
+
+                          <Right>
+                            <Text
+                              style={{
+                                color: colors.text_primary,
+                                fontSize: 16,
+                                textAlign: 'right',
+                              }}>
+                              {paymentGateway.longName}
+                            </Text>
+                          </Right>
+                        </CardItem>
+                      )}
+                    </View>
+                  ) : (
+                    <View
+                      style={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        paddingVertical: 15,
+                      }}>
+                      <ActivityIndicator size="large" color={colors.primary} />
+                    </View>
+                  )}
+                </Card>
+              </View>
+            )}
         </ScrollView>
       </View>
     );
