@@ -24,7 +24,7 @@ class OrderDetailsScreen extends Component {
     const {order, orderId} = this.props.route.params;
 
     this.state = {
-      order,
+      order: {...order},
       orderItems: null,
       orderPayment: null,
       ready: false,
@@ -45,7 +45,7 @@ class OrderDetailsScreen extends Component {
     if (orderId && !order) {
       this.props.generalStore.getOrder(orderId).then(() => {
         this.props.generalStore.getOrderItems(orderId).then((orderDetails) => {
-          this.setState({order: orderDetails, ready: true});
+          this.setState({order: {...orderDetails, orderId}, ready: true});
         });
       });
     }
@@ -212,6 +212,7 @@ class OrderDetailsScreen extends Component {
       storeId,
       processId,
       paymentLink,
+      orderId,
     } = order;
     const paymentGateway = processId
       ? availablePaymentMethods[processId]
@@ -345,6 +346,26 @@ class OrderDetailsScreen extends Component {
                     <Text style={{color: colors.icons, fontSize: 20}}>
                       Order Details
                     </Text>
+                  </CardItem>
+
+                  <CardItem bordered>
+                    <Left>
+                      <Text
+                        style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
+                        Order #:
+                      </Text>
+                    </Left>
+
+                    <Right>
+                      <Text
+                        style={{
+                          color: colors.primary,
+                          fontSize: 16,
+                          textAlign: 'right',
+                        }}>
+                        {orderId}
+                      </Text>
+                    </Right>
                   </CardItem>
 
                   <CardItem bordered>
