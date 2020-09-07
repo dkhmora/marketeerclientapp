@@ -189,7 +189,7 @@ class shopStore {
 
     return await this.updateCartItemsInstantly()
       .then(async () => {
-        return await functions.httpsCallable('placeOrderTest')({
+        return await functions.httpsCallable('placeOrder')({
           orderInfo: JSON.stringify({
             deliveryCoordinates,
             deliveryCoordinatesGeohash,
@@ -378,7 +378,6 @@ class shopStore {
           ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
         .catch((err) => {
-          console.log(err.message);
           Toast({text: err.message, type: 'danger'});
         });
     } else if (currentLocationGeohash && locationCoordinates && storeCategory) {
@@ -408,7 +407,6 @@ class shopStore {
           ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
         .catch((err) => {
-          console.log(err.message);
           Toast({text: err.message, type: 'danger'});
         });
     } else if (currentLocationGeohash && locationCoordinates && lastVisible) {
@@ -439,12 +437,11 @@ class shopStore {
           );
         })
         .catch((err) => {
-          console.log(err.message);
           Toast({text: err.message, type: 'danger'});
         });
     } else if (currentLocationGeohash && locationCoordinates) {
       return await storesCollection
-        .where('devOnly', '==', true)
+        .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
         .where('creditThresholdReached', '==', false)
         .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
@@ -469,7 +466,6 @@ class shopStore {
           );
         })
         .catch((err) => {
-          console.log(err.message);
           Toast({text: err.message, type: 'danger'});
         });
     }

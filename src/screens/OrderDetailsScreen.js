@@ -43,7 +43,7 @@ class OrderDetailsScreen extends Component {
     }
 
     if (orderId && !order) {
-      this.props.generalStore.getOrder(orderId).then(() => {
+      this.props.generalStore.getOrderDetails(orderId).then(() => {
         this.props.generalStore.getOrderItems(orderId).then((orderDetails) => {
           this.setState({order: {...orderDetails, orderId}, ready: true});
         });
