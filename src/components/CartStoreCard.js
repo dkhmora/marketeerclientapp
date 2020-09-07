@@ -36,11 +36,11 @@ class CartStoreCard extends PureComponent {
 
   @computed get orderTotal() {
     if (this.storeDetails) {
-      const {ownDeliveryServiceFee} = this.storeDetails;
+      const {ownDeliveryServiceFee, freeDeliveryMinimum} = this.storeDetails;
 
       return this.props.shopStore.storeSelectedDeliveryMethod[
         this.props.storeId
-      ] === 'Own Delivery'
+      ] === 'Own Delivery' && this.subTotal < freeDeliveryMinimum
         ? this.subTotal + ownDeliveryServiceFee
         : this.subTotal;
     }
@@ -213,15 +213,51 @@ class CartStoreCard extends PureComponent {
           }
         },
       );
+
+      when(
+        () =>
+          this.storeDetails.paymentMethods &&
+          this.storeDetails.paymentMethods.length > 0,
+        () => {
+          if (!this.storeDetails.paymentMethods.includes('Online Banking')) {
+            this.setState(
+              {
+                selectedPaymentMethod: {
+                  COD: {
+                    longName: 'Cash On Delivery',
+                    shortName: 'COD',
+                    remarks: 'Pay in cash when you receive your order!',
+                    cost: 0,
+                    currencies: 'PHP',
+                    status: 'A',
+                    surcharge: 0,
+                  },
+                },
+              },
+              () => {
+                this.props.shopStore.storeSelectedPaymentMethod[
+                  this.props.storeId
+                ] = 'COD';
+              },
+            );
+          }
+        },
+      );
     }
   }
 
   renderPaymentMethods() {
-    const {storeId} = this.props;
+    const {storeDetails} = this;
+    const {paymentMethods} = storeDetails;
+    const {storeId, checkout} = this.props;
     const {selectedPaymentMethod} = this.state;
     const {availablePaymentMethods} = this.props.generalStore;
 
-    if (Object.keys(availablePaymentMethods).length > 0) {
+    if (
+      checkout &&
+      paymentMethods &&
+      Object.keys(availablePaymentMethods).length > 0
+    ) {
       return (
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -230,76 +266,82 @@ class CartStoreCard extends PureComponent {
             ([key, value], index) => {
               const paymentMethod = {[key]: value};
 
-              return (
-                <ListItem
-                  title={value.longName}
-                  subtitle={
-                    <Hyperlink
-                      linkStyle={{color: colors.accent}}
-                      onPress={(url, text) => this.openLink(url)}>
-                      <Text
-                        style={{
-                          color: colors.text_secondary,
-                        }}>
-                        {
-                          stripHtml(value.remarks, {
-                            dumpLinkHrefsNearby: {
-                              enabled: true,
-                              putOnNewLine: false,
-                              wrapHeads: '[',
-                              wrapTails: ']',
-                            },
-                          }).result
-                        }
-                      </Text>
-                    </Hyperlink>
-                  }
-                  topDivider
-                  leftElement={
-                    key === 'COD' ? (
-                      <View
-                        style={{
-                          width: '20%',
-                          height: 50,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}>
-                        <Icon name="dollar-sign" color="green" size={40} />
-                      </View>
-                    ) : (
-                      <FastImage
-                        source={{uri: value.logo}}
-                        style={{width: '20%', height: 50}}
-                        resizeMode={FastImage.resizeMode.contain}
-                      />
-                    )
-                  }
-                  disabled={value.status !== 'A'}
-                  key={key}
-                  containerStyle={{
-                    paddingBottom:
-                      index === Object.keys(availablePaymentMethods).length - 1
-                        ? 45
-                        : 15,
-                  }}
-                  rightIcon={
-                    selectedPaymentMethod &&
-                    selectedPaymentMethod[key] === paymentMethod[key] ? (
-                      <Icon name="check" color={colors.primary} />
-                    ) : null
-                  }
-                  onPress={() =>
-                    this.setState(
-                      {selectedPaymentMethod: paymentMethod},
-                      () => {
-                        this.props.shopStore.storeSelectedPaymentMethod[
-                          storeId
-                        ] = Object.keys(paymentMethod)[0];
-                      },
-                    )
-                  }
-                />
-              );
+              if (
+                paymentMethods.includes('Online Banking') ||
+                (key === 'COD' && paymentMethods.includes('COD'))
+              ) {
+                return (
+                  <ListItem
+                    title={value.longName}
+                    subtitle={
+                      <Hyperlink
+                        linkStyle={{color: colors.accent}}
+                        onPress={(url, text) => this.openLink(url)}>
+                        <Text
+                          style={{
+                            color: colors.text_secondary,
+                          }}>
+                          {
+                            stripHtml(value.remarks, {
+                              dumpLinkHrefsNearby: {
+                                enabled: true,
+                                putOnNewLine: false,
+                                wrapHeads: '[',
+                                wrapTails: ']',
+                              },
+                            }).result
+                          }
+                        </Text>
+                      </Hyperlink>
+                    }
+                    topDivider
+                    leftElement={
+                      key === 'COD' ? (
+                        <View
+                          style={{
+                            width: '20%',
+                            height: 50,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}>
+                          <Icon name="dollar-sign" color="green" size={40} />
+                        </View>
+                      ) : (
+                        <FastImage
+                          source={{uri: value.logo}}
+                          style={{width: '20%', height: 50}}
+                          resizeMode={FastImage.resizeMode.contain}
+                        />
+                      )
+                    }
+                    disabled={value.status !== 'A'}
+                    key={key}
+                    containerStyle={{
+                      paddingBottom:
+                        index ===
+                        Object.keys(availablePaymentMethods).length - 1
+                          ? 45
+                          : 15,
+                    }}
+                    rightIcon={
+                      selectedPaymentMethod &&
+                      selectedPaymentMethod[key] === paymentMethod[key] ? (
+                        <Icon name="check" color={colors.primary} />
+                      ) : null
+                    }
+                    onPress={() =>
+                      this.setState(
+                        {selectedPaymentMethod: paymentMethod},
+                        () => {
+                          this.props.shopStore.storeSelectedPaymentMethod[
+                            storeId
+                          ] = Object.keys(paymentMethod)[0];
+                        },
+                      )
+                    }
+                  />
+                );
+              }
             },
           )}
         </ScrollView>
