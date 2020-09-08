@@ -147,6 +147,7 @@ class StoreScreen extends Component {
                     color: colors.icons,
                     fontSize: 30,
                     flex: 1,
+                    paddingRight: 10,
                   },
                 ]}>
                 {store.storeName}
