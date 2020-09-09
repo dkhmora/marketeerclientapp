@@ -276,6 +276,8 @@ class ItemCard extends PureComponent {
                       {discountedPrice && (
                         <Text
                           maxFontSizeMultiplier={1}
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
                           style={{
                             textDecorationLine: 'line-through',
                             textDecorationStyle: 'solid',
@@ -289,6 +291,8 @@ class ItemCard extends PureComponent {
 
                       <Text
                         maxFontSizeMultiplier={1}
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
                         style={{
                           color: colors.text_primary,
                           fontFamily: 'ProductSans-Black',
