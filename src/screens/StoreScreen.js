@@ -6,6 +6,7 @@ import {
   Image,
   ImageBackground,
   Dimensions,
+  Platform,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -15,10 +16,16 @@ import {styles} from '../../assets/styles';
 import SlidingCartPanel from '../components/SlidingCartPanel';
 import ItemCategoriesTab from '../navigation/ItemCategoriesTab';
 import StoreDetailsModal from '../components/StoreDetailsModal';
+import {initialWindowMetrics} from 'react-native-safe-area-context';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
+const inset = initialWindowMetrics && initialWindowMetrics.insets;
+const bottomPadding = Platform.OS === 'ios' ? inset.bottom : 0;
+const SLIDING_MENU_INITIAL_HEIGHT = 75 + bottomPadding;
+const SLIDING_MENU_EXTENDED_HEIGHT =
+  SCREEN_HEIGHT - SLIDING_MENU_INITIAL_HEIGHT;
 @inject('shopStore')
 @observer
 class StoreScreen extends Component {
@@ -201,11 +208,15 @@ class StoreScreen extends Component {
           <ItemCategoriesTab
             storeCategoryItems={storeCategoryItems}
             storeId={store.storeId}
-            style={{paddingBottom: 75}}
+            style={{paddingBottom: 75 + bottomPadding}}
           />
         </Animatable.View>
 
-        <SlidingCartPanel navigation={navigation} />
+        <SlidingCartPanel
+          initialHeight={SLIDING_MENU_INITIAL_HEIGHT}
+          extendedHeight={SLIDING_MENU_EXTENDED_HEIGHT}
+          navigation={navigation}
+        />
       </View>
     );
   }

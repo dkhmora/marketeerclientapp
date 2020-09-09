@@ -1,12 +1,5 @@
 import React, {Component} from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  Dimensions,
-  Platform,
-} from 'react-native';
+import {View, Text, TouchableOpacity, Image, Platform} from 'react-native';
 import {observer, inject} from 'mobx-react';
 import {Icon, Badge, Button} from 'react-native-elements';
 import {colors} from '../../assets/colors';
@@ -14,13 +7,6 @@ import SlidingUpPanel from 'rn-sliding-up-panel';
 import CartStoreList from '../components/CartStoreList';
 import {initialWindowMetrics} from 'react-native-safe-area-context';
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const SLIDING_MENU_INITIAL_HEIGHT = 75;
-const SLIDING_MENU_EXTENDED_HEIGHT =
-  SCREEN_HEIGHT - SLIDING_MENU_INITIAL_HEIGHT;
-const inset = initialWindowMetrics && initialWindowMetrics.insets;
-const bottomPadding = Platform.OS === 'ios' ? inset.bottom : 0;
 @inject('shopStore')
 @inject('authStore')
 @observer
@@ -34,7 +20,9 @@ class SlidingCartPanel extends Component {
   }
 
   componentDidMount() {
-    this._panel.show({toValue: SLIDING_MENU_INITIAL_HEIGHT, velocity: 10});
+    const {initialHeight} = this.props;
+
+    this._panel.show({toValue: initialHeight, velocity: 10});
   }
 
   openPanel() {
@@ -54,6 +42,8 @@ class SlidingCartPanel extends Component {
   }
 
   render() {
+    const {initialHeight, extendedHeight} = this.props;
+
     return (
       <SlidingUpPanel
         ref={(c) => (this._panel = c)}
@@ -61,14 +51,11 @@ class SlidingCartPanel extends Component {
         minimumVelocityThreshold={0.6}
         minimumDistanceThreshold={3}
         allowDragging={this.state.allowDragging}
-        snappingPoints={[
-          SLIDING_MENU_INITIAL_HEIGHT,
-          SLIDING_MENU_EXTENDED_HEIGHT,
-        ]}
+        snappingPoints={[initialHeight, extendedHeight]}
         allowMomentum
         draggableRange={{
-          top: SLIDING_MENU_EXTENDED_HEIGHT,
-          bottom: SLIDING_MENU_INITIAL_HEIGHT + bottomPadding,
+          top: extendedHeight,
+          bottom: initialHeight,
         }}
         containerStyle={{
           backgroundColor: '#fff',
@@ -200,7 +187,7 @@ class SlidingCartPanel extends Component {
             }}
             containerStyle={{
               padding: 0,
-              marginBottom: Platform.OS === 'ios' ? 80 : 30,
+              marginBottom: initialHeight + 25,
               width: '100%',
             }}
           />
