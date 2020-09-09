@@ -260,6 +260,9 @@ class CartStoreCard extends PureComponent {
     ) {
       return (
         <ScrollView
+          style={{
+            backgroundColor: colors.icons,
+          }}
           showsVerticalScrollIndicator={false}
           contentInsetAdjustmentBehavior="automatic">
           {Object.entries(availablePaymentMethods).map(
@@ -371,6 +374,9 @@ class CartStoreCard extends PureComponent {
     if (deliveryMethods) {
       return (
         <ScrollView
+          style={{
+            backgroundColor: colors.icons,
+          }}
           showsVerticalScrollIndicator={false}
           contentInsetAdjustmentBehavior="automatic">
           {deliveryMethods
@@ -639,16 +645,6 @@ class CartStoreCard extends PureComponent {
                 }}>
                 <View
                   style={{
-                    borderRadius: 10,
-                    elevation: 3,
-                    shadowColor: '#000',
-                    shadowOffset: {
-                      width: 0,
-                      height: 1,
-                    },
-                    shadowOpacity: 0.22,
-                    shadowRadius: 2.22,
-                    overflow: 'hidden',
                     marginVertical: 5,
                   }}>
                   <ListItem
@@ -661,23 +657,26 @@ class CartStoreCard extends PureComponent {
                     }
                     subtitleStyle={{fontSize: 14, color: colors.primary}}
                     titleStyle={{fontSize: 18}}
+                    style={{borderRadius: 10}}
+                    containerStyle={{
+                      borderRadius: 10,
+                      elevation: 3,
+                      shadowColor: '#000',
+                      shadowOffset: {
+                        width: 0,
+                        height: 1,
+                      },
+                      shadowOpacity: 0.2,
+                      shadowRadius: 1.41,
+                    }}
                     chevron
                   />
                 </View>
 
                 <View
                   style={{
-                    borderRadius: 10,
-                    elevation: 3,
-                    shadowColor: '#000',
-                    shadowOffset: {
-                      width: 0,
-                      height: 1,
-                    },
-                    shadowOpacity: 0.22,
-                    shadowRadius: 2.22,
-                    overflow: 'hidden',
                     marginTop: 5,
+                    backgroundColor: colors.icons,
                   }}>
                   <ListItem
                     title="Payment Method"
@@ -691,6 +690,18 @@ class CartStoreCard extends PureComponent {
                     }
                     subtitleStyle={{fontSize: 14, color: colors.primary}}
                     titleStyle={{fontSize: 18}}
+                    style={{borderRadius: 10}}
+                    containerStyle={{
+                      borderRadius: 10,
+                      elevation: 3,
+                      shadowColor: '#000',
+                      shadowOffset: {
+                        width: 0,
+                        height: 1,
+                      },
+                      shadowOpacity: 0.2,
+                      shadowRadius: 1.41,
+                    }}
                     chevron
                   />
 

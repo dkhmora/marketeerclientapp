@@ -1,5 +1,12 @@
 import React, {Component} from 'react';
-import {View, Text, StatusBar, Image, SafeAreaView} from 'react-native';
+import {
+  View,
+  Text,
+  StatusBar,
+  Image,
+  SafeAreaView,
+  Platform,
+} from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
 import {Icon, Button} from 'react-native-elements';
@@ -8,7 +15,10 @@ import {styles} from '../../assets/styles';
 import CartStoreList from '../components/CartStoreList';
 import BackButton from '../components/BackButton';
 import Toast from '../components/Toast';
+import {initialWindowMetrics} from 'react-native-safe-area-context';
 
+const inset = initialWindowMetrics && initialWindowMetrics.insets;
+const bottomPadding = Platform.OS === 'ios' ? inset.bottom : 0;
 @inject('shopStore')
 @inject('authStore')
 @inject('generalStore')
@@ -172,18 +182,22 @@ class CheckoutScreen extends Component {
             backgroundColor: colors.primary,
             borderTopLeftRadius: 30,
             borderTopRightRadius: 30,
-            paddingVertical: 10,
+            paddingTop: 10,
+            paddingBottom: Platform.OS === 'android' ? 10 : 0,
             paddingHorizontal: 20,
+            marginBottom: bottomPadding,
           }}>
           <View
             style={{
+              height: '100%',
               width: '30%',
               marginRight: 10,
               borderRadius: 24,
               borderWidth: 1,
               borderColor: colors.icons,
-              padding: 10,
               alignItems: 'center',
+              justifyContent: 'center',
+              paddingHorizontal: 10,
             }}>
             <Text
               adjustsFontSizeToFit
