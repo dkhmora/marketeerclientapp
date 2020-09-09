@@ -75,6 +75,7 @@ class BaseHeader extends Component {
           fontSize: 20,
           color: colors.icons,
           textAlign: 'left',
+          paddingVertical: 5,
         }}>
         {title}
       </Text>
