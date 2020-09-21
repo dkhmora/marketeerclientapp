@@ -149,13 +149,19 @@ class StoreList extends Component {
     );
   };
 
-  renderItem = ({item, index}) => (
-    <StoreCard
-      store={item}
-      navigation={this.props.navigation}
-      key={item.storeId}
-    />
-  );
+  renderItem = ({item, index}) =>
+    item.empty ? (
+      <View
+        style={{flex: 1, backgroundColor: 'transparent'}}
+        key={item.itemId}
+      />
+    ) : (
+      <StoreCard
+        store={item}
+        navigation={this.props.navigation}
+        key={item.storeId}
+      />
+    );
 
   formatData(data, numColumns) {
     const numberOfFullRows = Math.floor(data.length / numColumns);

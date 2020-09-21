@@ -27,13 +27,19 @@ class StoreCategoryList extends Component {
     });
   }
 
-  renderItem = ({item, index}) => (
-    <StoreCategoryCard
-      item={item}
-      navigation={this.props.navigation}
-      key={`${item.name}${index}`}
-    />
-  );
+  renderItem = ({item, index}) =>
+    item.empty ? (
+      <View
+        style={{flex: 1, backgroundColor: 'transparent'}}
+        key={item.itemId}
+      />
+    ) : (
+      <StoreCategoryCard
+        item={item}
+        navigation={this.props.navigation}
+        key={`${item.name}${index}`}
+      />
+    );
 
   formatData(data, numColumns) {
     const numberOfFullRows = Math.floor(data.length / numColumns);
