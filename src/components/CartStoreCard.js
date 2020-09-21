@@ -34,15 +34,26 @@ class CartStoreCard extends PureComponent {
 
   @observable storeDetails = {};
 
+  @computed get freeDelivery() {
+    if (this.storeDetails) {
+      const {freeDelivery, freeDeliveryMinimum} = this.storeDetails;
+
+      return (
+        this.props.shopStore.storeSelectedDeliveryMethod[this.props.storeId] ===
+          'Own Delivery' &&
+        freeDelivery &&
+        this.subTotal >= freeDeliveryMinimum
+      );
+    }
+
+    return null;
+  }
+
   @computed get orderTotal() {
     if (this.storeDetails) {
-      const {ownDeliveryServiceFee, freeDeliveryMinimum} = this.storeDetails;
-
-      return this.props.shopStore.storeSelectedDeliveryMethod[
-        this.props.storeId
-      ] === 'Own Delivery' && this.subTotal < freeDeliveryMinimum
-        ? this.subTotal + ownDeliveryServiceFee
-        : this.subTotal;
+      return this.freeDelivery
+        ? this.subTotal
+        : this.subTotal + this.storeDetails.ownDeliveryServiceFee;
     }
 
     return null;
@@ -599,8 +610,7 @@ class CartStoreCard extends PureComponent {
                           ? colors.primary
                           : colors.text_primary,
                     }}>
-                    {this.subTotal >= storeDetails.freeDeliveryMinimum &&
-                    storeDetails.freeDelivery
+                    {this.freeDelivery
                       ? 'Free Delivery'
                       : `₱${storeDetails.ownDeliveryServiceFee}`}
                   </Text>
