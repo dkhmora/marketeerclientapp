@@ -21,10 +21,12 @@ class StoreCard extends Component {
   }
 
   getImage = async () => {
-    const {displayImage, coverImage} = this.props.store;
+    const {displayImage, coverImage, storeId} = this.props.store;
 
     const displayImageRef = storage().ref(displayImage);
-    const coverImageRef = storage().ref(coverImage);
+    const coverImageRef = storage().ref(
+      `/images/stores/${storeId}/display.jpg`,
+    );
     const coverImageUrl = await coverImageRef.getDownloadURL();
     const displayImageUrl = await displayImageRef.getDownloadURL();
 
@@ -39,28 +41,29 @@ class StoreCard extends Component {
     const {paymentMethods} = this.props.store;
     const pills = [];
 
-    paymentMethods.map((method, index) => {
-      pills.push(
-        <View
-          key={`${method}${index}`}
-          style={{
-            borderRadius: 20,
-            backgroundColor: colors.accent,
-            padding: 3,
-            paddingHorizontal: 10,
-            marginRight: 2,
-          }}>
-          <Text
+    paymentMethods &&
+      paymentMethods.map((method, index) => {
+        pills.push(
+          <View
+            key={`${method}${index}`}
             style={{
-              fontSize: 13,
-              fontFamily: 'ProductSans-Regular',
-              color: colors.icons,
+              borderRadius: 20,
+              backgroundColor: colors.accent,
+              padding: 3,
+              paddingHorizontal: 10,
+              marginRight: 2,
             }}>
-            {method}
-          </Text>
-        </View>,
-      );
-    });
+            <Text
+              style={{
+                fontSize: 13,
+                fontFamily: 'ProductSans-Regular',
+                color: colors.icons,
+              }}>
+              {method}
+            </Text>
+          </View>,
+        );
+      });
 
     return pills;
   };
