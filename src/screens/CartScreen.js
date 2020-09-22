@@ -1,5 +1,12 @@
 import React, {Component} from 'react';
-import {View, Text, StatusBar, Image, SafeAreaView} from 'react-native';
+import {
+  View,
+  Text,
+  StatusBar,
+  Image,
+  SafeAreaView,
+  Platform,
+} from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
 import {Icon, Button} from 'react-native-elements';
@@ -7,6 +14,10 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import CartStoreList from '../components/CartStoreList';
 import BackButton from '../components/BackButton';
+import {initialWindowMetrics} from 'react-native-safe-area-context';
+
+const inset = initialWindowMetrics && initialWindowMetrics.insets;
+const bottomPadding = Platform.OS === 'ios' ? inset.bottom : 0;
 
 @inject('shopStore')
 @inject('authStore')
@@ -68,8 +79,8 @@ class CartScreen extends Component {
           style={[
             styles.footer,
             {
-              paddingBottom: 100,
-              paddingHorizontal: 10,
+              paddingBottom: 50 + bottomPadding,
+              paddingHorizontal: 0,
               overflow: 'hidden',
             },
           ]}>

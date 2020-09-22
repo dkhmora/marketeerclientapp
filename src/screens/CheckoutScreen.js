@@ -157,7 +157,11 @@ class CheckoutScreen extends Component {
           animation="fadeInUpBig"
           style={[
             styles.footer,
-            {paddingBottom: 100, paddingHorizontal: 10, overflow: 'hidden'},
+            {
+              paddingBottom: 50 + bottomPadding,
+              paddingHorizontal: 0,
+              overflow: 'hidden',
+            },
           ]}>
           <CartStoreList
             checkout
