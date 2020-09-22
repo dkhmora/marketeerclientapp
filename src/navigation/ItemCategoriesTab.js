@@ -16,7 +16,7 @@ class ItemCategoriesTab extends Component {
   @computed get tabWidth() {
     const {storeCategoryItems} = this.props;
 
-    return storeCategoryItems && storeCategoryItems.size > 5
+    return storeCategoryItems && storeCategoryItems.size > 2
       ? 'auto'
       : SCREEN_WIDTH / storeCategoryItems.size;
   }
@@ -55,11 +55,15 @@ class ItemCategoriesTab extends Component {
             tabBarOptions={{
               allowFontScaling: false,
               scrollEnabled: true,
-              tabStyle: {width: this.tabWidth},
-              indicatorStyle: {
-                backgroundColor: colors.primary,
+              activeTintColor: colors.icons,
+              tabStyle: {
+                width: this.tabWidth,
+                paddingTop: 0,
               },
-              style: {
+              labelStyle: {marginTop: 0},
+              indicatorStyle: {
+                backgroundColor: colors.icons,
+                elevation: 7,
                 shadowColor: '#000',
                 shadowOffset: {
                   width: 0,
@@ -67,6 +71,19 @@ class ItemCategoriesTab extends Component {
                 },
                 shadowOpacity: 0.2,
                 shadowRadius: 1.41,
+              },
+              style: {
+                backgroundColor: colors.primary,
+                height: 30,
+                paddingTop: 0,
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 1.41,
+                elevation: 5,
               },
             }}>
             {storeCategoryItems && this.TabScreens(storeCategoryItems)}

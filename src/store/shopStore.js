@@ -378,6 +378,7 @@ class shopStore {
           ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
         .catch((err) => {
+          console.log(err);
           Toast({text: err.message, type: 'danger'});
         });
     } else if (currentLocationGeohash && locationCoordinates && storeCategory) {
@@ -407,6 +408,7 @@ class shopStore {
           ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
         .catch((err) => {
+          console.log(err);
           Toast({text: err.message, type: 'danger'});
         });
     } else if (currentLocationGeohash && locationCoordinates && lastVisible) {
@@ -437,6 +439,7 @@ class shopStore {
           );
         })
         .catch((err) => {
+          console.log(err);
           Toast({text: err.message, type: 'danger'});
         });
     } else if (currentLocationGeohash && locationCoordinates) {
@@ -466,6 +469,7 @@ class shopStore {
           );
         })
         .catch((err) => {
+          console.log(err);
           Toast({text: err.message, type: 'danger'});
         });
     }

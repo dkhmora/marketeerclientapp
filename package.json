@@ -5,8 +5,8 @@
   "scripts": {
     "clean": "cd android && gradlew clean",
     "android": "cd android && gradlew clean && cd .. && react-native run-android",
-    "android:staging": "cd android && react-native run-android --variant=staging",
-    "android:release": "npx react-native run-android --variant=release",
+    "android:staging": "cd android && gradlew clean && cd .. && react-native run-android --variant=staging",
+    "android:release": "cd android && gradlew clean && cd .. && react-native run-android --variant=release",
     "bundle:release": "cd android && gradlew clean && gradlew bundleRelease",
     "pod": "cd ios && pod install",
     "ios": "react-native run-ios --simulator='iPhone 11 Pro'",
