@@ -17,6 +17,7 @@ import SlidingCartPanel from '../components/SlidingCartPanel';
 import ItemCategoriesTab from '../navigation/ItemCategoriesTab';
 import StoreDetailsModal from '../components/StoreDetailsModal';
 import {initialWindowMetrics} from 'react-native-safe-area-context';
+import BottomSheet from 'reanimated-bottom-sheet';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -64,12 +65,24 @@ class StoreScreen extends Component {
         <StatusBar animated translucent backgroundColor={colors.statusBar} />
 
         {coverImageUrl && displayImageUrl && (
-          <StoreDetailsModal
-            isVisible={detailsModal}
-            closeModal={() => this.setState({detailsModal: false})}
-            store={store}
-            coverImageUrl={coverImageUrl}
-            displayImageUrl={displayImageUrl}
+          <BottomSheet
+            ref={(sheetRef) => (this.sheetRef = sheetRef)}
+            snapPoints={[0, SCREEN_HEIGHT * 0.9]}
+            borderRadius={30}
+            initialSnap={0}
+            renderContent={() => (
+              <View
+                style={{
+                  backgroundColor: colors.icons,
+                  height: SCREEN_HEIGHT * 0.9,
+                }}>
+                <StoreDetailsModal
+                  store={store}
+                  coverImageUrl={coverImageUrl}
+                  displayImageUrl={displayImageUrl}
+                />
+              </View>
+            )}
           />
         )}
 
@@ -170,7 +183,7 @@ class StoreScreen extends Component {
 
               <Button
                 type="clear"
-                onPress={() => this.setState({detailsModal: true})}
+                onPress={() => this.sheetRef.snapTo(1)}
                 buttonStyle={{borderRadius: 30}}
                 containerStyle={[
                   styles.buttonContainer,
