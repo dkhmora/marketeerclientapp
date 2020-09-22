@@ -27,7 +27,10 @@ class CartStoreList extends Component {
       <View style={{flex: 1, marginVertical: -10}}>
         {dataSource.length > 0 ? (
           <ScrollView
-            style={{flex: 1}}
+            style={{
+              flex: 1,
+              paddingHorizontal: 10,
+            }}
             onTouchEnd={() => onTouchEnd && onTouchEnd()}
             onTouchStart={() => onTouchStart && onTouchStart()}
             onTouchCancel={() => onTouchCancel && onTouchCancel()}>
@@ -41,7 +44,7 @@ class CartStoreList extends Component {
                 />
               );
             })}
-            <View style={{height: 10}} />
+            <View style={{height: 65}} />
           </ScrollView>
         ) : (
           <View

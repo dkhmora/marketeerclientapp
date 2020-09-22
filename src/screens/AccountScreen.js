@@ -125,6 +125,7 @@ class AccountScreen extends Component {
           width="auto"
           height="auto"
           statusBarTranslucent
+          animationType="fade"
           onBackdropPress={() =>
             this.setState({passwordInputModal: false, editMode: false})
           }

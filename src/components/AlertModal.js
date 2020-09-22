@@ -14,6 +14,7 @@ class AlertModal extends PureComponent {
       <Overlay
         isVisible={isVisible}
         statusBarTranslucent
+        animationType="fade"
         width="80%"
         height="auto"
         overlayStyle={{

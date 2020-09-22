@@ -57,6 +57,7 @@ class AddReviewModal extends PureComponent {
         isVisible={isVisible}
         onBackdropPress={() => this.handleBackdropPress()}
         statusBarTranslucent
+        animationType="fade"
         width="auto"
         height="auto"
         overlayStyle={{borderRadius: 10, padding: 0}}>

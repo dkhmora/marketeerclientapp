@@ -62,8 +62,6 @@ class StoreDetailsModal extends Component {
           width: '100%',
           flexDirection: 'column',
           paddingVertical: 10,
-          borderBottomColor: colors.divider,
-          borderBottomWidth: 1,
           paddingHorizontal: 15,
         }}>
         <View
@@ -364,8 +362,6 @@ class StoreDetailsModal extends Component {
               style={{
                 flex: 1,
                 overflow: 'hidden',
-                borderBottomRightRadius: 10,
-                borderBottomLeftRadius: 10,
               }}>
               <MapView
                 style={{

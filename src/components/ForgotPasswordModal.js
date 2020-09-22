@@ -65,6 +65,7 @@ class ForgotPasswordModal extends Component {
         isVisible={isVisible}
         onBackdropPress={() => this.handleBackdropPress()}
         statusBarTranslucent
+        animationType="fade"
         width="auto"
         height="auto"
         overlayStyle={{borderRadius: 10, padding: 0}}>

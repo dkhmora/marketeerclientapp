@@ -29,6 +29,7 @@ class ItemDescriptionModal extends Component {
         {...otherProps}
         isVisible={isVisible}
         onBackdropPress={onBackdropPress}
+        animationType="fade"
         statusBarTranslucent
         width="auto"
         height="auto"

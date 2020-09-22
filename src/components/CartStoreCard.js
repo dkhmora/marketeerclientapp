@@ -483,7 +483,7 @@ class CartStoreCard extends PureComponent {
             marginVertical: 10,
             paddingLeft: 0,
             paddingRight: 0,
-            marginBottom: 10,
+            marginBottom: 5,
             borderRadius: 10,
             elevation: 3,
             overflow: 'hidden',
