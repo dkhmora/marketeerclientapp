@@ -133,6 +133,7 @@ class StoreDetailsModal extends Component {
         onShow={() => this.getReviews()}
         onBackdropPress={() => closeModal()}
         statusBarTranslucent
+        animationType="fade"
         width="90%"
         height="70%"
         overlayStyle={{
@@ -198,20 +199,19 @@ class StoreDetailsModal extends Component {
                       <FastImage
                         source={{uri: displayImageUrl}}
                         style={{
-                          backgroundColor: colors.primary,
                           borderRadius: 10,
-                          borderWidth: 1,
-                          borderColor: colors.primary,
+                          borderWidth: 0.7,
+                          borderColor: 'rgba(0,0,0,0.6)',
                           width: 90,
                           aspectRatio: 1,
-                          elevation: 10,
                           shadowColor: '#000',
                           shadowOffset: {
                             width: 0,
-                            height: 5,
+                            height: 2,
                           },
-                          shadowOpacity: 0.34,
-                          shadowRadius: 6.27,
+                          shadowOpacity: 0.25,
+                          shadowRadius: 3.84,
+                          elevation: 6,
                           marginRight: 10,
                         }}
                         resizeMode={FastImage.resizeMode.contain}

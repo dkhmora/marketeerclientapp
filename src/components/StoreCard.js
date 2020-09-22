@@ -223,7 +223,6 @@ class StoreCard extends Component {
                 style={{
                   width: '100%',
                   flexDirection: 'column',
-                  paddingTop: 5,
                 }}>
                 <View
                   style={{
@@ -314,7 +313,7 @@ class StoreCard extends Component {
             <View
               style={{
                 position: 'absolute',
-                top: 80,
+                top: 75,
                 left: 20,
                 shadowColor: '#000',
                 shadowOffset: {
@@ -323,11 +322,10 @@ class StoreCard extends Component {
                 },
                 shadowOpacity: 0.25,
                 shadowRadius: 3.84,
-                elevation: 5,
-                backgroundColor: colors.primary,
+                elevation: 6,
                 borderRadius: 8,
-                borderWidth: 1,
-                borderColor: colors.primary,
+                borderWidth: 0.7,
+                borderColor: 'rgba(0,0,0,0.3)',
                 overflow: 'hidden',
                 width: 80,
                 height: 80,

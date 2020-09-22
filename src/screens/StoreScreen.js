@@ -129,9 +129,17 @@ class StoreScreen extends Component {
                 height: 75,
                 width: 75,
                 borderRadius: 8,
-                borderWidth: 1,
-                borderColor: colors.primary,
+                borderWidth: 0.7,
+                borderColor: 'rgba(0,0,0,0.6)',
                 marginHorizontal: 10,
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+                elevation: 6,
               }}
             />
 
