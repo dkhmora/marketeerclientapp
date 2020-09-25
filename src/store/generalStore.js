@@ -356,7 +356,12 @@ class generalStore {
   @action async getImageURI(imageRef) {
     if (imageRef) {
       const ref = storage().ref(imageRef);
-      const link = await ref.getDownloadURL();
+      const link = await ref.getDownloadURL().catch((err) => {
+        Toast({text: err.message});
+
+        return null;
+      });
+
       return link;
     }
     return 0;
@@ -364,7 +369,11 @@ class generalStore {
 
   @action async getImageUrl(imageRef) {
     const ref = storage().ref(imageRef);
-    const link = await ref.getDownloadURL();
+    const link = await ref.getDownloadURL().catch((err) => {
+      Toast({text: err.message});
+
+      return null;
+    });
 
     return link;
   }
@@ -374,10 +383,18 @@ class generalStore {
       clearTimeout(this.markMessagesAsReadTimeout);
 
     this.markMessagesAsReadTimeout = setTimeout(() => {
-      firestore().collection('orders').doc(orderId).update({
-        userUnreadCount: 0,
-        updatedAt: firestore.Timestamp.now().toMillis(),
-      });
+      firestore()
+        .collection('orders')
+        .doc(orderId)
+        .update({
+          userUnreadCount: 0,
+          updatedAt: firestore.Timestamp.now().toMillis(),
+        })
+        .catch((err) => {
+          Toast({text: err.message});
+
+          return null;
+        });
     }, 100);
   }
 
@@ -505,6 +522,11 @@ class generalStore {
       .get()
       .then((document) => {
         return (this.orderItems = document.data().items);
+      })
+      .catch((err) => {
+        Toast({text: err.message});
+
+        return null;
       });
   }
 
@@ -517,6 +539,11 @@ class generalStore {
         if (document.exists) {
           return document.data().items;
         }
+      })
+      .catch((err) => {
+        Toast({text: err.message});
+
+        return null;
       });
 
     return orderItems;
@@ -531,6 +558,11 @@ class generalStore {
         if (document.exists) {
           return document.data();
         }
+      })
+      .catch((err) => {
+        Toast({text: err.message});
+
+        return null;
       });
 
     return orderPayment;
@@ -545,6 +577,11 @@ class generalStore {
         if (document.exists) {
           return document.data();
         }
+      })
+      .catch((err) => {
+        Toast({text: err.message});
+
+        return null;
       });
 
     return orderDetails;

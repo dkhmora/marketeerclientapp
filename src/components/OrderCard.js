@@ -104,7 +104,11 @@ class OrderCard extends PureComponent {
     const {storeId} = this.props.order;
 
     const ref = storage().ref(`/images/stores/${storeId}/display.jpg`);
-    const link = await ref.getDownloadURL();
+    const link = await ref.getDownloadURL().catch((err) => {
+      Toast({text: err.message});
+
+      return null;
+    });
 
     this.setState({url: {uri: link}, ready: true});
   }

@@ -57,11 +57,9 @@ class CartListItem extends PureComponent {
 
     const ref = storage().ref(itemImagePath);
     const link = await ref.getDownloadURL().catch((err) => {
-      if (err.code === 'storage/object-not-found') {
-        return null;
-      }
-
       Toast({text: err.message});
+
+      return null;
     });
 
     if (link) {
@@ -71,11 +69,9 @@ class CartListItem extends PureComponent {
     if (image && !link) {
       const secondRef = storage().ref(image);
       const secondLink = await secondRef.getDownloadURL().catch((err) => {
-        if (err.code === 'storage/object-not-found') {
-          return null;
-        }
-
         Toast({text: err.message});
+
+        return null;
       });
 
       if (secondLink) {

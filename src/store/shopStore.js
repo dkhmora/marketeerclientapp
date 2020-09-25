@@ -170,6 +170,11 @@ class shopStore {
       .doc(userId)
       .set({
         ...this.storeCartItems,
+      })
+      .catch((err) => {
+        Toast({text: err.message});
+
+        return null;
       });
   }
 

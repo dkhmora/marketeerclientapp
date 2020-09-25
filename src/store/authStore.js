@@ -87,7 +87,13 @@ class authStore {
   }
 
   @action async unsubscribeToNotifications() {
-    await messaging().deleteToken();
+    await messaging()
+      .deleteToken()
+      .catch((err) => {
+        Toast({text: err.message});
+
+        return null;
+      });
   }
 
   @action async resetPassword(email) {
@@ -113,7 +119,13 @@ class authStore {
   }
 
   @action async reloadUser() {
-    await auth().currentUser.reload();
+    await auth()
+      .currentUser.reload()
+      .catch((err) => {
+        Toast({text: err.message});
+
+        return null;
+      });
   }
 
   @action async updateEmailAddress(email, currentPassword) {
@@ -153,7 +165,11 @@ class authStore {
   @action async updateDisplayName(displayName) {
     const {currentUser} = auth();
 
-    await currentUser.updateProfile({displayName});
+    await currentUser.updateProfile({displayName}).catch((err) => {
+      Toast({text: err.message});
+
+      return null;
+    });
   }
 
   @action async updatePhoneNumber(credential) {
@@ -227,6 +243,11 @@ class authStore {
           text: `Welcome to Marketeer, ${name}!`,
           duration: 4000,
         });
+      })
+      .catch((err) => {
+        Toast({text: err.message});
+
+        return null;
       });
   }
 
@@ -254,6 +275,11 @@ class authStore {
       })
       .then(() => {
         auth().currentUser.updateProfile({displayName: name});
+      })
+      .catch((err) => {
+        Toast({text: err.message});
+
+        return null;
       });
   }
 
@@ -263,7 +289,13 @@ class authStore {
       password,
     );
 
-    return await auth().currentUser.linkWithCredential(emailCredential);
+    return await auth()
+      .currentUser.linkWithCredential(emailCredential)
+      .catch((err) => {
+        Toast({text: err.message});
+
+        return null;
+      });
   }
 
   @action async linkCurrentUserWithPhoneNumber(phoneCredential) {
@@ -305,6 +337,11 @@ class authStore {
           }
 
           return response;
+        })
+        .catch((err) => {
+          Toast({text: err.message});
+
+          return null;
         });
     } else {
       return await auth()
@@ -320,6 +357,11 @@ class authStore {
           });
 
           return {data: {s: 200}};
+        })
+        .catch((err) => {
+          Toast({text: err.message});
+
+          return null;
         });
     }
   }

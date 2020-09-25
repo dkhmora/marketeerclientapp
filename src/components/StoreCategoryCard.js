@@ -7,6 +7,7 @@ import {colors} from '../../assets/colors';
 import storage from '@react-native-firebase/storage';
 import {observer, inject} from 'mobx-react';
 import StoreCategoryCardLoader from './StoreCategoryCardLoader';
+import Toast from './Toast';
 
 @inject('shopStore')
 @observer
@@ -27,7 +28,11 @@ class StoreCategoryCard extends Component {
     const imageSource = `/images/store_categories/${item.name}.jpg`;
 
     const ref = storage().ref(imageSource);
-    const link = await ref.getDownloadURL();
+    const link = await ref.getDownloadURL().catch((err) => {
+      Toast({text: err.message});
+
+      return null;
+    });
 
     if (link) {
       this.setState({url: {uri: link}, ready: true});

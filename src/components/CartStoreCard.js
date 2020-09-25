@@ -147,7 +147,12 @@ class CartStoreCard extends PureComponent {
     const {storeId} = this.props;
 
     const ref = storage().ref(`/images/stores/${storeId}/display.jpg`);
-    const link = await ref.getDownloadURL();
+    const link = await ref.getDownloadURL().catch((err) => {
+      Toast({text: err.message});
+
+      return null;
+    });
+
     this.url = {uri: link};
   }
 

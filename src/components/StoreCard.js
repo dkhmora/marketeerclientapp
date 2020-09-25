@@ -8,6 +8,7 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import {Rating} from 'react-native-rating-element';
 import {PlaceholderMedia, Placeholder, Fade} from 'rn-placeholder';
+import Toast from './Toast';
 
 class StoreCard extends Component {
   constructor(props) {
@@ -25,8 +26,19 @@ class StoreCard extends Component {
 
     const displayImageRef = storage().ref(displayImage);
     const coverImageRef = storage().ref(coverImage);
-    const coverImageUrl = await coverImageRef.getDownloadURL();
-    const displayImageUrl = await displayImageRef.getDownloadURL();
+    const coverImageUrl = await coverImageRef.getDownloadURL().catch((err) => {
+      Toast({text: err.message});
+
+      return null;
+    });
+
+    const displayImageUrl = await displayImageRef
+      .getDownloadURL()
+      .catch((err) => {
+        Toast({text: err.message});
+
+        return null;
+      });
 
     this.setState({displayImageUrl, coverImageUrl, ready: true});
   };
