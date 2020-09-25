@@ -148,7 +148,7 @@ class CartStoreCard extends PureComponent {
 
     const ref = storage().ref(`/images/stores/${storeId}/display.jpg`);
     const link = await ref.getDownloadURL().catch((err) => {
-      Toast({text: err.message});
+      Toast({text: err.message, type: 'danger'});
 
       return null;
     });

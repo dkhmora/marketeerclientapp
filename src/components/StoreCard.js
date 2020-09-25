@@ -27,7 +27,7 @@ class StoreCard extends Component {
     const displayImageRef = storage().ref(displayImage);
     const coverImageRef = storage().ref(coverImage);
     const coverImageUrl = await coverImageRef.getDownloadURL().catch((err) => {
-      Toast({text: err.message});
+      Toast({text: err.message, type: 'danger'});
 
       return null;
     });
@@ -35,7 +35,7 @@ class StoreCard extends Component {
     const displayImageUrl = await displayImageRef
       .getDownloadURL()
       .catch((err) => {
-        Toast({text: err.message});
+        Toast({text: err.message, type: 'danger'});
 
         return null;
       });
@@ -62,6 +62,14 @@ class StoreCard extends Component {
               padding: 2,
               paddingHorizontal: 5,
               marginRight: 2,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 1,
+              },
+              shadowOpacity: 0.2,
+              shadowRadius: 1.41,
+              elevation: 2,
             }}>
             <Text
               style={{

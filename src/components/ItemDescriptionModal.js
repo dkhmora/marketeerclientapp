@@ -106,7 +106,11 @@ class ItemDescriptionModal extends Component {
               </Text>
             </View>
 
-            <View style={{width: SCREEN_WIDTH, padding: 10, marginBottom: 20}}>
+            <View
+              style={{
+                padding: 10,
+                marginBottom: 20,
+              }}>
               {description ? (
                 <Text maxFontSizeMultiplier={1.5} style={{fontSize: 18}}>
                   {description}

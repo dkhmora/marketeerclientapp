@@ -372,7 +372,7 @@ class generalStore {
       const ref = storage().ref(imageRef);
       const link = await ref.getDownloadURL().catch((err) => {
         crashlytics().recordError(err);
-        Toast({text: err.message});
+        Toast({text: err.message, type: 'danger'});
 
         return null;
       });
@@ -386,7 +386,7 @@ class generalStore {
     const ref = storage().ref(imageRef);
     const link = await ref.getDownloadURL().catch((err) => {
       crashlytics().recordError(err);
-      Toast({text: err.message});
+      Toast({text: err.message, type: 'danger'});
 
       return null;
     });
@@ -408,7 +408,7 @@ class generalStore {
         })
         .catch((err) => {
           crashlytics().recordError(err);
-          Toast({text: err.message});
+          Toast({text: err.message, type: 'danger'});
 
           return null;
         });
@@ -554,7 +554,7 @@ class generalStore {
       })
       .catch((err) => {
         crashlytics().recordError(err);
-        Toast({text: err.message});
+        Toast({text: err.message, type: 'danger'});
 
         return null;
       });
@@ -572,7 +572,7 @@ class generalStore {
       })
       .catch((err) => {
         crashlytics().recordError(err);
-        Toast({text: err.message});
+        Toast({text: err.message, type: 'danger'});
 
         return null;
       });
@@ -592,7 +592,7 @@ class generalStore {
       })
       .catch((err) => {
         crashlytics().recordError(err);
-        Toast({text: err.message});
+        Toast({text: err.message, type: 'danger'});
 
         return null;
       });
@@ -612,7 +612,7 @@ class generalStore {
       })
       .catch((err) => {
         crashlytics().recordError(err);
-        Toast({text: err.message});
+        Toast({text: err.message, type: 'danger'});
 
         return null;
       });

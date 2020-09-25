@@ -80,8 +80,6 @@ class ItemCard extends PureComponent {
     const itemImagePath = `/images/stores/${storeId}/items/${itemId}_${updatedAt}.jpg`;
     const ref = storage().ref(itemImagePath);
     const link = await ref.getDownloadURL().catch((err) => {
-      Toast({text: err.message});
-
       return null;
     });
 
@@ -92,7 +90,7 @@ class ItemCard extends PureComponent {
     if (image && !link) {
       const secondRef = storage().ref(image);
       const secondLink = await secondRef.getDownloadURL().catch((err) => {
-        Toast({text: err.message});
+        Toast({text: err.message, type: 'danger'});
 
         return null;
       });

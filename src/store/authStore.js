@@ -95,7 +95,7 @@ class authStore {
       .deleteToken()
       .catch((err) => {
         crashlytics().recordError(err);
-        Toast({text: err.message});
+        Toast({text: err.message, type: 'danger'});
 
         return null;
       });
@@ -130,7 +130,7 @@ class authStore {
       .currentUser.reload()
       .catch((err) => {
         crashlytics().recordError(err);
-        Toast({text: err.message});
+        Toast({text: err.message, type: 'danger'});
 
         return null;
       });
@@ -177,7 +177,7 @@ class authStore {
 
     await currentUser.updateProfile({displayName}).catch((err) => {
       crashlytics().recordError(err);
-      Toast({text: err.message});
+      Toast({text: err.message, type: 'danger'});
 
       return null;
     });
@@ -258,7 +258,7 @@ class authStore {
       })
       .catch((err) => {
         crashlytics().recordError(err);
-        Toast({text: err.message});
+        Toast({text: err.message, type: 'danger'});
 
         return null;
       });
@@ -291,7 +291,7 @@ class authStore {
       })
       .catch((err) => {
         crashlytics().recordError(err);
-        Toast({text: err.message});
+        Toast({text: err.message, type: 'danger'});
 
         return null;
       });
@@ -307,7 +307,7 @@ class authStore {
       .currentUser.linkWithCredential(emailCredential)
       .catch((err) => {
         crashlytics().recordError(err);
-        Toast({text: err.message});
+        Toast({text: err.message, type: 'danger'});
 
         return null;
       });
@@ -381,7 +381,7 @@ class authStore {
         })
         .catch((err) => {
           crashlytics().recordError(err);
-          Toast({text: err.message});
+          Toast({text: err.message, type: 'danger'});
 
           return null;
         });
@@ -402,7 +402,7 @@ class authStore {
         })
         .catch((err) => {
           crashlytics().recordError(err);
-          Toast({text: err.message});
+          Toast({text: err.message, type: 'danger'});
 
           return null;
         });
