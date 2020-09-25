@@ -6,7 +6,6 @@ import {View, TouchableOpacity} from 'react-native';
 import {Card, CardItem} from 'native-base';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
-import {Rating} from 'react-native-rating-element';
 import {PlaceholderMedia, Placeholder, Fade} from 'rn-placeholder';
 import Toast from './Toast';
 

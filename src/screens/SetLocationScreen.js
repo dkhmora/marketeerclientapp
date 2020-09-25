@@ -17,7 +17,7 @@ import geohash from 'ngeohash';
 import Toast from '../components/Toast';
 import BaseHeader from '../components/BaseHeader';
 import RNGooglePlaces from 'react-native-google-places';
-import {computed, observable} from 'mobx';
+import {computed} from 'mobx';
 import {Card, CardItem} from 'native-base';
 import crashlytics from '@react-native-firebase/crashlytics';
 
@@ -250,19 +250,17 @@ class SetLocationScreen extends Component {
   }
 
   openSearchModal() {
-    RNGooglePlaces.openAutocompleteModal(
-      {country: 'PH', useOverlay: true, type: 'address'},
-      ['location', 'addressComponents'],
-    )
-      .then((place) => {
-        const coordinates = place.location;
-        const address = place.addressComponents;
-        const formattedAddress = `${address[1].name} ${address[0].name}, ${address[6].name} ${address[3].name}, ${address[5].name}`;
+    RNGooglePlaces.openAutocompleteModal({country: 'PH', useOverlay: true}, [
+      'location',
+      'address',
+    ])
+      .then(async (place) => {
+        const {location, address} = place;
 
         this.setState(
           {
-            selectedLocationAddress: formattedAddress,
-            newMarkerPosition: {...coordinates},
+            selectedLocationAddress: address,
+            newMarkerPosition: {...location},
             editMode: false,
           },
           () => {

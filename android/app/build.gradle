@@ -125,12 +125,6 @@ def enableHermes = project.ext.react.get("enableHermes", false);
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    configurations.all {
-        resolutionStrategy {
-            force "com.facebook.soloader:soloader:0.8.2"
-        }
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -140,8 +134,8 @@ android {
         applicationId "com.marketeerph.marketeerclientapp.android"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 122
-        versionName "1.2.2"
+        versionCode 124
+        versionName "1.2.4"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
     }
@@ -177,7 +171,6 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://facebook.github.io/react-native/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             signingConfig signingConfigs.release
@@ -237,6 +230,12 @@ dependencies {
     }
 
     implementation 'com.google.firebase:firebase-analytics:17.2.2'
+
+    configurations.all {
+        resolutionStrategy {
+            force "com.facebook.soloader:soloader:0.8.2"
+        }
+    }
 }
 
 // Run this once to be able to run the application with BUCK
