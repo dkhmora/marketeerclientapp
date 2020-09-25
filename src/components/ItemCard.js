@@ -323,7 +323,6 @@ class ItemCard extends PureComponent {
                   <FastImage
                     source={{uri: this.url}}
                     style={{
-                      backgroundColor: colors.primary,
                       aspectRatio: 1,
                       flex: 1,
                       marginTop: -10,
@@ -335,7 +334,6 @@ class ItemCard extends PureComponent {
                 <FastImage
                   source={require('../../assets/images/placeholder.jpg')}
                   style={{
-                    backgroundColor: colors.primary,
                     aspectRatio: 1,
                     flex: 1,
                     marginTop: -10,
