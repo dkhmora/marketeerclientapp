@@ -64,6 +64,7 @@ class ItemsList extends Component {
     return (
       <FlatList
         style={{flex: 1, paddingHorizontal: 5}}
+        contentContainerStyle={{paddingBottom: 60}}
         ref={(flatList) => (this.flatList = flatList)}
         data={this.formatData(dataSource, numColumns)}
         numColumns={numColumns}

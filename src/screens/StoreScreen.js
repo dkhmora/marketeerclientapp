@@ -233,7 +233,7 @@ class StoreScreen extends Component {
           <ItemCategoriesTab
             storeCategoryItems={storeCategoryItems}
             storeId={store.storeId}
-            style={{paddingBottom: 60 + bottomPadding}}
+            style={{paddingBottom: bottomPadding}}
           />
         </Animatable.View>
 
