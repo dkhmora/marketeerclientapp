@@ -264,7 +264,7 @@ class StoreDetailsModal extends Component {
                         fontSize: 14,
                         flexWrap: 'wrap',
                       }}>
-                      {store.storeDescription}sadasdas asdas dadsa
+                      {store.storeDescription}
                     </Text>
                   )}
                 </View>
