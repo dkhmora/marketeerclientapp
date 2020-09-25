@@ -22,6 +22,7 @@ import {colors} from '../../assets/colors';
 import {inject, observer} from 'mobx-react';
 import MainTab from '../navigation/MainTab';
 import {computed} from 'mobx';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
 const pixelsFromTop = getStatusBarHeight() + headerHeight;
@@ -92,6 +93,10 @@ class MainScreen extends Component {
     } else {
       return 'Current Location';
     }
+  }
+
+  componentDidMount() {
+    crashlytics().log('MainScreen');
   }
 
   menuButton = () => {

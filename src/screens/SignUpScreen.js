@@ -21,7 +21,9 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import Toast from '../components/Toast';
 import {DatePicker} from 'native-base';
-import moment, {ISO_8601} from 'moment';
+import moment, { ISO_8601 } from 'moment';
+import crashlytics from '@react-native-firebase/crashlytics';
+
 @inject('generalStore')
 @inject('authStore')
 @observer
@@ -46,6 +48,10 @@ class SignUpScreen extends Component {
       secureTextEntry: true,
       confirm_secureTextEntry: true,
     };
+  }
+
+  componentDidMount() {
+    crashlytics().log('SignUpScreen');
   }
 
   handleNameChange = (name) => {

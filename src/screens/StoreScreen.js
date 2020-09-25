@@ -22,6 +22,7 @@ import {Modalize} from 'react-native-modalize';
 import SlidingCartHeader from '../components/SlidingCartHeader';
 import CartStoreCard from '../components/CartStoreCard';
 import SlidingCartFooter from '../components/SlidingCartFooter';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -58,6 +59,10 @@ class StoreScreen extends Component {
           ),
         });
       });
+  }
+
+  componentDidMount() {
+    crashlytics().log('StoreScreen');
   }
 
   handleCheckout() {

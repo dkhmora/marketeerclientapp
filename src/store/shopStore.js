@@ -6,6 +6,7 @@ import '@react-native-firebase/functions';
 import * as geolib from 'geolib';
 import {persist} from 'mobx-persist';
 import Toast from '../components/Toast';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 const functions = firebase.app().functions('asia-northeast1');
 
@@ -159,6 +160,7 @@ class shopStore {
           }
         })
         .catch((err) => {
+          crashlytics().recordError(err);
           return reject(err);
         });
     });
@@ -172,6 +174,7 @@ class shopStore {
         ...this.storeCartItems,
       })
       .catch((err) => {
+        crashlytics().recordError(err);
         Toast({text: err.message});
 
         return null;
@@ -215,6 +218,7 @@ class shopStore {
         return response;
       })
       .catch((err) => {
+        crashlytics().recordError(err);
         Toast({text: err.message, type: 'danger'});
       });
   }
@@ -334,12 +338,18 @@ class shopStore {
         await userCartCollection
           .doc(userId)
           .update({...this.storeCartItems})
-          .catch((err) => Toast({text: err.message, type: 'danger'}));
+          .catch((err) => {
+            crashlytics().recordError(err);
+            Toast({text: err.message, type: 'danger'});
+          });
       } else {
         await userCartCollection
           .doc(userId)
           .set({})
-          .catch((err) => Toast({text: err.message, type: 'danger'}));
+          .catch((err) => {
+            crashlytics().recordError(err);
+            Toast({text: err.message, type: 'danger'});
+          });
       }
     }
   }
@@ -383,6 +393,7 @@ class shopStore {
           ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
         .catch((err) => {
+          crashlytics().recordError(err);
           Toast({text: err.message, type: 'danger'});
         });
     } else if (currentLocationGeohash && locationCoordinates && storeCategory) {
@@ -412,6 +423,7 @@ class shopStore {
           ] = await this.sortStoresByDistance(list, locationCoordinates);
         })
         .catch((err) => {
+          crashlytics().recordError(err);
           Toast({text: err.message, type: 'danger'});
         });
     } else if (currentLocationGeohash && locationCoordinates && lastVisible) {
@@ -442,6 +454,7 @@ class shopStore {
           );
         })
         .catch((err) => {
+          crashlytics().recordError(err);
           Toast({text: err.message, type: 'danger'});
         });
     } else if (currentLocationGeohash && locationCoordinates) {
@@ -471,6 +484,7 @@ class shopStore {
           );
         })
         .catch((err) => {
+          crashlytics().recordError(err);
           Toast({text: err.message, type: 'danger'});
         });
     }
@@ -556,7 +570,10 @@ class shopStore {
       .then((categoryItems) => {
         this.storeCategoryItems.set(storeId, categoryItems);
       })
-      .catch((err) => Toast({text: err.message, type: 'danger'}));
+      .catch((err) => {
+        crashlytics().recordError(err);
+        Toast({text: err.message, type: 'danger'});
+      });
   }
 }
 

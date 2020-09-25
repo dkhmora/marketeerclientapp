@@ -16,6 +16,7 @@ import CartStoreList from '../components/CartStoreList';
 import BackButton from '../components/BackButton';
 import Toast from '../components/Toast';
 import {initialWindowMetrics} from 'react-native-safe-area-context';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 const inset = initialWindowMetrics && initialWindowMetrics.insets;
 const bottomPadding = Platform.OS === 'ios' ? inset.bottom : 0;
@@ -106,6 +107,8 @@ class CheckoutScreen extends Component {
 
   componentDidMount() {
     this.props.generalStore.setAppData();
+
+    crashlytics().log('CheckoutScreen');
   }
 
   componentWillUnmount() {

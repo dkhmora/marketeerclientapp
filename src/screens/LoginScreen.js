@@ -20,6 +20,7 @@ import ForgotPasswordModal from '../components/ForgotPasswordModal';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import Toast from '../components/Toast';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 @inject('authStore')
 @inject('generalStore')
@@ -35,6 +36,10 @@ class LoginScreen extends Component {
       secureTextEntry: true,
       forgotPasswordModal: false,
     };
+  }
+
+  componentDidMount() {
+    crashlytics().log('LoginScreen');
   }
 
   handleUserCredentialChange = (userCredential) => {

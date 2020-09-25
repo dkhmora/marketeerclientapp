@@ -6,6 +6,7 @@ import Toast from '../components/Toast';
 import '@react-native-firebase/functions';
 import {Platform} from 'react-native';
 import messaging from '@react-native-firebase/messaging';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 const functions = firebase.app().functions('asia-northeast1');
 class authStore {
@@ -81,7 +82,10 @@ class authStore {
               .doc(this.userId)
               .update('fcmTokens', firestore.FieldValue.arrayUnion(token));
           })
-          .catch((err) => Toast({text: err.message, type: 'danger'}));
+          .catch((err) => {
+            crashlytics().recordError(err);
+            Toast({text: err.message, type: 'danger'});
+          });
       }
     }
   }
@@ -90,6 +94,7 @@ class authStore {
     await messaging()
       .deleteToken()
       .catch((err) => {
+        crashlytics().recordError(err);
         Toast({text: err.message});
 
         return null;
@@ -115,6 +120,8 @@ class authStore {
             text:
               'Error: The user was not found. Please try again or sign up for an account.',
           });
+
+        crashlytics().recordError(err);
       });
   }
 
@@ -122,6 +129,7 @@ class authStore {
     await auth()
       .currentUser.reload()
       .catch((err) => {
+        crashlytics().recordError(err);
         Toast({text: err.message});
 
         return null;
@@ -145,20 +153,22 @@ class authStore {
       })
       .catch((err) => {
         if (err.code === 'auth/invalid-password') {
-          Toast({
+          return Toast({
             text: 'Error: Invalid password. No details have been changed.',
             type: 'danger',
           });
         }
 
         if (err.code === 'auth/wrong-password') {
-          Toast({
+          return Toast({
             text: 'Error: Wrong password. Please try again.',
             type: 'danger',
           });
         }
 
-        Toast({text: err.message.message, type: 'danger'});
+        crashlytics().recordError(err);
+
+        return Toast({text: err.message.message, type: 'danger'});
       });
   }
 
@@ -166,6 +176,7 @@ class authStore {
     const {currentUser} = auth();
 
     await currentUser.updateProfile({displayName}).catch((err) => {
+      crashlytics().recordError(err);
       Toast({text: err.message});
 
       return null;
@@ -180,7 +191,7 @@ class authStore {
       })
       .catch((err) => {
         if (err.code === 'auth/quota-exceeded') {
-          Toast({
+          return Toast({
             text:
               'Error: Too many phone code requests. Please try again later.',
             type: 'danger',
@@ -188,26 +199,27 @@ class authStore {
         }
 
         if (err.code === 'auth/missing-verification-code') {
-          Toast({
+          return Toast({
             text: 'Error: Missing verification code. Please try again.',
             type: 'danger',
           });
         }
 
         if (err.code === 'auth/invalid-verification-code') {
-          Toast({
+          return Toast({
             text: 'Error: Invalid verification code. Please try again.',
             type: 'danger',
           });
         }
 
         if (err.code === 'auth/credential-already-in-use') {
-          Toast({
+          return Toast({
             text:
               'Error: Phone number is already in use. Please try again with a different phone number.',
             type: 'danger',
           });
         }
+        crashlytics().recordError(err);
 
         Toast({text: err.message, type: 'danger'});
       });
@@ -245,6 +257,7 @@ class authStore {
         });
       })
       .catch((err) => {
+        crashlytics().recordError(err);
         Toast({text: err.message});
 
         return null;
@@ -277,6 +290,7 @@ class authStore {
         auth().currentUser.updateProfile({displayName: name});
       })
       .catch((err) => {
+        crashlytics().recordError(err);
         Toast({text: err.message});
 
         return null;
@@ -292,6 +306,7 @@ class authStore {
     return await auth()
       .currentUser.linkWithCredential(emailCredential)
       .catch((err) => {
+        crashlytics().recordError(err);
         Toast({text: err.message});
 
         return null;
@@ -318,15 +333,41 @@ class authStore {
           if (response.data.s === 200) {
             auth()
               .signInWithCustomToken(response.data.t)
-              .then((user) => {
+              .then(async (userCred) => {
                 this.userAuthenticated = true;
 
                 this.subscribeToNotifications();
 
                 Toast({
-                  text: `Welcome back to Marketeer, ${user.user.displayName}!`,
+                  text: `Welcome back to Marketeer, ${userCred.user.displayName}!`,
                   duration: 3500,
                 });
+
+                const claims = (await userCred.user.getIdTokenResult(true))
+                  .claims;
+                const role = claims ? claims.role : null;
+                let storeIds = null;
+
+                if (claims.storeIds) {
+                  Object.entries(claims.storeIds).map(([storeId, roles]) => {
+                    storeIds = `${
+                      storeIds ? `${storeIds}, ` : null
+                    }${storeId}: ${roles.toString()}`;
+                  });
+                }
+
+                crashlytics().log(`${userCred.user.email} signed in.`);
+
+                return await Promise.all([
+                  crashlytics().setUserId(userCred.user.uid),
+                  crashlytics().setAttributes({
+                    name: userCred.user.displayName,
+                    phoneNumber: userCred.user.phoneNumber,
+                    email: userCred.user.email,
+                    role,
+                    storeIds,
+                  }),
+                ]);
               });
           } else {
             Toast({
@@ -339,6 +380,7 @@ class authStore {
           return response;
         })
         .catch((err) => {
+          crashlytics().recordError(err);
           Toast({text: err.message});
 
           return null;
@@ -359,6 +401,7 @@ class authStore {
           return {data: {s: 200}};
         })
         .catch((err) => {
+          crashlytics().recordError(err);
           Toast({text: err.message});
 
           return null;
@@ -375,7 +418,10 @@ class authStore {
       .then(() => {
         this.signInAnonymously();
       })
-      .catch((err) => Toast({text: err.message, type: 'danger'}));
+      .catch((err) => {
+        crashlytics().recordError(err);
+        Toast({text: err.message, type: 'danger'});
+      });
   }
 
   @action async checkAuthStatus() {
@@ -394,7 +440,10 @@ class authStore {
       .then(() => {
         this.userAuthenticated = true;
       })
-      .catch((err) => Toast({text: err.message, type: 'danger'}));
+      .catch((err) => {
+        crashlytics().recordError(err);
+        Toast({text: err.message, type: 'danger'});
+      });
   }
 }
 

@@ -13,6 +13,7 @@ import Toast from '../components/Toast';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import {computed} from 'mobx';
 import PrimaryActivityIndicator from '../components/PrimaryActivityIndicator';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 @inject('generalStore')
 @inject('authStore')
@@ -71,6 +72,8 @@ class OrderDetailsScreen extends Component {
           });
       }
     }
+
+    crashlytics().log('OrderDetailsScreen');
   }
 
   @computed get orderStatus() {

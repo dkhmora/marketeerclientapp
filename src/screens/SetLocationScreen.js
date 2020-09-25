@@ -19,6 +19,7 @@ import BaseHeader from '../components/BaseHeader';
 import RNGooglePlaces from 'react-native-google-places';
 import {computed, observable} from 'mobx';
 import {Card, CardItem} from 'native-base';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 @inject('authStore')
 @inject('shopStore')
@@ -70,6 +71,8 @@ class SetLocationScreen extends Component {
     } else {
       setCurrentLocation();
     }
+
+    crashlytics().log('SetLocationScreen');
   }
 
   getGeohash = (coordinates) => {

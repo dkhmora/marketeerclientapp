@@ -30,7 +30,8 @@ class ItemsList extends Component {
     this.unsubscribeTabPress = this.props.navigation.addListener(
       'tabPress',
       (e) => {
-        this.flatList.scrollToOffset({animated: true, offset: 0});
+        this.flatList &&
+          this.flatList.scrollToOffset({animated: true, offset: 0});
       },
     );
   }

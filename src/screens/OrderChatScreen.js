@@ -12,6 +12,7 @@ import Toast from '../components/Toast';
 import ConfirmationModal from '../components/ConfirmationModal';
 import moment from 'moment';
 import firestore from '@react-native-firebase/firestore';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 @inject('generalStore')
 @inject('authStore')
@@ -51,6 +52,8 @@ class OrderChatScreen extends Component {
   componentDidMount() {
     const {order} = this.props.route.params;
     this.props.generalStore.getMessages(order.orderId);
+
+    crashlytics().log('OrderChatScreen');
   }
 
   componentWillUnmount() {
