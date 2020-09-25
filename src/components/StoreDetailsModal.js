@@ -1,19 +1,6 @@
 import React, {Component} from 'react';
-import {
-  Overlay,
-  Text,
-  Avatar,
-  ButtonGroup,
-  Icon,
-  Button,
-} from 'react-native-elements';
-import {
-  View,
-  ActivityIndicator,
-  FlatList,
-  ImageBackground,
-  Modal,
-} from 'react-native';
+import {Text, Avatar, ButtonGroup, Icon} from 'react-native-elements';
+import {View, ActivityIndicator, FlatList, ImageBackground} from 'react-native';
 import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
 import {inject} from 'mobx-react';

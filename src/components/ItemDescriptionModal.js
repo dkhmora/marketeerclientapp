@@ -35,40 +35,44 @@ class ItemDescriptionModal extends Component {
         height="auto"
         overlayStyle={{borderRadius: 10, padding: 0}}>
         <View style={{alignItems: 'center', maxWidth: SCREEN_WIDTH}}>
-          {url ? (
-            <FastImage
-              source={{uri: url}}
-              style={{
-                borderTopLeftRadius: 10,
-                borderTopRightRadius: 10,
-                width: null,
-                height: SCREEN_WIDTH,
-                aspectRatio: 1,
-              }}
-              resizeMode={FastImage.resizeMode.contain}
-            />
-          ) : (
-            <FastImage
-              source={require('../../assets/images/placeholder.jpg')}
-              style={{
-                borderTopLeftRadius: 10,
-                borderTopRightRadius: 10,
-                width: null,
-                height: SCREEN_WIDTH,
-                aspectRatio: 1,
-              }}
-              resizeMode={FastImage.resizeMode.contain}
-            />
-          )}
+          <View style={{elevation: 5, borderRadius: 10, overflow: 'hidden'}}>
+            {url ? (
+              <FastImage
+                source={{uri: url}}
+                style={{
+                  borderTopLeftRadius: 10,
+                  borderTopRightRadius: 10,
+                  width: null,
+                  height: SCREEN_WIDTH,
+                  aspectRatio: 1,
+                }}
+                resizeMode={FastImage.resizeMode.contain}
+              />
+            ) : (
+              <FastImage
+                source={require('../../assets/images/placeholder.jpg')}
+                style={{
+                  borderTopLeftRadius: 10,
+                  borderTopRightRadius: 10,
+                  width: null,
+                  height: SCREEN_WIDTH,
+                  aspectRatio: 1,
+                }}
+                resizeMode={FastImage.resizeMode.contain}
+              />
+            )}
+          </View>
+
           <View
             style={{
               paddingHorizontal: 10,
-              paddingVertical: 10,
-              borderRadius: 10,
+              paddingBottom: 10,
+              paddingTop: 15,
               backgroundColor: colors.icons,
-              elevation: 10,
               marginTop: -10,
               width: '100%',
+              borderBottomLeftRadius: 10,
+              borderBottomRightRadius: 10,
             }}>
             <Text
               maxFontSizeMultiplier={1.5}

@@ -243,8 +243,6 @@ class ItemCard extends PureComponent {
                 },
                 shadowOpacity: 0.2,
                 shadowRadius: 1.41,
-                borderBottomLeftRadius: 10,
-                borderBottomRightRadius: 10,
               }}>
               <TouchableOpacity onPress={() => this.setState({overlay: true})}>
                 <View
@@ -286,10 +284,10 @@ class ItemCard extends PureComponent {
                       <Text
                         maxFontSizeMultiplier={1}
                         numberOfLines={1}
-                        adjustsFontSizeToFit
                         style={{
                           color: colors.text_primary,
                           fontFamily: 'ProductSans-Black',
+                          flexWrap: 'wrap',
                         }}>
                         ₱{discountedPrice ? discountedPrice : price}
                         {unit && `/${unit}`}
@@ -312,7 +310,6 @@ class ItemCard extends PureComponent {
                       style={{
                         backgroundColor: colors.primary,
                         flex: 1,
-                        marginTop: -10,
                         height: '100%',
                         width: '100%',
                         aspectRatio: 1,
@@ -325,7 +322,6 @@ class ItemCard extends PureComponent {
                     style={{
                       aspectRatio: 1,
                       flex: 1,
-                      marginTop: -10,
                     }}
                     resizeMode={FastImage.resizeMode.contain}
                   />
