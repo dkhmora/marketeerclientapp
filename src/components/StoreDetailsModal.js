@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text, Avatar, ButtonGroup, Icon} from 'react-native-elements';
+import {Text, Avatar, ButtonGroup, Icon, Button} from 'react-native-elements';
 import {View, ActivityIndicator, FlatList, ImageBackground} from 'react-native';
 import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
@@ -7,6 +7,7 @@ import {inject} from 'mobx-react';
 import {Rating} from 'react-native-rating-element';
 import MapView, {Marker} from 'react-native-maps';
 import moment from 'moment';
+import {styles} from '../../assets/styles';
 
 @inject('generalStore')
 class StoreDetailsModal extends Component {
@@ -111,7 +112,12 @@ class StoreDetailsModal extends Component {
   );
 
   render() {
-    const {store, displayImageUrl, coverImageUrl} = this.props;
+    const {
+      store,
+      displayImageUrl,
+      coverImageUrl,
+      onDownButtonPress,
+    } = this.props;
     const {reviewsLoading, reviews, selectedIndex} = this.state;
 
     return (
@@ -132,8 +138,9 @@ class StoreDetailsModal extends Component {
                 maxWidth: '100%',
                 borderTopLeftRadius: 10,
                 borderTopRightRadius: 10,
-                height: 200,
-                aspectRatio: 3,
+                width: '100%',
+                flexDirection: 'row',
+                aspectRatio: 1.5,
                 elevation: 10,
                 resizeMode: 'stretch',
                 alignItems: 'center',
@@ -152,65 +159,114 @@ class StoreDetailsModal extends Component {
                   flex: 1,
                   backgroundColor: 'rgba(0,0,0,0.5)',
                   paddingHorizontal: 10,
+                  paddingTop: 20,
+                  paddingBottom: 10,
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}>
+                <Button
+                  onPress={() => onDownButtonPress()}
+                  type="clear"
+                  color={colors.icons}
+                  icon={<Icon name="arrow-down" color={colors.primary} />}
+                  buttonStyle={{borderRadius: 30}}
+                  containerStyle={[
+                    styles.buttonContainer,
+                    {
+                      backgroundColor: colors.icons,
+                      height: 40,
+                      position: 'absolute',
+                      top: 10,
+                      right: 10,
+                    },
+                  ]}
+                />
+
+                {displayImageUrl && (
+                  <FastImage
+                    source={{uri: displayImageUrl}}
+                    style={{
+                      borderRadius: 10,
+                      borderWidth: 0.7,
+                      borderColor: 'rgba(0,0,0,0.6)',
+                      width: 90,
+                      aspectRatio: 1,
+                      shadowColor: '#000',
+                      shadowOffset: {
+                        width: 0,
+                        height: 2,
+                      },
+                      shadowOpacity: 0.25,
+                      shadowRadius: 3.84,
+                      elevation: 6,
+                    }}
+                    resizeMode={FastImage.resizeMode.contain}
+                  />
+                )}
+
                 <View
                   style={{
-                    flex: 1,
                     flexDirection: 'row',
-                    justifyContent: 'flex-start',
+                    justifyContent: 'center',
                     alignItems: 'center',
+                    marginVertical: 5,
                   }}>
-                  {displayImageUrl && (
-                    <FastImage
-                      source={{uri: displayImageUrl}}
-                      style={{
-                        borderRadius: 10,
-                        borderWidth: 0.7,
-                        borderColor: 'rgba(0,0,0,0.6)',
-                        width: 90,
-                        aspectRatio: 1,
-                        shadowColor: '#000',
-                        shadowOffset: {
-                          width: 0,
-                          height: 2,
-                        },
-                        shadowOpacity: 0.25,
-                        shadowRadius: 3.84,
-                        elevation: 6,
-                        marginRight: 10,
-                      }}
-                      resizeMode={FastImage.resizeMode.contain}
-                    />
-                  )}
+                  <Text
+                    numberOfLines={2}
+                    adjustsFontSizeToFit
+                    style={{
+                      color: colors.icons,
+                      fontSize: 24,
+                    }}>
+                    {store.storeName}
+                  </Text>
 
-                  <View style={{flex: 1}}>
+                  {store.ratingAverage && (
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Text style={{color: colors.icons, fontSize: 30}}>
+                        {' '}
+                        •{' '}
+                      </Text>
+                      <Text
+                        style={{
+                          color: colors.icons,
+                          fontSize: 17,
+                          fontFamily: 'ProductSans-Black',
+                        }}>
+                        {store.ratingAverage.toFixed(1)}({store.reviewNumber})
+                      </Text>
+
+                      <FastImage
+                        source={require('../../assets/images/feather_filled.png')}
+                        style={{
+                          width: 16,
+                          height: 16,
+                          marginLeft: 2,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                      />
+                    </View>
+                  )}
+                </View>
+
+                <View style={{flex: 1}}>
+                  {!store.storeDescription && (
                     <Text
-                      numberOfLines={2}
+                      numberOfLines={5}
                       adjustsFontSizeToFit
                       style={{
                         color: colors.icons,
-                        fontSize: 24,
-                        marginBottom: 10,
-                        paddingRight: 30,
+                        fontSize: 14,
+                        flexWrap: 'wrap',
                       }}>
-                      {store.storeName}
+                      {store.storeDescription}sadasdas asdas dadsa
                     </Text>
-
-                    {store.storeDescription && (
-                      <Text
-                        numberOfLines={5}
-                        adjustsFontSizeToFit
-                        style={{
-                          color: colors.icons,
-                          fontSize: 16,
-                          flexWrap: 'wrap',
-                        }}>
-                        {store.storeDescription}
-                      </Text>
-                    )}
-                  </View>
+                  )}
                 </View>
 
                 <View style={{justifyContent: 'center'}}>

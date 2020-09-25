@@ -280,7 +280,7 @@ class StoreScreen extends Component {
         {coverImageUrl && displayImageUrl && (
           <BottomSheet
             ref={(sheetRef) => (this.sheetRef = sheetRef)}
-            snapPoints={[0, SCREEN_HEIGHT * 0.9]}
+            snapPoints={[0, SCREEN_HEIGHT * 0.95]}
             borderRadius={30}
             initialSnap={0}
             onCloseEnd={() => this.modalizeRef.close('alwaysOpen')}
@@ -288,12 +288,13 @@ class StoreScreen extends Component {
               <View
                 style={{
                   backgroundColor: colors.icons,
-                  height: SCREEN_HEIGHT * 0.9,
+                  height: SCREEN_HEIGHT * 0.95,
                 }}>
                 <StoreDetailsModal
                   store={store}
                   coverImageUrl={coverImageUrl}
                   displayImageUrl={displayImageUrl}
+                  onDownButtonPress={() => this.sheetRef.snapTo(0)}
                 />
               </View>
             )}
