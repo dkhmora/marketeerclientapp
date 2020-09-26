@@ -117,7 +117,7 @@ class OrderCard extends PureComponent {
     const {navigation, order} = this.props;
     const {orderStatus} = this;
 
-    navigation.navigate('Order Details', {order, orderStatus});
+    navigation.navigate('Order Details', {orderId: order.orderId});
   }
 
   handleCancelOrder() {
@@ -155,14 +155,9 @@ class OrderCard extends PureComponent {
 
   openOrderChat() {
     const {navigation, order} = this.props;
-    const {userAddress, userOrderNumber, storeName} = order;
 
     navigation.navigate('Order Chat', {
-      storeName,
-      userAddress,
-      order,
-      userOrderNumber,
-      orderStatus: this.orderStatus,
+      orderId: order.orderId,
     });
   }
 

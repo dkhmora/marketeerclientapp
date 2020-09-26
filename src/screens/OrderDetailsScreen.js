@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Card, CardItem, Left, Right} from 'native-base';
 import {View, ActivityIndicator, Linking} from 'react-native';
-import {Text, Input, Icon, Button} from 'react-native-elements';
+import {Text, Input, Icon, Button, Badge} from 'react-native-elements';
 import BaseHeader from '../components/BaseHeader';
 import {ScrollView} from 'react-native-gesture-handler';
 import {colors} from '../../assets/colors';
@@ -11,7 +11,7 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import * as Animatable from 'react-native-animatable';
 import Toast from '../components/Toast';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
-import {computed} from 'mobx';
+import {computed, when} from 'mobx';
 import PrimaryActivityIndicator from '../components/PrimaryActivityIndicator';
 import crashlytics from '@react-native-firebase/crashlytics';
 
@@ -22,74 +22,79 @@ class OrderDetailsScreen extends Component {
   constructor(props) {
     super(props);
 
-    const {order, orderId} = this.props.route.params;
-
     this.state = {
-      order: {...order},
       orderItems: null,
       orderPayment: null,
-      ready: false,
+      itemsReady: false,
       confirmCancelOrderModal: false,
       cancelReasonCheck: false,
       cancelReasonInput: '',
       cancelOrderLoading: false,
     };
-
-    if (order) {
-      this.props.generalStore
-        .getOrderItems(order.orderId)
-        .then((orderItems) => {
-          this.setState({orderItems, ready: true});
-        });
-    }
-
-    if (orderId && !order) {
-      this.props.generalStore.getOrderDetails(orderId).then(() => {
-        this.props.generalStore.getOrderItems(orderId).then((orderDetails) => {
-          this.setState({order: {...orderDetails, orderId}, ready: true});
-        });
-      });
-    }
   }
 
   componentDidMount() {
-    const {order} = this.props.route.params;
-    const {availablePaymentMethods} = this.props.generalStore;
+    const {orderId} = this.props.route.params;
+    const {selectedOrder, availablePaymentMethods} = this.props.generalStore;
 
-    if (order.paymentMethod === 'Online Banking') {
-      if (Object.keys(availablePaymentMethods).length === 0) {
-        this.props.generalStore.setAppData();
-      }
+    this.props.generalStore.getOrder({orderId, readMessages: false});
 
-      if (
-        !order.orderStatus.pending.status &&
-        !order.orderStatus.cancelled.status
-      ) {
-        this.props.generalStore
-          .getOrderPayment(order.orderId)
-          .then((orderPayment) => {
-            this.setState({orderPayment, ready: true});
-          });
-      }
-    }
+    this.props.generalStore.getOrderItems(orderId).then((orderItems) => {
+      this.setState({orderItems, itemsReady: true});
+    });
+
+    when(
+      () => selectedOrder,
+      () => {
+        if (selectedOrder.paymentMethod === 'Online Banking') {
+          if (Object.keys(availablePaymentMethods).length === 0) {
+            this.props.generalStore.setAppData();
+          }
+
+          if (
+            !selectedOrder.orderStatus.pending.status &&
+            !selectedOrder.orderStatus.cancelled.status
+          ) {
+            this.props.generalStore
+              .getOrderPayment(selectedOrder.orderId)
+              .then((orderPayment) => {
+                this.setState({orderPayment});
+              });
+          }
+        }
+      },
+    );
 
     crashlytics().log('OrderDetailsScreen');
   }
 
+  componentWillUnmount() {
+    this.props.generalStore.selectedOrder = null;
+
+    this.props.generalStore.unsubscribeGetOrder &&
+      this.props.generalStore.unsubscribeGetOrder();
+  }
+
   @computed get orderStatus() {
-    const {orderStatus} = this.state.order;
+    const {selectedOrder} = this.props.generalStore;
 
-    const statusLabel =
-      orderStatus &&
-      Object.entries(orderStatus).map(([key, value]) => {
-        if (value.status) {
-          return key.toUpperCase();
-        }
+    if (selectedOrder) {
+      const {orderStatus} = selectedOrder;
 
-        return null;
-      });
+      const statusLabel =
+        orderStatus &&
+        Object.entries(orderStatus).map(([key, value]) => {
+          if (value.status) {
+            return key.toUpperCase();
+          }
 
-    return statusLabel ? statusLabel.filter((item) => item != null) : 'null';
+          return null;
+        });
+
+      return statusLabel ? statusLabel.filter((item) => item != null) : 'null';
+    }
+
+    return null;
   }
 
   handleCancelReasonChange = (cancelReasonInput) => {
@@ -107,13 +112,13 @@ class OrderDetailsScreen extends Component {
   };
 
   handleCancelOrder() {
-    const {order} = this.props.route.params;
-    const {userOrderNumber} = order;
+    const {selectedOrder} = this.props.generalStore;
+    const {userOrderNumber} = selectedOrder;
 
     this.setState({cancelOrderLoading: true}, () => {
       this.props.generalStore
         .cancelOrder(
-          this.props.route.params.order.orderId,
+          this.props.route.params.orderId,
           this.state.cancelReasonInput,
         )
         .then((response) => {
@@ -191,38 +196,37 @@ class OrderDetailsScreen extends Component {
     }
   }
 
+  openOrderChat() {
+    const {navigation} = this.props;
+    const {orderId} = this.props.route.params;
+
+    navigation.navigate('Order Chat', {
+      orderId,
+    });
+  }
+
   render() {
     const {
+      itemsReady,
       orderItems,
       orderPayment,
-      ready,
       confirmCancelOrderModal,
       cancelReasonCheck,
       cancelReasonInput,
       cancelOrderLoading,
-      order,
     } = this.state;
     const {orderStatus} = this;
-    const {availablePaymentMethods} = this.props.generalStore;
-    const {
-      userOrderNumber,
-      quantity,
-      deliveryPrice,
-      subTotal,
-      paymentMethod,
-      deliveryMethod,
-      storeName,
-      storeId,
-      processId,
-      paymentLink,
-      orderId,
-    } = order;
-    const paymentGateway = processId
-      ? availablePaymentMethods[processId]
-      : null;
+    const {availablePaymentMethods, selectedOrder} = this.props.generalStore;
+    const paymentGateway =
+      selectedOrder && selectedOrder.processId
+        ? availablePaymentMethods[selectedOrder.processId]
+        : null;
     const {userName} = this.props.authStore;
     const {navigation} = this.props;
-    const cancelReason = order.orderStatus.cancelled.reason;
+
+    const cancelReason = selectedOrder
+      ? selectedOrder.orderStatus.cancelled.reason
+      : null;
 
     const paymentStatus =
       orderPayment &&
@@ -247,18 +251,27 @@ class OrderDetailsScreen extends Component {
     return (
       <View style={{flex: 1}}>
         <BaseHeader
-          title={userOrderNumber && `Order #${userOrderNumber} Details`}
+          title={
+            selectedOrder
+              ? selectedOrder.userOrderNumber &&
+                `Order #${selectedOrder.userOrderNumber} Details`
+              : null
+          }
           centerComponent={
-            !userOrderNumber && (
-              <ActivityIndicator size="small" color={colors.icons} />
-            )
+            selectedOrder
+              ? !selectedOrder.userOrderNumber && (
+                  <ActivityIndicator size="small" color={colors.icons} />
+                )
+              : null
           }
           backButton
           optionsIcon="help-circle"
           options={
-            orderStatus[0] === 'PENDING' ||
-            orderStatus[0] === 'UNPAID' ||
-            (orderStatus[0] === 'PAID' && paymentMethod === 'COD')
+            orderStatus &&
+            (orderStatus[0] === 'PENDING' ||
+              orderStatus[0] === 'UNPAID' ||
+              (orderStatus[0] === 'PAID' &&
+                selectedOrder.paymentMethod === 'COD'))
               ? ['Cancel Order']
               : null
           }
@@ -270,12 +283,12 @@ class OrderDetailsScreen extends Component {
           navigation={navigation}
         />
 
-        {order ? (
+        {selectedOrder ? (
           <View style={{flex: 1}}>
             <ConfirmationModal
               isVisible={confirmCancelOrderModal}
               closeModal={() => this.closeModal()}
-              title={`Cancel Order #${userOrderNumber}`}
+              title={`Cancel Order #${selectedOrder.userOrderNumber}`}
               loading={cancelOrderLoading}
               confirmDisabled={!cancelReasonCheck}
               body={
@@ -343,76 +356,158 @@ class OrderDetailsScreen extends Component {
                     overflow: 'hidden',
                   }}>
                   <CardItem
+                    onPress={() => this.openOrderChat()}
+                    button
+                    activeOpacity={0.85}
                     header
                     bordered
-                    style={{backgroundColor: colors.primary}}>
+                    style={{
+                      backgroundColor: colors.primary,
+                      justifyContent: 'space-between',
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}>
                     <Text style={{color: colors.icons, fontSize: 20}}>
                       Order Details
                     </Text>
-                  </CardItem>
 
-                  <CardItem bordered>
-                    <Left>
-                      <Text
-                        style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
-                        Order #:
-                      </Text>
-                    </Left>
-
-                    <Right>
-                      <Text
+                    <View style={{alignItems: 'center'}}>
+                      <View
                         style={{
-                          color: colors.primary,
-                          fontSize: 16,
-                          textAlign: 'right',
+                          flexDirection: 'row',
+                          paddingHorizontal: 5,
+                          paddingTop: 5,
                         }}>
-                        {orderId}
-                      </Text>
-                    </Right>
+                        <Icon name="message-square" color={colors.icons} />
+
+                        {selectedOrder.userUnreadCount !== null &&
+                          selectedOrder.userUnreadCount > 0 && (
+                            <Badge
+                              value={selectedOrder.userUnreadCount}
+                              badgeStyle={{backgroundColor: colors.accent}}
+                              containerStyle={{
+                                position: 'absolute',
+                                top: 0,
+                                right: 0,
+                              }}
+                            />
+                          )}
+                      </View>
+                      <Text style={{color: colors.icons}}>Chat</Text>
+                    </View>
                   </CardItem>
 
-                  <CardItem bordered>
-                    <Left>
-                      <Text
-                        style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
-                        Order Status:
-                      </Text>
-                    </Left>
+                  {selectedOrder ? (
+                    <View>
+                      <CardItem bordered>
+                        <Left>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              fontFamily: 'ProductSans-Bold',
+                            }}>
+                            Order ID:
+                          </Text>
+                        </Left>
 
-                    <Right>
-                      <Text
-                        style={{
-                          color: colors.primary,
-                          fontSize: 16,
-                          textAlign: 'right',
-                        }}>
-                        {orderStatus[0] !== 'PAID' ? orderStatus : 'PROCESSING'}
-                      </Text>
-                    </Right>
-                  </CardItem>
+                        <Right>
+                          <Text
+                            style={{
+                              color: colors.text_primary,
+                              fontSize: 16,
+                              textAlign: 'right',
+                            }}>
+                            {selectedOrder.orderId}
+                          </Text>
+                        </Right>
+                      </CardItem>
 
-                  <CardItem bordered>
-                    <Left>
-                      <Text
-                        style={{fontSize: 16, fontFamily: 'ProductSans-Bold'}}>
-                        Delivery Method:
-                      </Text>
-                    </Left>
+                      <CardItem bordered>
+                        <Left>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              fontFamily: 'ProductSans-Bold',
+                            }}>
+                            Order Status:
+                          </Text>
+                        </Left>
 
-                    <Right>
-                      <Text
-                        style={{
-                          color: colors.text_primary,
-                          fontSize: 16,
-                          textAlign: 'right',
-                        }}>
-                        {deliveryMethod}
-                      </Text>
-                    </Right>
-                  </CardItem>
+                        <Right>
+                          <Text
+                            style={{
+                              color: colors.primary,
+                              fontSize: 16,
+                              textAlign: 'right',
+                            }}>
+                            {orderStatus[0] !== 'PAID'
+                              ? orderStatus
+                              : 'PROCESSING'}
+                          </Text>
+                        </Right>
+                      </CardItem>
+
+                      <CardItem bordered>
+                        <Left>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              fontFamily: 'ProductSans-Bold',
+                            }}>
+                            Delivery Method:
+                          </Text>
+                        </Left>
+
+                        <Right>
+                          <Text
+                            style={{
+                              color: colors.text_primary,
+                              fontSize: 16,
+                              textAlign: 'right',
+                            }}>
+                            {selectedOrder.deliveryMethod}
+                          </Text>
+                        </Right>
+                      </CardItem>
+
+                      <CardItem bordered>
+                        <Left>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              fontFamily: 'ProductSans-Bold',
+                            }}>
+                            Payment Method:
+                          </Text>
+                        </Left>
+
+                        <Right>
+                          <View
+                            style={{
+                              borderRadius: 20,
+                              backgroundColor: colors.accent,
+                              padding: 3,
+                              paddingHorizontal: 10,
+                              marginLeft: 2,
+                            }}>
+                            <Text
+                              style={{
+                                fontSize: 13,
+                                fontFamily: 'ProductSans-Regular',
+                                color: colors.icons,
+                              }}>
+                              {selectedOrder.paymentMethod}
+                            </Text>
+                          </View>
+                        </Right>
+                      </CardItem>
+                    </View>
+                  ) : (
+                    <PrimaryActivityIndicator />
+                  )}
                 </Card>
               </View>
-              {orderStatus[0] === 'CANCELLED' && (
+              {selectedOrder && orderStatus[0] === 'CANCELLED' && (
                 <View
                   style={{
                     shadowColor: '#000',
@@ -455,9 +550,9 @@ class OrderDetailsScreen extends Component {
                             fontSize: 16,
                             textAlign: 'right',
                           }}>
-                          {order.orderStatus.cancelled.byShopper
+                          {selectedOrder.orderStatus.cancelled.byShopper
                             ? `${userName} (Shopper)`
-                            : `${storeName} (Store)`}
+                            : `${selectedOrder.storeName} (Store)`}
                         </Text>
                       </Right>
                     </CardItem>
@@ -488,9 +583,10 @@ class OrderDetailsScreen extends Component {
                 </View>
               )}
 
-              {paymentMethod === 'Online Banking' &&
-                !order.orderStatus.pending.status &&
-                !order.orderStatus.cancelled.status && (
+              {orderPayment &&
+                selectedOrder.paymentMethod === 'Online Banking' &&
+                !selectedOrder.orderStatus.pending.status &&
+                !selectedOrder.orderStatus.cancelled.status && (
                   <View
                     style={{
                       shadowColor: '#000',
@@ -522,13 +618,13 @@ class OrderDetailsScreen extends Component {
                         </Text>
 
                         {orderStatus[0] === 'UNPAID' &&
-                          paymentMethod === 'Online Banking' &&
-                          paymentLink && (
+                          selectedOrder.paymentMethod === 'Online Banking' &&
+                          selectedOrder.paymentLink && (
                             <Button
                               title="Pay Now"
                               onPress={() => {
                                 this.props.generalStore.appReady = false;
-                                this.openLink(paymentLink);
+                                this.openLink(selectedOrder.paymentLink);
                               }}
                               titleStyle={{color: colors.icons}}
                               buttonStyle={{
@@ -689,14 +785,14 @@ class OrderDetailsScreen extends Component {
                     </Text>
                   </CardItem>
 
-                  {ready ? (
+                  {itemsReady ? (
                     <View>
                       {orderItems.map((item, index) => {
                         return (
                           <View key={item.itemId}>
                             <CartListItem
                               item={item}
-                              storeId={storeId}
+                              storeId={selectedOrder.storeId}
                               checkout
                             />
                           </View>
@@ -713,7 +809,7 @@ class OrderDetailsScreen extends Component {
                       borderTopColor: colors.divider,
                     }}>
                     <Left>
-                      <Text note>{quantity} items</Text>
+                      <Text note>{selectedOrder.quantity} items</Text>
                     </Left>
                     <Right>
                       <View
@@ -732,7 +828,7 @@ class OrderDetailsScreen extends Component {
                             color: colors.text_primary,
                             fontFamily: 'ProductSans-Black',
                           }}>
-                          ₱{subTotal}
+                          ₱{selectedOrder.subTotal}
                         </Text>
                       </View>
 
@@ -752,9 +848,10 @@ class OrderDetailsScreen extends Component {
                             color: colors.text_primary,
                             fontFamily: 'ProductSans-Black',
                           }}>
-                          {deliveryPrice && deliveryPrice > 0
-                            ? `₱${deliveryPrice}`
-                            : deliveryPrice === null
+                          {selectedOrder.deliveryPrice &&
+                          selectedOrder.deliveryPrice > 0
+                            ? `₱${selectedOrder.deliveryPrice}`
+                            : selectedOrder.deliveryPrice === null
                             ? '(Contact Store)'
                             : '₱0 (Free Delivery)'}
                         </Text>
@@ -780,7 +877,11 @@ class OrderDetailsScreen extends Component {
                             color: colors.primary,
                             fontFamily: 'ProductSans-Black',
                           }}>
-                          ₱{subTotal + (deliveryPrice ? deliveryPrice : 0)}
+                          ₱
+                          {selectedOrder.subTotal +
+                            (selectedOrder.deliveryPrice
+                              ? selectedOrder.deliveryPrice
+                              : 0)}
                         </Text>
                       </View>
                     </Right>

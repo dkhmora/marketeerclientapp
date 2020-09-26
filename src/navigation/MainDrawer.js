@@ -14,6 +14,7 @@ import InAppBrowser from 'react-native-inappbrowser-reborn';
 import ConfirmationModal from '../components/ConfirmationModal';
 import dynamicLinks from '@react-native-firebase/dynamic-links';
 import messaging from '@react-native-firebase/messaging';
+import RemotePushController from '../services/RemotePushController';
 
 @inject('authStore')
 @inject('shopStore')
@@ -404,6 +405,7 @@ class MainDrawer extends Component {
 
   render() {
     const DrawerMain = createDrawerNavigator();
+    const {navigation} = this.props;
 
     return (
       <View style={{flex: 1}}>
@@ -429,6 +431,8 @@ class MainDrawer extends Component {
           }}>
           <DrawerMain.Screen name="Main" component={MainScreen} />
         </DrawerMain.Navigator>
+
+        <RemotePushController navigation={navigation} />
       </View>
     );
   }

@@ -24,6 +24,8 @@ class generalStore {
   @observable orderItems = [];
   @observable orderMessages = [];
   @observable unsubscribeGetMessages = null;
+  @observable unsubscribeGetOrder = null;
+  @observable selectedOrder = null;
   @observable currentLocation = null;
   @observable currentLocationDetails = null;
   @observable selectedDeliveryLabel = null;
@@ -413,6 +415,45 @@ class generalStore {
           return null;
         });
     }, 100);
+  }
+
+  @action getOrder({orderId, readMessages}) {
+    this.orderMessages = null;
+    this.selectedOrder = null;
+
+    if (orderId) {
+      this.unsubscribeGetOrder = firestore()
+        .collection('orders')
+        .doc(orderId)
+        .onSnapshot((documentSnapshot) => {
+          if (documentSnapshot) {
+            if (documentSnapshot.exists) {
+              this.orderMessages = [];
+
+              if (
+                documentSnapshot.data().userUnreadCount !== 0 &&
+                readMessages
+              ) {
+                this.markMessagesAsRead(orderId);
+              }
+
+              this.selectedOrder = {...documentSnapshot.data(), orderId};
+
+              if (
+                documentSnapshot.data().messages.length <= 0 &&
+                this.orderMessages.length > 0
+              ) {
+                this.orderMessages = GiftedChat.append(
+                  this.orderMessages,
+                  documentSnapshot.data().messages,
+                );
+              } else {
+                this.orderMessages = documentSnapshot.data().messages.reverse();
+              }
+            }
+          }
+        });
+    }
   }
 
   @action getMessages(orderId) {

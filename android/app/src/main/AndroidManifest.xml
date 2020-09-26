@@ -7,6 +7,13 @@
     <uses-feature android:name="android.hardware.camera.front" android:required="false" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <permission android:name="${applicationId}.permission.C2D_MESSAGE"
+                android:protectionLevel="signature" />
+    <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE" />
+    <!-- < Only if you're using GCM or localNotificationSchedule() > -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
       android:name=".MainApplication"
@@ -17,6 +24,39 @@
       android:theme="@style/AppTheme">
       <meta-data  android:name="com.google.firebase.messaging.default_notification_icon"
                   android:resource="@drawable/ic_notification" />
+
+                  <meta-data  android:name="com.dieam.reactnativepushnotification.notification_channel_name"
+                  android:value="YOUR NOTIFICATION CHANNEL NAME"/>
+
+      <meta-data  android:name="com.dieam.reactnativepushnotification.notification_channel_description"
+                  android:value="YOUR NOTIFICATION CHANNEL DESCRIPTION"/>
+
+      <!-- Change the value to true to enable pop-up for in foreground (remote-only, for local use ignoreInForeground) -->
+      <meta-data  android:name="com.dieam.reactnativepushnotification.notification_foreground"
+                  android:value="true"/>
+      <!-- Change the value to false if you don't want the creation of the default channel -->
+      <meta-data  android:name="com.dieam.reactnativepushnotification.channel_create_default"
+                  android:value="true"/>
+      <!-- Change the resource name to your App's accent color - or any other color you want -->
+      <meta-data  android:name="com.dieam.reactnativepushnotification.notification_color"
+                  android:resource="@color/primary"/> <!-- or @android:color/{name} to use a standard color -->
+
+      <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationActions" />
+      <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationPublisher" />
+      <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationBootEventReceiver">
+          <intent-filter>
+              <action android:name="android.intent.action.BOOT_COMPLETED" />
+          </intent-filter>
+      </receiver>
+
+      <service
+          android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationListenerService"
+          android:exported="false" >
+          <intent-filter>
+              <action android:name="com.google.firebase.MESSAGING_EVENT" />
+          </intent-filter>
+      </service>
+
       <meta-data
         android:name="com.google.android.geo.API_KEY"
         android:value="AIzaSyDQ2SC2EDaaRxnDKZZCLg9BhuQSblivOFY" />
@@ -36,8 +76,29 @@
             <action android:name="android.intent.action.VIEW"/>
             <category android:name="android.intent.category.DEFAULT"/>
             <category android:name="android.intent.category.BROWSABLE"/>
-            <data android:host="marketeer.ph/app/merchant/payments" android:scheme="http"/>
-            <data android:host="marketeer.ph/app/merchant/payments" android:scheme="https"/>
+            <data android:host="marketeer.ph/app/order/payment" android:scheme="http"/>
+            <data android:host="marketeer.ph/app/order/payment" android:scheme="https"/>
+        </intent-filter>
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW"/>
+            <category android:name="android.intent.category.DEFAULT"/>
+            <category android:name="android.intent.category.BROWSABLE"/>
+            <data android:host="marketeer.ph/app/fb" android:scheme="http"/>
+            <data android:host="marketeer.ph/app/fb" android:scheme="https"/>
+        </intent-filter>
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW"/>
+            <category android:name="android.intent.category.DEFAULT"/>
+            <category android:name="android.intent.category.BROWSABLE"/>
+            <data android:host="marketeer.ph/app/twit" android:scheme="http"/>
+            <data android:host="marketeer.ph/app/twit" android:scheme="https"/>
+        </intent-filter>
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW"/>
+            <category android:name="android.intent.category.DEFAULT"/>
+            <category android:name="android.intent.category.BROWSABLE"/>
+            <data android:host="marketeer.ph/app/ig" android:scheme="http"/>
+            <data android:host="marketeer.ph/app/ig" android:scheme="https"/>
         </intent-filter>
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
