@@ -90,8 +90,6 @@ class ItemCard extends PureComponent {
     if (image && !link) {
       const secondRef = storage().ref(image);
       const secondLink = await secondRef.getDownloadURL().catch((err) => {
-        Toast({text: err.message, type: 'danger'});
-
         return null;
       });
 

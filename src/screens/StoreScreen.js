@@ -265,16 +265,20 @@ class StoreScreen extends Component {
               handleCheckout={() => this.handleCheckout()}
             />
           )}>
-          {dataSource.map((storeId, index) => {
-            return (
-              <CartStoreCard
-                cart={false}
-                checkout={false}
-                storeId={storeId}
-                key={storeId}
-              />
-            );
-          })}
+          {dataSource.length > 0 ? (
+            dataSource.map((storeId, index) => {
+              return (
+                <CartStoreCard
+                  cart={false}
+                  checkout={false}
+                  storeId={storeId}
+                  key={storeId}
+                />
+              );
+            })
+          ) : (
+            <Text>{emptyCartText}</Text>
+          )}
         </Modalize>
 
         {coverImageUrl && displayImageUrl && (

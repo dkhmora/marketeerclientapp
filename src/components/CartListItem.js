@@ -57,8 +57,6 @@ class CartListItem extends PureComponent {
 
     const ref = storage().ref(itemImagePath);
     const link = await ref.getDownloadURL().catch((err) => {
-      Toast({text: err.message, type: 'danger'});
-
       return null;
     });
 
@@ -69,8 +67,6 @@ class CartListItem extends PureComponent {
     if (image && !link) {
       const secondRef = storage().ref(image);
       const secondLink = await secondRef.getDownloadURL().catch((err) => {
-        Toast({text: err.message, type: 'danger'});
-
         return null;
       });
 
