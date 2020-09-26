@@ -34,14 +34,31 @@ class ItemDescriptionModal extends Component {
         width="auto"
         height="auto"
         overlayStyle={{borderRadius: 10, padding: 0}}>
-        <View style={{alignItems: 'center', maxWidth: SCREEN_WIDTH}}>
-          <View style={{elevation: 5, borderRadius: 10, overflow: 'hidden'}}>
+        <View
+          style={{
+            alignItems: 'center',
+            maxWidth: SCREEN_WIDTH,
+            backgroundColor: colors.icons,
+            borderRadius: 10,
+            overflow: 'hidden',
+          }}>
+          <View
+            style={{
+              elevation: 5,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 2,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+              borderBottomWidth: 0.6,
+              borderColor: 'rgba(0,0,0,0.3)',
+            }}>
             {url ? (
               <FastImage
                 source={{uri: url}}
                 style={{
-                  borderTopLeftRadius: 10,
-                  borderTopRightRadius: 10,
                   width: null,
                   height: SCREEN_WIDTH,
                   aspectRatio: 1,
@@ -52,8 +69,6 @@ class ItemDescriptionModal extends Component {
               <FastImage
                 source={require('../../assets/images/placeholder.jpg')}
                 style={{
-                  borderTopLeftRadius: 10,
-                  borderTopRightRadius: 10,
                   width: null,
                   height: SCREEN_WIDTH,
                   aspectRatio: 1,
@@ -67,12 +82,9 @@ class ItemDescriptionModal extends Component {
             style={{
               paddingHorizontal: 10,
               paddingBottom: 10,
-              paddingTop: 15,
+              paddingTop: 5,
               backgroundColor: colors.icons,
-              marginTop: -10,
               width: '100%',
-              borderBottomLeftRadius: 10,
-              borderBottomRightRadius: 10,
             }}>
             <Text
               maxFontSizeMultiplier={1.5}
