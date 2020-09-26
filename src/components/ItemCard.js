@@ -265,7 +265,7 @@ class ItemCard extends PureComponent {
                     </Text>
 
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                      {discountedPrice && (
+                      {discountedPrice ? (
                         <Text
                           maxFontSizeMultiplier={1}
                           numberOfLines={1}
@@ -279,7 +279,7 @@ class ItemCard extends PureComponent {
                           }}>
                           ₱{price}
                         </Text>
-                      )}
+                      ) : null}
 
                       <Text
                         maxFontSizeMultiplier={1}

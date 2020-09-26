@@ -84,7 +84,7 @@ class ItemDescriptionModal extends Component {
             </Text>
 
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              {discountedPrice && (
+              {discountedPrice ? (
                 <Text
                   maxFontSizeMultiplier={1.5}
                   style={{
@@ -96,7 +96,7 @@ class ItemDescriptionModal extends Component {
                   }}>
                   ₱{price}
                 </Text>
-              )}
+              ) : null}
 
               <Text
                 maxFontSizeMultiplier={1.5}
