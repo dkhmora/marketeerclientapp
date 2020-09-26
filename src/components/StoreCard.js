@@ -26,16 +26,12 @@ class StoreCard extends Component {
     const displayImageRef = storage().ref(displayImage);
     const coverImageRef = storage().ref(coverImage);
     const coverImageUrl = await coverImageRef.getDownloadURL().catch((err) => {
-      Toast({text: err.message, type: 'danger'});
-
       return null;
     });
 
     const displayImageUrl = await displayImageRef
       .getDownloadURL()
       .catch((err) => {
-        Toast({text: err.message, type: 'danger'});
-
         return null;
       });
 

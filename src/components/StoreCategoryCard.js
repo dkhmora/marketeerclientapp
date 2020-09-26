@@ -29,8 +29,6 @@ class StoreCategoryCard extends Component {
 
     const ref = storage().ref(imageSource);
     const link = await ref.getDownloadURL().catch((err) => {
-      Toast({text: err.message, type: 'danger'});
-
       return null;
     });
 

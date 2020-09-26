@@ -374,9 +374,6 @@ class generalStore {
     if (imageRef) {
       const ref = storage().ref(imageRef);
       const link = await ref.getDownloadURL().catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-
         return null;
       });
 
@@ -388,9 +385,6 @@ class generalStore {
   @action async getImageUrl(imageRef) {
     const ref = storage().ref(imageRef);
     const link = await ref.getDownloadURL().catch((err) => {
-      crashlytics().recordError(err);
-      Toast({text: err.message, type: 'danger'});
-
       return null;
     });
 
