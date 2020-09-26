@@ -54,7 +54,8 @@ class generalStore {
       currencies: 'PHP',
       status: 'A',
       surcharge: 0,
-    },*/
+    },
+    */
   };
 
   @action async setAppData() {

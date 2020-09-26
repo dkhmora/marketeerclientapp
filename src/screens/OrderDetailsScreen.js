@@ -35,7 +35,6 @@ class OrderDetailsScreen extends Component {
 
   componentDidMount() {
     const {orderId} = this.props.route.params;
-    const {selectedOrder, availablePaymentMethods} = this.props.generalStore;
 
     this.props.generalStore.getOrder({orderId, readMessages: false});
 
@@ -44,19 +43,25 @@ class OrderDetailsScreen extends Component {
     });
 
     when(
-      () => selectedOrder,
+      () => this.props.generalStore.selectedOrder,
       () => {
-        if (selectedOrder.paymentMethod === 'Online Banking') {
-          if (Object.keys(availablePaymentMethods).length === 0) {
+        if (
+          this.props.generalStore.selectedOrder.paymentMethod ===
+          'Online Banking'
+        ) {
+          if (
+            Object.keys(this.props.generalStore.availablePaymentMethods)
+              .length === 0
+          ) {
             this.props.generalStore.setAppData();
           }
 
           if (
-            !selectedOrder.orderStatus.pending.status &&
-            !selectedOrder.orderStatus.cancelled.status
+            !this.props.generalStore.selectedOrder.orderStatus.pending.status &&
+            !this.props.generalStore.selectedOrder.orderStatus.cancelled.status
           ) {
             this.props.generalStore
-              .getOrderPayment(selectedOrder.orderId)
+              .getOrderPayment(this.props.generalStore.selectedOrder.orderId)
               .then((orderPayment) => {
                 this.setState({orderPayment});
               });
@@ -583,8 +588,7 @@ class OrderDetailsScreen extends Component {
                 </View>
               )}
 
-              {orderPayment &&
-                selectedOrder.paymentMethod === 'Online Banking' &&
+              {selectedOrder.paymentMethod === 'Online Banking' &&
                 !selectedOrder.orderStatus.pending.status &&
                 !selectedOrder.orderStatus.cancelled.status && (
                   <View
