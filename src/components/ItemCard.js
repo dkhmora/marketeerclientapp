@@ -340,15 +340,23 @@ class ItemCard extends PureComponent {
                 style={{
                   flexDirection: 'row',
                   position: 'absolute',
-                  bottom: 10,
-                  left: 10,
-                  borderRadius: 10,
-                  borderWidth: 1,
+                  top: 0,
+                  left: 0,
+                  borderBottomRightRadius: 10,
                   backgroundColor: colors.icons,
                   opacity: 0.9,
-                  borderColor: colors.text_secondary,
-                  padding: 5,
+                  borderColor: 'rgba(0,0,0,0.4)',
+                  padding: 2,
+                  paddingRight: 4,
                   alignItems: 'center',
+                  elevation: 5,
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 2,
+                  },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
                 }}>
                 {stock > 0 ? (
                   <View style={{flexDirection: 'row'}}>
