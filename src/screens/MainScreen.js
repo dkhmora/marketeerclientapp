@@ -248,13 +248,9 @@ class MainScreen extends Component {
         }}>
         <View
           style={{
-            backgroundColor: colors.icons,
-            borderRadius: 15,
             marginHorizontal: 10,
             marginTop: 10,
             marginBottom: 5,
-            elevation: 2,
-            overflow: 'hidden',
           }}>
           <ListItem
             activeOpacity={0.95}
@@ -265,8 +261,17 @@ class MainScreen extends Component {
                 'Current Location'
                   ? colors.lightest
                   : colors.icons,
-              overflow: 'hidden',
+              borderRadius: 15,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 1,
+              },
+              shadowOpacity: 0.2,
+              shadowRadius: 1.41,
+              elevation: 2,
             }}
+            style={{borderRadius: 15}}
             titleStyle={[
               styles.header_topDrawerTitleText,
               {
@@ -307,12 +312,9 @@ class MainScreen extends Component {
         {this.props.generalStore.userDetails.addresses && (
           <View
             style={{
-              backgroundColor: colors.icons,
               borderRadius: 15,
               marginVertical: 5,
               marginHorizontal: 10,
-              elevation: 2,
-              overflow: 'hidden',
             }}>
             <ListItem
               activeOpacity={0.95}
@@ -323,8 +325,17 @@ class MainScreen extends Component {
                   'Last Delivery Location'
                     ? colors.lightest
                     : colors.icons,
-                overflow: 'hidden',
+                borderRadius: 15,
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 1.41,
+                elevation: 2,
               }}
+              style={{borderRadius: 15}}
               titleStyle={[
                 styles.header_topDrawerTitleText,
                 {
@@ -365,13 +376,9 @@ class MainScreen extends Component {
 
         <View
           style={{
-            backgroundColor: colors.icons,
-            borderRadius: 15,
             marginHorizontal: 10,
             marginTop: 5,
             marginBottom: 10,
-            elevation: 2,
-            overflow: 'hidden',
           }}>
           <ListItem
             activeOpacity={0.95}
@@ -381,8 +388,17 @@ class MainScreen extends Component {
                 this.props.generalStore.selectedDeliveryLabel === 'Set Location'
                   ? colors.lightest
                   : colors.icons,
-              overflow: 'hidden',
+              borderRadius: 15,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 1,
+              },
+              shadowOpacity: 0.2,
+              shadowRadius: 1.41,
+              elevation: 2,
             }}
+            style={{borderRadius: 15}}
             titleStyle={[
               styles.header_topDrawerTitleText,
               {
