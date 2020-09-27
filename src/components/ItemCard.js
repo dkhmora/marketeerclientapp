@@ -74,28 +74,16 @@ class ItemCard extends PureComponent {
   }
 
   getImage = async () => {
-    const {storeId, item} = this.props;
-    const {itemId, image, updatedAt} = item;
+    const {item} = this.props;
+    const {image} = item;
 
-    const itemImagePath = `/images/stores/${storeId}/items/${itemId}_${updatedAt}.jpg`;
-    const ref = storage().ref(itemImagePath);
+    const ref = storage().ref(image);
     const link = await ref.getDownloadURL().catch((err) => {
       return null;
     });
 
     if (link) {
       this.url = link;
-    }
-
-    if (image && !link) {
-      const secondRef = storage().ref(image);
-      const secondLink = await secondRef.getDownloadURL().catch((err) => {
-        return null;
-      });
-
-      if (secondLink) {
-        this.url = secondLink;
-      }
     }
   };
 
@@ -301,7 +289,7 @@ class ItemCard extends PureComponent {
             </View>
 
             <CardItem cardBody>
-              {image ? (
+              {image && this.url && !loading ? (
                 loading ? (
                   <Placeholder Animation={Fade}>
                     <PlaceholderMedia
@@ -316,7 +304,7 @@ class ItemCard extends PureComponent {
                   </Placeholder>
                 ) : (
                   <FastImage
-                    source={{uri: this.url}}
+                    source={{uri: this.url ? this.url : ''}}
                     style={{
                       aspectRatio: 1,
                       flex: 1,

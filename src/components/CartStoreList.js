@@ -48,11 +48,12 @@ class CartStoreList extends Component {
             </Text>
           </View>
         }
+        ListFooterComponent={<View style={{height: 20}} />}
         data={dataSource ? dataSource : []}
         keyExtractor={(item, index) => item}
         renderItem={this.renderItem}
         contentContainerStyle={{flexGrow: 1}}
-        style={{paddingHorizontal: 10, marginBottom: 65, marginVertical: -10}}
+        style={{paddingHorizontal: 10, marginTop: -10, marginBottom: -30}}
       />
     );
   }
