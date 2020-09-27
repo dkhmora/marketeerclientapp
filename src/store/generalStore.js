@@ -4,7 +4,7 @@ import storage from '@react-native-firebase/storage';
 import GiftedChat from 'react-native-gifted-chat';
 import 'react-native-get-random-values';
 import {v4 as uuidv4} from 'uuid';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import geohash from 'ngeohash';
 import firebase from '@react-native-firebase/app';
 import auth from '@react-native-firebase/auth';
@@ -313,7 +313,9 @@ class generalStore {
           }
         },
         {
-          timeout: 20000,
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 10000,
         },
       );
     });
