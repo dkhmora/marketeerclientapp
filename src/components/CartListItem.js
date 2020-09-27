@@ -153,7 +153,6 @@ class CartListItem extends PureComponent {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'flex-end',
-              marginRight: 10,
               shadowColor: '#000',
               shadowOffset: {
                 width: 0,

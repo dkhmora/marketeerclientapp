@@ -694,6 +694,15 @@ class CartStoreCard extends PureComponent {
                     style={{
                       marginTop: 5,
                       backgroundColor: colors.icons,
+                      elevation: 3,
+                      shadowColor: '#000',
+                      shadowOffset: {
+                        width: 0,
+                        height: 1,
+                      },
+                      shadowOpacity: 0.2,
+                      shadowRadius: 1.41,
+                      borderRadius: 10,
                     }}>
                     <ListItem
                       title="Payment Method"
@@ -708,17 +717,29 @@ class CartStoreCard extends PureComponent {
                       }
                       subtitleStyle={{fontSize: 14, color: colors.primary}}
                       titleStyle={{fontSize: 18}}
-                      style={{borderRadius: 10}}
+                      style={{
+                        borderTopLeftRadius: 10,
+                        borderTopRightRadius: 10,
+                        borderBottomRightRadius:
+                          selectedPaymentKey && selectedPaymentKey !== 'COD'
+                            ? 0
+                            : 10,
+                        borderBottomLeftRadius:
+                          selectedPaymentKey && selectedPaymentKey !== 'COD'
+                            ? 0
+                            : 10,
+                      }}
                       containerStyle={{
-                        borderRadius: 10,
-                        elevation: 3,
-                        shadowColor: '#000',
-                        shadowOffset: {
-                          width: 0,
-                          height: 1,
-                        },
-                        shadowOpacity: 0.2,
-                        shadowRadius: 1.41,
+                        borderTopLeftRadius: 10,
+                        borderTopRightRadius: 10,
+                        borderBottomRightRadius:
+                          selectedPaymentKey && selectedPaymentKey !== 'COD'
+                            ? 0
+                            : 10,
+                        borderBottomLeftRadius:
+                          selectedPaymentKey && selectedPaymentKey !== 'COD'
+                            ? 0
+                            : 10,
                       }}
                       chevron
                     />
@@ -728,8 +749,13 @@ class CartStoreCard extends PureComponent {
                         topDivider
                         title="Email Address"
                         titleStyle={{fontSize: 18, flex: 0}}
+                        style={{borderRadius: 10}}
+                        containerStyle={{borderRadius: 10}}
                         subtitle={
-                          <View style={{flexDirection: 'column'}}>
+                          <View
+                            style={{
+                              flexDirection: 'column',
+                            }}>
                             <View
                               style={{
                                 flexDirection: 'row',
