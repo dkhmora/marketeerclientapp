@@ -11,7 +11,7 @@ import FastImage from 'react-native-fast-image';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import ItemDescriptionModal from './ItemDescriptionModal';
 import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
-import Toast from './Toast';
+
 @inject('authStore')
 @inject('shopStore')
 @observer

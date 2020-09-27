@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {
   View,
-  Text,
   StatusBar,
   Image,
   ImageBackground,
@@ -10,14 +9,13 @@ import {
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
-import {Icon, Button} from 'react-native-elements';
+import {Icon, Button, Text} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import ItemCategoriesTab from '../navigation/ItemCategoriesTab';
 import StoreDetailsModal from '../components/StoreDetailsModal';
 import {initialWindowMetrics} from 'react-native-safe-area-context';
 import BottomSheet from 'reanimated-bottom-sheet';
-import Animated from 'react-native-reanimated';
 import {Modalize} from 'react-native-modalize';
 import SlidingCartHeader from '../components/SlidingCartHeader';
 import CartStoreCard from '../components/CartStoreCard';
@@ -29,9 +27,6 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const inset = initialWindowMetrics && initialWindowMetrics.insets;
 const bottomPadding = Platform.OS === 'ios' ? inset.bottom : 0;
-const SLIDING_MENU_INITIAL_HEIGHT = 75 + bottomPadding;
-const SLIDING_MENU_EXTENDED_HEIGHT =
-  SCREEN_HEIGHT - SLIDING_MENU_INITIAL_HEIGHT;
 @inject('shopStore')
 @inject('authStore')
 @observer
@@ -77,7 +72,9 @@ class StoreScreen extends Component {
     });
   }
 
-  fallValue = new Animated.Value(1);
+  renderItem = ({item, index}) => (
+    <CartStoreCard cart={false} checkout={false} storeId={item} key={item} />
+  );
 
   render() {
     const {store, displayImageUrl, coverImageUrl} = this.props.route.params;
@@ -240,11 +237,29 @@ class StoreScreen extends Component {
         <Modalize
           ref={(modalizeRef) => (this.modalizeRef = modalizeRef)}
           alwaysOpen={60 + bottomPadding}
-          scrollViewProps={{
-            style: {
-              flex: 1,
-              paddingHorizontal: 10,
-            },
+          flatListProps={{
+            ListEmptyComponent: (
+              <View
+                style={{
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    textAlign: 'center',
+                    paddingHorizontal: 15,
+                  }}>
+                  {emptyCartText}
+                </Text>
+              </View>
+            ),
+            data: dataSource ? dataSource : [],
+            renderItem: this.renderItem,
+            keyExtractor: (item, index) => item,
+            contentContainerStyle: {flexGrow: 1},
+            style: {paddingHorizontal: 10},
           }}
           handleStyle={{backgroundColor: colors.text_secondary, opacity: 0.85}}
           panGestureComponentEnabled
@@ -264,22 +279,8 @@ class StoreScreen extends Component {
               bottomPadding={bottomPadding}
               handleCheckout={() => this.handleCheckout()}
             />
-          )}>
-          {dataSource.length > 0 ? (
-            dataSource.map((storeId, index) => {
-              return (
-                <CartStoreCard
-                  cart={false}
-                  checkout={false}
-                  storeId={storeId}
-                  key={storeId}
-                />
-              );
-            })
-          ) : (
-            <Text>{emptyCartText}</Text>
           )}
-        </Modalize>
+        />
 
         {coverImageUrl && displayImageUrl && (
           <BottomSheet

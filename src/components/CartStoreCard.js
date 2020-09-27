@@ -491,311 +491,317 @@ class CartStoreCard extends PureComponent {
             elevation: 3,
             overflow: 'hidden',
           }}>
-          <View
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingBottom: 5,
-              paddingHorizontal: 10,
-              borderBottomWidth: 1,
-              borderBottomColor: colors.primary,
-            }}>
-            <Image
-              source={this.url}
-              style={{
-                height: 40,
-                width: 40,
-                marginRight: 10,
-                borderRadius: 10,
-                borderColor: colors.primary,
-                borderWidth: 1,
-              }}
-            />
-
-            {storeDetails.storeName && (
-              <Text
-                numberOfLines={3}
-                style={{
-                  fontSize: 19,
-                  fontFamily: 'ProductSans-Light',
-                  maxWidth: '50%',
-                  flexWrap: 'wrap',
-                }}>
-                {storeDetails.storeName}
-              </Text>
-            )}
-
-            {storeDetails.freeDelivery && (
-              <Text
-                numberOfLines={2}
-                adjustsFontSizeToFit
-                style={{
-                  fontSize: 16,
-                  fontFamily: 'ProductSans-Bold',
-                  flexShrink: 1,
-                  color: colors.primary,
-                  marginLeft: 10,
-                }}>
-                Free Delivery (₱{storeDetails.freeDeliveryMinimum} Min. Order)
-              </Text>
-            )}
-          </View>
           <View>
-            {this.cartItems.map((item) => {
-              const itemSnapshot = this.currentStoreItems.find(
-                (storeItem) => storeItem.itemId === item.itemId,
-              );
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingBottom: 5,
+                paddingHorizontal: 10,
+                borderBottomWidth: 1,
+                borderBottomColor: colors.primary,
+              }}>
+              <Image
+                source={this.url}
+                style={{
+                  height: 40,
+                  width: 40,
+                  marginRight: 10,
+                  borderRadius: 10,
+                  borderColor: colors.primary,
+                  borderWidth: 1,
+                }}
+              />
 
-              return (
-                <CartListItem
-                  item={item}
-                  itemSnapshot={itemSnapshot}
-                  storeId={storeId}
-                  checkout={checkout}
-                  key={item.itemId}
-                />
-              );
-            })}
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              paddingTop: 10,
-              paddingHorizontal: 10,
-            }}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              <Text style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
-                Order Subtotal
-              </Text>
-              <Text style={{fontSize: 13, paddingLeft: 5}}>
-                ({this.totalItemQuantity} Items)
+              {storeDetails.storeName && (
+                <Text
+                  numberOfLines={3}
+                  style={{
+                    fontSize: 19,
+                    fontFamily: 'ProductSans-Light',
+                    maxWidth: '50%',
+                    flexWrap: 'wrap',
+                  }}>
+                  {storeDetails.storeName}
+                </Text>
+              )}
+
+              {storeDetails.freeDelivery && (
+                <Text
+                  numberOfLines={2}
+                  adjustsFontSizeToFit
+                  style={{
+                    fontSize: 16,
+                    fontFamily: 'ProductSans-Bold',
+                    flexShrink: 1,
+                    color: colors.primary,
+                    marginLeft: 10,
+                  }}>
+                  Free Delivery (₱{storeDetails.freeDeliveryMinimum} Min. Order)
+                </Text>
+              )}
+            </View>
+            <View>
+              {this.cartItems.map((item) => {
+                const itemSnapshot = this.currentStoreItems.find(
+                  (storeItem) => storeItem.itemId === item.itemId,
+                );
+
+                return (
+                  <CartListItem
+                    item={item}
+                    itemSnapshot={itemSnapshot}
+                    storeId={storeId}
+                    checkout={checkout}
+                    key={item.itemId}
+                  />
+                );
+              })}
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                paddingTop: 10,
+                paddingHorizontal: 10,
+              }}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Text style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
+                  Order Subtotal
+                </Text>
+                <Text style={{fontSize: 13, paddingLeft: 5}}>
+                  ({this.totalItemQuantity} Items)
+                </Text>
+              </View>
+              <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
+                ₱{this.subTotal}
               </Text>
             </View>
-            <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
-              ₱{this.subTotal}
-            </Text>
-          </View>
 
-          {checkout && (
-            <View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  paddingTop: 10,
-                  paddingHorizontal: 10,
-                }}>
+            {checkout && (
+              <View>
                 <View
                   style={{
-                    flex: 1,
                     flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'flex-start',
+                    justifyContent: 'space-between',
+                    paddingTop: 10,
+                    paddingHorizontal: 10,
+                  }}>
+                  <View
+                    style={{
+                      flex: 1,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'flex-start',
+                    }}>
+                    <Text
+                      style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
+                      Delivery Fee
+                    </Text>
+                  </View>
+
+                  {this.props.shopStore.storeSelectedDeliveryMethod[storeId] ===
+                    'Own Delivery' && storeDetails ? (
+                    <Text
+                      style={{
+                        fontFamily: 'ProductSans-Black',
+                        fontSize: 18,
+                        textAlignVertical: 'center',
+                        color:
+                          this.subTotal >= storeDetails.freeDeliveryMinimum &&
+                          storeDetails.freeDelivery
+                            ? colors.primary
+                            : colors.text_primary,
+                      }}>
+                      {this.freeDelivery
+                        ? 'Free Delivery'
+                        : `₱${storeDetails.ownDeliveryServiceFee}`}
+                    </Text>
+                  ) : (
+                    <Text
+                      style={{
+                        fontFamily: 'ProductSans-Black',
+                        fontSize: 14,
+                        textAlignVertical: 'center',
+                      }}>
+                      (Please discuss with store)
+                    </Text>
+                  )}
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    paddingTop: 10,
+                    paddingHorizontal: 10,
                   }}>
                   <Text
                     style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
-                    Delivery Fee
+                    Order Total
+                  </Text>
+
+                  <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
+                    ₱{this.orderTotal}
                   </Text>
                 </View>
-
-                {this.props.shopStore.storeSelectedDeliveryMethod[storeId] ===
-                  'Own Delivery' && storeDetails ? (
-                  <Text
-                    style={{
-                      fontFamily: 'ProductSans-Black',
-                      fontSize: 18,
-                      textAlignVertical: 'center',
-                      color:
-                        this.subTotal >= storeDetails.freeDeliveryMinimum &&
-                        storeDetails.freeDelivery
-                          ? colors.primary
-                          : colors.text_primary,
-                    }}>
-                    {this.freeDelivery
-                      ? 'Free Delivery'
-                      : `₱${storeDetails.ownDeliveryServiceFee}`}
-                  </Text>
-                ) : (
-                  <Text
-                    style={{
-                      fontFamily: 'ProductSans-Black',
-                      fontSize: 14,
-                      textAlignVertical: 'center',
-                    }}>
-                    (Please discuss with store)
-                  </Text>
-                )}
               </View>
+            )}
 
+            {storeDetails ? (
+              checkout && (
+                <View
+                  style={{
+                    flex: 1,
+                    marginHorizontal: 10,
+                    marginTop: 10,
+                    flexDirection: 'column',
+                  }}>
+                  <View
+                    style={{
+                      marginVertical: 5,
+                    }}>
+                    <ListItem
+                      title="Delivery Method"
+                      onPress={() =>
+                        this.setState({deliveryOptionsModal: true})
+                      }
+                      subtitle={
+                        selectedDelivery
+                          ? selectedDelivery
+                          : 'Please select a delivery method'
+                      }
+                      subtitleStyle={{fontSize: 14, color: colors.primary}}
+                      titleStyle={{fontSize: 18}}
+                      style={{borderRadius: 10}}
+                      containerStyle={{
+                        borderRadius: 10,
+                        elevation: 3,
+                        shadowColor: '#000',
+                        shadowOffset: {
+                          width: 0,
+                          height: 1,
+                        },
+                        shadowOpacity: 0.2,
+                        shadowRadius: 1.41,
+                      }}
+                      chevron
+                    />
+                  </View>
+
+                  <View
+                    style={{
+                      marginTop: 5,
+                      backgroundColor: colors.icons,
+                    }}>
+                    <ListItem
+                      title="Payment Method"
+                      onPress={() => this.setState({paymentOptionsModal: true})}
+                      subtitle={
+                        selectedPayment
+                          ? selectedPayment.minAmount &&
+                            selectedPayment.maxAmount
+                            ? `${selectedPayment.shortName} (₱${selectedPayment.minAmount} - ₱${selectedPayment.maxAmount})`
+                            : `${selectedPayment.longName}`
+                          : 'Please select a payment method'
+                      }
+                      subtitleStyle={{fontSize: 14, color: colors.primary}}
+                      titleStyle={{fontSize: 18}}
+                      style={{borderRadius: 10}}
+                      containerStyle={{
+                        borderRadius: 10,
+                        elevation: 3,
+                        shadowColor: '#000',
+                        shadowOffset: {
+                          width: 0,
+                          height: 1,
+                        },
+                        shadowOpacity: 0.2,
+                        shadowRadius: 1.41,
+                      }}
+                      chevron
+                    />
+
+                    {selectedPaymentKey && selectedPaymentKey !== 'COD' && (
+                      <ListItem
+                        topDivider
+                        title="Email Address"
+                        titleStyle={{fontSize: 18, flex: 0}}
+                        subtitle={
+                          <View style={{flexDirection: 'column'}}>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                width: '100%',
+                                alignItems: 'center',
+                              }}>
+                              <Input
+                                placeholder="gordon_norman@gmail.com"
+                                placeholderTextColor={colors.text_secondary}
+                                leftIcon={
+                                  <Icon
+                                    name="mail"
+                                    color={colors.primary}
+                                    size={20}
+                                  />
+                                }
+                                rightIcon={
+                                  emailCheck ? (
+                                    <Animatable.View
+                                      useNativeDriver
+                                      animation="bounceIn">
+                                      <Icon
+                                        name="check-circle"
+                                        color="#388e3c"
+                                        size={20}
+                                      />
+                                    </Animatable.View>
+                                  ) : null
+                                }
+                                inputStyle={{fontSize: 16}}
+                                containerStyle={{
+                                  marginBottom: -20,
+                                }}
+                                maxLength={256}
+                                autoCapitalize="none"
+                                value={email}
+                                onChangeText={(value) =>
+                                  this.handleEmailChange(value)
+                                }
+                              />
+                            </View>
+
+                            <Text
+                              style={{
+                                color: colors.text_secondary,
+                                fontSize: 12,
+                              }}>
+                              We'll send you your receipt here
+                            </Text>
+                          </View>
+                        }
+                      />
+                    )}
+                  </View>
+                </View>
+              )
+            ) : (
               <View
                 style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  paddingTop: 10,
-                  paddingHorizontal: 10,
-                }}>
-                <Text style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
-                  Order Total
-                </Text>
-
-                <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
-                  ₱{this.orderTotal}
-                </Text>
-              </View>
-            </View>
-          )}
-
-          {storeDetails ? (
-            checkout && (
-              <View
-                style={{
-                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 20,
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: colors.divider,
                   marginHorizontal: 10,
                   marginTop: 10,
-                  flexDirection: 'column',
                 }}>
-                <View
-                  style={{
-                    marginVertical: 5,
-                  }}>
-                  <ListItem
-                    title="Delivery Method"
-                    onPress={() => this.setState({deliveryOptionsModal: true})}
-                    subtitle={
-                      selectedDelivery
-                        ? selectedDelivery
-                        : 'Please select a delivery method'
-                    }
-                    subtitleStyle={{fontSize: 14, color: colors.primary}}
-                    titleStyle={{fontSize: 18}}
-                    style={{borderRadius: 10}}
-                    containerStyle={{
-                      borderRadius: 10,
-                      elevation: 3,
-                      shadowColor: '#000',
-                      shadowOffset: {
-                        width: 0,
-                        height: 1,
-                      },
-                      shadowOpacity: 0.2,
-                      shadowRadius: 1.41,
-                    }}
-                    chevron
-                  />
-                </View>
-
-                <View
-                  style={{
-                    marginTop: 5,
-                    backgroundColor: colors.icons,
-                  }}>
-                  <ListItem
-                    title="Payment Method"
-                    onPress={() => this.setState({paymentOptionsModal: true})}
-                    subtitle={
-                      selectedPayment
-                        ? selectedPayment.minAmount && selectedPayment.maxAmount
-                          ? `${selectedPayment.shortName} (₱${selectedPayment.minAmount} - ₱${selectedPayment.maxAmount})`
-                          : `${selectedPayment.longName}`
-                        : 'Please select a payment method'
-                    }
-                    subtitleStyle={{fontSize: 14, color: colors.primary}}
-                    titleStyle={{fontSize: 18}}
-                    style={{borderRadius: 10}}
-                    containerStyle={{
-                      borderRadius: 10,
-                      elevation: 3,
-                      shadowColor: '#000',
-                      shadowOffset: {
-                        width: 0,
-                        height: 1,
-                      },
-                      shadowOpacity: 0.2,
-                      shadowRadius: 1.41,
-                    }}
-                    chevron
-                  />
-
-                  {selectedPaymentKey && selectedPaymentKey !== 'COD' && (
-                    <ListItem
-                      topDivider
-                      title="Email Address"
-                      titleStyle={{fontSize: 18, flex: 0}}
-                      subtitle={
-                        <View style={{flexDirection: 'column'}}>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              width: '100%',
-                              alignItems: 'center',
-                            }}>
-                            <Input
-                              placeholder="gordon_norman@gmail.com"
-                              placeholderTextColor={colors.text_secondary}
-                              leftIcon={
-                                <Icon
-                                  name="mail"
-                                  color={colors.primary}
-                                  size={20}
-                                />
-                              }
-                              rightIcon={
-                                emailCheck ? (
-                                  <Animatable.View
-                                    useNativeDriver
-                                    animation="bounceIn">
-                                    <Icon
-                                      name="check-circle"
-                                      color="#388e3c"
-                                      size={20}
-                                    />
-                                  </Animatable.View>
-                                ) : null
-                              }
-                              inputStyle={{fontSize: 16}}
-                              containerStyle={{
-                                marginBottom: -20,
-                              }}
-                              maxLength={256}
-                              autoCapitalize="none"
-                              value={email}
-                              onChangeText={(value) =>
-                                this.handleEmailChange(value)
-                              }
-                            />
-                          </View>
-
-                          <Text
-                            style={{
-                              color: colors.text_secondary,
-                              fontSize: 12,
-                            }}>
-                            We'll send you your receipt here
-                          </Text>
-                        </View>
-                      }
-                    />
-                  )}
-                </View>
+                <ActivityIndicator size="small" color={colors.primary} />
               </View>
-            )
-          ) : (
-            <View
-              style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 20,
-                borderRadius: 10,
-                borderWidth: 1,
-                borderColor: colors.divider,
-                marginHorizontal: 10,
-                marginTop: 10,
-              }}>
-              <ActivityIndicator size="small" color={colors.primary} />
-            </View>
-          )}
+            )}
+          </View>
         </Card>
       </View>
     );
