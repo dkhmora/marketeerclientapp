@@ -51,11 +51,13 @@ class CartStoreList extends Component {
         data={dataSource ? dataSource : []}
         keyExtractor={(item, index) => item}
         renderItem={this.renderItem}
-        contentContainerStyle={{flexGrow: 1, paddingBottom: 15}}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingBottom: 55,
+        }}
         style={{
           paddingHorizontal: 10,
           marginTop: -10,
-          marginBottom: -30,
         }}
       />
     );

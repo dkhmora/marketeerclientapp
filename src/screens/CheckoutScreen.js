@@ -192,7 +192,7 @@ class CheckoutScreen extends Component {
             borderTopRightRadius: 30,
             paddingTop: 10,
             paddingBottom: Platform.OS === 'android' ? 10 : 0,
-            paddingHorizontal: 20,
+            paddingHorizontal: 15,
             marginBottom: bottomPadding,
           }}>
           <View
@@ -217,7 +217,7 @@ class CheckoutScreen extends Component {
                 color: colors.icons,
                 fontSize: 26,
               }}>
-              ₱ {this.props.shopStore.totalCartSubTotalAmount}
+              ₱{this.props.shopStore.totalCartSubTotalAmount}
             </Text>
 
             <Text
