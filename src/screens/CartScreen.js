@@ -87,6 +87,7 @@ class CartScreen extends Component {
               paddingBottom: 50 + bottomPadding,
               paddingHorizontal: 0,
               overflow: 'hidden',
+              marginBottom: bottomPadding,
             },
           ]}>
           <CartStoreList
@@ -112,8 +113,10 @@ class CartScreen extends Component {
             backgroundColor: colors.primary,
             borderTopLeftRadius: 30,
             borderTopRightRadius: 30,
-            paddingVertical: 10,
+            paddingTop: 10,
+            paddingBottom: Platform.OS === 'android' ? 10 : 0,
             paddingHorizontal: 20,
+            marginBottom: bottomPadding,
           }}>
           <View
             style={{

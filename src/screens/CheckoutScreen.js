@@ -164,6 +164,7 @@ class CheckoutScreen extends Component {
               paddingBottom: 50 + bottomPadding,
               paddingHorizontal: 0,
               overflow: 'hidden',
+              marginBottom: bottomPadding,
             },
           ]}>
           <CartStoreList
