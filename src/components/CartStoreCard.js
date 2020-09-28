@@ -73,6 +73,39 @@ class CartStoreCard extends PureComponent {
     return amount;
   }
 
+  @computed get mrSpeedyDeliveryFee() {
+    const {storeId} = this.props;
+    const mrSpeedyDeliveryEstimates = this.props.shopStore
+      .storeMrSpeedyDeliveryFee[storeId];
+    const motorbikeDeliveryFee = mrSpeedyDeliveryEstimates
+      ? mrSpeedyDeliveryEstimates.motorbike
+      : '';
+    const carDeliveryFee = mrSpeedyDeliveryEstimates
+      ? mrSpeedyDeliveryEstimates.car
+      : '';
+
+    return mrSpeedyDeliveryEstimates
+      ? `₱${motorbikeDeliveryFee} (Max. 20kg) - ₱${carDeliveryFee} (Max. 300kg)`
+      : '';
+  }
+
+  @computed get deliveryFee() {
+    const {storeId} = this.props;
+    const selectedStoreDeliveryMethod = this.props.shopStore
+      .storeSelectedDeliveryMethod[storeId];
+
+    if (selectedStoreDeliveryMethod === 'Mr. Speedy') {
+      return this.mrSpeedyDeliveryFee;
+    }
+    if (selectedStoreDeliveryMethod === 'Own Delivery') {
+      return this.freeDelivery
+        ? 'Free Delivery'
+        : `₱${this.storeDetails.ownDeliveryServiceFee}`;
+    }
+
+    return 'Please discuss with merchant';
+  }
+
   @computed get totalItemQuantity() {
     let quantity = 0;
 
@@ -397,9 +430,16 @@ class CartStoreCard extends PureComponent {
             .slice()
             .sort((a, b) => a > b)
             .map((deliveryMethod, index) => {
+              const listText =
+                deliveryMethod === 'Mr. Speedy'
+                  ? `Mr. Speedy (${this.mrSpeedyDeliveryFee})`
+                  : deliveryMethod === 'Own Delivery'
+                  ? `Own Delivery (₱${this.storeDetails.ownDeliveryServiceFee})`
+                  : deliveryMethod;
+
               return (
                 <ListItem
-                  title={deliveryMethod}
+                  title={listText}
                   key={`${deliveryMethod}-${index}`}
                   bottomDivider
                   rightIcon={
@@ -590,44 +630,37 @@ class CartStoreCard extends PureComponent {
                   }}>
                   <View
                     style={{
-                      flex: 1,
                       flexDirection: 'row',
                       alignItems: 'center',
                       justifyContent: 'flex-start',
                     }}>
                     <Text
-                      style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
+                      style={{
+                        fontSize: 17,
+                        fontFamily: 'ProductSans-Regular',
+                        marginRight: 10,
+                      }}>
                       Delivery Fee
                     </Text>
                   </View>
 
-                  {this.props.shopStore.storeSelectedDeliveryMethod[storeId] ===
-                    'Own Delivery' && storeDetails ? (
-                    <Text
-                      style={{
-                        fontFamily: 'ProductSans-Black',
-                        fontSize: 18,
-                        textAlignVertical: 'center',
-                        color:
-                          this.subTotal >= storeDetails.freeDeliveryMinimum &&
-                          storeDetails.freeDelivery
-                            ? colors.primary
-                            : colors.text_primary,
-                      }}>
-                      {this.freeDelivery
-                        ? 'Free Delivery'
-                        : `₱${storeDetails.ownDeliveryServiceFee}`}
-                    </Text>
-                  ) : (
-                    <Text
-                      style={{
-                        fontFamily: 'ProductSans-Black',
-                        fontSize: 14,
-                        textAlignVertical: 'center',
-                      }}>
-                      (Please discuss with store)
-                    </Text>
-                  )}
+                  <Text
+                    numberOfLines={3}
+                    style={{
+                      flex: 1,
+                      fontFamily: 'ProductSans-Black',
+                      fontSize: 18,
+                      flexWrap: 'wrap',
+                      textAlignVertical: 'center',
+                      textAlign: 'right',
+                      color:
+                        this.subTotal >= storeDetails.freeDeliveryMinimum &&
+                        storeDetails.freeDelivery
+                          ? colors.primary
+                          : colors.text_primary,
+                    }}>
+                    {this.deliveryFee}
+                  </Text>
                 </View>
 
                 <View
@@ -643,7 +676,7 @@ class CartStoreCard extends PureComponent {
                   </Text>
 
                   <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
-                    ₱{this.orderTotal}
+                    ₱{this.orderTotal.toFixed(2)}
                   </Text>
                 </View>
               </View>

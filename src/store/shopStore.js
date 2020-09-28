@@ -27,6 +27,7 @@ class shopStore {
   @observable cartUpdateTimeout = null;
   @observable storeFetchLimit = 8;
   @observable validItemQuantity = {};
+  @observable storeMrSpeedyDeliveryFee = {};
 
   @computed get totalCartItemQuantity() {
     let quantity = 0;
@@ -140,6 +141,28 @@ class shopStore {
     return [];
   }
 
+  @action async getMrSpeedyDeliveryPriceEstimate(
+    deliveryLocation,
+    deliveryAddress,
+  ) {
+    return await functions
+      .httpsCallable('getMrSpeedyDeliveryPriceEstimate')({
+        deliveryLocation,
+        deliveryAddress,
+      })
+      .then((response) => {
+        if (response.data.s === 200) {
+          console.log(response);
+          this.storeMrSpeedyDeliveryFee = response.data.d;
+
+          return;
+        }
+
+        return Toast({text: response.data.m, type: 'danger'});
+      })
+      .catch((err) => console.log(err));
+  }
+
   @action async getStoreDetailsFromStoreId(storeId) {
     return await new Promise(async (resolve, reject) => {
       const storeDetails = await this.getStoreDetails(storeId);
@@ -197,7 +220,7 @@ class shopStore {
 
     return await this.updateCartItemsInstantly()
       .then(async () => {
-        return await functions.httpsCallable('placeOrder')({
+        return await functions.httpsCallable('placeOrderTest')({
           orderInfo: JSON.stringify({
             deliveryCoordinates,
             deliveryCoordinatesGeohash,
@@ -367,7 +390,7 @@ class shopStore {
       lastVisible
     ) {
       return await storesCollection
-        .where('visibleToPublic', '==', true)
+        .where('devOnly', '==', true)
         .where('vacationMode', '==', false)
         .where('creditThresholdReached', '==', false)
         .where('storeCategory', '==', storeCategory)
@@ -398,7 +421,7 @@ class shopStore {
         });
     } else if (currentLocationGeohash && locationCoordinates && storeCategory) {
       return await storesCollection
-        .where('visibleToPublic', '==', true)
+        .where('devOnly', '==', true)
         .where('vacationMode', '==', false)
         .where('creditThresholdReached', '==', false)
         .where('storeCategory', '==', storeCategory)
@@ -428,7 +451,7 @@ class shopStore {
         });
     } else if (currentLocationGeohash && locationCoordinates && lastVisible) {
       return await storesCollection
-        .where('visibleToPublic', '==', true)
+        .where('devOnly', '==', true)
         .where('vacationMode', '==', false)
         .where('creditThresholdReached', '==', false)
         .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
@@ -459,9 +482,7 @@ class shopStore {
         });
     } else if (currentLocationGeohash && locationCoordinates) {
       return await storesCollection
-        .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
-        .where('creditThresholdReached', '==', false)
         .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
         .orderBy('deliveryCoordinates.lowerRange')
         .limit(this.storeFetchLimit)
@@ -485,6 +506,7 @@ class shopStore {
         })
         .catch((err) => {
           crashlytics().recordError(err);
+          console.log(err);
           Toast({text: err.message, type: 'danger'});
         });
     }

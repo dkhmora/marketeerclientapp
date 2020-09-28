@@ -45,17 +45,6 @@ class generalStore {
       status: 'A',
       surcharge: 0,
     },
-    /*
-    BOG: {
-      longName: 'Bogus Bank',
-      shortName: 'Bogus Bank',
-      remarks: 'For Development Only',
-      cost: 0,
-      currencies: 'PHP',
-      status: 'A',
-      surcharge: 0,
-    },
-    */
   };
 
   @action async setAppData() {

@@ -17,6 +17,7 @@ import BackButton from '../components/BackButton';
 import Toast from '../components/Toast';
 import {initialWindowMetrics} from 'react-native-safe-area-context';
 import crashlytics from '@react-native-firebase/crashlytics';
+import {when} from 'mobx';
 
 const inset = initialWindowMetrics && initialWindowMetrics.insets;
 const bottomPadding = Platform.OS === 'ios' ? inset.bottom : 0;
@@ -86,29 +87,51 @@ class CheckoutScreen extends Component {
             if (res.s === 200) {
               responses = `${responses !== '' ? `${responses}; ` : ''}${
                 res.m
-              }; Thank you for shopping at Marketeer!`;
+              };`;
             }
           });
 
           if (responses) {
             Toast({
-              text: responses,
-              duration: 5000,
+              text: `${responses} Thank you for shopping at Marketeer! Kindly wait for your orders to be confirmed.`,
+              duration: 10000,
             });
 
             navigation.reset({
-              index: 0,
-              routes: [{name: 'Home'}],
+              index: 1,
+              routes: [{name: 'Home'}, {name: 'Orders'}],
             });
           }
         }
       });
   }
 
+  getMrSpeedyDeliveryFees() {
+    when(
+      () =>
+        this.props.generalStore.currentLocation &&
+        this.props.generalStore.currentLocationDetails,
+      () =>
+        this.props.shopStore
+          .getMrSpeedyDeliveryPriceEstimate(
+            {
+              latitude: this.props.generalStore.currentLocation.latitude,
+              longitude: this.props.generalStore.currentLocation.longitude,
+            },
+            this.props.generalStore.currentLocationDetails,
+          )
+          .then(() => {
+            console.log(this.props.shopStore.storeMrSpeedyDeliveryFee);
+          }),
+    );
+  }
+
   componentDidMount() {
     this.props.generalStore.setAppData();
 
     crashlytics().log('CheckoutScreen');
+
+    this.getMrSpeedyDeliveryFees();
   }
 
   componentWillUnmount() {

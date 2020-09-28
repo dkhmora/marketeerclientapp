@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 import {Overlay, Text, Button, Input} from 'react-native-elements';
-import {View, ActivityIndicator} from 'react-native';
+import {View} from 'react-native';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import {inject} from 'mobx-react';
