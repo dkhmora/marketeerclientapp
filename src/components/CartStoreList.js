@@ -48,7 +48,7 @@ class CartStoreList extends Component {
             </Text>
           </View>
         }
-        ListFooterComponent={<View style={{height: 20}} />}
+        ListFooterComponent={<View style={{height: 85}} />}
         data={dataSource ? dataSource : []}
         keyExtractor={(item, index) => item}
         renderItem={this.renderItem}
