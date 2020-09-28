@@ -53,11 +53,11 @@ class CartStoreList extends Component {
         renderItem={this.renderItem}
         contentContainerStyle={{
           flexGrow: 1,
-          paddingBottom: 55,
+          paddingBottom: 15,
         }}
         style={{
           paddingHorizontal: 10,
-          marginTop: -10,
+          marginVertical: -10,
         }}
       />
     );

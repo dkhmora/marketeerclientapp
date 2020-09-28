@@ -84,10 +84,9 @@ class CartScreen extends Component {
           style={[
             styles.footer,
             {
-              paddingBottom: 50 + bottomPadding,
               paddingHorizontal: 0,
               overflow: 'hidden',
-              marginBottom: bottomPadding,
+              paddingBottom: 100,
             },
           ]}>
           <CartStoreList
