@@ -53,7 +53,11 @@ class CartStoreCard extends PureComponent {
     if (this.storeDetails) {
       return this.freeDelivery
         ? this.subTotal
-        : this.subTotal + this.storeDetails.ownDeliveryServiceFee;
+        : this.props.shopStore.storeSelectedDeliveryMethod[
+            this.props.storeId
+          ] === 'Own Delivery'
+        ? this.subTotal + this.storeDetails.ownDeliveryServiceFee
+        : this.subTotal;
     }
 
     return null;
