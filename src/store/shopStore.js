@@ -220,7 +220,7 @@ class shopStore {
 
     return await this.updateCartItemsInstantly()
       .then(async () => {
-        return await functions.httpsCallable('placeOrderTest')({
+        return await functions.httpsCallable('placeOrder')({
           orderInfo: JSON.stringify({
             deliveryCoordinates,
             deliveryCoordinatesGeohash,
