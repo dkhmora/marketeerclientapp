@@ -32,7 +32,7 @@ class authStore {
   }
 
   @computed get noPrefixUserPhoneNumber() {
-    if (auth().currentUser) {
+    if (auth().currentUser && auth().currentUser.phoneNumber) {
       return auth().currentUser.phoneNumber.substr(3, 12);
     }
 

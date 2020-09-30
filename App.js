@@ -148,7 +148,7 @@ class App extends React.Component {
   }
 
   componentWillUnmount() {
-    this.authState();
+    this.authState && this.authState();
   }
 
   openAppUrl() {
