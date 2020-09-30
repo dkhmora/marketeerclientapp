@@ -15,10 +15,11 @@ class ItemCategoriesTab extends Component {
 
   @computed get tabWidth() {
     const {storeCategoryItems} = this.props;
+    const tabLength = storeCategoryItems
+      ? this.TabScreens(storeCategoryItems).length
+      : 0;
 
-    return storeCategoryItems && storeCategoryItems.size > 2
-      ? 'auto'
-      : SCREEN_WIDTH / storeCategoryItems.size;
+    return tabLength > 2 ? 'auto' : SCREEN_WIDTH / tabLength;
   }
 
   TabScreens(storeCategoryItems) {
@@ -88,7 +89,7 @@ class ItemCategoriesTab extends Component {
                 elevation: 5,
               },
             }}>
-            {storeCategoryItems && this.TabScreens(storeCategoryItems)}
+            {this.TabScreens(storeCategoryItems)}
           </ItemTab.Navigator>
         </View>
       );
