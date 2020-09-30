@@ -14,15 +14,24 @@ class StoreDetailsModal extends Component {
   constructor(props) {
     super(props);
 
+    const {displayImageUrl, coverImageUrl} = this.props;
+
     this.state = {
       reviewsLoading: true,
       reviews: [],
       selectedIndex: 0,
+      displayImageUrl,
+      coverImageUrl,
     };
   }
 
   componentDidMount() {
+    const {displayImageUrl, coverImageUrl} = this.props;
     this.getReviews();
+
+    if (!displayImageUrl || !coverImageUrl) {
+      this.getImage();
+    }
   }
 
   async getReviews() {
@@ -40,6 +49,24 @@ class StoreDetailsModal extends Component {
       );
     }
   }
+
+  getImage = async () => {
+    const {displayImage, coverImage} = this.props.route.params.store;
+
+    const displayImageRef = storage().ref(displayImage);
+    const coverImageRef = storage().ref(coverImage);
+    const coverImageUrl = await coverImageRef.getDownloadURL().catch((err) => {
+      return null;
+    });
+
+    const displayImageUrl = await displayImageRef
+      .getDownloadURL()
+      .catch((err) => {
+        return null;
+      });
+
+    this.setState({displayImageUrl, coverImageUrl});
+  };
 
   ReviewListItem({item}) {
     const timeStamp = moment(item.createdAt, 'x').format('MM-DD-YYYY hh:mm A');
@@ -112,13 +139,14 @@ class StoreDetailsModal extends Component {
   );
 
   render() {
+    const {store, onDownButtonPress} = this.props;
     const {
-      store,
+      reviewsLoading,
+      reviews,
       displayImageUrl,
       coverImageUrl,
-      onDownButtonPress,
-    } = this.props;
-    const {reviewsLoading, reviews, selectedIndex} = this.state;
+      selectedIndex,
+    } = this.state;
 
     return (
       <View
@@ -130,171 +158,172 @@ class StoreDetailsModal extends Component {
           borderTopLeftRadius: 20,
         }}>
         <View>
-          {coverImageUrl && (
-            <ImageBackground
-              source={{uri: coverImageUrl}}
+          <ImageBackground
+            source={{
+              uri: coverImageUrl
+                ? coverImageUrl
+                : require('../../assets/images/black.jpg'),
+            }}
+            style={{
+              alignSelf: 'flex-start',
+              maxWidth: '100%',
+              borderTopLeftRadius: 10,
+              borderTopRightRadius: 10,
+              width: '100%',
+              flexDirection: 'row',
+              aspectRatio: 1.5,
+              elevation: 10,
+              resizeMode: 'stretch',
+              alignItems: 'center',
+              overflow: 'hidden',
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 5,
+              },
+              shadowOpacity: 0.34,
+              shadowRadius: 6.27,
+            }}>
+            <View
               style={{
-                alignSelf: 'flex-start',
-                maxWidth: '100%',
-                borderTopLeftRadius: 10,
-                borderTopRightRadius: 10,
-                width: '100%',
-                flexDirection: 'row',
-                aspectRatio: 1.5,
-                elevation: 10,
-                resizeMode: 'stretch',
+                flexDirection: 'column',
+                flex: 1,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                paddingHorizontal: 10,
+                paddingTop: 20,
+                paddingBottom: 10,
+                justifyContent: 'center',
                 alignItems: 'center',
-                overflow: 'hidden',
-                shadowColor: '#000',
-                shadowOffset: {
-                  width: 0,
-                  height: 5,
-                },
-                shadowOpacity: 0.34,
-                shadowRadius: 6.27,
               }}>
+              <Button
+                onPress={() => onDownButtonPress()}
+                type="clear"
+                color={colors.icons}
+                icon={<Icon name="arrow-down" color={colors.primary} />}
+                buttonStyle={{borderRadius: 30}}
+                containerStyle={[
+                  styles.buttonContainer,
+                  {
+                    backgroundColor: colors.icons,
+                    height: 40,
+                    position: 'absolute',
+                    top: 10,
+                    right: 10,
+                  },
+                ]}
+              />
+
+              <FastImage
+                source={{
+                  uri: displayImageUrl
+                    ? displayImageUrl
+                    : require('../../assets/images/black.jpg'),
+                }}
+                style={{
+                  borderRadius: 10,
+                  borderWidth: 0.7,
+                  borderColor: 'rgba(255,255,255,0.4)',
+                  width: 90,
+                  aspectRatio: 1,
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 2,
+                  },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
+                  elevation: 6,
+                }}
+                resizeMode={FastImage.resizeMode.contain}
+              />
+
               <View
                 style={{
-                  flexDirection: 'column',
-                  flex: 1,
-                  backgroundColor: 'rgba(0,0,0,0.5)',
-                  paddingHorizontal: 10,
-                  paddingTop: 20,
-                  paddingBottom: 10,
+                  flexDirection: 'row',
                   justifyContent: 'center',
                   alignItems: 'center',
+                  marginVertical: 5,
                 }}>
-                <Button
-                  onPress={() => onDownButtonPress()}
-                  type="clear"
-                  color={colors.icons}
-                  icon={<Icon name="arrow-down" color={colors.primary} />}
-                  buttonStyle={{borderRadius: 30}}
-                  containerStyle={[
-                    styles.buttonContainer,
-                    {
-                      backgroundColor: colors.icons,
-                      height: 40,
-                      position: 'absolute',
-                      top: 10,
-                      right: 10,
-                    },
-                  ]}
-                />
-
-                {displayImageUrl && (
-                  <FastImage
-                    source={{uri: displayImageUrl}}
-                    style={{
-                      borderRadius: 10,
-                      borderWidth: 0.7,
-                      borderColor: 'rgba(0,0,0,0.6)',
-                      width: 90,
-                      aspectRatio: 1,
-                      shadowColor: '#000',
-                      shadowOffset: {
-                        width: 0,
-                        height: 2,
-                      },
-                      shadowOpacity: 0.25,
-                      shadowRadius: 3.84,
-                      elevation: 6,
-                    }}
-                    resizeMode={FastImage.resizeMode.contain}
-                  />
-                )}
-
-                <View
+                <Text
+                  numberOfLines={2}
+                  adjustsFontSizeToFit
                   style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginVertical: 5,
+                    color: colors.icons,
+                    fontSize: 24,
                   }}>
+                  {store.storeName}
+                </Text>
+
+                {store.ratingAverage && (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Text style={{color: colors.icons, fontSize: 30}}> • </Text>
+                    <Text
+                      style={{
+                        color: colors.icons,
+                        fontSize: 17,
+                        fontFamily: 'ProductSans-Black',
+                      }}>
+                      {store.ratingAverage.toFixed(1)}({store.reviewNumber})
+                    </Text>
+
+                    <FastImage
+                      source={require('../../assets/images/feather_filled.png')}
+                      style={{
+                        width: 16,
+                        height: 16,
+                        marginLeft: 2,
+                      }}
+                      resizeMode={FastImage.resizeMode.cover}
+                    />
+                  </View>
+                )}
+              </View>
+
+              <View style={{flex: 1}}>
+                {!store.storeDescription && (
                   <Text
-                    numberOfLines={2}
+                    numberOfLines={5}
                     adjustsFontSizeToFit
                     style={{
                       color: colors.icons,
-                      fontSize: 24,
+                      fontSize: 14,
+                      flexWrap: 'wrap',
                     }}>
-                    {store.storeName}
+                    {store.storeDescription}
                   </Text>
-
-                  {store.ratingAverage && (
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
-                      <Text style={{color: colors.icons, fontSize: 30}}>
-                        {' '}
-                        •{' '}
-                      </Text>
-                      <Text
-                        style={{
-                          color: colors.icons,
-                          fontSize: 17,
-                          fontFamily: 'ProductSans-Black',
-                        }}>
-                        {store.ratingAverage.toFixed(1)}({store.reviewNumber})
-                      </Text>
-
-                      <FastImage
-                        source={require('../../assets/images/feather_filled.png')}
-                        style={{
-                          width: 16,
-                          height: 16,
-                          marginLeft: 2,
-                        }}
-                        resizeMode={FastImage.resizeMode.cover}
-                      />
-                    </View>
-                  )}
-                </View>
-
-                <View style={{flex: 1}}>
-                  {!store.storeDescription && (
-                    <Text
-                      numberOfLines={5}
-                      adjustsFontSizeToFit
-                      style={{
-                        color: colors.icons,
-                        fontSize: 14,
-                        flexWrap: 'wrap',
-                      }}>
-                      {store.storeDescription}
-                    </Text>
-                  )}
-                </View>
-
-                <View style={{justifyContent: 'center'}}>
-                  <ButtonGroup
-                    onPress={(index) => this.setState({selectedIndex: index})}
-                    selectedIndex={selectedIndex}
-                    buttons={['Store Info', 'Reviews']}
-                    activeOpacity={0.7}
-                    containerStyle={{
-                      height: 30,
-                      width: '80%',
-                      borderRadius: 8,
-                      elevation: 5,
-                      shadowColor: '#000',
-                      shadowOffset: {
-                        width: 0,
-                        height: 2,
-                      },
-                      shadowOpacity: 0.25,
-                      shadowRadius: 3.84,
-                      borderColor: 'rgba(0,0,0,0.7)',
-                    }}
-                    selectedButtonStyle={{backgroundColor: colors.primary}}
-                  />
-                </View>
+                )}
               </View>
-            </ImageBackground>
-          )}
+
+              <View style={{justifyContent: 'center'}}>
+                <ButtonGroup
+                  onPress={(index) => this.setState({selectedIndex: index})}
+                  selectedIndex={selectedIndex}
+                  buttons={['Store Info', 'Reviews']}
+                  activeOpacity={0.7}
+                  containerStyle={{
+                    height: 30,
+                    width: '80%',
+                    borderRadius: 8,
+                    elevation: 5,
+                    shadowColor: '#000',
+                    shadowOffset: {
+                      width: 0,
+                      height: 2,
+                    },
+                    shadowOpacity: 0.25,
+                    shadowRadius: 3.84,
+                    borderColor: 'rgba(0,0,0,0.7)',
+                  }}
+                  selectedButtonStyle={{backgroundColor: colors.primary}}
+                />
+              </View>
+            </View>
+          </ImageBackground>
         </View>
 
         {selectedIndex === 1 ? (
