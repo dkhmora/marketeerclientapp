@@ -21,6 +21,7 @@ import SlidingCartHeader from '../components/SlidingCartHeader';
 import CartStoreCard from '../components/CartStoreCard';
 import SlidingCartFooter from '../components/SlidingCartFooter';
 import crashlytics from '@react-native-firebase/crashlytics';
+import storage from '@react-native-firebase/storage';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -34,13 +35,15 @@ class StoreScreen extends Component {
   constructor(props) {
     super(props);
 
+    const {store, displayImageUrl, coverImageUrl} = this.props.route.params;
+
     this.state = {
       storeItemCategories: {},
+      displayImageUrl,
+      coverImageUrl,
       ready: false,
       detailsModal: false,
     };
-
-    const {store} = this.props.route.params;
 
     this.props.shopStore
       .setStoreItems(
@@ -57,8 +60,32 @@ class StoreScreen extends Component {
   }
 
   componentDidMount() {
+    const {displayImageUrl, coverImageUrl} = this.props.route.params;
+
+    if (!displayImageUrl || !coverImageUrl) {
+      this.getImage();
+    }
+
     crashlytics().log('StoreScreen');
   }
+
+  getImage = async () => {
+    const {displayImage, coverImage} = this.props.route.params.store;
+
+    const displayImageRef = storage().ref(displayImage);
+    const coverImageRef = storage().ref(coverImage);
+    const coverImageUrl = await coverImageRef.getDownloadURL().catch((err) => {
+      return null;
+    });
+
+    const displayImageUrl = await displayImageRef
+      .getDownloadURL()
+      .catch((err) => {
+        return null;
+      });
+
+    this.setState({displayImageUrl, coverImageUrl});
+  };
 
   handleCheckout() {
     const {navigation} = this.props;
@@ -77,9 +104,9 @@ class StoreScreen extends Component {
   );
 
   render() {
-    const {store, displayImageUrl, coverImageUrl} = this.props.route.params;
+    const {store} = this.props.route.params;
     const {navigation} = this.props;
-    const {storeCategoryItems} = this.state;
+    const {storeCategoryItems, displayImageUrl, coverImageUrl} = this.state;
     const dataSource = this.props.shopStore.cartStores.slice();
     const emptyCartText = 'Your cart is empty';
 
@@ -93,7 +120,11 @@ class StoreScreen extends Component {
           duration={600}
           style={{flexDirection: 'row', paddingBottom: 20}}>
           <ImageBackground
-            source={{uri: coverImageUrl}}
+            source={
+              coverImageUrl
+                ? {uri: coverImageUrl}
+                : require('../../assets/images/black.jpg')
+            }
             style={{
               flex: 1,
               flexDirection: 'row',
@@ -138,7 +169,11 @@ class StoreScreen extends Component {
               animation="fadeInUp"
               useNativeDriver
               duration={600}
-              source={{uri: displayImageUrl}}
+              source={
+                displayImageUrl
+                  ? {uri: displayImageUrl}
+                  : require('../../assets/images/black.jpg')
+              }
               style={{
                 height: 75,
                 width: 75,
@@ -184,8 +219,8 @@ class StoreScreen extends Component {
               <Button
                 type="clear"
                 onPress={() => {
-                  this.sheetRef.snapTo(1);
-                  this.modalizeRef.close();
+                  this.sheetRef && this.sheetRef.snapTo(1);
+                  this.modalizeRef && this.modalizeRef.close();
                 }}
                 buttonStyle={{borderRadius: 30}}
                 containerStyle={[
@@ -271,7 +306,7 @@ class StoreScreen extends Component {
           HeaderComponent={() => (
             <SlidingCartHeader
               handleCheckout={() => this.handleCheckout()}
-              onPress={() => this.modalizeRef.open('top')}
+              onPress={() => this.modalizeRef && this.modalizeRef.open('top')}
             />
           )}
           FooterComponent={() => (
@@ -288,7 +323,9 @@ class StoreScreen extends Component {
             snapPoints={[0, SCREEN_HEIGHT * 0.95]}
             borderRadius={30}
             initialSnap={0}
-            onCloseEnd={() => this.modalizeRef.close('alwaysOpen')}
+            onCloseEnd={() =>
+              this.modalizeRef && this.modalizeRef.close('alwaysOpen')
+            }
             renderContent={() => (
               <View
                 style={{
@@ -299,7 +336,9 @@ class StoreScreen extends Component {
                   store={store}
                   coverImageUrl={coverImageUrl}
                   displayImageUrl={displayImageUrl}
-                  onDownButtonPress={() => this.sheetRef.snapTo(0)}
+                  onDownButtonPress={() =>
+                    this.sheetRef && this.sheetRef.snapTo(0)
+                  }
                 />
               </View>
             )}

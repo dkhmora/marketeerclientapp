@@ -7,7 +7,6 @@ import {Card, CardItem} from 'native-base';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import {PlaceholderMedia, Placeholder, Fade} from 'rn-placeholder';
-import Toast from './Toast';
 
 class StoreCard extends Component {
   constructor(props) {
