@@ -159,11 +159,11 @@ class StoreDetailsModal extends Component {
         }}>
         <View>
           <ImageBackground
-            source={{
-              uri: coverImageUrl
-                ? coverImageUrl
-                : require('../../assets/images/black.jpg'),
-            }}
+            source={
+              coverImageUrl
+                ? {uri: coverImageUrl}
+                : require('../../assets/images/black.jpg')
+            }
             style={{
               alignSelf: 'flex-start',
               maxWidth: '100%',
@@ -214,11 +214,11 @@ class StoreDetailsModal extends Component {
               />
 
               <FastImage
-                source={{
-                  uri: displayImageUrl
-                    ? displayImageUrl
-                    : require('../../assets/images/black.jpg'),
-                }}
+                source={
+                  displayImageUrl
+                    ? {uri: displayImageUrl}
+                    : require('../../assets/images/black.jpg')
+                }
                 style={{
                   borderRadius: 10,
                   borderWidth: 0.7,
