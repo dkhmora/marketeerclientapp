@@ -334,23 +334,13 @@ class shopStore {
     const guest = auth().currentUser.isAnonymous;
 
     if (userId && !guest) {
-      if (this.storeCartItems && Object.keys(this.storeCartItems).length > 0) {
-        await userCartCollection
-          .doc(userId)
-          .update({...this.storeCartItems})
-          .catch((err) => {
-            crashlytics().recordError(err);
-            Toast({text: err.message, type: 'danger'});
-          });
-      } else {
-        await userCartCollection
-          .doc(userId)
-          .set({})
-          .catch((err) => {
-            crashlytics().recordError(err);
-            Toast({text: err.message, type: 'danger'});
-          });
-      }
+      await userCartCollection
+        .doc(userId)
+        .set(this.storeCartItems)
+        .catch((err) => {
+          crashlytics().recordError(err);
+          Toast({text: err.message, type: 'danger'});
+        });
     }
   }
 
