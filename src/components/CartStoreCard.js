@@ -288,7 +288,7 @@ class CartStoreCard extends PureComponent {
               const paymentMethod = {[key]: value};
 
               if (
-                paymentMethods.includes('Online Banking') ||
+                (key !== 'COD' && paymentMethods.includes('Online Banking')) ||
                 (key === 'COD' && paymentMethods.includes('COD'))
               ) {
                 return (
