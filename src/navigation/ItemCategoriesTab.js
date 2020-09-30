@@ -26,17 +26,19 @@ class ItemCategoriesTab extends Component {
     const tabs = [];
 
     storeCategoryItems.forEach((key, value) => {
-      tabs.push(
-        <ItemTab.Screen
-          name={value}
-          component={ItemsList}
-          initialParams={{
-            items: key,
-            storeId,
-          }}
-          key={value}
-        />,
-      );
+      if (value !== '') {
+        tabs.push(
+          <ItemTab.Screen
+            name={value}
+            component={ItemsList}
+            initialParams={{
+              items: key,
+              storeId,
+            }}
+            key={value}
+          />,
+        );
+      }
     });
 
     return tabs;
