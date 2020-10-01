@@ -531,7 +531,7 @@ class SignUpScreen extends Component {
                 style={{
                   color: colors.text_secondary,
                   fontSize: 12,
-                  paddingTop: 15,
+                  paddingTop: Platform.OS === 'ios' ? 15 : 0,
                 }}>
                 We will send you a verification code here. *Standard rates may
                 apply
