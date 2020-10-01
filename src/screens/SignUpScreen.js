@@ -328,7 +328,14 @@ class SignUpScreen extends Component {
               </View>
             )}
 
-            <Text style={(styles.text_footer, {paddingTop: 20})}>Title</Text>
+            <Text
+              style={{
+                paddingTop: 20,
+                color: colors.text_primary,
+                fontSize: 18,
+              }}>
+              Title
+            </Text>
 
             <View style={[styles.action]}>
               <Picker
