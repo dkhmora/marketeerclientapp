@@ -706,6 +706,8 @@ PODS:
     - React
   - RNCPushNotificationIOS (1.5.0):
     - React
+  - RNDateTimePicker (3.0.3):
+    - React-Core
   - RNDeviceInfo (5.6.3):
     - React
   - RNFastImage (8.3.2):
@@ -838,6 +840,7 @@ DEPENDENCIES:
   - "RNCClipboard (from `../node_modules/@react-native-community/clipboard`)"
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - "RNCPushNotificationIOS (from `../node_modules/@react-native-community/push-notification-ios`)"
+  - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFastImage (from `../node_modules/react-native-fast-image`)
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
@@ -977,6 +980,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/masked-view"
   RNCPushNotificationIOS:
     :path: "../node_modules/@react-native-community/push-notification-ios"
+  RNDateTimePicker:
+    :path: "../node_modules/@react-native-community/datetimepicker"
   RNDeviceInfo:
     :path: "../node_modules/react-native-device-info"
   RNFastImage:
@@ -1090,6 +1095,7 @@ SPEC CHECKSUMS:
   RNCClipboard: 5f3218dcdc28405aa2ae72b78e388f150b826dd3
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
   RNCPushNotificationIOS: 8025ff0b610d7b28d29ddc1b619cd55814362e4c
+  RNDateTimePicker: e9fcd5ecdc0c5b018871e0d178d6040dca11973c
   RNDeviceInfo: c5fa705c8914c42800ff36e86d25d277e8eb16ff
   RNFastImage: e19ba191922e7dab9d932a4d59d62d76660aa222
   RNFBApp: a74d8259d827c8bf55100e759cffa2e50ba6fe30

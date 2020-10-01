@@ -9,11 +9,12 @@ import {
   Linking,
   SafeAreaView,
   Platform,
-  Picker,
+  Dimensions,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
 import {Icon, Button} from 'react-native-elements';
+import {Picker} from 'native-base';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import BackButton from '../components/BackButton';
@@ -24,6 +25,7 @@ import moment, {ISO_8601} from 'moment';
 import crashlytics from '@react-native-firebase/crashlytics';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
+const SCREEN_WIDTH = Dimensions.get('screen').width;
 @inject('generalStore')
 @inject('authStore')
 @observer
@@ -294,8 +296,14 @@ class SignUpScreen extends Component {
         <Animatable.View
           useNativeDriver
           animation="fadeInUpBig"
-          style={styles.footer}>
-          <KeyboardAwareScrollView>
+          style={{
+            flex: 1,
+            backgroundColor: '#fff',
+            borderTopLeftRadius: 30,
+            borderTopRightRadius: 30,
+            paddingTop: 10,
+          }}>
+          <KeyboardAwareScrollView style={{paddingHorizontal: 20}}>
             <Text style={styles.text_header}>Sign Up</Text>
 
             <Text style={[styles.text_subtext]}>
@@ -320,14 +328,33 @@ class SignUpScreen extends Component {
               </View>
             )}
 
-            <Text style={styles.text_footer}>Title</Text>
+            <Text style={(styles.text_footer, {paddingTop: 20})}>Title</Text>
 
             <View style={[styles.action]}>
               <Picker
-                style={{flex: 1}}
+                textStyle={{
+                  fontFamily: 'ProductSans-Bold',
+                  color: colors.primary,
+                  width: SCREEN_WIDTH - 80,
+                }}
+                itemTextStyle={{
+                  color: colors.primary,
+                  fontFamily: 'ProductSans-Light',
+                }}
+                headerTitleStyle={{
+                  fontFamily: 'ProductSans-Light',
+                  color: colors.text_primary,
+                }}
                 mode="dropdown"
                 selectedValue={selectedTitle}
                 iosIcon={<Icon name="chevron-down" />}
+                iosHeader="Select a Title"
+                headerBackButtonText="Back"
+                headerBackButtonTextStyle={{
+                  fontFamily: 'ProductSans-Light',
+                  color: colors.primary,
+                }}
+                itemStyle={{flex: 1}}
                 onValueChange={(value) =>
                   this.setState({selectedTitle: value})
                 }>
@@ -493,7 +520,12 @@ class SignUpScreen extends Component {
                 ) : null}
               </View>
 
-              <Text style={{color: colors.text_secondary, fontSize: 12}}>
+              <Text
+                style={{
+                  color: colors.text_secondary,
+                  fontSize: 12,
+                  paddingTop: 15,
+                }}>
                 We will send you a verification code here. *Standard rates may
                 apply
               </Text>
