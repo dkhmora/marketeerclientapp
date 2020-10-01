@@ -94,13 +94,16 @@ class CartStoreCard extends PureComponent {
 
   @computed get mrSpeedyDeliveryFee() {
     const {storeId} = this.props;
+    const selectedStorePaymentMethod = this.props.shopStore
+      .storeSelectedPaymentMethod[storeId];
+    const CODFee = selectedStorePaymentMethod === 'COD' ? 30 : 0;
     const mrSpeedyDeliveryEstimates = this.props.shopStore
       .storeMrSpeedyDeliveryFee[storeId];
     const motorbikeDeliveryFee = mrSpeedyDeliveryEstimates
-      ? mrSpeedyDeliveryEstimates.motorbike
+      ? Number(mrSpeedyDeliveryEstimates.motorbike) + CODFee
       : '';
     const carDeliveryFee = mrSpeedyDeliveryEstimates
-      ? mrSpeedyDeliveryEstimates.car
+      ? Number(mrSpeedyDeliveryEstimates.car) + CODFee
       : '';
 
     return mrSpeedyDeliveryEstimates
