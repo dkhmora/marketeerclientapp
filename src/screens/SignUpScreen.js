@@ -20,9 +20,9 @@ import BackButton from '../components/BackButton';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import Toast from '../components/Toast';
-import {DatePicker} from 'native-base';
-import moment, { ISO_8601 } from 'moment';
+import moment, {ISO_8601} from 'moment';
 import crashlytics from '@react-native-firebase/crashlytics';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 @inject('generalStore')
 @inject('authStore')
@@ -36,7 +36,9 @@ class SignUpScreen extends Component {
       email: '',
       phoneNumber: '',
       password: '',
+      datePickerVisible: false,
       selectedBirthdate: null,
+      selectedDate: null,
       maxDate: moment().subtract(18, 'years').toDate(),
       selectedTitle: 'Mr',
       passwordCheck: false,
@@ -236,12 +238,37 @@ class SignUpScreen extends Component {
       maxDate,
       selectedBirthdate,
       selectedTitle,
+      datePickerVisible,
+      selectedDate,
     } = this.state;
     const {navigation} = this.props;
 
     return (
       <View style={[styles.container, {paddingTop: 0}]}>
         <StatusBar animated translucent backgroundColor={colors.statusBar} />
+
+        <DateTimePickerModal
+          isVisible={datePickerVisible}
+          mode="date"
+          onConfirm={(newDate) =>
+            this.setState({
+              datePickerVisible: false,
+              selectedDate: newDate,
+              selectedBirthdate: moment(newDate, ISO_8601).format('YYYY-MM-DD'),
+            })
+          }
+          onCancel={() => this.setState({datePickerVisible: false})}
+          maximumDate={maxDate}
+          date={selectedDate ? selectedDate : new Date()}
+          locale={'en'}
+          timeZoneOffsetInMinutes={undefined}
+          modalTransparent={false}
+          animationType={'fade'}
+          androidMode={'default'}
+          placeHolderText="Select Your Birthdate"
+          textStyle={{color: colors.primary}}
+          disabled={false}
+        />
 
         <View
           style={{
@@ -338,9 +365,7 @@ class SignUpScreen extends Component {
               style={[
                 styles.action,
                 {
-                  marginTop: 0,
                   flexDirection: 'column',
-                  justifyContent: 'center',
                 },
               ]}>
               <View
@@ -360,29 +385,31 @@ class SignUpScreen extends Component {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                   }}>
-                  <DatePicker
-                    maximumDate={maxDate}
-                    locale={'en'}
-                    timeZoneOffsetInMinutes={undefined}
-                    modalTransparent={false}
-                    animationType={'fade'}
-                    androidMode={'default'}
-                    placeHolderText="Select date"
-                    textStyle={{color: colors.primary}}
-                    placeHolderTextStyle={{
-                      color: colors.text_secondary,
-                      fontSize: 15,
-                      fontWeight: 'bold',
+                  <TouchableOpacity
+                    style={{
+                      flex: 1,
+                      marginTop: 5,
+                      paddingLeft: 10,
                     }}
-                    onDateChange={(newDate) => {
-                      this.setState({
-                        selectedBirthdate: moment(newDate, ISO_8601).format(
-                          'YYYY-MM-DD',
-                        ),
-                      });
-                    }}
-                    disabled={false}
-                  />
+                    onPress={() => this.setState({datePickerVisible: true})}>
+                    {selectedBirthdate ? (
+                      <Text
+                        style={{
+                          color: colors.primary,
+                          fontFamily: 'ProductSans-Bold',
+                        }}>
+                        {selectedBirthdate}
+                      </Text>
+                    ) : (
+                      <Text
+                        style={{
+                          fontFamily: 'ProductSans-Bold',
+                          color: colors.text_secondary,
+                        }}>
+                        Select Date
+                      </Text>
+                    )}
+                  </TouchableOpacity>
 
                   {selectedBirthdate ? (
                     <Animatable.View useNativeDriver animation="bounceIn">
@@ -392,7 +419,7 @@ class SignUpScreen extends Component {
                 </View>
               </View>
 
-              <View style={{flexDirection: 'row'}}>
+              <View style={{flexDirection: 'row', paddingTop: 15}}>
                 <Text style={{color: colors.text_secondary, fontSize: 12}}>
                   You must be atleast{' '}
                 </Text>
