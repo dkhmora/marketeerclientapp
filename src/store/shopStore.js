@@ -108,7 +108,10 @@ class shopStore {
         let storeTotal = 0;
 
         this.storeCartItems[storeId].map(async (item) => {
-          let itemTotal = item.quantity * item.price;
+          const itemPrice = item.discountedPrice
+            ? item.discountedPrice
+            : item.price;
+          let itemTotal = item.quantity * itemPrice;
 
           storeTotal += itemTotal;
         });
@@ -260,7 +263,9 @@ class shopStore {
       .doc(userId)
       .onSnapshot((documentSnapshot) => {
         if (documentSnapshot) {
-          this.storeCartItems = documentSnapshot.data();
+          this.storeCartItems = documentSnapshot.data()
+            ? documentSnapshot.data()
+            : {};
         }
       });
   }

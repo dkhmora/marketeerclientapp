@@ -95,6 +95,7 @@ class CartListItem extends PureComponent {
   render() {
     const {item, itemSnapshot, checkout} = this.props;
     const {url} = this.state;
+    const itemPrice = item.discountedPrice ? item.discountedPrice : item.price;
 
     return (
       <View
@@ -320,7 +321,7 @@ class CartListItem extends PureComponent {
               fontSize: 16,
               color: colors.text_secondary,
             }}>
-            ₱{item.price}
+            ₱{itemPrice}
           </Text>
 
           <Text
@@ -340,7 +341,7 @@ class CartListItem extends PureComponent {
             adjustsFontSizeToFit
             numberOfLines={1}
             style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
-            ₱{item.price * item.quantity}
+            ₱{itemPrice * item.quantity}
           </Text>
         </View>
       </View>
