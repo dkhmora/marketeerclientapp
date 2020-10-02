@@ -142,6 +142,7 @@ class CheckoutScreen extends Component {
 
     this.props.shopStore.storeSelectedDeliveryMethod = {};
     this.props.shopStore.storeSelectedPaymentMethod = {};
+    this.props.shopStore.storeMrSpeedyDeliveryFee = {};
   }
 
   render() {
