@@ -289,7 +289,7 @@ class ItemCard extends PureComponent {
             </View>
 
             <CardItem cardBody>
-              {image && this.url && !loading ? (
+              {image ? (
                 loading ? (
                   <Placeholder Animation={Fade}>
                     <PlaceholderMedia
@@ -318,7 +318,6 @@ class ItemCard extends PureComponent {
                   style={{
                     aspectRatio: 1,
                     flex: 1,
-                    marginTop: -10,
                   }}
                   resizeMode={FastImage.resizeMode.contain}
                 />
