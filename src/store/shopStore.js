@@ -14,18 +14,18 @@ const userCartCollection = firestore().collection('user_carts');
 const storesCollection = firestore().collection('stores');
 class shopStore {
   @persist('object') @observable storeCartItems = {};
+  @persist @observable maxStoreUpdatedAt = 0;
   @observable storeDetails = {};
   @observable storeSelectedDeliveryMethod = {};
   @observable storeSelectedPaymentMethod = {};
   @observable storeAssignedMerchantId = {};
   @observable storeUserEmail = {};
-  @observable storeList = [];
-  @observable categoryStoreList = {};
+  @observable viewableStoreList = [];
+  @persist('object') @observable allStoresMap = {};
   @observable itemCategories = [];
   @observable storeCategoryItems = new Map();
   @observable unsubscribeToGetCartItems = null;
   @observable cartUpdateTimeout = null;
-  @observable storeFetchLimit = 8;
   @observable validItemQuantity = {};
 
   @computed get totalCartItemQuantity() {
@@ -233,7 +233,7 @@ class shopStore {
   }
 
   @action getStoreDetails(storeId) {
-    const store = this.storeList.find((element) => element.storeId === storeId);
+    const store = this.viewableStoresMap[storeId];
 
     return store;
   }
@@ -349,102 +349,28 @@ class shopStore {
     }
   }
 
-  @action async getStoreList({
-    currentLocationGeohash,
-    locationCoordinates,
-    storeCategory,
-    lastVisible,
-  }) {
-    if (
-      currentLocationGeohash &&
-      locationCoordinates &&
-      storeCategory &&
-      lastVisible
-    ) {
+  @action async getStoreList({currentLocationGeohash, locationCoordinates}) {
+    if (currentLocationGeohash && locationCoordinates) {
       return await storesCollection
         .where('visibleToPublic', '==', true)
         .where('vacationMode', '==', false)
         .where('creditThresholdReached', '==', false)
-        .where('storeCategory', '==', storeCategory)
-        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
-        .orderBy('deliveryCoordinates.lowerRange')
-        .startAfter(lastVisible)
-        .limit(this.storeFetchLimit)
+        .where('updatedAt', '>', this.maxStoreUpdatedAt)
         .get()
         .then((querySnapshot) => {
-          const list = [];
-
           querySnapshot.forEach((documentSnapshot, index) => {
-            list.push(documentSnapshot.data());
+            const storeId = documentSnapshot.id;
+            const storeData = documentSnapshot.data();
 
-            list[index].storeId = documentSnapshot.id;
+            if (storeData.updatedAt > this.maxStoreUpdatedAt) {
+              this.maxStoreUpdatedAt = storeData.updatedAt;
+            }
+
+            this.allStoresMap[storeId] = storeData;
           });
-
-          return list;
         })
-        .then(async (list) => {
-          this.categoryStoreList[
-            storeCategory
-          ] = await this.sortStoresByDistance(list, locationCoordinates);
-        })
-        .catch((err) => {
-          crashlytics().recordError(err);
-          Toast({text: err.message, type: 'danger'});
-        });
-    } else if (currentLocationGeohash && locationCoordinates && storeCategory) {
-      return await storesCollection
-        .where('visibleToPublic', '==', true)
-        .where('vacationMode', '==', false)
-        .where('creditThresholdReached', '==', false)
-        .where('storeCategory', '==', storeCategory)
-        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
-        .orderBy('deliveryCoordinates.lowerRange')
-        .limit(this.storeFetchLimit)
-        .get()
-        .then((querySnapshot) => {
-          const list = [];
-
-          querySnapshot.forEach((documentSnapshot, index) => {
-            list.push(documentSnapshot.data());
-
-            list[index].storeId = documentSnapshot.id;
-          });
-
-          return list;
-        })
-        .then(async (list) => {
-          this.categoryStoreList[
-            storeCategory
-          ] = await this.sortStoresByDistance(list, locationCoordinates);
-        })
-        .catch((err) => {
-          crashlytics().recordError(err);
-          Toast({text: err.message, type: 'danger'});
-        });
-    } else if (currentLocationGeohash && locationCoordinates && lastVisible) {
-      return await storesCollection
-        .where('visibleToPublic', '==', true)
-        .where('vacationMode', '==', false)
-        .where('creditThresholdReached', '==', false)
-        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
-        .orderBy('deliveryCoordinates.lowerRange')
-        .startAfter(lastVisible)
-        .limit(this.storeFetchLimit)
-        .get()
-        .then((querySnapshot) => {
-          const list = [];
-
-          querySnapshot.forEach((documentSnapshot, index) => {
-            list.push(documentSnapshot.data());
-
-            list[index].storeId = documentSnapshot.id;
-          });
-
-          return list;
-        })
-        .then(async (list) => {
-          this.storeList = await this.sortStoresByDistance(
-            list,
+        .then(async () => {
+          this.viewableStoreList = await this.setVisibleStores(
             locationCoordinates,
           );
         })
@@ -452,76 +378,62 @@ class shopStore {
           crashlytics().recordError(err);
           Toast({text: err.message, type: 'danger'});
         });
-    } else if (currentLocationGeohash && locationCoordinates) {
-      return await storesCollection
-        .where('visibleToPublic', '==', true)
-        .where('vacationMode', '==', false)
-        .where('creditThresholdReached', '==', false)
-        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
-        .orderBy('deliveryCoordinates.lowerRange')
-        .limit(this.storeFetchLimit)
-        .get()
-        .then((querySnapshot) => {
-          const list = [];
-
-          querySnapshot.forEach((documentSnapshot, index) => {
-            list.push(documentSnapshot.data());
-
-            list[index].storeId = documentSnapshot.id;
-          });
-
-          return list;
-        })
-        .then(async (list) => {
-          this.storeList = await this.sortStoresByDistance(
-            list,
-            locationCoordinates,
-          );
-        })
-        .catch((err) => {
-          crashlytics().recordError(err);
-          Toast({text: err.message, type: 'danger'});
-        });
+    } else {
+      Toast({
+        text:
+          'Error: No location coordinates set. Please set your location to view stores.',
+        duration: 7000,
+        type: 'danger',
+      });
     }
   }
 
-  @action async sortStoresByDistance(list, locationCoordinates) {
-    const filteredList = await list.filter((element) =>
-      geolib.isPointInPolygon(
-        {
-          latitude: locationCoordinates.latitude,
-          longitude: locationCoordinates.longitude,
-        },
-        [...element.deliveryCoordinates.boundingBox],
-      ),
-    );
+  @action async setVisibleStores(locationCoordinates) {
+    const storeList = [];
 
-    const listWithDistance = await filteredList.map((store) => {
-      const distance = store.storeLocation
-        ? geolib.getDistance(
+    return await new Promise((resolve, reject) =>
+      resolve(
+        Object.entries(this.allStoresMap).map(([storeId, storeData]) => {
+          const {deliveryCoordinates, storeLocation} = storeData;
+          const isPointInPolygon = geolib.isPointInPolygon(
             {
               latitude: locationCoordinates.latitude,
               longitude: locationCoordinates.longitude,
             },
-            {
-              latitude: store.storeLocation.latitude,
-              longitude: store.storeLocation.longitude,
-            },
-          )
-        : null;
+            [...deliveryCoordinates.boundingBox],
+          );
 
-      return {...store, distance};
+          if (isPointInPolygon) {
+            const distance = storeLocation
+              ? geolib.getDistance(
+                  {
+                    latitude: locationCoordinates.latitude,
+                    longitude: locationCoordinates.longitude,
+                  },
+                  {
+                    latitude: storeLocation.latitude,
+                    longitude: storeLocation.longitude,
+                  },
+                )
+              : null;
+
+            const completeStoreData = {...storeData, storeId, distance};
+
+            storeList.push(completeStoreData);
+          }
+        }),
+      ),
+    ).then(async () => {
+      const sortedList = await storeList.sort((a, b) => {
+        return (
+          (a.distance === null) - (b.distance === null) ||
+          +(a.distance > b.distance) ||
+          -(a.distance < b.distance)
+        );
+      });
+
+      return sortedList;
     });
-
-    const sortedList = await listWithDistance.sort((a, b) => {
-      return (
-        (a.distance === null) - (b.distance === null) ||
-        +(a.distance > b.distance) ||
-        -(a.distance < b.distance)
-      );
-    });
-
-    return sortedList;
   }
 
   @action async setStoreItems(storeId, itemCategories) {

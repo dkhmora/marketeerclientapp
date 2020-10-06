@@ -28,15 +28,22 @@ class StoreList extends Component {
     this.state = {
       refreshing: false,
       loading: true,
-      onEndReachedCalledDuringMomentum: false,
-      currentLocation: null,
-      currentLocationGeohash: null,
     };
   }
 
-  @computed get lastStoreLowerRange() {
-    return this.props.shopStore.storeList.slice(-1)[0].deliveryCoordinates
-      .lowerRange;
+  @computed get displayedStoreList() {
+    const {categoryName} = this.props;
+    const storeList = this.props.shopStore.viewableStoreList.slice();
+
+    if (categoryName) {
+      const categoryStores = storeList.filter(
+        (store) => store.storeCategory === categoryName,
+      );
+
+      return categoryStores;
+    }
+
+    return storeList;
   }
 
   componentDidMount() {
@@ -71,90 +78,29 @@ class StoreList extends Component {
   }
 
   getInitialStoreList() {
-    const {categoryName} = this.props;
     const {currentLocationGeohash, currentLocation} = this.props.generalStore;
 
-    this.setState(
-      {refreshing: true, currentLocationGeohash, currentLocation},
-      () => {
-        this.props.shopStore
-          .getStoreList({
-            currentLocationGeohash: this.state.currentLocationGeohash,
-            locationCoordinates: this.state.currentLocation,
-            storeCategory: categoryName,
-          })
-          .then(() => {
-            this.setState({refreshing: false, loading: false});
-          });
-      },
-    );
-  }
-
-  retrieveMoreStores() {
-    if (
-      !this.state.onEndReachedCalledDuringMomentum &&
-      this.state.lastVisible >= 1
-    ) {
-      const {categoryName} = this.props;
-      const {currentLocationGeohash, currentLocation} = this.props.generalStore;
-
-      this.setState({refreshing: true, onEndReachedCalledDuringMomentum: true});
-
+    this.setState({refreshing: true}, () => {
       this.props.shopStore
         .getStoreList({
           currentLocationGeohash,
           locationCoordinates: currentLocation,
-          storeCategory: categoryName,
-          lastVisible: this.lastStoreLowerRange,
         })
         .then(() => {
-          this.setState({
-            refreshing: false,
-            loading: false,
-            onEndReachedCalledDuringMomentum: false,
-          });
+          this.setState({refreshing: false, loading: false});
         });
-    }
+    });
   }
 
   onRefresh() {
     this.getInitialStoreList();
   }
 
-  renderFooter = () => {
-    return (
-      <View style={{bottom: 50, width: '100%'}}>
-        <View style={{height: bottomPadding}} />
-        {this.state.onEndReachedCalledDuringMomentum && (
-          <Animatable.View
-            animation="slideInUp"
-            duration={400}
-            useNativeDriver
-            style={{
-              alignItems: 'center',
-              flex: 1,
-            }}>
-            <ActivityIndicator
-              size="large"
-              color={colors.primary}
-              style={{
-                backgroundColor: colors.icons,
-                borderRadius: 30,
-                padding: 5,
-                elevation: 5,
-              }}
-            />
-          </Animatable.View>
-        )}
-      </View>
-    );
-  };
-
   renderItem = ({item, index}) =>
     item.empty ? (
       <View
         style={{flex: 1, backgroundColor: 'transparent'}}
-        key={item.itemId}
+        key={`view${index}`}
       />
     ) : (
       <StoreCard
@@ -180,20 +126,7 @@ class StoreList extends Component {
   }
 
   render() {
-    const {categoryName} = this.props;
     const {refreshing, loading} = this.state;
-
-    let dataSource = [];
-
-    if (!loading) {
-      if (!categoryName) {
-        dataSource = this.props.shopStore.storeList.slice();
-      } else {
-        dataSource = this.props.shopStore.categoryStoreList[
-          categoryName
-        ].slice();
-      }
-    }
 
     const isTablet = DeviceInfo.isTablet();
 
@@ -209,7 +142,7 @@ class StoreList extends Component {
           ref={(flatList) => (this.flatList = flatList)}
           style={{paddingHorizontal: 5}}
           contentContainerStyle={{flexGrow: 1}}
-          data={this.formatData(dataSource, numOfColumns)}
+          data={this.formatData(this.displayedStoreList, numOfColumns)}
           numColumns={numOfColumns}
           renderItem={this.renderItem}
           ListHeaderComponent={
@@ -243,15 +176,8 @@ class StoreList extends Component {
               onRefresh={this.onRefresh.bind(this)}
             />
           }
-          keyExtractor={(item) => item.storeId}
+          keyExtractor={(item, index) => (item ? item.storeId : index)}
           showsVerticalScrollIndicator={false}
-          onMomentumScrollBegin={() => {
-            this.state.onEndReachedCalledDuringMomentum = false;
-          }}
-          onEndReached={() => this.retrieveMoreStores()}
-          onEndReachedThreshold={0.01}
-          refreshing={this.state.onEndReachedCalledDuringMomentum}
-          ListFooterComponent={this.renderFooter}
         />
       </View>
     );
