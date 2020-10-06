@@ -8,6 +8,7 @@ import {Rating} from 'react-native-rating-element';
 import MapView, {Marker} from 'react-native-maps';
 import moment from 'moment';
 import {styles} from '../../assets/styles';
+import {ScrollView} from 'react-native-gesture-handler';
 
 @inject('generalStore')
 class StoreDetailsModal extends Component {
@@ -183,12 +184,13 @@ class StoreDetailsModal extends Component {
               },
               shadowOpacity: 0.34,
               shadowRadius: 6.27,
+              backgroundColor: 'rgba(0,0,0,0.5)',
             }}>
             <View
               style={{
                 flexDirection: 'column',
                 flex: 1,
-                backgroundColor: 'rgba(0,0,0,0.5)',
+                backgroundColor: 'rgba(0,0,0,0.4)',
                 paddingHorizontal: 10,
                 paddingTop: 20,
                 paddingBottom: 10,
@@ -237,69 +239,45 @@ class StoreDetailsModal extends Component {
                 resizeMode={FastImage.resizeMode.contain}
               />
 
-              <View
+              <Text
+                numberOfLines={2}
+                adjustsFontSizeToFit
                 style={{
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginVertical: 5,
+                  color: colors.icons,
+                  fontSize: 24,
                 }}>
-                <Text
-                  numberOfLines={2}
-                  adjustsFontSizeToFit
+                {store.storeName}
+              </Text>
+
+              {store.ratingAverage && (
+                <View
                   style={{
-                    color: colors.icons,
-                    fontSize: 24,
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                   }}>
-                  {store.storeName}
-                </Text>
-
-                {store.ratingAverage && (
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Text style={{color: colors.icons, fontSize: 30}}> • </Text>
-                    <Text
-                      style={{
-                        color: colors.icons,
-                        fontSize: 17,
-                        fontFamily: 'ProductSans-Black',
-                      }}>
-                      {store.ratingAverage.toFixed(1)}({store.reviewNumber})
-                    </Text>
-
-                    <FastImage
-                      source={require('../../assets/images/feather_filled.png')}
-                      style={{
-                        width: 16,
-                        height: 16,
-                        marginLeft: 2,
-                      }}
-                      resizeMode={FastImage.resizeMode.cover}
-                    />
-                  </View>
-                )}
-              </View>
-
-              <View style={{flex: 1}}>
-                {!store.storeDescription && (
                   <Text
-                    numberOfLines={5}
-                    adjustsFontSizeToFit
                     style={{
                       color: colors.icons,
-                      fontSize: 14,
-                      flexWrap: 'wrap',
+                      fontSize: 17,
+                      fontFamily: 'ProductSans-Black',
                     }}>
-                    {store.storeDescription}
+                    {store.ratingAverage.toFixed(1)}({store.reviewNumber})
                   </Text>
-                )}
-              </View>
 
-              <View style={{justifyContent: 'center'}}>
+                  <FastImage
+                    source={require('../../assets/images/feather_filled.png')}
+                    style={{
+                      width: 16,
+                      height: 16,
+                      marginLeft: 2,
+                    }}
+                    resizeMode={FastImage.resizeMode.cover}
+                  />
+                </View>
+              )}
+
+              <View style={{flex: 1, justifyContent: 'flex-end'}}>
                 <ButtonGroup
                   onPress={(index) => this.setState({selectedIndex: index})}
                   selectedIndex={selectedIndex}
@@ -378,6 +356,25 @@ class StoreDetailsModal extends Component {
                 paddingVertical: 10,
                 justifyContent: 'flex-start',
               }}>
+              {store.storeDescription && (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingVertical: 10,
+                    maxWidth: '90%',
+                  }}>
+                  <Icon
+                    name="align-justify"
+                    color={colors.primary}
+                    style={{paddingRight: 10}}
+                  />
+                  <ScrollView style={{maxHeight: 16 * 6}}>
+                    <Text style={{fontSize: 16}}>{store.storeDescription}</Text>
+                  </ScrollView>
+                </View>
+              )}
+
               {store.email && (
                 <View
                   style={{
