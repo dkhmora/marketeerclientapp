@@ -32,7 +32,9 @@ class CartStoreCard extends PureComponent {
 
   @observable url = null;
 
-  @observable storeDetails = {};
+  @observable storeDetails = this.props.shopStore.allStoresMap[
+    this.props.storeId
+  ];
 
   @computed get freeDelivery() {
     if (this.storeDetails) {
@@ -161,11 +163,7 @@ class CartStoreCard extends PureComponent {
     this.url = {uri: link};
   }
 
-  async getStoreDetails() {
-    this.storeDetails = await this.props.shopStore.getStoreDetailsFromStoreId(
-      this.props.storeId,
-    );
-
+  async setStoreAssignedMerchantId() {
     this.props.shopStore.storeAssignedMerchantId[
       this.props.storeId
     ] = this.storeDetails.merchantId;
@@ -205,7 +203,7 @@ class CartStoreCard extends PureComponent {
 
     this.getImage();
 
-    await this.getStoreDetails();
+    await this.setStoreAssignedMerchantId();
 
     if (this.props.cart) {
       this.getStoreItemsSnapshot();

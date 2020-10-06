@@ -104,7 +104,7 @@ class shopStore {
 
     if (this.storeCartItems) {
       Object.keys(this.storeCartItems).map(async (storeId) => {
-        const storeDetails = this.getStoreDetails(storeId);
+        const storeDetails = this.allStoresMap[storeId];
         let storeTotal = 0;
 
         this.storeCartItems[storeId].map(async (item) => {
@@ -141,32 +141,6 @@ class shopStore {
       return stores;
     }
     return [];
-  }
-
-  @action async getStoreDetailsFromStoreId(storeId) {
-    return await new Promise(async (resolve, reject) => {
-      const storeDetails = await this.getStoreDetails(storeId);
-
-      if (storeDetails) {
-        return resolve(storeDetails);
-      }
-
-      return await firestore()
-        .collection('stores')
-        .doc(storeId)
-        .get()
-        .then((document) => {
-          if (document.exists) {
-            const store = {...document.data(), storeId: document.id};
-
-            return resolve(store);
-          }
-        })
-        .catch((err) => {
-          crashlytics().recordError(err);
-          return reject(err);
-        });
-    });
   }
 
   @action async setCartItems(userId) {
@@ -230,12 +204,6 @@ class shopStore {
     this.storeCartItems = {};
     this.storeSelectedDeliveryMethod = {};
     this.itemCategories = [];
-  }
-
-  @action getStoreDetails(storeId) {
-    const store = this.viewableStoresMap[storeId];
-
-    return store;
   }
 
   @action getCartItemQuantity(item, storeId) {
