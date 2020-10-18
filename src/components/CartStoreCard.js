@@ -117,6 +117,36 @@ class CartStoreCard extends PureComponent {
       : null;
   }
 
+  @computed get deliveryMethods() {
+    const {storeDetails} = this;
+
+    if (storeDetails) {
+      const {availableDeliveryMethods} = storeDetails;
+
+      return Object.entries(availableDeliveryMethods)
+        .filter(([key, value]) => value.activated)
+        .map(([key, value]) => key)
+        .sort((a, b) => a > b);
+    }
+
+    return [];
+  }
+
+  @computed get paymentMethods() {
+    const {storeDetails} = this;
+
+    if (storeDetails) {
+      const {availablePaymentMethods} = storeDetails;
+
+      return Object.entries(availablePaymentMethods)
+        .filter(([key, value]) => value.activated)
+        .map(([key, value]) => key)
+        .sort((a, b) => a > b);
+    }
+
+    return [];
+  }
+
   async openLink(url) {
     try {
       if (await InAppBrowser.isAvailable()) {
@@ -217,28 +247,18 @@ class CartStoreCard extends PureComponent {
       this.checkEmail(this.props.shopStore.storeUserEmail[storeId]);
 
       when(
-        () =>
-          this.storeDetails.deliveryMethods &&
-          this.storeDetails.deliveryMethods.length > 0,
+        () => this.deliveryMethods.length > 0,
         () => {
-          if (this.storeDetails.deliveryMethods.includes('Own Delivery')) {
-            this.props.shopStore.storeSelectedDeliveryMethod[
-              this.props.storeId
-            ] = 'Own Delivery';
-          } else {
-            this.props.shopStore.storeSelectedDeliveryMethod[
-              this.props.storeId
-            ] = this.storeDetails.deliveryMethods[0];
-          }
+          this.props.shopStore.storeSelectedDeliveryMethod[
+            this.props.storeId
+          ] = this.deliveryMethods[0];
         },
       );
 
       when(
-        () =>
-          this.storeDetails.paymentMethods &&
-          this.storeDetails.paymentMethods.length > 0,
+        () => this.paymentMethods.length > 0,
         () => {
-          if (!this.storeDetails.paymentMethods.includes('Online Banking')) {
+          if (!this.paymentMethods.includes('Online Banking')) {
             this.setState(
               {
                 selectedPaymentMethod: {
@@ -384,13 +404,12 @@ class CartStoreCard extends PureComponent {
   }
 
   renderDeliveryMethods() {
-    const {storeDetails} = this;
+    const {deliveryMethods} = this;
     const {storeId} = this.props;
-    const {deliveryMethods} = storeDetails;
     const storeSelectedDeliveryMethod = this.props.shopStore
       .storeSelectedDeliveryMethod[storeId];
 
-    if (deliveryMethods) {
+    if (deliveryMethods.length > 0) {
       return (
         <ScrollView
           style={{
@@ -398,29 +417,26 @@ class CartStoreCard extends PureComponent {
           }}
           showsVerticalScrollIndicator={false}
           contentInsetAdjustmentBehavior="automatic">
-          {deliveryMethods
-            .slice()
-            .sort((a, b) => a > b)
-            .map((deliveryMethod, index) => {
-              return (
-                <ListItem
-                  title={deliveryMethod}
-                  key={`${deliveryMethod}-${index}`}
-                  bottomDivider
-                  rightIcon={
-                    storeSelectedDeliveryMethod &&
-                    storeSelectedDeliveryMethod === deliveryMethod ? (
-                      <Icon name="check" color={colors.primary} />
-                    ) : null
-                  }
-                  onPress={() =>
-                    (this.props.shopStore.storeSelectedDeliveryMethod[
-                      storeId
-                    ] = deliveryMethod)
-                  }
-                />
-              );
-            })}
+          {deliveryMethods.map((deliveryMethod, index) => {
+            return (
+              <ListItem
+                title={deliveryMethod}
+                key={`${deliveryMethod}-${index}`}
+                bottomDivider
+                rightIcon={
+                  storeSelectedDeliveryMethod &&
+                  storeSelectedDeliveryMethod === deliveryMethod ? (
+                    <Icon name="check" color={colors.primary} />
+                  ) : null
+                }
+                onPress={() =>
+                  (this.props.shopStore.storeSelectedDeliveryMethod[
+                    storeId
+                  ] = deliveryMethod)
+                }
+              />
+            );
+          })}
         </ScrollView>
       );
     }

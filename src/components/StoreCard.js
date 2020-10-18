@@ -7,7 +7,10 @@ import {Card, CardItem} from 'native-base';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import {PlaceholderMedia, Placeholder, Fade} from 'rn-placeholder';
+import {computed} from 'mobx';
+import {observer} from 'mobx-react';
 
+@observer
 class StoreCard extends Component {
   constructor(props) {
     super(props);
@@ -17,6 +20,23 @@ class StoreCard extends Component {
       coverImageUrl: '',
       ready: false,
     };
+  }
+
+  @computed get paymentMethods() {
+    const {store} = this.props;
+
+    if (store) {
+      const {availablePaymentMethods} = store;
+
+      if (availablePaymentMethods) {
+        return Object.entries(availablePaymentMethods)
+          .filter(([key, value]) => value.activated)
+          .map(([key, value]) => key)
+          .sort((a, b) => a > b);
+      }
+    }
+
+    return [];
   }
 
   getImage = async () => {
@@ -42,7 +62,7 @@ class StoreCard extends Component {
   }
 
   PaymentMethods = () => {
-    const {paymentMethods} = this.props.store;
+    const {paymentMethods} = this;
     const pills = [];
 
     paymentMethods &&
