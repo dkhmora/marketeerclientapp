@@ -36,11 +36,7 @@ class StoreList extends Component {
     const storeList = this.props.shopStore.viewableStoreList.slice();
 
     if (categoryName) {
-      const categoryStores = storeList.filter(
-        (store) => store.storeCategory === categoryName,
-      );
-
-      return categoryStores;
+      return storeList.filter((store) => store.storeCategory === categoryName);
     }
 
     return storeList;
