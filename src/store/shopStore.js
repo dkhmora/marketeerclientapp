@@ -321,8 +321,6 @@ class shopStore {
     if (currentLocationGeohash && locationCoordinates) {
       return await storesCollection
         .where('visibleToPublic', '==', true)
-        .where('vacationMode', '==', false)
-        .where('creditThresholdReached', '==', false)
         .where('updatedAt', '>', this.maxStoreUpdatedAt)
         .get()
         .then((querySnapshot) => {
@@ -362,32 +360,40 @@ class shopStore {
     return await new Promise((resolve, reject) =>
       resolve(
         Object.entries(this.allStoresMap).map(([storeId, storeData]) => {
-          const {deliveryCoordinates, storeLocation} = storeData;
-          const isPointInPolygon = geolib.isPointInPolygon(
-            {
-              latitude: locationCoordinates.latitude,
-              longitude: locationCoordinates.longitude,
-            },
-            [...deliveryCoordinates.boundingBox],
-          );
+          const {
+            deliveryCoordinates,
+            storeLocation,
+            vacationMode,
+            creditThresholdReached,
+          } = storeData;
 
-          if (isPointInPolygon) {
-            const distance = storeLocation
-              ? geolib.getDistance(
-                  {
-                    latitude: locationCoordinates.latitude,
-                    longitude: locationCoordinates.longitude,
-                  },
-                  {
-                    latitude: storeLocation.latitude,
-                    longitude: storeLocation.longitude,
-                  },
-                )
-              : null;
+          if (!vacationMode && !creditThresholdReached) {
+            const isPointInPolygon = geolib.isPointInPolygon(
+              {
+                latitude: locationCoordinates.latitude,
+                longitude: locationCoordinates.longitude,
+              },
+              [...deliveryCoordinates.boundingBox],
+            );
 
-            const completeStoreData = {...storeData, storeId, distance};
+            if (isPointInPolygon) {
+              const distance = storeLocation
+                ? geolib.getDistance(
+                    {
+                      latitude: locationCoordinates.latitude,
+                      longitude: locationCoordinates.longitude,
+                    },
+                    {
+                      latitude: storeLocation.latitude,
+                      longitude: storeLocation.longitude,
+                    },
+                  )
+                : null;
 
-            storeList.push(completeStoreData);
+              const completeStoreData = {...storeData, storeId, distance};
+
+              storeList.push(completeStoreData);
+            }
           }
         }),
       ),
