@@ -20,6 +20,7 @@ class shopStore {
   @observable storeSelectedDeliveryMethod = {};
   @observable storeSelectedPaymentMethod = {};
   @observable storeAssignedMerchantId = {};
+  @observable storeDeliveryDiscount = {};
   @observable storeUserEmail = {};
   @observable viewableStoreList = [];
   @observable itemCategories = [];
@@ -123,8 +124,6 @@ class shopStore {
           const {discountAmount} = storeDetails.deliveryDiscount;
           const {deliveryPrice} = selectedDeliveryMethod;
 
-          amount += deliveryPrice;
-
           if (storeDetails.deliveryDiscount) {
             const {deliveryDiscount} = storeDetails;
 
@@ -132,8 +131,10 @@ class shopStore {
               deliveryDiscount.activated &&
               storeTotal >= deliveryDiscount.minimumOrderAmount
             ) {
-              amount -= discountAmount;
+              amount -= Math.max(0, deliveryPrice - discountAmount);
             }
+          } else {
+            amount += deliveryPrice;
           }
         }
 
@@ -176,13 +177,16 @@ class shopStore {
     deliveryAddress,
     userCoordinates,
     userName,
-    storeSelectedDeliveryMethod,
-    storeSelectedPaymentMethod,
-    storeAssignedMerchantId,
-    storeUserEmail,
-    processId,
   }) {
     this.cartUpdateTimeout ? clearTimeout(this.cartUpdateTimeout) : null;
+
+    const {
+      storeDeliveryDiscount,
+      storeSelectedDeliveryMethod,
+      storeSelectedPaymentMethod,
+      storeAssignedMerchantId,
+      storeUserEmail,
+    } = this;
 
     return await this.updateCartItemsInstantly()
       .then(async () => {
@@ -197,7 +201,7 @@ class shopStore {
             storeSelectedDeliveryMethod,
             storeSelectedPaymentMethod,
             storeAssignedMerchantId,
-            processId,
+            storeDeliveryDiscount,
           }),
         });
       })
@@ -215,6 +219,7 @@ class shopStore {
   @action resetData() {
     this.storeCartItems = {};
     this.storeSelectedDeliveryMethod = {};
+    this.storeDeliveryDiscount = {};
     this.itemCategories = [];
   }
 

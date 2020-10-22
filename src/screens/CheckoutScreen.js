@@ -36,12 +36,6 @@ class CheckoutScreen extends Component {
       currentLocationDetails,
       currentLocationGeohash,
     } = this.props.generalStore;
-    const {
-      storeSelectedDeliveryMethod,
-      storeSelectedPaymentMethod,
-      storeUserEmail,
-      storeAssignedMerchantId,
-    } = this.props.shopStore;
 
     const {userName} = this.props.authStore;
 
@@ -60,10 +54,6 @@ class CheckoutScreen extends Component {
         deliveryAddress,
         userCoordinates,
         userName,
-        storeSelectedDeliveryMethod,
-        storeSelectedPaymentMethod,
-        storeAssignedMerchantId,
-        storeUserEmail,
       })
       .then(async (response) => {
         this.props.generalStore.appReady = true;

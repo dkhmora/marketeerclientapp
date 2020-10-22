@@ -38,19 +38,23 @@ class CartStoreCard extends PureComponent {
 
   @computed get deliveryDiscountApplicable() {
     if (this.storeDetails) {
-      const {availableDeliveryMethods, deliveryDiscount} = this.storeDetails;
-      const selectedDeliveryMethod = this.props.shopStore
-        .storeSelectedDeliveryMethod[this.props.storeId];
+      const {deliveryDiscount} = this.storeDetails;
 
       if (
         deliveryDiscount.activated &&
         this.subTotal >= deliveryDiscount.minimumOrderAmount
       ) {
+        this.props.shopStore.storeDeliveryDiscount[this.props.storeId] =
+          deliveryDiscount.discountAmount;
+
         return true;
       }
 
+      this.props.shopStore.storeDeliveryDiscount[this.props.storeId] = null;
+
       return false;
     }
+    this.props.shopStore.storeDeliveryDiscount[this.props.storeId] = null;
 
     return false;
   }
@@ -65,9 +69,10 @@ class CartStoreCard extends PureComponent {
         this.deliveryDiscountApplicable &&
         selectedDeliveryMethod === 'Own Delivery'
       ) {
-        return (
+        return Math.max(
+          0,
           availableDeliveryMethods['Own Delivery'].deliveryPrice -
-          deliveryDiscount.discountAmount
+            deliveryDiscount.discountAmount,
         );
       }
 
