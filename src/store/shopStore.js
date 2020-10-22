@@ -105,6 +105,7 @@ class shopStore {
     if (this.storeCartItems) {
       Object.keys(this.storeCartItems).map(async (storeId) => {
         const storeDetails = this.allStoresMap[storeId];
+        const selectedDelivery = this.storeSelectedDeliveryMethod[storeId];
         let storeTotal = 0;
 
         this.storeCartItems[storeId].map(async (item) => {
@@ -116,12 +117,23 @@ class shopStore {
           storeTotal += itemTotal;
         });
 
-        if (this.storeSelectedDeliveryMethod[storeId] === 'Own Delivery') {
-          if (
-            storeDetails.freeDeliveryMinimum > storeTotal ||
-            !storeDetails.freeDelivery
-          ) {
-            amount += storeDetails.ownDeliveryServiceFee;
+        if (selectedDelivery === 'Own Delivery') {
+          const selectedDeliveryMethod =
+            storeDetails.availableDeliveryMethods[selectedDelivery];
+          const {discountAmount} = storeDetails.deliveryDiscount;
+          const {deliveryPrice} = selectedDeliveryMethod;
+
+          amount += deliveryPrice;
+
+          if (storeDetails.deliveryDiscount) {
+            const {deliveryDiscount} = storeDetails;
+
+            if (
+              deliveryDiscount.activated &&
+              storeTotal >= deliveryDiscount.minimumOrderAmount
+            ) {
+              amount -= discountAmount;
+            }
           }
         }
 

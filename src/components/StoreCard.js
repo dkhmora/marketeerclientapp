@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text} from 'react-native-elements';
+import {Text, Icon} from 'react-native-elements';
 import storage from '@react-native-firebase/storage';
 import FastImage from 'react-native-fast-image';
 import {View, TouchableOpacity} from 'react-native';
@@ -173,14 +173,12 @@ class StoreCard extends Component {
                   alignItems: 'center',
                   justifyContent: 'center',
                   position: 'absolute',
-                  borderTopLeftRadius: 8,
-                  borderBottomLeftRadius: 8,
-                  borderColor: 'rgba(0,0,0,0.2)',
-                  borderWidth: 1,
+                  borderTopLeftRadius: 3,
+                  borderBottomLeftRadius: 3,
                   right: -1,
+                  top: 10,
                   padding: 4,
-                  marginTop: 20,
-                  backgroundColor: colors.icons,
+                  backgroundColor: colors.accent,
                   shadowColor: '#000',
                   shadowOffset: {
                     width: 0,
@@ -190,22 +188,45 @@ class StoreCard extends Component {
                   shadowRadius: 3.84,
                   elevation: 5,
                 }}>
-                <Text style={{color: colors.text_primary}}>
-                  {store.deliveryType}
-                </Text>
+                <Text style={{color: colors.icons}}>{store.deliveryType}</Text>
 
-                {store.freeDelivery && (
-                  <Text
+                {store.deliveryDiscount && store.deliveryDiscount.activated && (
+                  <View
                     style={{
-                      color: colors.text_primary,
-                      fontFamily: 'ProductSans-Black',
+                      width: '100%',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}>
-                    Free Delivery (₱
-                    {store.freeDeliveryMinimum
-                      ? store.freeDeliveryMinimum
-                      : 0}{' '}
-                    Min.)
-                  </Text>
+                    <View
+                      style={{
+                        height: 1,
+                        width: '70%',
+                        backgroundColor: colors.icons,
+                        marginVertical: 3,
+                      }}
+                    />
+
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Icon
+                        name="gift"
+                        color={colors.icons}
+                        size={11}
+                        style={{marginRight: 4}}
+                      />
+                      <Text
+                        style={{
+                          color: colors.icons,
+                          fontFamily: 'ProductSans-Black',
+                        }}>
+                        Delivery Promo
+                      </Text>
+                    </View>
+                  </View>
                 )}
               </View>
 
@@ -346,7 +367,7 @@ class StoreCard extends Component {
             <View
               style={{
                 position: 'absolute',
-                top: 75,
+                top: 95,
                 left: 20,
                 shadowColor: '#000',
                 shadowOffset: {
@@ -360,15 +381,15 @@ class StoreCard extends Component {
                 borderWidth: 0.7,
                 borderColor: 'rgba(0,0,0,0.3)',
                 overflow: 'hidden',
-                width: 80,
-                height: 80,
+                width: 60,
+                height: 60,
               }}>
               {displayImageUrl && ready ? (
                 <FastImage
                   source={{uri: displayImageUrl}}
                   style={{
-                    width: 80,
-                    height: 80,
+                    width: 60,
+                    height: 60,
                   }}
                   resizeMode={FastImage.resizeMode.cover}
                 />
@@ -377,8 +398,8 @@ class StoreCard extends Component {
                   <PlaceholderMedia
                     style={{
                       backgroundColor: colors.primary,
-                      width: 80,
-                      height: 80,
+                      width: 60,
+                      height: 60,
                     }}
                   />
                 </Placeholder>

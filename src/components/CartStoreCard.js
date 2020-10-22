@@ -36,29 +36,49 @@ class CartStoreCard extends PureComponent {
     this.props.storeId
   ];
 
-  @computed get freeDelivery() {
+  @computed get deliveryDiscountApplicable() {
     if (this.storeDetails) {
-      const {freeDelivery, freeDeliveryMinimum} = this.storeDetails;
+      const {availableDeliveryMethods, deliveryDiscount} = this.storeDetails;
+      const selectedDeliveryMethod = this.props.shopStore
+        .storeSelectedDeliveryMethod[this.props.storeId];
 
-      return (
-        this.props.shopStore.storeSelectedDeliveryMethod[this.props.storeId] ===
-          'Own Delivery' &&
-        freeDelivery &&
-        this.subTotal >= freeDeliveryMinimum
-      );
+      if (
+        deliveryDiscount.activated &&
+        this.subTotal >= deliveryDiscount.minimumOrderAmount
+      ) {
+        return true;
+      }
+
+      return false;
     }
 
-    return null;
+    return false;
+  }
+
+  @computed get deliveryAmount() {
+    if (this.storeDetails) {
+      const {availableDeliveryMethods, deliveryDiscount} = this.storeDetails;
+      const selectedDeliveryMethod = this.props.shopStore
+        .storeSelectedDeliveryMethod[this.props.storeId];
+
+      if (
+        this.deliveryDiscountApplicable &&
+        selectedDeliveryMethod === 'Own Delivery'
+      ) {
+        return (
+          availableDeliveryMethods['Own Delivery'].deliveryPrice -
+          deliveryDiscount.discountAmount
+        );
+      }
+
+      return null;
+    }
   }
 
   @computed get orderTotal() {
     if (this.storeDetails) {
-      return this.freeDelivery
-        ? this.subTotal
-        : this.props.shopStore.storeSelectedDeliveryMethod[
-            this.props.storeId
-          ] === 'Own Delivery'
-        ? this.subTotal + this.storeDetails.ownDeliveryServiceFee
+      return this.deliveryAmount
+        ? this.subTotal + this.deliveryAmount
         : this.subTotal;
     }
 
@@ -468,6 +488,7 @@ class CartStoreCard extends PureComponent {
       emailCheck,
     } = this.state;
     const {storeDetails, selectedPayment} = this;
+    const {deliveryDiscount, availableDeliveryMethods} = storeDetails;
     const selectedDelivery = storeSelectedDeliveryMethod[storeId];
     const selectedPaymentKey = storeSelectedPaymentMethod[storeId];
     const email = storeUserEmail[storeId];
@@ -505,6 +526,7 @@ class CartStoreCard extends PureComponent {
           containerStyle={{
             margin: 0,
             marginVertical: 10,
+            paddingTop: 5,
             paddingLeft: 0,
             paddingRight: 0,
             marginBottom: 5,
@@ -535,33 +557,34 @@ class CartStoreCard extends PureComponent {
                 }}
               />
 
-              {storeDetails.storeName && (
-                <Text
-                  numberOfLines={3}
-                  style={{
-                    fontSize: 19,
-                    fontFamily: 'ProductSans-Light',
-                    maxWidth: '50%',
-                    flexWrap: 'wrap',
-                  }}>
-                  {storeDetails.storeName}
-                </Text>
-              )}
+              <View style={{flex: 1}}>
+                {storeDetails.storeName && (
+                  <Text
+                    numberOfLines={3}
+                    style={{
+                      fontSize: 19,
+                      fontFamily: 'ProductSans-Light',
+                      maxWidth: '50%',
+                      flexWrap: 'wrap',
+                    }}>
+                    {storeDetails.storeName}
+                  </Text>
+                )}
 
-              {storeDetails.freeDelivery && (
-                <Text
-                  numberOfLines={2}
-                  adjustsFontSizeToFit
-                  style={{
-                    fontSize: 16,
-                    fontFamily: 'ProductSans-Bold',
-                    flexShrink: 1,
-                    color: colors.primary,
-                    marginLeft: 10,
-                  }}>
-                  Free Delivery (₱{storeDetails.freeDeliveryMinimum} Min. Order)
-                </Text>
-              )}
+                {deliveryDiscount.activated && (
+                  <Text
+                    numberOfLines={2}
+                    adjustsFontSizeToFit
+                    style={{
+                      fontSize: 13,
+                      fontFamily: 'ProductSans-Bold',
+                      flexShrink: 1,
+                      color: colors.primary,
+                    }}>
+                    {`Get a ₱${deliveryDiscount.discountAmount} delivery discount if your order reaches more than ₱${deliveryDiscount.minimumOrderAmount}!`}
+                  </Text>
+                )}
+              </View>
             </View>
             <View>
               {this.cartItems.map((item) => {
@@ -622,22 +645,15 @@ class CartStoreCard extends PureComponent {
                     </Text>
                   </View>
 
-                  {this.props.shopStore.storeSelectedDeliveryMethod[storeId] ===
-                    'Own Delivery' && storeDetails ? (
+                  {this.deliveryAmount ? (
                     <Text
                       style={{
                         fontFamily: 'ProductSans-Black',
                         fontSize: 18,
                         textAlignVertical: 'center',
-                        color:
-                          this.subTotal >= storeDetails.freeDeliveryMinimum &&
-                          storeDetails.freeDelivery
-                            ? colors.primary
-                            : colors.text_primary,
+                        color: colors.text_primary,
                       }}>
-                      {this.freeDelivery
-                        ? 'Free Delivery'
-                        : `₱${storeDetails.ownDeliveryServiceFee}`}
+                      {`₱${availableDeliveryMethods[selectedDelivery].deliveryPrice}`}
                     </Text>
                   ) : (
                     <Text
@@ -646,10 +662,45 @@ class CartStoreCard extends PureComponent {
                         fontSize: 14,
                         textAlignVertical: 'center',
                       }}>
-                      (Please discuss with store)
+                      (Will be shown after store accepts the order)
                     </Text>
                   )}
                 </View>
+
+                {this.deliveryDiscountApplicable && (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      paddingTop: 10,
+                      paddingHorizontal: 10,
+                    }}>
+                    <View
+                      style={{
+                        flex: 1,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'flex-start',
+                      }}>
+                      <Text
+                        style={{
+                          fontSize: 17,
+                          fontFamily: 'ProductSans-Regular',
+                        }}>
+                        Delivery Discount
+                      </Text>
+                    </View>
+                    <Text
+                      style={{
+                        fontFamily: 'ProductSans-Black',
+                        fontSize: 18,
+                        textAlignVertical: 'center',
+                        color: colors.primary,
+                      }}>
+                      {`-₱${deliveryDiscount.discountAmount}`}
+                    </Text>
+                  </View>
+                )}
 
                 <View
                   style={{
