@@ -59,31 +59,14 @@ class CartStoreCard extends PureComponent {
     return false;
   }
 
-  @computed get deliveryAmount() {
+  @computed get orderTotal() {
     if (this.storeDetails) {
-      const {availableDeliveryMethods, deliveryDiscount} = this.storeDetails;
+      const {availableDeliveryMethods} = this.storeDetails;
       const selectedDeliveryMethod = this.props.shopStore
         .storeSelectedDeliveryMethod[this.props.storeId];
 
-      if (
-        this.deliveryDiscountApplicable &&
-        selectedDeliveryMethod === 'Own Delivery'
-      ) {
-        return Math.max(
-          0,
-          availableDeliveryMethods['Own Delivery'].deliveryPrice -
-            deliveryDiscount.discountAmount,
-        );
-      }
-
-      return null;
-    }
-  }
-
-  @computed get orderTotal() {
-    if (this.storeDetails) {
-      return this.deliveryAmount
-        ? this.subTotal + this.deliveryAmount
+      return selectedDeliveryMethod === 'Own Delivery'
+        ? this.subTotal + availableDeliveryMethods['Own Delivery'].deliveryPrice
         : this.subTotal;
     }
 
@@ -650,7 +633,7 @@ class CartStoreCard extends PureComponent {
                     </Text>
                   </View>
 
-                  {this.deliveryAmount ? (
+                  {selectedDelivery === 'Own Delivery' ? (
                     <Text
                       style={{
                         fontFamily: 'ProductSans-Black',
@@ -658,7 +641,7 @@ class CartStoreCard extends PureComponent {
                         textAlignVertical: 'center',
                         color: colors.text_primary,
                       }}>
-                      {`₱${availableDeliveryMethods[selectedDelivery].deliveryPrice}`}
+                      {`₱${availableDeliveryMethods['Own Delivery'].deliveryPrice}`}
                     </Text>
                   ) : (
                     <Text

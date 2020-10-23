@@ -132,6 +132,8 @@ class shopStore {
               storeTotal >= deliveryDiscount.minimumOrderAmount
             ) {
               amount -= Math.max(0, deliveryPrice - discountAmount);
+            } else {
+              amount += deliveryPrice;
             }
           } else {
             amount += deliveryPrice;
