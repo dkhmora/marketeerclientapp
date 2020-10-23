@@ -61,13 +61,28 @@ class CartStoreCard extends PureComponent {
 
   @computed get orderTotal() {
     if (this.storeDetails) {
-      const {availableDeliveryMethods} = this.storeDetails;
+      const {availableDeliveryMethods, deliveryDiscount} = this.storeDetails;
       const selectedDeliveryMethod = this.props.shopStore
         .storeSelectedDeliveryMethod[this.props.storeId];
 
-      return selectedDeliveryMethod === 'Own Delivery'
-        ? this.subTotal + availableDeliveryMethods['Own Delivery'].deliveryPrice
-        : this.subTotal;
+      if (selectedDeliveryMethod === 'Own Delivery') {
+        if (this.deliveryDiscountApplicable) {
+          return (
+            this.subTotal +
+            Math.max(
+              0,
+              availableDeliveryMethods['Own Delivery'].deliveryPrice -
+                deliveryDiscount.discountAmount,
+            )
+          );
+        }
+
+        return (
+          this.subTotal + availableDeliveryMethods['Own Delivery'].deliveryPrice
+        );
+      }
+
+      return this.subTotal;
     }
 
     return null;
