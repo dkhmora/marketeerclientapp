@@ -41,6 +41,7 @@ class CartStoreCard extends PureComponent {
       const {deliveryDiscount} = this.storeDetails;
 
       if (
+        deliveryDiscount &&
         deliveryDiscount.activated &&
         this.subTotal >= deliveryDiscount.minimumOrderAmount
       ) {
@@ -145,11 +146,12 @@ class CartStoreCard extends PureComponent {
 
     if (storeDetails) {
       const {availableDeliveryMethods} = storeDetails;
-
-      return Object.entries(availableDeliveryMethods)
-        .filter(([key, value]) => value.activated)
-        .map(([key, value]) => key)
-        .sort((a, b) => a > b);
+      if (availableDeliveryMethods) {
+        return Object.entries(availableDeliveryMethods)
+          .filter(([key, value]) => value.activated)
+          .map(([key, value]) => key)
+          .sort((a, b) => a > b);
+      }
     }
 
     return [];
@@ -574,7 +576,7 @@ class CartStoreCard extends PureComponent {
                   </Text>
                 )}
 
-                {deliveryDiscount.activated && (
+                {deliveryDiscount && deliveryDiscount.activated && (
                   <Text
                     numberOfLines={2}
                     adjustsFontSizeToFit

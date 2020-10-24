@@ -387,13 +387,16 @@ class shopStore {
           } = storeData;
 
           if (!vacationMode && !creditThresholdReached) {
-            const isPointInPolygon = geolib.isPointInPolygon(
-              {
-                latitude: locationCoordinates.latitude,
-                longitude: locationCoordinates.longitude,
-              },
-              [...deliveryCoordinates.boundingBox],
-            );
+            const isPointInPolygon =
+              deliveryCoordinates && deliveryCoordinates.boundingBox
+                ? geolib.isPointInPolygon(
+                    {
+                      latitude: locationCoordinates.latitude,
+                      longitude: locationCoordinates.longitude,
+                    },
+                    [...deliveryCoordinates.boundingBox],
+                  )
+                : false;
 
             if (isPointInPolygon) {
               const distance = storeLocation

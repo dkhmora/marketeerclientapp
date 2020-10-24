@@ -27,7 +27,7 @@ class ItemCard extends PureComponent {
     const itemStock = item.stock;
 
     this.state = {
-      loading: this.props.item.image ? true : false,
+      ready: false,
       addButtonDisabled: itemQuantity >= itemStock ? true : false,
       minusButtonShown: itemQuantity > 0 ? true : false,
       writeTimer: null,
@@ -73,20 +73,6 @@ class ItemCard extends PureComponent {
     return 0;
   }
 
-  getImage = async () => {
-    const {item} = this.props;
-    const {image} = item;
-
-    const ref = storage().ref(image);
-    const link = await ref.getDownloadURL().catch((err) => {
-      return null;
-    });
-
-    if (link) {
-      this.url = link;
-    }
-  };
-
   componentDidUpdate() {
     if (this.state.minusButtonShown && this.cartItemQuantity <= 0) {
       this.hideMinusButton();
@@ -94,20 +80,6 @@ class ItemCard extends PureComponent {
 
     if (this.cartItemQuantity > 0 && !this.state.minusButtonShown) {
       this.showMinusButton();
-    }
-  }
-
-  componentDidMount() {
-    if (this.props.item.image) {
-      this.getImage()
-        .then(() => {
-          this.setState({loading: false});
-        })
-        .then(() => {
-          if (this.cartItemQuantity >= 1) {
-            this.showMinusButton();
-          }
-        });
     }
   }
 
@@ -175,7 +147,10 @@ class ItemCard extends PureComponent {
       description,
     } = this.props.item;
 
-    const {addButtonDisabled, loading} = this.state;
+    const {addButtonDisabled, ready} = this.state;
+    const url = image
+      ? {uri: `https://cdn.marketeer.ph${image}`}
+      : require('../../assets/images/placeholder.jpg');
 
     return (
       <Animatable.View
@@ -196,7 +171,7 @@ class ItemCard extends PureComponent {
           discountedPrice={discountedPrice}
           unit={unit}
           stock={stock}
-          url={this.url}
+          url={url}
         />
 
         <View
@@ -289,39 +264,40 @@ class ItemCard extends PureComponent {
             </View>
 
             <CardItem cardBody>
-              {image ? (
-                loading ? (
-                  <Placeholder Animation={Fade}>
-                    <PlaceholderMedia
-                      style={{
-                        backgroundColor: colors.primary,
-                        flex: 1,
-                        height: '100%',
-                        width: '100%',
-                        aspectRatio: 1,
-                      }}
-                    />
-                  </Placeholder>
-                ) : (
-                  <FastImage
-                    source={{uri: this.url ? this.url : ''}}
-                    style={{
-                      aspectRatio: 1,
-                      flex: 1,
-                    }}
-                    resizeMode={FastImage.resizeMode.contain}
-                  />
-                )
-              ) : (
+              <View style={{flex: 1}}>
                 <FastImage
-                  source={require('../../assets/images/placeholder.jpg')}
+                  source={url}
                   style={{
                     aspectRatio: 1,
                     flex: 1,
+                    opacity: ready ? 1 : 0,
                   }}
+                  onLoad={() =>
+                    this.setState({ready: true}, () => {
+                      if (this.cartItemQuantity >= 1) {
+                        this.showMinusButton();
+                      }
+                    })
+                  }
                   resizeMode={FastImage.resizeMode.contain}
                 />
-              )}
+
+                {!ready && (
+                  <View style={{position: 'absolute'}}>
+                    <Placeholder Animation={Fade}>
+                      <PlaceholderMedia
+                        style={{
+                          backgroundColor: colors.primary,
+                          flex: 1,
+                          height: '100%',
+                          width: '100%',
+                          aspectRatio: 1,
+                        }}
+                      />
+                    </Placeholder>
+                  </View>
+                )}
+              </View>
 
               <View
                 style={{

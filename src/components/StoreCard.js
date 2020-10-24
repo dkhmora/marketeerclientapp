@@ -16,9 +16,8 @@ class StoreCard extends Component {
     super(props);
 
     this.state = {
-      displayImageUrl: '',
-      coverImageUrl: '',
-      ready: false,
+      coverImageReady: false,
+      displayImageReady: false,
     };
   }
 
@@ -37,28 +36,6 @@ class StoreCard extends Component {
     }
 
     return [];
-  }
-
-  getImage = async () => {
-    const {displayImage, coverImage} = this.props.store;
-
-    const displayImageRef = storage().ref(displayImage);
-    const coverImageRef = storage().ref(coverImage);
-    const coverImageUrl = await coverImageRef.getDownloadURL().catch((err) => {
-      return null;
-    });
-
-    const displayImageUrl = await displayImageRef
-      .getDownloadURL()
-      .catch((err) => {
-        return null;
-      });
-
-    this.setState({displayImageUrl, coverImageUrl, ready: true});
-  };
-
-  componentDidMount() {
-    this.getImage();
   }
 
   PaymentMethods = () => {
@@ -102,7 +79,9 @@ class StoreCard extends Component {
 
   render() {
     const {store, navigation} = this.props;
-    const {displayImageUrl, coverImageUrl, ready} = this.state;
+    const {coverImageReady, displayImageReady} = this.state;
+    const displayImageUrl = `https://cdn.marketeer.ph${store.displayImage}`;
+    const coverImageUrl = `https://cdn.marketeer.ph${store.coverImage}`;
 
     return (
       <View
@@ -135,21 +114,23 @@ class StoreCard extends Component {
               })
             }>
             <View style={{height: 200}}>
-              {coverImageUrl && ready ? (
-                <FastImage
-                  source={{uri: coverImageUrl}}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: 150,
-                    borderTopLeftRadius: 8,
-                    borderTopRightRadius: 8,
-                  }}
-                  resizeMode={FastImage.resizeMode.cover}
-                />
-              ) : (
+              <FastImage
+                source={{uri: coverImageUrl}}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 150,
+                  borderTopLeftRadius: 8,
+                  borderTopRightRadius: 8,
+                  opacity: coverImageReady ? 1 : 0,
+                }}
+                resizeMode={FastImage.resizeMode.cover}
+                onLoad={() => this.setState({coverImageReady: true})}
+              />
+
+              {!coverImageReady && (
                 <Placeholder Animation={Fade}>
                   <PlaceholderMedia
                     style={{
@@ -384,16 +365,19 @@ class StoreCard extends Component {
                 width: 60,
                 height: 60,
               }}>
-              {displayImageUrl && ready ? (
-                <FastImage
-                  source={{uri: displayImageUrl}}
-                  style={{
-                    width: 60,
-                    height: 60,
-                  }}
-                  resizeMode={FastImage.resizeMode.cover}
-                />
-              ) : (
+              <FastImage
+                source={{uri: displayImageUrl}}
+                style={{
+                  width: 60,
+                  height: 60,
+                  opacity: displayImageReady ? 1 : 0,
+                }}
+                resizeMode={FastImage.resizeMode.cover}
+                onLoad={() => this.setState({displayImageReady: true})}
+                visibility={displayImageReady ? null : 'hidden'}
+              />
+
+              {!displayImageReady && (
                 <Placeholder Animation={Fade}>
                   <PlaceholderMedia
                     style={{
