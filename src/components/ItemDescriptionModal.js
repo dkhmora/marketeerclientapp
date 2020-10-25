@@ -57,7 +57,7 @@ class ItemDescriptionModal extends Component {
             }}>
             {url ? (
               <FastImage
-                source={{uri: url}}
+                source={url}
                 style={{
                   width: null,
                   height: SCREEN_WIDTH,

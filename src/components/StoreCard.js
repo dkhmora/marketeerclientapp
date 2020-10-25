@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {Text, Icon} from 'react-native-elements';
-import storage from '@react-native-firebase/storage';
 import FastImage from 'react-native-fast-image';
 import {View, TouchableOpacity} from 'react-native';
 import {Card, CardItem} from 'native-base';

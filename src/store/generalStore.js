@@ -372,18 +372,6 @@ class generalStore {
     }
   }
 
-  @action async getImageURI(imageRef) {
-    if (imageRef) {
-      const ref = storage().ref(imageRef);
-      const link = await ref.getDownloadURL().catch((err) => {
-        return null;
-      });
-
-      return link;
-    }
-    return 0;
-  }
-
   @action async getImageUrl(imageRef) {
     const ref = storage().ref(imageRef);
     const link = await ref.getDownloadURL().catch((err) => {

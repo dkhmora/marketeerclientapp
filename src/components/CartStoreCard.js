@@ -4,7 +4,6 @@ import {Card, Text, Image, Icon, ListItem, Input} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
 import CartListItem from './CartListItem';
 import {colors} from '../../assets/colors';
-import storage from '@react-native-firebase/storage';
 import {observable, computed, when} from 'mobx';
 import SelectionModal from './SelectionModal';
 import FastImage from 'react-native-fast-image';
@@ -207,17 +206,6 @@ class CartStoreCard extends PureComponent {
     }
   }
 
-  async getImage() {
-    const {storeId} = this.props;
-
-    const ref = storage().ref(`/images/stores/${storeId}/display.jpg`);
-    const link = await ref.getDownloadURL().catch((err) => {
-      return null;
-    });
-
-    this.url = {uri: link};
-  }
-
   async setStoreAssignedMerchantId() {
     this.props.shopStore.storeAssignedMerchantId[
       this.props.storeId
@@ -255,8 +243,6 @@ class CartStoreCard extends PureComponent {
 
   async componentDidMount() {
     const {checkout, storeId} = this.props;
-
-    this.getImage();
 
     await this.setStoreAssignedMerchantId();
 
@@ -497,6 +483,9 @@ class CartStoreCard extends PureComponent {
     const selectedDelivery = storeSelectedDeliveryMethod[storeId];
     const selectedPaymentKey = storeSelectedPaymentMethod[storeId];
     const email = storeUserEmail[storeId];
+    const storeImageUrl = {
+      uri: `https://cdn.marketeer.ph/images/stores/${storeId}/display.jpg`,
+    };
 
     return (
       <View
@@ -551,7 +540,8 @@ class CartStoreCard extends PureComponent {
                 borderBottomColor: colors.primary,
               }}>
               <Image
-                source={this.url}
+                source={storeImageUrl}
+                onError={(e) => console.log(e)}
                 style={{
                   height: 40,
                   width: 40,

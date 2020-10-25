@@ -21,7 +21,6 @@ import SlidingCartHeader from '../components/SlidingCartHeader';
 import CartStoreCard from '../components/CartStoreCard';
 import SlidingCartFooter from '../components/SlidingCartFooter';
 import crashlytics from '@react-native-firebase/crashlytics';
-import storage from '@react-native-firebase/storage';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -60,32 +59,8 @@ class StoreScreen extends Component {
   }
 
   componentDidMount() {
-    const {displayImageUrl, coverImageUrl} = this.props.route.params;
-
-    if (!displayImageUrl || !coverImageUrl) {
-      this.getImage();
-    }
-
     crashlytics().log('StoreScreen');
   }
-
-  getImage = async () => {
-    const {displayImage, coverImage} = this.props.route.params.store;
-
-    const displayImageRef = storage().ref(displayImage);
-    const coverImageRef = storage().ref(coverImage);
-    const coverImageUrl = await coverImageRef.getDownloadURL().catch((err) => {
-      return null;
-    });
-
-    const displayImageUrl = await displayImageRef
-      .getDownloadURL()
-      .catch((err) => {
-        return null;
-      });
-
-    this.setState({displayImageUrl, coverImageUrl});
-  };
 
   handleCheckout() {
     const {navigation} = this.props;
@@ -106,9 +81,11 @@ class StoreScreen extends Component {
   render() {
     const {store} = this.props.route.params;
     const {navigation} = this.props;
-    const {storeCategoryItems, displayImageUrl, coverImageUrl} = this.state;
+    const {storeCategoryItems} = this.state;
     const dataSource = this.props.shopStore.cartStores.slice();
     const emptyCartText = 'Your cart is empty';
+    const displayImageUrl = `https://cdn.marketeer.ph${store.displayImage}`;
+    const coverImageUrl = `https://cdn.marketeer.ph${store.coverImage}`;
 
     return (
       <View style={{flex: 1, backgroundColor: colors.text_primary}}>

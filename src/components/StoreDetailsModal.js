@@ -15,24 +15,15 @@ class StoreDetailsModal extends Component {
   constructor(props) {
     super(props);
 
-    const {displayImageUrl, coverImageUrl} = this.props;
-
     this.state = {
       reviewsLoading: true,
       reviews: [],
       selectedIndex: 0,
-      displayImageUrl,
-      coverImageUrl,
     };
   }
 
   componentDidMount() {
-    const {displayImageUrl, coverImageUrl} = this.props;
     this.getReviews();
-
-    if (!displayImageUrl || !coverImageUrl) {
-      this.getImage();
-    }
   }
 
   async getReviews() {
@@ -50,24 +41,6 @@ class StoreDetailsModal extends Component {
       );
     }
   }
-
-  getImage = async () => {
-    const {displayImage, coverImage} = this.props.route.params.store;
-
-    const displayImageRef = storage().ref(displayImage);
-    const coverImageRef = storage().ref(coverImage);
-    const coverImageUrl = await coverImageRef.getDownloadURL().catch((err) => {
-      return null;
-    });
-
-    const displayImageUrl = await displayImageRef
-      .getDownloadURL()
-      .catch((err) => {
-        return null;
-      });
-
-    this.setState({displayImageUrl, coverImageUrl});
-  };
 
   ReviewListItem({item}) {
     const timeStamp = moment(item.createdAt, 'x').format('MM-DD-YYYY hh:mm A');
@@ -141,13 +114,8 @@ class StoreDetailsModal extends Component {
 
   render() {
     const {store, onDownButtonPress} = this.props;
-    const {
-      reviewsLoading,
-      reviews,
-      displayImageUrl,
-      coverImageUrl,
-      selectedIndex,
-    } = this.state;
+    const {reviewsLoading, reviews, selectedIndex} = this.state;
+    const {displayImageUrl, coverImageUrl} = this.props;
 
     return (
       <View

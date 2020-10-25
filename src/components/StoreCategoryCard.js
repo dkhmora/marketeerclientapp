@@ -4,10 +4,8 @@ import {View, TouchableOpacity, Platform} from 'react-native';
 import {Card} from 'native-base';
 import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
-import storage from '@react-native-firebase/storage';
 import {observer, inject} from 'mobx-react';
 import StoreCategoryCardLoader from './StoreCategoryCardLoader';
-import Toast from './Toast';
 
 @inject('shopStore')
 @observer
@@ -16,45 +14,25 @@ class StoreCategoryCard extends Component {
     super(props);
 
     this.state = {
-      url: null,
       ready: false,
     };
-
-    this.getImage();
   }
 
-  getImage = async () => {
-    const {item} = this.props;
-    const imageSource = `/images/store_categories/${item.name}.jpg`;
-
-    const ref = storage().ref(imageSource);
-    const link = await ref.getDownloadURL().catch((err) => {
-      return null;
-    });
-
-    if (link) {
-      this.setState({url: {uri: link}, ready: true});
-    } else {
-      this.setState({
-        url: require('../../assets/images/placeholder.jpg'),
-        ready: true,
-      });
-    }
-  };
-
-  async displayStores() {
-    const coverImageUrl = this.state.url;
+  async displayStores(imageUrl) {
     const {item} = this.props;
 
     this.props.navigation.navigate('Category Stores', {
-      coverImageUrl,
+      coverImageUrl: imageUrl.uri,
       categoryDetails: item,
     });
   }
 
   render() {
     const {item} = this.props;
-    const {url, ready} = this.state;
+    const {ready} = this.state;
+    const imageUrl = {
+      uri: `https://cdn.marketeer.ph/images/store_categories/${item.name}.jpg`,
+    };
 
     return (
       <View
@@ -78,12 +56,12 @@ class StoreCategoryCard extends Component {
           }}>
           {ready ? (
             <TouchableOpacity
-              onPress={() => this.displayStores()}
+              onPress={() => this.displayStores(imageUrl)}
               activeOpacity={0.85}
               style={{flex: 1, flexDirection: 'row'}}>
               <View style={{flex: 7, elevation: 10}}>
                 <FastImage
-                  source={url}
+                  source={imageUrl}
                   style={{
                     flex: 1,
                     borderRadius: 10,

@@ -1,9 +1,8 @@
 import React, {PureComponent} from 'react';
 import {Card, CardItem, Text, View} from 'native-base';
 import {Button, Icon} from 'react-native-elements';
-import storage from '@react-native-firebase/storage';
 import {inject, observer} from 'mobx-react';
-import {observable, computed} from 'mobx';
+import {computed} from 'mobx';
 import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
@@ -34,8 +33,6 @@ class ItemCard extends PureComponent {
       overlay: false,
     };
   }
-
-  @observable url = null;
 
   @computed get cartItemQuantity() {
     const {item, storeId} = this.props;
