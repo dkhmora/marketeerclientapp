@@ -5,7 +5,7 @@ import {Card} from 'native-base';
 import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
 import {observer, inject} from 'mobx-react';
-import StoreCategoryCardLoader from './StoreCategoryCardLoader';
+import {Fade, Placeholder, PlaceholderMedia} from 'rn-placeholder';
 
 @inject('shopStore')
 @observer
@@ -15,6 +15,7 @@ class StoreCategoryCard extends Component {
 
     this.state = {
       ready: false,
+      imageViewWidth: null,
     };
   }
 
@@ -29,7 +30,7 @@ class StoreCategoryCard extends Component {
 
   render() {
     const {item} = this.props;
-    const {ready} = this.state;
+    const {ready, imageViewWidth} = this.state;
     const imageUrl = {
       uri: `https://cdn.marketeer.ph/images/store_categories/${item.name}.jpg`,
     };
@@ -54,50 +55,66 @@ class StoreCategoryCard extends Component {
             backgroundColor: colors.primary,
             elevation: 2,
           }}>
-          {ready ? (
-            <TouchableOpacity
-              onPress={() => this.displayStores(imageUrl)}
-              activeOpacity={0.85}
-              style={{flex: 1, flexDirection: 'row'}}>
-              <View style={{flex: 7, elevation: 10}}>
-                <FastImage
-                  source={imageUrl}
-                  style={{
-                    flex: 1,
-                    borderRadius: 10,
-                    backgroundColor: colors.primary,
-                  }}
-                />
-              </View>
-
-              <View
+          <TouchableOpacity
+            onPress={() => this.displayStores(imageUrl)}
+            activeOpacity={0.85}
+            style={{flex: 1, flexDirection: 'row'}}>
+            <View
+              style={{flex: 7, elevation: 10}}
+              onLayout={(event) => {
+                const {width} = event.nativeEvent.layout;
+                this.setState({imageViewWidth: width});
+              }}>
+              <FastImage
+                source={imageUrl}
                 style={{
-                  flex: 3.25,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  paddingLeft: 10,
-                }}>
-                <Text
-                  adjustsFontSizeToFit
-                  allowFontScaling
-                  style={{
-                    flex: 1,
-                    fontSize: Platform.OS === 'ios' ? 17.5 : 20,
-                    color: colors.icons,
-                    textAlign: 'center',
-                  }}>
-                  {item.name}
-                </Text>
+                  flex: 1,
+                  borderRadius: 10,
+                  backgroundColor: colors.primary,
+                  opacity: ready ? 1 : 0,
+                }}
+                onLoad={() => this.setState({ready: true})}
+              />
 
-                <Icon name="chevron-right" color={colors.icons} />
-              </View>
-            </TouchableOpacity>
-          ) : (
-            <View>
-              <StoreCategoryCardLoader />
+              {!ready && (
+                <View style={{position: 'absolute'}}>
+                  <Placeholder Animation={Fade}>
+                    <PlaceholderMedia
+                      style={{
+                        height: 100,
+                        width: imageViewWidth,
+                        borderRadius: 10,
+                        backgroundColor: colors.primary,
+                      }}
+                    />
+                  </Placeholder>
+                </View>
+              )}
             </View>
-          )}
+
+            <View
+              style={{
+                flex: 3.25,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingLeft: 10,
+              }}>
+              <Text
+                adjustsFontSizeToFit
+                allowFontScaling
+                style={{
+                  flex: 1,
+                  fontSize: Platform.OS === 'ios' ? 17.5 : 20,
+                  color: colors.icons,
+                  textAlign: 'center',
+                }}>
+                {item.name}
+              </Text>
+
+              <Icon name="chevron-right" color={colors.icons} />
+            </View>
+          </TouchableOpacity>
         </Card>
       </View>
     );

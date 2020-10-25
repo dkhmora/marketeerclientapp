@@ -192,9 +192,7 @@ class OrderCard extends PureComponent {
                 opacity: imageReady ? 1 : 0,
               }}
               resizeMode={FastImage.resizeMode.cover}
-              onLoad={() =>
-                this.setState({ready: true}, () => console.log('load'))
-              }
+              onLoad={() => this.setState({ready: true})}
             />
 
             {!imageReady && (

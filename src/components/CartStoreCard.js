@@ -541,7 +541,6 @@ class CartStoreCard extends PureComponent {
               }}>
               <Image
                 source={storeImageUrl}
-                onError={(e) => console.log(e)}
                 style={{
                   height: 40,
                   width: 40,
