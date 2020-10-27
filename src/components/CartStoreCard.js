@@ -84,15 +84,20 @@ class CartStoreCard extends PureComponent {
       }
 
       if (selectedDeliveryMethod === 'Mr. Speedy') {
+        const selectedPaymentMethod = this.props.shopStore
+          .storeSelectedPaymentMethod[storeId];
         const mrSpeedyDeliveryEstimates = this.props.shopStore
           .storeMrSpeedyDeliveryFee[storeId];
+
         if (mrSpeedyDeliveryEstimates) {
-          const motorbikeDeliveryFee = mrSpeedyDeliveryEstimates
-            ? Number(mrSpeedyDeliveryEstimates.motorbike)
-            : 0;
-          const carDeliveryFee = mrSpeedyDeliveryEstimates
-            ? Number(mrSpeedyDeliveryEstimates.car)
-            : 0;
+          const motorbikeDeliveryFee =
+            selectedPaymentMethod === 'COD'
+              ? Number(mrSpeedyDeliveryEstimates.motorbike) + 30
+              : Number(mrSpeedyDeliveryEstimates.motorbike);
+          const carDeliveryFee =
+            selectedPaymentMethod === 'COD'
+              ? Number(mrSpeedyDeliveryEstimates.car) + 30
+              : Number(mrSpeedyDeliveryEstimates.car);
 
           return `₱${(this.subTotal + motorbikeDeliveryFee).toFixed(2)} - ₱${(
             this.subTotal + carDeliveryFee

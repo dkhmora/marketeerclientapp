@@ -164,14 +164,19 @@ class shopStore {
             const mrSpeedyDeliveryEstimates = this.storeMrSpeedyDeliveryFee[
               storeId
             ];
+            const selectedPaymentMethod = this.storeSelectedPaymentMethod[
+              storeId
+            ];
 
             if (mrSpeedyDeliveryEstimates) {
-              const motorbikeDeliveryFee = mrSpeedyDeliveryEstimates
-                ? Number(mrSpeedyDeliveryEstimates.motorbike)
-                : 0;
-              const carDeliveryFee = mrSpeedyDeliveryEstimates
-                ? Number(mrSpeedyDeliveryEstimates.car)
-                : 0;
+              const motorbikeDeliveryFee =
+                selectedPaymentMethod === 'COD'
+                  ? Number(mrSpeedyDeliveryEstimates.motorbike) + 30
+                  : Number(mrSpeedyDeliveryEstimates.motorbike);
+              const carDeliveryFee =
+                selectedPaymentMethod === 'COD'
+                  ? Number(mrSpeedyDeliveryEstimates.car) + 30
+                  : Number(mrSpeedyDeliveryEstimates.car);
 
               lowerEstimate += motorbikeDeliveryFee;
               upperEstimate += carDeliveryFee;
