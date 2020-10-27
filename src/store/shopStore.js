@@ -209,7 +209,7 @@ class shopStore {
     deliveryAddress,
   ) {
     return await functions
-      .httpsCallable('getMrSpeedyDeliveryPriceEstimate')({
+      .httpsCallable('getUserMrSpeedyDeliveryPriceEstimate')({
         deliveryLocation,
         deliveryAddress,
       })
