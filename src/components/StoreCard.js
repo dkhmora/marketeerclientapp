@@ -1,48 +1,44 @@
 import React, {Component} from 'react';
-import {Text} from 'react-native-elements';
-import storage from '@react-native-firebase/storage';
+import {Text, Icon} from 'react-native-elements';
 import FastImage from 'react-native-fast-image';
 import {View, TouchableOpacity} from 'react-native';
 import {Card, CardItem} from 'native-base';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import {PlaceholderMedia, Placeholder, Fade} from 'rn-placeholder';
+import {computed} from 'mobx';
+import {observer} from 'mobx-react';
 
+@observer
 class StoreCard extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      displayImageUrl: '',
-      coverImageUrl: '',
-      ready: false,
+      coverImageReady: false,
+      displayImageReady: false,
     };
   }
 
-  getImage = async () => {
-    const {displayImage, coverImage} = this.props.store;
+  @computed get paymentMethods() {
+    const {store} = this.props;
 
-    const displayImageRef = storage().ref(displayImage);
-    const coverImageRef = storage().ref(coverImage);
-    const coverImageUrl = await coverImageRef.getDownloadURL().catch((err) => {
-      return null;
-    });
+    if (store) {
+      const {availablePaymentMethods} = store;
 
-    const displayImageUrl = await displayImageRef
-      .getDownloadURL()
-      .catch((err) => {
-        return null;
-      });
+      if (availablePaymentMethods) {
+        return Object.entries(availablePaymentMethods)
+          .filter(([key, value]) => value.activated)
+          .map(([key, value]) => key)
+          .sort((a, b) => a > b);
+      }
+    }
 
-    this.setState({displayImageUrl, coverImageUrl, ready: true});
-  };
-
-  componentDidMount() {
-    this.getImage();
+    return [];
   }
 
   PaymentMethods = () => {
-    const {paymentMethods} = this.props.store;
+    const {paymentMethods} = this;
     const pills = [];
 
     paymentMethods &&
@@ -82,7 +78,9 @@ class StoreCard extends Component {
 
   render() {
     const {store, navigation} = this.props;
-    const {displayImageUrl, coverImageUrl, ready} = this.state;
+    const {coverImageReady, displayImageReady} = this.state;
+    const displayImageUrl = `https://cdn.marketeer.ph${store.displayImage}`;
+    const coverImageUrl = `https://cdn.marketeer.ph${store.coverImage}`;
 
     return (
       <View
@@ -115,21 +113,23 @@ class StoreCard extends Component {
               })
             }>
             <View style={{height: 200}}>
-              {coverImageUrl && ready ? (
-                <FastImage
-                  source={{uri: coverImageUrl}}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: 150,
-                    borderTopLeftRadius: 8,
-                    borderTopRightRadius: 8,
-                  }}
-                  resizeMode={FastImage.resizeMode.cover}
-                />
-              ) : (
+              <FastImage
+                source={{uri: coverImageUrl}}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 150,
+                  borderTopLeftRadius: 8,
+                  borderTopRightRadius: 8,
+                  opacity: coverImageReady ? 1 : 0,
+                }}
+                resizeMode={FastImage.resizeMode.cover}
+                onLoad={() => this.setState({coverImageReady: true})}
+              />
+
+              {!coverImageReady && (
                 <Placeholder Animation={Fade}>
                   <PlaceholderMedia
                     style={{
@@ -153,14 +153,12 @@ class StoreCard extends Component {
                   alignItems: 'center',
                   justifyContent: 'center',
                   position: 'absolute',
-                  borderTopLeftRadius: 8,
-                  borderBottomLeftRadius: 8,
-                  borderColor: 'rgba(0,0,0,0.2)',
-                  borderWidth: 1,
+                  borderTopLeftRadius: 3,
+                  borderBottomLeftRadius: 3,
                   right: -1,
+                  top: 10,
                   padding: 4,
-                  marginTop: 20,
-                  backgroundColor: colors.icons,
+                  backgroundColor: colors.accent,
                   shadowColor: '#000',
                   shadowOffset: {
                     width: 0,
@@ -170,22 +168,45 @@ class StoreCard extends Component {
                   shadowRadius: 3.84,
                   elevation: 5,
                 }}>
-                <Text style={{color: colors.text_primary}}>
-                  {store.deliveryType}
-                </Text>
+                <Text style={{color: colors.icons}}>{store.deliveryType}</Text>
 
-                {store.freeDelivery && (
-                  <Text
+                {store.deliveryDiscount && store.deliveryDiscount.activated && (
+                  <View
                     style={{
-                      color: colors.text_primary,
-                      fontFamily: 'ProductSans-Black',
+                      width: '100%',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}>
-                    Free Delivery (₱
-                    {store.freeDeliveryMinimum
-                      ? store.freeDeliveryMinimum
-                      : 0}{' '}
-                    Min.)
-                  </Text>
+                    <View
+                      style={{
+                        height: 1,
+                        width: '70%',
+                        backgroundColor: colors.icons,
+                        marginVertical: 3,
+                      }}
+                    />
+
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Icon
+                        name="gift"
+                        color={colors.icons}
+                        size={11}
+                        style={{marginRight: 4}}
+                      />
+                      <Text
+                        style={{
+                          color: colors.icons,
+                          fontFamily: 'ProductSans-Black',
+                        }}>
+                        Delivery Promo
+                      </Text>
+                    </View>
+                  </View>
                 )}
               </View>
 
@@ -326,7 +347,7 @@ class StoreCard extends Component {
             <View
               style={{
                 position: 'absolute',
-                top: 75,
+                top: 95,
                 left: 20,
                 shadowColor: '#000',
                 shadowOffset: {
@@ -340,25 +361,28 @@ class StoreCard extends Component {
                 borderWidth: 0.7,
                 borderColor: 'rgba(0,0,0,0.3)',
                 overflow: 'hidden',
-                width: 80,
-                height: 80,
+                width: 60,
+                height: 60,
               }}>
-              {displayImageUrl && ready ? (
-                <FastImage
-                  source={{uri: displayImageUrl}}
-                  style={{
-                    width: 80,
-                    height: 80,
-                  }}
-                  resizeMode={FastImage.resizeMode.cover}
-                />
-              ) : (
+              <FastImage
+                source={{uri: displayImageUrl}}
+                style={{
+                  width: 60,
+                  height: 60,
+                  opacity: displayImageReady ? 1 : 0,
+                }}
+                resizeMode={FastImage.resizeMode.cover}
+                onLoad={() => this.setState({displayImageReady: true})}
+                visibility={displayImageReady ? null : 'hidden'}
+              />
+
+              {!displayImageReady && (
                 <Placeholder Animation={Fade}>
                   <PlaceholderMedia
                     style={{
                       backgroundColor: colors.primary,
-                      width: 80,
-                      height: 80,
+                      width: 60,
+                      height: 60,
                     }}
                   />
                 </Placeholder>

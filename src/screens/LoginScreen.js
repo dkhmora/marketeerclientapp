@@ -204,8 +204,14 @@ class LoginScreen extends Component {
         <Animatable.View
           useNativeDriver
           animation="fadeInUpBig"
-          style={styles.footer}>
-          <KeyboardAwareScrollView>
+          style={{
+            flex: 1,
+            backgroundColor: '#fff',
+            borderTopLeftRadius: 30,
+            borderTopRightRadius: 30,
+            paddingTop: 10,
+          }}>
+          <KeyboardAwareScrollView style={{paddingHorizontal: 20}}>
             <Text style={styles.text_header}>{titleText}</Text>
 
             <Text style={styles.text_footer}>Email Address/Phone Number</Text>

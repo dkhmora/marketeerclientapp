@@ -255,12 +255,6 @@ class authStore {
           text: `Welcome to Marketeer, ${name}!`,
           duration: 4000,
         });
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-
-        return null;
       });
   }
 
@@ -288,12 +282,6 @@ class authStore {
       })
       .then(() => {
         auth().currentUser.updateProfile({displayName: name});
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-
-        return null;
       });
   }
 
@@ -303,14 +291,7 @@ class authStore {
       password,
     );
 
-    return await auth()
-      .currentUser.linkWithCredential(emailCredential)
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-
-        return null;
-      });
+    return await auth().currentUser.linkWithCredential(emailCredential);
   }
 
   @action async linkCurrentUserWithPhoneNumber(phoneCredential) {

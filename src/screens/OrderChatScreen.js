@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View} from 'react-native';
+import {KeyboardAvoidingView, Platform, View} from 'react-native';
 import {Container} from 'native-base';
 import BaseHeader from '../components/BaseHeader';
 import {GiftedChat, Bubble, Send} from 'react-native-gifted-chat';
@@ -21,10 +21,6 @@ class OrderChatScreen extends Component {
     super(props);
 
     this.state = {
-      user: {
-        _id: this.props.authStore.userId,
-        name: this.props.authStore.userName,
-      },
       loading: true,
     };
 
@@ -217,6 +213,10 @@ class OrderChatScreen extends Component {
     const {orderMessages, selectedOrder} = this.props.generalStore;
     const {navigation} = this.props;
     const {chatDisabled} = this;
+    const user = {
+      _id: this.props.authStore.userId,
+      name: this.props.authStore.userName,
+    };
 
     if (selectedOrder && orderMessages) {
       const headerTitle = `${selectedOrder.storeName} | Order # ${selectedOrder.userOrderNumber}`;
@@ -235,7 +235,7 @@ class OrderChatScreen extends Component {
                 selectedOrder.orderId,
                 selectedOrder.userId,
                 selectedOrder.storeId,
-                this.state.user,
+                user,
                 this.imagePath,
               );
               this.imagePath = '';
@@ -243,7 +243,9 @@ class OrderChatScreen extends Component {
             closeModal={() => (this.imagePath = '')}
           />
 
-          <View style={{flex: 1}}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            style={{flex: 1}}>
             <GiftedChat
               textStyle={{color: colors.primary}}
               renderAvatar={this.renderAvatar}
@@ -260,14 +262,15 @@ class OrderChatScreen extends Component {
                 borderBottomWidth: 1,
                 borderBottomColor: colors.primary,
               }}
+              isKeyboardInternallyHandled={false}
               listViewProps={{marginBottom: 20}}
               alwaysShowSend={!chatDisabled}
               showAvatarForEveryMessage
               messages={dataSource}
               onSend={(messages) => this.onSend(messages)}
-              user={this.state.user}
+              user={user}
             />
-          </View>
+          </KeyboardAvoidingView>
         </Container>
       );
     }

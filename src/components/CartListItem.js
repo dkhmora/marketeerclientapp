@@ -1,13 +1,11 @@
 import React, {PureComponent} from 'react';
 import FastImage from 'react-native-fast-image';
 import {Text, Button, Icon} from 'react-native-elements';
-import {observable, computed} from 'mobx';
-import storage from '@react-native-firebase/storage';
+import {computed} from 'mobx';
 import {View} from 'react-native';
 import {observer, inject} from 'mobx-react';
 import {styles} from '../../assets/styles';
 import {colors} from '../../assets/colors';
-import Toast from './Toast';
 
 @inject('shopStore')
 @inject('authStore')
@@ -15,10 +13,6 @@ import Toast from './Toast';
 class CartListItem extends PureComponent {
   constructor(props) {
     super(props);
-
-    this.state = {
-      url: require('../../assets/images/placeholder.jpg'),
-    };
   }
 
   @computed get addButtonDisabled() {
@@ -29,8 +23,6 @@ class CartListItem extends PureComponent {
     }
     return false;
   }
-
-  @observable url = null;
 
   handleIncreaseQuantity() {
     const {item, storeId} = this.props;
@@ -50,38 +42,6 @@ class CartListItem extends PureComponent {
     this.props.shopStore.updateCartItems();
   }
 
-  getImage = async () => {
-    const {storeId, item} = this.props;
-    const {itemId, image, updatedAt} = item;
-    const itemImagePath = `/images/stores/${storeId}/items/${itemId}_${updatedAt}.jpg`;
-
-    const ref = storage().ref(itemImagePath);
-    const link = await ref.getDownloadURL().catch((err) => {
-      return null;
-    });
-
-    if (link) {
-      this.setState({url: {uri: link}});
-    }
-
-    if (image && !link) {
-      const secondRef = storage().ref(image);
-      const secondLink = await secondRef.getDownloadURL().catch((err) => {
-        return null;
-      });
-
-      if (secondLink) {
-        this.setState({url: {uri: secondLink}});
-      }
-    }
-  };
-
-  componentDidMount() {
-    if (this.props.item.image) {
-      this.getImage();
-    }
-  }
-
   componentDidUpdate(prevProps, prevState) {
     const {item, itemSnapshot} = this.props;
 
@@ -94,7 +54,10 @@ class CartListItem extends PureComponent {
 
   render() {
     const {item, itemSnapshot, checkout} = this.props;
-    const {url} = this.state;
+    const itemPrice = item.discountedPrice ? item.discountedPrice : item.price;
+    const imageUrl = item.image
+      ? {uri: `https://cdn.marketeer.ph${item.image}`}
+      : require('../../assets/images/placeholder.jpg');
 
     return (
       <View
@@ -108,7 +71,7 @@ class CartListItem extends PureComponent {
         }}>
         <FastImage
           key={item.itemId}
-          source={url}
+          source={imageUrl}
           style={{
             backgroundColor: colors.primary,
             height: 55,
@@ -320,7 +283,7 @@ class CartListItem extends PureComponent {
               fontSize: 16,
               color: colors.text_secondary,
             }}>
-            ₱{item.price}
+            ₱{itemPrice}
           </Text>
 
           <Text
@@ -340,7 +303,7 @@ class CartListItem extends PureComponent {
             adjustsFontSizeToFit
             numberOfLines={1}
             style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
-            ₱{item.price * item.quantity}
+            ₱{itemPrice * item.quantity}
           </Text>
         </View>
       </View>

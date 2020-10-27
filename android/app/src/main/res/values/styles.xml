@@ -5,6 +5,16 @@
         <!-- Customize your theme here. -->
         <item name="android:textColor">#212121</item>
         <item name="android:windowDisablePreview">true</item>
+        <item name="android:datePickerDialogTheme">@style/Dialog.Theme</item>
+        <item name="android:timePickerDialogTheme">@style/Dialog.Theme</item>
+    </style>
+
+    <!-- Configuration for Dialog.theme. -->
+    <style name="Dialog.Theme" parent="Theme.AppCompat.Light.Dialog">
+        <!-- BackgroundColor of the date modal -->
+        <item name="colorAccent">#E91E63</item>
+        <!-- Change textColor of the date modal -->
+        <item name="android:textColorPrimary">#212121</item>
     </style>
 
     <style name="SplashTheme" parent="SplashScreen_SplashTheme">

@@ -4,7 +4,6 @@ import {Card, Text, Image, Icon, ListItem, Input} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
 import CartListItem from './CartListItem';
 import {colors} from '../../assets/colors';
-import storage from '@react-native-firebase/storage';
 import {observable, computed, when} from 'mobx';
 import SelectionModal from './SelectionModal';
 import FastImage from 'react-native-fast-image';
@@ -32,47 +31,73 @@ class CartStoreCard extends PureComponent {
 
   @observable url = null;
 
-  @observable storeDetails = {};
+  @observable storeDetails = this.props.shopStore.allStoresMap[
+    this.props.storeId
+  ];
 
-  @computed get freeDelivery() {
+  @computed get deliveryDiscountApplicable() {
     if (this.storeDetails) {
-      const {freeDelivery, freeDeliveryMinimum} = this.storeDetails;
+      const {deliveryDiscount} = this.storeDetails;
 
-      return (
-        this.props.shopStore.storeSelectedDeliveryMethod[this.props.storeId] ===
-          'Own Delivery' &&
-        freeDelivery &&
-        this.subTotal >= freeDeliveryMinimum
-      );
+      if (
+        deliveryDiscount &&
+        deliveryDiscount.activated &&
+        this.subTotal >= deliveryDiscount.minimumOrderAmount
+      ) {
+        this.props.shopStore.storeDeliveryDiscount[this.props.storeId] =
+          deliveryDiscount.discountAmount;
+
+        return true;
+      }
+
+      this.props.shopStore.storeDeliveryDiscount[this.props.storeId] = null;
+
+      return false;
     }
+    this.props.shopStore.storeDeliveryDiscount[this.props.storeId] = null;
 
-    return null;
+    return false;
   }
 
   @computed get orderTotal() {
     if (this.storeDetails) {
-      const deliveryMethod = this.props.shopStore.storeSelectedDeliveryMethod[
-        this.props.storeId
-      ];
-      const {storeId} = this.props;
-      const mrSpeedyDeliveryEstimates = this.props.shopStore
-        .storeMrSpeedyDeliveryFee[storeId];
-      const motorbikeDeliveryFee = mrSpeedyDeliveryEstimates
-        ? Number(mrSpeedyDeliveryEstimates.motorbike)
-        : 0;
-      const carDeliveryFee = mrSpeedyDeliveryEstimates
-        ? Number(mrSpeedyDeliveryEstimates.car)
-        : 0;
+      const {availableDeliveryMethods, deliveryDiscount} = this.storeDetails;
+      const selectedDeliveryMethod = this.props.shopStore
+        .storeSelectedDeliveryMethod[this.props.storeId];
 
-      return this.freeDelivery
-        ? this.subTotal.toFixed(2)
-        : deliveryMethod === 'Own Delivery'
-        ? (this.subTotal + this.storeDetails.ownDeliveryServiceFee).toFixed(2)
-        : deliveryMethod === 'Mr. Speedy'
-        ? `${(this.subTotal + motorbikeDeliveryFee).toFixed(2)} - ₱${(
+      if (selectedDeliveryMethod === 'Own Delivery') {
+        if (this.deliveryDiscountApplicable) {
+          return (
+            this.subTotal +
+            Math.max(
+              0,
+              availableDeliveryMethods['Own Delivery'].deliveryPrice -
+                deliveryDiscount.discountAmount,
+            )
+          );
+        }
+
+        return (
+          this.subTotal + availableDeliveryMethods['Own Delivery'].deliveryPrice
+        );
+      }
+      
+      if (selectedDeliveryMethod === 'Mr. Speedy') {
+        const mrSpeedyDeliveryEstimates = this.props.shopStore
+          .storeMrSpeedyDeliveryFee[storeId];
+        const motorbikeDeliveryFee = mrSpeedyDeliveryEstimates
+          ? Number(mrSpeedyDeliveryEstimates.motorbike)
+          : 0;
+        const carDeliveryFee = mrSpeedyDeliveryEstimates
+          ? Number(mrSpeedyDeliveryEstimates.car)
+          : 0;
+        
+        return (`${(this.subTotal + motorbikeDeliveryFee).toFixed(2)} - ₱${(
             this.subTotal + carDeliveryFee
-          ).toFixed(2)}`
-        : this.subTotal.toFixed(2);
+          ).toFixed(2)}`);
+      }
+
+      return this.subTotal;
     }
 
     return null;
@@ -83,7 +108,10 @@ class CartStoreCard extends PureComponent {
 
     if (this.cartItems) {
       this.cartItems.map((item) => {
-        const itemTotal = item.quantity * item.price;
+        const itemPrice = item.discountedPrice
+          ? item.discountedPrice
+          : item.price;
+        const itemTotal = item.quantity * itemPrice;
 
         amount = itemTotal + amount;
       });
@@ -171,6 +199,37 @@ class CartStoreCard extends PureComponent {
       : null;
   }
 
+  @computed get deliveryMethods() {
+    const {storeDetails} = this;
+
+    if (storeDetails) {
+      const {availableDeliveryMethods} = storeDetails;
+      if (availableDeliveryMethods) {
+        return Object.entries(availableDeliveryMethods)
+          .filter(([key, value]) => value.activated)
+          .map(([key, value]) => key)
+          .sort((a, b) => a > b);
+      }
+    }
+
+    return [];
+  }
+
+  @computed get paymentMethods() {
+    const {storeDetails} = this;
+
+    if (storeDetails) {
+      const {availablePaymentMethods} = storeDetails;
+
+      return Object.entries(availablePaymentMethods)
+        .filter(([key, value]) => value.activated)
+        .map(([key, value]) => key)
+        .sort((a, b) => a > b);
+    }
+
+    return [];
+  }
+
   @computed get selectedDeliveryText() {
     const {storeId} = this.props;
     const selectedDelivery = this.props.shopStore.storeSelectedDeliveryMethod[
@@ -238,22 +297,7 @@ class CartStoreCard extends PureComponent {
     }
   }
 
-  async getImage() {
-    const {storeId} = this.props;
-
-    const ref = storage().ref(`/images/stores/${storeId}/display.jpg`);
-    const link = await ref.getDownloadURL().catch((err) => {
-      return null;
-    });
-
-    this.url = {uri: link};
-  }
-
-  async getStoreDetails() {
-    this.storeDetails = await this.props.shopStore.getStoreDetailsFromStoreId(
-      this.props.storeId,
-    );
-
+  async setStoreAssignedMerchantId() {
     this.props.shopStore.storeAssignedMerchantId[
       this.props.storeId
     ] = this.storeDetails.merchantId;
@@ -291,9 +335,7 @@ class CartStoreCard extends PureComponent {
   async componentDidMount() {
     const {checkout, storeId} = this.props;
 
-    this.getImage();
-
-    await this.getStoreDetails();
+    await this.setStoreAssignedMerchantId();
 
     if (this.props.cart) {
       this.getStoreItemsSnapshot();
@@ -307,28 +349,18 @@ class CartStoreCard extends PureComponent {
       this.checkEmail(this.props.shopStore.storeUserEmail[storeId]);
 
       when(
-        () =>
-          this.storeDetails.deliveryMethods &&
-          this.storeDetails.deliveryMethods.length > 0,
+        () => this.deliveryMethods.length > 0,
         () => {
-          if (this.storeDetails.deliveryMethods.includes('Own Delivery')) {
-            this.props.shopStore.storeSelectedDeliveryMethod[
-              this.props.storeId
-            ] = 'Own Delivery';
-          } else {
-            this.props.shopStore.storeSelectedDeliveryMethod[
-              this.props.storeId
-            ] = this.storeDetails.deliveryMethods[0];
-          }
+          this.props.shopStore.storeSelectedDeliveryMethod[
+            this.props.storeId
+          ] = this.deliveryMethods[0];
         },
       );
 
       when(
-        () =>
-          this.storeDetails.paymentMethods &&
-          this.storeDetails.paymentMethods.length > 0,
+        () => this.paymentMethods.length > 0,
         () => {
-          if (!this.storeDetails.paymentMethods.includes('Online Banking')) {
+          if (!this.paymentMethods.includes('Online Banking')) {
             this.setState(
               {
                 selectedPaymentMethod: {
@@ -474,13 +506,12 @@ class CartStoreCard extends PureComponent {
   }
 
   renderDeliveryMethods() {
-    const {storeDetails} = this;
+    const {deliveryMethods} = this;
     const {storeId} = this.props;
-    const {deliveryMethods} = storeDetails;
     const storeSelectedDeliveryMethod = this.props.shopStore
       .storeSelectedDeliveryMethod[storeId];
 
-    if (deliveryMethods) {
+    if (deliveryMethods.length > 0) {
       return (
         <ScrollView
           style={{
@@ -564,9 +595,13 @@ class CartStoreCard extends PureComponent {
       emailCheck,
     } = this.state;
     const {storeDetails, selectedPayment} = this;
+    const {deliveryDiscount, availableDeliveryMethods} = storeDetails;
     const selectedDelivery = storeSelectedDeliveryMethod[storeId];
     const selectedPaymentKey = storeSelectedPaymentMethod[storeId];
     const email = storeUserEmail[storeId];
+    const storeImageUrl = {
+      uri: `https://cdn.marketeer.ph/images/stores/${storeId}/display.jpg`,
+    };
 
     return (
       <View
@@ -601,6 +636,7 @@ class CartStoreCard extends PureComponent {
           containerStyle={{
             margin: 0,
             marginVertical: 10,
+            paddingTop: 5,
             paddingLeft: 0,
             paddingRight: 0,
             marginBottom: 5,
@@ -620,7 +656,7 @@ class CartStoreCard extends PureComponent {
                 borderBottomColor: colors.primary,
               }}>
               <Image
-                source={this.url}
+                source={storeImageUrl}
                 style={{
                   height: 40,
                   width: 40,
@@ -631,33 +667,34 @@ class CartStoreCard extends PureComponent {
                 }}
               />
 
-              {storeDetails.storeName && (
-                <Text
-                  numberOfLines={3}
-                  style={{
-                    fontSize: 19,
-                    fontFamily: 'ProductSans-Light',
-                    maxWidth: '50%',
-                    flexWrap: 'wrap',
-                  }}>
-                  {storeDetails.storeName}
-                </Text>
-              )}
+              <View style={{flex: 1}}>
+                {storeDetails.storeName && (
+                  <Text
+                    numberOfLines={3}
+                    style={{
+                      fontSize: 19,
+                      fontFamily: 'ProductSans-Light',
+                      maxWidth: '50%',
+                      flexWrap: 'wrap',
+                    }}>
+                    {storeDetails.storeName}
+                  </Text>
+                )}
 
-              {storeDetails.freeDelivery && (
-                <Text
-                  numberOfLines={2}
-                  adjustsFontSizeToFit
-                  style={{
-                    fontSize: 16,
-                    fontFamily: 'ProductSans-Bold',
-                    flexShrink: 1,
-                    color: colors.primary,
-                    marginLeft: 10,
-                  }}>
-                  Free Delivery (₱{storeDetails.freeDeliveryMinimum} Min. Order)
-                </Text>
-              )}
+                {deliveryDiscount && deliveryDiscount.activated && (
+                  <Text
+                    numberOfLines={2}
+                    adjustsFontSizeToFit
+                    style={{
+                      fontSize: 13,
+                      fontFamily: 'ProductSans-Bold',
+                      flexShrink: 1,
+                      color: colors.primary,
+                    }}>
+                    {`Get a ₱${deliveryDiscount.discountAmount} delivery discount if your order reaches more than ₱${deliveryDiscount.minimumOrderAmount}!`}
+                  </Text>
+                )}
+              </View>
             </View>
             <View>
               {this.cartItems.map((item) => {
@@ -696,7 +733,7 @@ class CartStoreCard extends PureComponent {
               <View>
                 <ListItem
                   title="Delivery Fee"
-                  rightTitle={this.deliveryFee}
+                  rightTitle={`-₱${deliveryDiscount.discountAmount}`}
                   rightTitleStyle={{
                     flex: 1,
                     fontSize: 18,
@@ -708,6 +745,23 @@ class CartStoreCard extends PureComponent {
                   titleStyle={{fontSize: 18}}
                   containerStyle={{paddingBottom: 5, paddingTop: 5}}
                 />
+
+                {this.deliveryDiscountApplicable && (
+                  <ListItem
+                    title="Delivery Discount"
+                    rightTitle={this.deliveryFee}
+                    rightTitleStyle={{
+                      flex: 1,
+                      fontSize: 18,
+                      fontFamily: 'ProductSans-Black',
+                      color: colors.text_primary,
+                      textAlign: 'right',
+                    }}
+                    subtitleStyle={{fontSize: 14, color: colors.primary}}
+                    titleStyle={{fontSize: 18}}
+                    containerStyle={{paddingBottom: 5, paddingTop: 5}}
+                  />
+                )}
 
                 <ListItem
                   title="Order Total"

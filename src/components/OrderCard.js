@@ -6,7 +6,6 @@ import {observer, inject} from 'mobx-react';
 import {observable, action, computed} from 'mobx';
 import FastImage from 'react-native-fast-image';
 import {Button, Icon, Text, Badge} from 'react-native-elements';
-import storage from '@react-native-firebase/storage';
 import {colors} from '../../assets/colors';
 import AddReviewModal from './AddReviewModal';
 import Toast from './Toast';
@@ -96,24 +95,8 @@ class OrderCard extends PureComponent {
     }
   }
 
-  componentDidMount() {
-    this.getDisplayImageUrl();
-  }
-
-  async getDisplayImageUrl() {
-    const {storeId} = this.props.order;
-
-    const ref = storage().ref(`/images/stores/${storeId}/display.jpg`);
-    const link = await ref.getDownloadURL().catch((err) => {
-      return null;
-    });
-
-    this.setState({url: {uri: link}, ready: true});
-  }
-
   handleViewOrderItems() {
     const {navigation, order} = this.props;
-    const {orderStatus} = this;
 
     navigation.navigate('Order Details', {orderId: order.orderId});
   }
@@ -164,16 +147,19 @@ class OrderCard extends PureComponent {
   }
 
   CardHeader = ({
-    imageUrl,
     imageReady,
     paymentMethod,
     userOrderNumber,
     userUnreadCount,
     orderStatus,
     storeName,
+    storeId,
   }) => {
     const orderStatusText =
       orderStatus[0] === 'PAID' ? 'PROCESSING' : orderStatus;
+    const displayImageUrl = {
+      uri: `https://cdn.marketeer.ph/images/stores/${storeId}/display.jpg`,
+    };
 
     return (
       <CardItem
@@ -193,34 +179,38 @@ class OrderCard extends PureComponent {
               flexDirection: 'row',
               alignItems: 'center',
             }}>
-            {imageUrl && imageReady ? (
-              <FastImage
-                source={imageUrl}
-                style={{
-                  height: 35,
-                  width: 35,
-                  borderRadius: 10,
-                  borderWidth: 1,
-                  borderColor: colors.primary,
-                  marginRight: 10,
-                  backgroundColor: colors.primary,
-                }}
-                resizeMode={FastImage.resizeMode.cover}
-              />
-            ) : (
-              <Placeholder Animation={Fade}>
-                <PlaceholderMedia
-                  style={{
-                    backgroundColor: colors.primary,
-                    height: 35,
-                    width: 35,
-                    borderRadius: 10,
-                    borderWidth: 1,
-                    borderColor: colors.primary,
-                    marginRight: 10,
-                  }}
-                />
-              </Placeholder>
+            <FastImage
+              source={displayImageUrl}
+              style={{
+                height: 35,
+                width: 35,
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: colors.primary,
+                marginRight: 10,
+                backgroundColor: colors.primary,
+                opacity: imageReady ? 1 : 0,
+              }}
+              resizeMode={FastImage.resizeMode.cover}
+              onLoad={() => this.setState({ready: true})}
+            />
+
+            {!imageReady && (
+              <View style={{position: 'absolute'}}>
+                <Placeholder Animation={Fade}>
+                  <PlaceholderMedia
+                    style={{
+                      backgroundColor: colors.primary,
+                      height: 35,
+                      width: 35,
+                      borderRadius: 10,
+                      borderWidth: 1,
+                      borderColor: colors.primary,
+                      marginRight: 10,
+                    }}
+                  />
+                </Placeholder>
+              </View>
             )}
 
             <View>
@@ -343,6 +333,7 @@ class OrderCard extends PureComponent {
       paymentMethod,
       createdAt,
       storeName,
+      storeId,
     } = order;
     const {url, ready, addReviewModal} = this.state;
 
@@ -376,6 +367,7 @@ class OrderCard extends PureComponent {
                 paymentMethod={paymentMethod}
                 orderStatus={this.orderStatus}
                 storeName={storeName}
+                storeId={storeId}
               />
 
               <View
