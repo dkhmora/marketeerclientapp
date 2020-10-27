@@ -61,9 +61,10 @@ class CartStoreCard extends PureComponent {
 
   @computed get orderTotal() {
     if (this.storeDetails) {
+      const {storeId} = this.props;
       const {availableDeliveryMethods, deliveryDiscount} = this.storeDetails;
       const selectedDeliveryMethod = this.props.shopStore
-        .storeSelectedDeliveryMethod[this.props.storeId];
+        .storeSelectedDeliveryMethod[storeId];
 
       if (selectedDeliveryMethod === 'Own Delivery') {
         if (this.deliveryDiscountApplicable) {
@@ -77,24 +78,28 @@ class CartStoreCard extends PureComponent {
           );
         }
 
-        return (
+        return `₱${(
           this.subTotal + availableDeliveryMethods['Own Delivery'].deliveryPrice
-        );
+        ).toFixed(2)}`;
       }
-      
+
       if (selectedDeliveryMethod === 'Mr. Speedy') {
         const mrSpeedyDeliveryEstimates = this.props.shopStore
           .storeMrSpeedyDeliveryFee[storeId];
-        const motorbikeDeliveryFee = mrSpeedyDeliveryEstimates
-          ? Number(mrSpeedyDeliveryEstimates.motorbike)
-          : 0;
-        const carDeliveryFee = mrSpeedyDeliveryEstimates
-          ? Number(mrSpeedyDeliveryEstimates.car)
-          : 0;
-        
-        return (`${(this.subTotal + motorbikeDeliveryFee).toFixed(2)} - ₱${(
+        if (mrSpeedyDeliveryEstimates) {
+          const motorbikeDeliveryFee = mrSpeedyDeliveryEstimates
+            ? Number(mrSpeedyDeliveryEstimates.motorbike)
+            : 0;
+          const carDeliveryFee = mrSpeedyDeliveryEstimates
+            ? Number(mrSpeedyDeliveryEstimates.car)
+            : 0;
+
+          return `${(this.subTotal + motorbikeDeliveryFee).toFixed(2)} - ₱${(
             this.subTotal + carDeliveryFee
-          ).toFixed(2)}`);
+          ).toFixed(2)}`;
+        }
+
+        return <ActivityIndicator size="small" color={colors.primary} />;
       }
 
       return this.subTotal;
@@ -733,7 +738,7 @@ class CartStoreCard extends PureComponent {
               <View>
                 <ListItem
                   title="Delivery Fee"
-                  rightTitle={`-₱${deliveryDiscount.discountAmount}`}
+                  rightTitle={this.deliveryFee}
                   rightTitleStyle={{
                     flex: 1,
                     fontSize: 18,
@@ -749,7 +754,7 @@ class CartStoreCard extends PureComponent {
                 {this.deliveryDiscountApplicable && (
                   <ListItem
                     title="Delivery Discount"
-                    rightTitle={this.deliveryFee}
+                    rightTitle={`-₱${deliveryDiscount.discountAmount}`}
                     rightTitleStyle={{
                       flex: 1,
                       fontSize: 18,
@@ -765,7 +770,7 @@ class CartStoreCard extends PureComponent {
 
                 <ListItem
                   title="Order Total"
-                  rightTitle={`₱${this.orderTotal}`}
+                  rightTitle={this.orderTotal}
                   rightTitleStyle={{
                     flex: 1,
                     fontSize: 18,
