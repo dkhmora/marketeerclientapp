@@ -721,7 +721,7 @@ class CartStoreCard extends PureComponent {
             <ListItem
               title="Order Subtotal"
               subtitle={`(${this.totalItemQuantity} Items)`}
-              rightTitle={`₱${this.subTotal}`}
+              rightTitle={`₱${this.subTotal.toFixed(2)}`}
               rightTitleStyle={{
                 flex: 1,
                 fontSize: 18,
@@ -731,6 +731,7 @@ class CartStoreCard extends PureComponent {
               }}
               subtitleStyle={{fontSize: 12, color: colors.text_secondary}}
               titleStyle={{fontSize: 18}}
+              rightContentContainerStyle={{flex: 1}}
               containerStyle={{paddingBottom: 5, paddingTop: 5}}
             />
 
@@ -746,8 +747,19 @@ class CartStoreCard extends PureComponent {
                     color: colors.text_primary,
                     textAlign: 'right',
                   }}
-                  subtitleStyle={{fontSize: 14, color: colors.primary}}
-                  titleStyle={{fontSize: 18}}
+                  subtitle={
+                    selectedDelivery === 'Mr. Speedy'
+                      ? 'The delivery fee will vary depending on the total weight of your order'
+                      : ''
+                  }
+                  subtitleStyle={{
+                    fontSize: 12,
+                    color: colors.text_secondary,
+                  }}
+                  titleStyle={{
+                    fontSize: 18,
+                  }}
+                  rightContentContainerStyle={{flex: 1}}
                   containerStyle={{paddingBottom: 5, paddingTop: 5}}
                 />
 
@@ -764,6 +776,7 @@ class CartStoreCard extends PureComponent {
                     }}
                     subtitleStyle={{fontSize: 14, color: colors.primary}}
                     titleStyle={{fontSize: 18}}
+                    rightContentContainerStyle={{flex: 1}}
                     containerStyle={{paddingBottom: 5, paddingTop: 5}}
                   />
                 )}
@@ -778,8 +791,17 @@ class CartStoreCard extends PureComponent {
                     color: colors.text_primary,
                     textAlign: 'right',
                   }}
-                  subtitleStyle={{fontSize: 14, color: colors.primary}}
+                  subtitleStyle={{
+                    fontSize: 12,
+                    color: colors.text_secondary,
+                  }}
                   titleStyle={{fontSize: 18}}
+                  subtitle={
+                    selectedDelivery === 'Mr. Speedy'
+                      ? 'The final order total will be shown after the store ships your order'
+                      : ''
+                  }
+                  rightContentContainerStyle={{flex: 1}}
                   containerStyle={{paddingBottom: 5, paddingTop: 5}}
                 />
               </View>

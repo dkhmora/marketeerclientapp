@@ -210,7 +210,6 @@ class shopStore {
       })
       .then((response) => {
         if (response.data.s === 200) {
-          console.log(response);
           this.storeMrSpeedyDeliveryFee = response.data.d;
 
           return;
@@ -218,7 +217,7 @@ class shopStore {
 
         return Toast({text: response.data.m, type: 'danger'});
       })
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err, type: 'danger'}));
   }
 
   @action async getStoreDetailsFromStoreId(storeId) {
@@ -450,7 +449,6 @@ class shopStore {
         })
         .catch((err) => {
           crashlytics().recordError(err);
-          console.log(err);
           Toast({text: err.message, type: 'danger'});
         });
     } else {

@@ -102,17 +102,13 @@ class CheckoutScreen extends Component {
         this.props.generalStore.currentLocation &&
         this.props.generalStore.currentLocationDetails,
       () =>
-        this.props.shopStore
-          .getMrSpeedyDeliveryPriceEstimate(
-            {
-              latitude: this.props.generalStore.currentLocation.latitude,
-              longitude: this.props.generalStore.currentLocation.longitude,
-            },
-            this.props.generalStore.currentLocationDetails,
-          )
-          .then(() => {
-            console.log(this.props.shopStore.storeMrSpeedyDeliveryFee);
-          }),
+        this.props.shopStore.getMrSpeedyDeliveryPriceEstimate(
+          {
+            latitude: this.props.generalStore.currentLocation.latitude,
+            longitude: this.props.generalStore.currentLocation.longitude,
+          },
+          this.props.generalStore.currentLocationDetails,
+        ),
     );
   }
 
