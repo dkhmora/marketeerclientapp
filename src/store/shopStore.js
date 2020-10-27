@@ -28,6 +28,7 @@ class shopStore {
   @observable unsubscribeToGetCartItems = null;
   @observable cartUpdateTimeout = null;
   @observable validItemQuantity = {};
+  @observable storeMrSpeedyDeliveryFee = {};
 
   @computed get totalCartItemQuantity() {
     let quantity = 0;
@@ -156,6 +157,55 @@ class shopStore {
       return stores;
     }
     return [];
+  }
+
+
+  @action async getMrSpeedyDeliveryPriceEstimate(
+    deliveryLocation,
+    deliveryAddress,
+  ) {
+    return await functions
+      .httpsCallable('getMrSpeedyDeliveryPriceEstimate')({
+        deliveryLocation,
+        deliveryAddress,
+      })
+      .then((response) => {
+        if (response.data.s === 200) {
+          console.log(response);
+          this.storeMrSpeedyDeliveryFee = response.data.d;
+
+          return;
+        }
+
+        return Toast({text: response.data.m, type: 'danger'});
+      })
+      .catch((err) => console.log(err));
+  }
+
+  @action async getStoreDetailsFromStoreId(storeId) {
+    return await new Promise(async (resolve, reject) => {
+      const storeDetails = await this.getStoreDetails(storeId);
+
+      if (storeDetails) {
+        return resolve(storeDetails);
+      }
+
+      return await firestore()
+        .collection('stores')
+        .doc(storeId)
+        .get()
+        .then((document) => {
+          if (document.exists) {
+            const store = {...document.data(), storeId: document.id};
+
+            return resolve(store);
+          }
+        })
+        .catch((err) => {
+          crashlytics().recordError(err);
+          return reject(err);
+        });
+    });
   }
 
   @action async setCartItems(userId) {
@@ -336,6 +386,7 @@ class shopStore {
     }
   }
 
+
   @action async getStoreList({currentLocationGeohash, locationCoordinates}) {
     if (currentLocationGeohash && locationCoordinates) {
       return await storesCollection
@@ -361,6 +412,7 @@ class shopStore {
         })
         .catch((err) => {
           crashlytics().recordError(err);
+          console.log(err);
           Toast({text: err.message, type: 'danger'});
         });
     } else {

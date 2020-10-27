@@ -81,6 +81,21 @@ class CartStoreCard extends PureComponent {
           this.subTotal + availableDeliveryMethods['Own Delivery'].deliveryPrice
         );
       }
+      
+      if (selectedDeliveryMethod === 'Mr. Speedy') {
+        const mrSpeedyDeliveryEstimates = this.props.shopStore
+          .storeMrSpeedyDeliveryFee[storeId];
+        const motorbikeDeliveryFee = mrSpeedyDeliveryEstimates
+          ? Number(mrSpeedyDeliveryEstimates.motorbike)
+          : 0;
+        const carDeliveryFee = mrSpeedyDeliveryEstimates
+          ? Number(mrSpeedyDeliveryEstimates.car)
+          : 0;
+        
+        return (`${(this.subTotal + motorbikeDeliveryFee).toFixed(2)} - ₱${(
+            this.subTotal + carDeliveryFee
+          ).toFixed(2)}`);
+      }
 
       return this.subTotal;
     }
@@ -103,6 +118,50 @@ class CartStoreCard extends PureComponent {
     }
 
     return amount;
+  }
+
+  @computed get mrSpeedyDeliveryFee() {
+    const {storeId} = this.props;
+    const selectedStorePaymentMethod = this.props.shopStore
+      .storeSelectedPaymentMethod[storeId];
+    const CODFee = selectedStorePaymentMethod === 'COD' ? 30 : 0;
+    const mrSpeedyDeliveryEstimates = this.props.shopStore
+      .storeMrSpeedyDeliveryFee[storeId];
+    const motorbikeDeliveryFee = mrSpeedyDeliveryEstimates
+      ? Number(mrSpeedyDeliveryEstimates.motorbike) + CODFee
+      : '';
+    const carDeliveryFee = mrSpeedyDeliveryEstimates
+      ? Number(mrSpeedyDeliveryEstimates.car) + CODFee
+      : '';
+
+    return mrSpeedyDeliveryEstimates
+      ? `₱${motorbikeDeliveryFee} (Max. 20kg) - ₱${carDeliveryFee} (Max. 300kg)`
+      : '';
+  }
+
+  @computed get deliveryFee() {
+    const {storeId} = this.props;
+    const selectedStoreDeliveryMethod = this.props.shopStore
+      .storeSelectedDeliveryMethod[storeId];
+
+    if (selectedStoreDeliveryMethod === 'Mr. Speedy') {
+      return this.mrSpeedyDeliveryFee === '' ? (
+        <ActivityIndicator
+          color={colors.primary}
+          size="small"
+          style={{marginLeft: 5}}
+        />
+      ) : (
+        this.mrSpeedyDeliveryFee
+      );
+    }
+    if (selectedStoreDeliveryMethod === 'Own Delivery') {
+      return this.freeDelivery
+        ? 'Free Delivery'
+        : `₱${this.storeDetails.ownDeliveryServiceFee}`;
+    }
+
+    return 'Please discuss with merchant';
   }
 
   @computed get totalItemQuantity() {
@@ -169,6 +228,38 @@ class CartStoreCard extends PureComponent {
     }
 
     return [];
+  }
+
+  @computed get selectedDeliveryText() {
+    const {storeId} = this.props;
+    const selectedDelivery = this.props.shopStore.storeSelectedDeliveryMethod[
+      storeId
+    ];
+
+    const listText =
+      selectedDelivery === 'Mr. Speedy'
+        ? `Mr. Speedy (${this.mrSpeedyDeliveryFee})`
+        : selectedDelivery === 'Own Delivery'
+        ? `Own Delivery (₱${this.storeDetails.ownDeliveryServiceFee})`
+        : selectedDelivery
+        ? selectedDelivery
+        : 'Please select a delivery method';
+
+    const titleElement =
+      selectedDelivery === 'Mr. Speedy' && this.mrSpeedyDeliveryFee === '' ? (
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <Text style={{color: colors.primary}}>{selectedDelivery}</Text>
+          <ActivityIndicator
+            color={colors.primary}
+            size="small"
+            style={{marginLeft: 5}}
+          />
+        </View>
+      ) : (
+        listText
+      );
+
+    return titleElement;
   }
 
   async openLink(url) {
@@ -428,26 +519,51 @@ class CartStoreCard extends PureComponent {
           }}
           showsVerticalScrollIndicator={false}
           contentInsetAdjustmentBehavior="automatic">
-          {deliveryMethods.map((deliveryMethod, index) => {
-            return (
-              <ListItem
-                title={deliveryMethod}
-                key={`${deliveryMethod}-${index}`}
-                bottomDivider
-                rightIcon={
-                  storeSelectedDeliveryMethod &&
-                  storeSelectedDeliveryMethod === deliveryMethod ? (
-                    <Icon name="check" color={colors.primary} />
-                  ) : null
-                }
-                onPress={() =>
-                  (this.props.shopStore.storeSelectedDeliveryMethod[
-                    storeId
-                  ] = deliveryMethod)
-                }
-              />
-            );
-          })}
+          {deliveryMethods
+            .slice()
+            .sort((a, b) => a > b)
+            .map((deliveryMethod, index) => {
+              const listText =
+                deliveryMethod === 'Mr. Speedy'
+                  ? `Mr. Speedy (${this.mrSpeedyDeliveryFee})`
+                  : deliveryMethod === 'Own Delivery'
+                  ? `Own Delivery (₱${this.storeDetails.ownDeliveryServiceFee})`
+                  : deliveryMethod;
+
+              const titleElement =
+                deliveryMethod === 'Mr. Speedy' &&
+                this.mrSpeedyDeliveryFee === '' ? (
+                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <Text>{deliveryMethod}</Text>
+                    <ActivityIndicator
+                      color={colors.primary}
+                      size="small"
+                      style={{marginLeft: 5}}
+                    />
+                  </View>
+                ) : (
+                  listText
+                );
+
+              return (
+                <ListItem
+                  title={titleElement}
+                  key={`${deliveryMethod}-${index}`}
+                  bottomDivider
+                  rightIcon={
+                    storeSelectedDeliveryMethod &&
+                    storeSelectedDeliveryMethod === deliveryMethod ? (
+                      <Icon name="check" color={colors.primary} />
+                    ) : null
+                  }
+                  onPress={() =>
+                    (this.props.shopStore.storeSelectedDeliveryMethod[
+                      storeId
+                    ] = deliveryMethod)
+                  }
+                />
+              );
+            })}
         </ScrollView>
       );
     }
@@ -597,121 +713,70 @@ class CartStoreCard extends PureComponent {
                 );
               })}
             </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingTop: 10,
-                paddingHorizontal: 10,
-              }}>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
-                  Order Subtotal
-                </Text>
-                <Text style={{fontSize: 13, paddingLeft: 5}}>
-                  ({this.totalItemQuantity} Items)
-                </Text>
-              </View>
-              <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
-                ₱{this.subTotal}
-              </Text>
-            </View>
+            <ListItem
+              title="Order Subtotal"
+              subtitle={`(${this.totalItemQuantity} Items)`}
+              rightTitle={`₱${this.subTotal}`}
+              rightTitleStyle={{
+                flex: 1,
+                fontSize: 18,
+                fontFamily: 'ProductSans-Black',
+                color: colors.text_primary,
+                textAlign: 'right',
+              }}
+              subtitleStyle={{fontSize: 12, color: colors.text_secondary}}
+              titleStyle={{fontSize: 18}}
+              containerStyle={{paddingBottom: 5, paddingTop: 5}}
+            />
 
             {checkout && (
               <View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    paddingTop: 10,
-                    paddingHorizontal: 10,
-                  }}>
-                  <View
-                    style={{
-                      flex: 1,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'flex-start',
-                    }}>
-                    <Text
-                      style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
-                      Delivery Fee
-                    </Text>
-                  </View>
-
-                  {selectedDelivery === 'Own Delivery' ? (
-                    <Text
-                      style={{
-                        fontFamily: 'ProductSans-Black',
-                        fontSize: 18,
-                        textAlignVertical: 'center',
-                        color: colors.text_primary,
-                      }}>
-                      {`₱${availableDeliveryMethods['Own Delivery'].deliveryPrice}`}
-                    </Text>
-                  ) : (
-                    <Text
-                      style={{
-                        fontFamily: 'ProductSans-Black',
-                        fontSize: 14,
-                        textAlignVertical: 'center',
-                      }}>
-                      (Will be shown after store accepts the order)
-                    </Text>
-                  )}
-                </View>
+                <ListItem
+                  title="Delivery Fee"
+                  rightTitle={`-₱${deliveryDiscount.discountAmount}`}
+                  rightTitleStyle={{
+                    flex: 1,
+                    fontSize: 18,
+                    fontFamily: 'ProductSans-Black',
+                    color: colors.text_primary,
+                    textAlign: 'right',
+                  }}
+                  subtitleStyle={{fontSize: 14, color: colors.primary}}
+                  titleStyle={{fontSize: 18}}
+                  containerStyle={{paddingBottom: 5, paddingTop: 5}}
+                />
 
                 {this.deliveryDiscountApplicable && (
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      paddingTop: 10,
-                      paddingHorizontal: 10,
-                    }}>
-                    <View
-                      style={{
-                        flex: 1,
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'flex-start',
-                      }}>
-                      <Text
-                        style={{
-                          fontSize: 17,
-                          fontFamily: 'ProductSans-Regular',
-                        }}>
-                        Delivery Discount
-                      </Text>
-                    </View>
-                    <Text
-                      style={{
-                        fontFamily: 'ProductSans-Black',
-                        fontSize: 18,
-                        textAlignVertical: 'center',
-                        color: colors.primary,
-                      }}>
-                      {`-₱${deliveryDiscount.discountAmount}`}
-                    </Text>
-                  </View>
+                  <ListItem
+                    title="Delivery Discount"
+                    rightTitle={this.deliveryFee}
+                    rightTitleStyle={{
+                      flex: 1,
+                      fontSize: 18,
+                      fontFamily: 'ProductSans-Black',
+                      color: colors.text_primary,
+                      textAlign: 'right',
+                    }}
+                    subtitleStyle={{fontSize: 14, color: colors.primary}}
+                    titleStyle={{fontSize: 18}}
+                    containerStyle={{paddingBottom: 5, paddingTop: 5}}
+                  />
                 )}
 
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    paddingTop: 10,
-                    paddingHorizontal: 10,
-                  }}>
-                  <Text
-                    style={{fontSize: 17, fontFamily: 'ProductSans-Regular'}}>
-                    Order Total
-                  </Text>
-
-                  <Text style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
-                    ₱{this.orderTotal}
-                  </Text>
-                </View>
+                <ListItem
+                  title="Order Total"
+                  rightTitle={`₱${this.orderTotal}`}
+                  rightTitleStyle={{
+                    flex: 1,
+                    fontSize: 18,
+                    fontFamily: 'ProductSans-Black',
+                    color: colors.text_primary,
+                    textAlign: 'right',
+                  }}
+                  subtitleStyle={{fontSize: 14, color: colors.primary}}
+                  titleStyle={{fontSize: 18}}
+                  containerStyle={{paddingBottom: 5, paddingTop: 5}}
+                />
               </View>
             )}
 
@@ -733,11 +798,7 @@ class CartStoreCard extends PureComponent {
                       onPress={() =>
                         this.setState({deliveryOptionsModal: true})
                       }
-                      subtitle={
-                        selectedDelivery
-                          ? selectedDelivery
-                          : 'Please select a delivery method'
-                      }
+                      subtitle={this.selectedDeliveryText}
                       subtitleStyle={{fontSize: 14, color: colors.primary}}
                       titleStyle={{fontSize: 18}}
                       style={{borderRadius: 10}}
