@@ -30,6 +30,7 @@ class OrderDetailsScreen extends Component {
       cancelReasonCheck: false,
       cancelReasonInput: '',
       cancelOrderLoading: false,
+      paymentProcessing: false,
     };
   }
 
@@ -42,35 +43,36 @@ class OrderDetailsScreen extends Component {
       this.setState({orderItems, itemsReady: true});
     });
 
-    when(
-      () => this.props.generalStore.selectedOrder,
-      () => {
-        if (
-          this.props.generalStore.selectedOrder.paymentMethod ===
-          'Online Banking'
-        ) {
-          if (
-            Object.keys(this.props.generalStore.availablePaymentMethods)
-              .length === 0
-          ) {
-            this.props.generalStore.setAppData();
-          }
-
-          if (
-            !this.props.generalStore.selectedOrder.orderStatus.pending.status &&
-            !this.props.generalStore.selectedOrder.orderStatus.cancelled.status
-          ) {
-            this.props.generalStore
-              .getOrderPayment(this.props.generalStore.selectedOrder.orderId)
-              .then((orderPayment) => {
-                this.setState({orderPayment});
-              });
-          }
-        }
-      },
-    );
-
     crashlytics().log('OrderDetailsScreen');
+  }
+
+  async componentDidUpdate(prevProps, prevState) {
+    if (this.props.generalStore.selectedOrder) {
+      const {paymentMethod} = this.props.generalStore.selectedOrder;
+
+      if (paymentMethod === 'Online Banking' && !this.state.orderPayment) {
+        if (
+          Object.keys(this.props.generalStore.availablePaymentMethods)
+            .length === 0
+        ) {
+          await this.props.generalStore.setAppData();
+        }
+
+        const {orderId} = this.props.generalStore.selectedOrder;
+
+        if (
+          !this.props.generalStore.selectedOrder.orderStatus.pending.status &&
+          !this.props.generalStore.selectedOrder.orderStatus.cancelled.status &&
+          !this.state.paymentProcessing
+        ) {
+          await this.props.generalStore
+            .getOrderPayment(orderId)
+            .then((orderPayment) => {
+              this.setState({orderPayment});
+            });
+        }
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -121,7 +123,7 @@ class OrderDetailsScreen extends Component {
       }
 
       if (deliveryMethod === 'Mr. Speedy') {
-        if (mrspeedyBookingData.estimatedOrderPrices) {
+        if (mrspeedyBookingData && mrspeedyBookingData.estimatedOrderPrices) {
           return `₱${mrspeedyBookingData.estimatedOrderPrices.motorbike} - ₱${mrspeedyBookingData.estimatedOrderPrices.car}`;
         }
 
@@ -256,9 +258,13 @@ class OrderDetailsScreen extends Component {
             endEnter: 'slide_in_left',
             endExit: 'slide_out_right',
           },
+        }).then(() => {
+          this.setState({paymentProcessing: false});
         });
       } else {
-        Linking.openURL(url);
+        Linking.openURL(url).then(() => {
+          this.setState({paymentProcessing: false});
+        });
       }
       this.props.generalStore.appReady = true;
     } catch (err) {
@@ -693,7 +699,12 @@ class OrderDetailsScreen extends Component {
                               title="Pay Now"
                               onPress={() => {
                                 this.props.generalStore.appReady = false;
-                                this.openLink(selectedOrder.paymentLink);
+                                this.setState(
+                                  {orderPayment: null, paymentProcessing: true},
+                                  () => {
+                                    this.openLink(selectedOrder.paymentLink);
+                                  },
+                                );
                               }}
                               titleStyle={{color: colors.icons}}
                               buttonStyle={{
