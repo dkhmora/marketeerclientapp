@@ -94,7 +94,7 @@ class CartStoreCard extends PureComponent {
             ? Number(mrSpeedyDeliveryEstimates.car)
             : 0;
 
-          return `${(this.subTotal + motorbikeDeliveryFee).toFixed(2)} - ₱${(
+          return `₱${(this.subTotal + motorbikeDeliveryFee).toFixed(2)} - ₱${(
             this.subTotal + carDeliveryFee
           ).toFixed(2)}`;
         }

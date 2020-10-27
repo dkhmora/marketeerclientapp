@@ -211,7 +211,7 @@ class CheckoutScreen extends Component {
           <View
             style={{
               height: '100%',
-              width: '30%',
+              width: 150,
               marginRight: 10,
               borderRadius: 24,
               borderWidth: 1,
@@ -219,18 +219,21 @@ class CheckoutScreen extends Component {
               alignItems: 'center',
               justifyContent: 'center',
               paddingHorizontal: 10,
+              paddingVertical: 5,
             }}>
             <Text
               adjustsFontSizeToFit
-              numberOfLines={1}
+              numberOfLines={2}
               style={{
-                width: '100%',
+                flex: 1,
                 textAlign: 'center',
+                textAlignVertical: 'center',
                 fontFamily: 'ProductSans-Black',
                 color: colors.icons,
                 fontSize: 26,
+                paddingHorizontal: 8,
               }}>
-              ₱{this.props.shopStore.totalCartSubTotalAmount}
+              {this.props.shopStore.totalAmountDisplay}
             </Text>
 
             <Text

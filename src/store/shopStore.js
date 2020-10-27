@@ -150,6 +150,46 @@ class shopStore {
     return 0;
   }
 
+  @computed get totalAmountDisplay() {
+    let lowerEstimate = this.totalCartSubTotalAmount;
+    let upperEstimate = this.totalCartSubTotalAmount;
+
+    if (
+      this.storeCartItems &&
+      Object.keys(this.storeSelectedDeliveryMethod).length > 0
+    ) {
+      Object.entries(this.storeSelectedDeliveryMethod).map(
+        ([storeId, deliveryMethod]) => {
+          if (deliveryMethod === 'Mr. Speedy') {
+            const mrSpeedyDeliveryEstimates = this.storeMrSpeedyDeliveryFee[
+              storeId
+            ];
+
+            if (mrSpeedyDeliveryEstimates) {
+              const motorbikeDeliveryFee = mrSpeedyDeliveryEstimates
+                ? Number(mrSpeedyDeliveryEstimates.motorbike)
+                : 0;
+              const carDeliveryFee = mrSpeedyDeliveryEstimates
+                ? Number(mrSpeedyDeliveryEstimates.car)
+                : 0;
+
+              lowerEstimate += motorbikeDeliveryFee;
+              upperEstimate += carDeliveryFee;
+            }
+          }
+        },
+      );
+
+      if (upperEstimate === lowerEstimate) {
+        return `₱${this.totalCartSubTotalAmount.toFixed(2)}`;
+      }
+
+      return `₱${lowerEstimate.toFixed(2)} - ₱${upperEstimate.toFixed(2)}`;
+    }
+
+    return 0;
+  }
+
   @computed get cartStores() {
     if (this.storeCartItems) {
       const stores = [...Object.keys(this.storeCartItems)];
@@ -158,7 +198,6 @@ class shopStore {
     }
     return [];
   }
-
 
   @action async getMrSpeedyDeliveryPriceEstimate(
     deliveryLocation,
@@ -385,7 +424,6 @@ class shopStore {
         });
     }
   }
-
 
   @action async getStoreList({currentLocationGeohash, locationCoordinates}) {
     if (currentLocationGeohash && locationCoordinates) {
