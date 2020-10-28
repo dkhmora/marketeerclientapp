@@ -23,6 +23,13 @@ const RemotePushController = (props) => {
               orderId: notification.orderId,
             });
           }
+
+          if (notification.type === 'order_awaiting_payment') {
+            props.navigation.navigate('Order Details', {
+              orderId: notification.orderId,
+              openPaymentLink: true,
+            });
+          }
         }
 
         notification.finish(PushNotificationIOS.FetchResult.NoData);

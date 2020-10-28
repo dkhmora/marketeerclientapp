@@ -35,13 +35,22 @@ class OrderDetailsScreen extends Component {
   }
 
   componentDidMount() {
-    const {orderId} = this.props.route.params;
+    const {orderId, openPaymentLink} = this.props.route.params;
 
     this.props.generalStore.getOrder({orderId, readMessages: false});
 
     this.props.generalStore.getOrderItems(orderId).then((orderItems) => {
       this.setState({orderItems, itemsReady: true});
     });
+
+    if (openPaymentLink) {
+      when(
+        () =>
+          this.props.generalStore.selectedOrder &&
+          this.props.generalStore.selectedOrder.paymentLink,
+        () => this.openPaymentLink(),
+      );
+    }
 
     crashlytics().log('OrderDetailsScreen');
   }
@@ -258,18 +267,22 @@ class OrderDetailsScreen extends Component {
             endEnter: 'slide_in_left',
             endExit: 'slide_out_right',
           },
-        }).then(() => {
-          this.setState({paymentProcessing: false});
         });
       } else {
-        Linking.openURL(url).then(() => {
-          this.setState({paymentProcessing: false});
-        });
+        await Linking.openURL(url);
       }
+      this.setState({paymentProcessing: false});
       this.props.generalStore.appReady = true;
     } catch (err) {
       Toast({text: err.message, type: 'danger'});
     }
+  }
+
+  openPaymentLink() {
+    this.props.generalStore.appReady = false;
+    this.setState({orderPayment: null, paymentProcessing: true}, () => {
+      this.openLink(this.props.generalStore.selectedOrder.paymentLink);
+    });
   }
 
   openOrderChat() {
@@ -697,15 +710,7 @@ class OrderDetailsScreen extends Component {
                           selectedOrder.paymentLink && (
                             <Button
                               title="Pay Now"
-                              onPress={() => {
-                                this.props.generalStore.appReady = false;
-                                this.setState(
-                                  {orderPayment: null, paymentProcessing: true},
-                                  () => {
-                                    this.openLink(selectedOrder.paymentLink);
-                                  },
-                                );
-                              }}
+                              onPress={() => this.openPaymentLink()}
                               titleStyle={{color: colors.icons}}
                               buttonStyle={{
                                 backgroundColor: colors.accent,
