@@ -104,7 +104,8 @@ class StoreCard extends Component {
             overflow: 'hidden',
           }}>
           <TouchableOpacity
-            activeOpacity={0.85}
+            activeOpacity={0.9}
+            style={{backgroundColor: colors.primary}}
             onPress={() =>
               navigation.navigate('Store', {
                 store,
@@ -252,6 +253,7 @@ class StoreCard extends Component {
                 shadowOpacity: 0.25,
                 shadowRadius: 3.84,
                 elevation: 5,
+                backgroundColor: colors.icons,
               }}>
               <View
                 style={{

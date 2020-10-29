@@ -150,6 +150,51 @@ class shopStore {
     return 0;
   }
 
+  @computed get totalAmountDisplay() {
+    let lowerEstimate = this.totalCartSubTotalAmount;
+    let upperEstimate = this.totalCartSubTotalAmount;
+
+    if (
+      this.storeCartItems &&
+      Object.keys(this.storeSelectedDeliveryMethod).length > 0
+    ) {
+      Object.entries(this.storeSelectedDeliveryMethod).map(
+        ([storeId, deliveryMethod]) => {
+          if (deliveryMethod === 'Mr. Speedy') {
+            const mrSpeedyDeliveryEstimates = this.storeMrSpeedyDeliveryFee[
+              storeId
+            ];
+            const selectedPaymentMethod = this.storeSelectedPaymentMethod[
+              storeId
+            ];
+
+            if (mrSpeedyDeliveryEstimates) {
+              const motorbikeDeliveryFee =
+                selectedPaymentMethod === 'COD'
+                  ? Number(mrSpeedyDeliveryEstimates.motorbike) + 30
+                  : Number(mrSpeedyDeliveryEstimates.motorbike);
+              const carDeliveryFee =
+                selectedPaymentMethod === 'COD'
+                  ? Number(mrSpeedyDeliveryEstimates.car) + 30
+                  : Number(mrSpeedyDeliveryEstimates.car);
+
+              lowerEstimate += motorbikeDeliveryFee;
+              upperEstimate += carDeliveryFee;
+            }
+          }
+        },
+      );
+
+      if (upperEstimate === lowerEstimate) {
+        return `₱${this.totalCartSubTotalAmount.toFixed(2)}`;
+      }
+
+      return `₱${lowerEstimate.toFixed(2)} - ₱${upperEstimate.toFixed(2)}`;
+    }
+
+    return 0;
+  }
+
   @computed get cartStores() {
     if (this.storeCartItems) {
       const stores = [...Object.keys(this.storeCartItems)];
@@ -159,19 +204,17 @@ class shopStore {
     return [];
   }
 
-
   @action async getMrSpeedyDeliveryPriceEstimate(
     deliveryLocation,
     deliveryAddress,
   ) {
     return await functions
-      .httpsCallable('getMrSpeedyDeliveryPriceEstimate')({
+      .httpsCallable('getUserMrSpeedyDeliveryPriceEstimate')({
         deliveryLocation,
         deliveryAddress,
       })
       .then((response) => {
         if (response.data.s === 200) {
-          console.log(response);
           this.storeMrSpeedyDeliveryFee = response.data.d;
 
           return;
@@ -179,7 +222,7 @@ class shopStore {
 
         return Toast({text: response.data.m, type: 'danger'});
       })
-      .catch((err) => console.log(err));
+      .catch((err) => Toast({text: err, type: 'danger'}));
   }
 
   @action async getStoreDetailsFromStoreId(storeId) {
@@ -386,7 +429,6 @@ class shopStore {
     }
   }
 
-
   @action async getStoreList({currentLocationGeohash, locationCoordinates}) {
     if (currentLocationGeohash && locationCoordinates) {
       return await storesCollection
@@ -412,7 +454,6 @@ class shopStore {
         })
         .catch((err) => {
           crashlytics().recordError(err);
-          console.log(err);
           Toast({text: err.message, type: 'danger'});
         });
     } else {

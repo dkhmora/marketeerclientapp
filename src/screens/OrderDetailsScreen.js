@@ -30,11 +30,12 @@ class OrderDetailsScreen extends Component {
       cancelReasonCheck: false,
       cancelReasonInput: '',
       cancelOrderLoading: false,
+      paymentProcessing: false,
     };
   }
 
   componentDidMount() {
-    const {orderId} = this.props.route.params;
+    const {orderId, openPaymentLink} = this.props.route.params;
 
     this.props.generalStore.getOrder({orderId, readMessages: false});
 
@@ -42,35 +43,45 @@ class OrderDetailsScreen extends Component {
       this.setState({orderItems, itemsReady: true});
     });
 
-    when(
-      () => this.props.generalStore.selectedOrder,
-      () => {
-        if (
-          this.props.generalStore.selectedOrder.paymentMethod ===
-          'Online Banking'
-        ) {
-          if (
-            Object.keys(this.props.generalStore.availablePaymentMethods)
-              .length === 0
-          ) {
-            this.props.generalStore.setAppData();
-          }
-
-          if (
-            !this.props.generalStore.selectedOrder.orderStatus.pending.status &&
-            !this.props.generalStore.selectedOrder.orderStatus.cancelled.status
-          ) {
-            this.props.generalStore
-              .getOrderPayment(this.props.generalStore.selectedOrder.orderId)
-              .then((orderPayment) => {
-                this.setState({orderPayment});
-              });
-          }
-        }
-      },
-    );
+    if (openPaymentLink) {
+      when(
+        () =>
+          this.props.generalStore.selectedOrder &&
+          this.props.generalStore.selectedOrder.paymentLink,
+        () => this.openPaymentLink(),
+      );
+    }
 
     crashlytics().log('OrderDetailsScreen');
+  }
+
+  async componentDidUpdate(prevProps, prevState) {
+    if (this.props.generalStore.selectedOrder) {
+      const {paymentMethod} = this.props.generalStore.selectedOrder;
+
+      if (paymentMethod === 'Online Banking' && !this.state.orderPayment) {
+        if (
+          Object.keys(this.props.generalStore.availablePaymentMethods)
+            .length === 0
+        ) {
+          await this.props.generalStore.setAppData();
+        }
+
+        const {orderId} = this.props.generalStore.selectedOrder;
+
+        if (
+          !this.props.generalStore.selectedOrder.orderStatus.pending.status &&
+          !this.props.generalStore.selectedOrder.orderStatus.cancelled.status &&
+          !this.state.paymentProcessing
+        ) {
+          await this.props.generalStore
+            .getOrderPayment(orderId)
+            .then((orderPayment) => {
+              this.setState({orderPayment});
+            });
+        }
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -100,6 +111,71 @@ class OrderDetailsScreen extends Component {
     }
 
     return null;
+  }
+
+  @computed get deliveryPriceText() {
+    const {selectedOrder} = this.props.generalStore;
+
+    if (selectedOrder) {
+      const {
+        deliveryPrice,
+        deliveryMethod,
+        mrspeedyBookingData,
+      } = selectedOrder;
+
+      if (deliveryPrice && deliveryPrice > 0) {
+        if (deliveryPrice > 0) {
+          return `₱${selectedOrder.deliveryPrice}`;
+        }
+
+        return '₱0 (Free Delivery)';
+      }
+
+      if (deliveryMethod === 'Mr. Speedy') {
+        if (mrspeedyBookingData && mrspeedyBookingData.estimatedOrderPrices) {
+          return `₱${mrspeedyBookingData.estimatedOrderPrices.motorbike} - ₱${mrspeedyBookingData.estimatedOrderPrices.car}`;
+        }
+
+        return 'To be determined once order is shipped';
+      }
+    }
+
+    return 'N/A';
+  }
+
+  @computed get orderTotalText() {
+    const {selectedOrder} = this.props.generalStore;
+
+    if (selectedOrder) {
+      const {
+        deliveryPrice,
+        deliveryMethod,
+        mrspeedyBookingData,
+        subTotal,
+      } = selectedOrder;
+
+      if (deliveryPrice) {
+        if (deliveryPrice > 0) {
+          return `₱${(subTotal + deliveryPrice).toFixed(2)}`;
+        }
+      }
+
+      if (deliveryMethod === 'Mr. Speedy') {
+        if (mrspeedyBookingData) {
+          const {estimatedOrderPrices} = mrspeedyBookingData;
+
+          if (estimatedOrderPrices) {
+            return `₱${(subTotal + estimatedOrderPrices.motorbike).toFixed(
+              2,
+            )} - ₱${(subTotal + estimatedOrderPrices.car).toFixed(2)}`;
+          }
+        }
+
+        return 'To be determined once order is shipped';
+      }
+    }
+
+    return 'N/A';
   }
 
   handleCancelReasonChange = (cancelReasonInput) => {
@@ -193,12 +269,20 @@ class OrderDetailsScreen extends Component {
           },
         });
       } else {
-        Linking.openURL(url);
+        await Linking.openURL(url);
       }
+      this.setState({paymentProcessing: false});
       this.props.generalStore.appReady = true;
     } catch (err) {
       Toast({text: err.message, type: 'danger'});
     }
+  }
+
+  openPaymentLink() {
+    this.props.generalStore.appReady = false;
+    this.setState({orderPayment: null, paymentProcessing: true}, () => {
+      this.openLink(this.props.generalStore.selectedOrder.paymentLink);
+    });
   }
 
   openOrderChat() {
@@ -626,10 +710,7 @@ class OrderDetailsScreen extends Component {
                           selectedOrder.paymentLink && (
                             <Button
                               title="Pay Now"
-                              onPress={() => {
-                                this.props.generalStore.appReady = false;
-                                this.openLink(selectedOrder.paymentLink);
-                              }}
+                              onPress={() => this.openPaymentLink()}
                               titleStyle={{color: colors.icons}}
                               buttonStyle={{
                                 backgroundColor: colors.accent,
@@ -844,7 +925,7 @@ class OrderDetailsScreen extends Component {
                             color: colors.text_primary,
                             fontFamily: 'ProductSans-Light',
                           }}>
-                          Delivery Price:{' '}
+                          {'Delivery Price: '}
                         </Text>
                         <Text
                           style={{
@@ -852,12 +933,7 @@ class OrderDetailsScreen extends Component {
                             color: colors.text_primary,
                             fontFamily: 'ProductSans-Black',
                           }}>
-                          {selectedOrder.deliveryPrice &&
-                          selectedOrder.deliveryPrice > 0
-                            ? `₱${selectedOrder.deliveryPrice}`
-                            : selectedOrder.deliveryPrice === null
-                            ? '(Contact Store)'
-                            : '₱0 (Free Delivery)'}
+                          {this.deliveryPriceText}
                         </Text>
                       </View>
                     </Right>
@@ -873,7 +949,7 @@ class OrderDetailsScreen extends Component {
                             color: colors.text_primary,
                             fontFamily: 'ProductSans-Light',
                           }}>
-                          Order Total:{' '}
+                          {'Order Total: '}
                         </Text>
                         <Text
                           style={{
@@ -881,11 +957,7 @@ class OrderDetailsScreen extends Component {
                             color: colors.primary,
                             fontFamily: 'ProductSans-Black',
                           }}>
-                          ₱
-                          {selectedOrder.subTotal +
-                            (selectedOrder.deliveryPrice
-                              ? selectedOrder.deliveryPrice
-                              : 0)}
+                          {this.orderTotalText}
                         </Text>
                       </View>
                     </Right>

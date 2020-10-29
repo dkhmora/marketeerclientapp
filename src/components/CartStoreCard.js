@@ -61,9 +61,10 @@ class CartStoreCard extends PureComponent {
 
   @computed get orderTotal() {
     if (this.storeDetails) {
+      const {storeId} = this.props;
       const {availableDeliveryMethods, deliveryDiscount} = this.storeDetails;
       const selectedDeliveryMethod = this.props.shopStore
-        .storeSelectedDeliveryMethod[this.props.storeId];
+        .storeSelectedDeliveryMethod[storeId];
 
       if (selectedDeliveryMethod === 'Own Delivery') {
         if (this.deliveryDiscountApplicable) {
@@ -77,24 +78,33 @@ class CartStoreCard extends PureComponent {
           );
         }
 
-        return (
+        return `₱${(
           this.subTotal + availableDeliveryMethods['Own Delivery'].deliveryPrice
-        );
+        ).toFixed(2)}`;
       }
-      
+
       if (selectedDeliveryMethod === 'Mr. Speedy') {
+        const selectedPaymentMethod = this.props.shopStore
+          .storeSelectedPaymentMethod[storeId];
         const mrSpeedyDeliveryEstimates = this.props.shopStore
           .storeMrSpeedyDeliveryFee[storeId];
-        const motorbikeDeliveryFee = mrSpeedyDeliveryEstimates
-          ? Number(mrSpeedyDeliveryEstimates.motorbike)
-          : 0;
-        const carDeliveryFee = mrSpeedyDeliveryEstimates
-          ? Number(mrSpeedyDeliveryEstimates.car)
-          : 0;
-        
-        return (`${(this.subTotal + motorbikeDeliveryFee).toFixed(2)} - ₱${(
+
+        if (mrSpeedyDeliveryEstimates) {
+          const motorbikeDeliveryFee =
+            selectedPaymentMethod === 'COD'
+              ? Number(mrSpeedyDeliveryEstimates.motorbike) + 30
+              : Number(mrSpeedyDeliveryEstimates.motorbike);
+          const carDeliveryFee =
+            selectedPaymentMethod === 'COD'
+              ? Number(mrSpeedyDeliveryEstimates.car) + 30
+              : Number(mrSpeedyDeliveryEstimates.car);
+
+          return `₱${(this.subTotal + motorbikeDeliveryFee).toFixed(2)} - ₱${(
             this.subTotal + carDeliveryFee
-          ).toFixed(2)}`);
+          ).toFixed(2)}`;
+        }
+
+        return <ActivityIndicator size="small" color={colors.primary} />;
       }
 
       return this.subTotal;
@@ -716,7 +726,7 @@ class CartStoreCard extends PureComponent {
             <ListItem
               title="Order Subtotal"
               subtitle={`(${this.totalItemQuantity} Items)`}
-              rightTitle={`₱${this.subTotal}`}
+              rightTitle={`₱${this.subTotal.toFixed(2)}`}
               rightTitleStyle={{
                 flex: 1,
                 fontSize: 18,
@@ -726,6 +736,7 @@ class CartStoreCard extends PureComponent {
               }}
               subtitleStyle={{fontSize: 12, color: colors.text_secondary}}
               titleStyle={{fontSize: 18}}
+              rightContentContainerStyle={{flex: 1}}
               containerStyle={{paddingBottom: 5, paddingTop: 5}}
             />
 
@@ -733,7 +744,7 @@ class CartStoreCard extends PureComponent {
               <View>
                 <ListItem
                   title="Delivery Fee"
-                  rightTitle={`-₱${deliveryDiscount.discountAmount}`}
+                  rightTitle={this.deliveryFee}
                   rightTitleStyle={{
                     flex: 1,
                     fontSize: 18,
@@ -741,15 +752,26 @@ class CartStoreCard extends PureComponent {
                     color: colors.text_primary,
                     textAlign: 'right',
                   }}
-                  subtitleStyle={{fontSize: 14, color: colors.primary}}
-                  titleStyle={{fontSize: 18}}
+                  subtitle={
+                    selectedDelivery === 'Mr. Speedy'
+                      ? 'The delivery fee will vary depending on the total weight of your order'
+                      : ''
+                  }
+                  subtitleStyle={{
+                    fontSize: 12,
+                    color: colors.text_secondary,
+                  }}
+                  titleStyle={{
+                    fontSize: 18,
+                  }}
+                  rightContentContainerStyle={{flex: 1}}
                   containerStyle={{paddingBottom: 5, paddingTop: 5}}
                 />
 
                 {this.deliveryDiscountApplicable && (
                   <ListItem
                     title="Delivery Discount"
-                    rightTitle={this.deliveryFee}
+                    rightTitle={`-₱${deliveryDiscount.discountAmount}`}
                     rightTitleStyle={{
                       flex: 1,
                       fontSize: 18,
@@ -759,13 +781,14 @@ class CartStoreCard extends PureComponent {
                     }}
                     subtitleStyle={{fontSize: 14, color: colors.primary}}
                     titleStyle={{fontSize: 18}}
+                    rightContentContainerStyle={{flex: 1}}
                     containerStyle={{paddingBottom: 5, paddingTop: 5}}
                   />
                 )}
 
                 <ListItem
                   title="Order Total"
-                  rightTitle={`₱${this.orderTotal}`}
+                  rightTitle={this.orderTotal}
                   rightTitleStyle={{
                     flex: 1,
                     fontSize: 18,
@@ -773,8 +796,17 @@ class CartStoreCard extends PureComponent {
                     color: colors.text_primary,
                     textAlign: 'right',
                   }}
-                  subtitleStyle={{fontSize: 14, color: colors.primary}}
+                  subtitleStyle={{
+                    fontSize: 12,
+                    color: colors.text_secondary,
+                  }}
                   titleStyle={{fontSize: 18}}
+                  subtitle={
+                    selectedDelivery === 'Mr. Speedy'
+                      ? 'The final order total will be shown after the store ships your order'
+                      : ''
+                  }
+                  rightContentContainerStyle={{flex: 1}}
                   containerStyle={{paddingBottom: 5, paddingTop: 5}}
                 />
               </View>
