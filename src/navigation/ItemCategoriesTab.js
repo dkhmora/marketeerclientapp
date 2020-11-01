@@ -23,8 +23,10 @@ class ItemCategoriesTab extends Component {
   }
 
   TabScreens(storeCategoryItems) {
-    const {storeId} = this.props;
+    const {storeId, storeType} = this.props;
     const tabs = [];
+
+    console.log('yes', storeType);
 
     storeCategoryItems.forEach((key, value) => {
       if (value !== '') {
@@ -35,6 +37,7 @@ class ItemCategoriesTab extends Component {
             initialParams={{
               items: key,
               storeId,
+              storeType,
             }}
             key={value}
           />,
