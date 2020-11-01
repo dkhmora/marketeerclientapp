@@ -26,8 +26,6 @@ class ItemCategoriesTab extends Component {
     const {storeId, storeType} = this.props;
     const tabs = [];
 
-    console.log('yes', storeType);
-
     storeCategoryItems.forEach((key, value) => {
       if (value !== '') {
         tabs.push(

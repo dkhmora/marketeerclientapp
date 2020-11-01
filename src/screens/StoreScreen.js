@@ -87,8 +87,6 @@ class StoreScreen extends Component {
     const displayImageUrl = `https://cdn.marketeer.ph${store.displayImage}`;
     const coverImageUrl = `https://cdn.marketeer.ph${store.coverImage}`;
 
-    console.log('haha', store.storeType);
-
     return (
       <View style={{flex: 1, backgroundColor: colors.text_primary}}>
         <StatusBar animated translucent backgroundColor={colors.statusBar} />
