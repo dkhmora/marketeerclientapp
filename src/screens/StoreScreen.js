@@ -42,6 +42,7 @@ class StoreScreen extends Component {
       coverImageUrl,
       ready: false,
       detailsModal: false,
+      allowScrolling: false,
     };
 
     this.props.shopStore
@@ -196,7 +197,8 @@ class StoreScreen extends Component {
               <Button
                 type="clear"
                 onPress={() => {
-                  this.sheetRef && this.sheetRef.snapTo(1);
+                  this.storeDetailsModalRef &&
+                    this.storeDetailsModalRef.modalizeRef.open('top');
                   this.modalizeRef && this.modalizeRef.close();
                 }}
                 buttonStyle={{borderRadius: 30}}
@@ -295,30 +297,13 @@ class StoreScreen extends Component {
           )}
         />
 
-        <BottomSheet
-          ref={(sheetRef) => (this.sheetRef = sheetRef)}
-          snapPoints={[0, SCREEN_HEIGHT * 0.95]}
-          borderRadius={30}
-          initialSnap={0}
-          onCloseEnd={() =>
-            this.modalizeRef && this.modalizeRef.close('alwaysOpen')
+        <StoreDetailsModal
+          ref={(storeDetailsModalRef) =>
+            (this.storeDetailsModalRef = storeDetailsModalRef)
           }
-          renderContent={() => (
-            <View
-              style={{
-                backgroundColor: colors.icons,
-                height: SCREEN_HEIGHT * 0.95,
-              }}>
-              <StoreDetailsModal
-                store={store}
-                coverImageUrl={coverImageUrl}
-                displayImageUrl={displayImageUrl}
-                onDownButtonPress={() =>
-                  this.sheetRef && this.sheetRef.snapTo(0)
-                }
-              />
-            </View>
-          )}
+          store={store}
+          coverImageUrl={coverImageUrl}
+          displayImageUrl={displayImageUrl}
         />
       </View>
     );

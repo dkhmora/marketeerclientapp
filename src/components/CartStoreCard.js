@@ -399,14 +399,13 @@ class CartStoreCard extends PureComponent {
 
   renderPaymentMethods() {
     const {storeDetails} = this;
-    const {paymentMethods} = storeDetails;
     const {storeId, checkout} = this.props;
     const {selectedPaymentMethod} = this.state;
     const {availablePaymentMethods} = this.props.generalStore;
 
     if (
       checkout &&
-      paymentMethods &&
+      storeDetails.paymentMethods &&
       Object.keys(availablePaymentMethods).length > 0
     ) {
       return (
@@ -421,8 +420,9 @@ class CartStoreCard extends PureComponent {
               const paymentMethod = {[key]: value};
 
               if (
-                (key !== 'COD' && paymentMethods.includes('Online Banking')) ||
-                (key === 'COD' && paymentMethods.includes('COD'))
+                (key !== 'COD' &&
+                  storeDetails.paymentMethods.includes('Online Banking')) ||
+                (key === 'COD' && storeDetails.paymentMethods.includes('COD'))
               ) {
                 return (
                   <ListItem
@@ -605,7 +605,6 @@ class CartStoreCard extends PureComponent {
       emailCheck,
     } = this.state;
     const {storeDetails, selectedPayment} = this;
-    const {deliveryDiscount, availableDeliveryMethods} = storeDetails;
     const selectedDelivery = storeSelectedDeliveryMethod[storeId];
     const selectedPaymentKey = storeSelectedPaymentMethod[storeId];
     const email = storeUserEmail[storeId];
@@ -691,19 +690,20 @@ class CartStoreCard extends PureComponent {
                   </Text>
                 )}
 
-                {deliveryDiscount && deliveryDiscount.activated && (
-                  <Text
-                    numberOfLines={2}
-                    adjustsFontSizeToFit
-                    style={{
-                      fontSize: 13,
-                      fontFamily: 'ProductSans-Bold',
-                      flexShrink: 1,
-                      color: colors.primary,
-                    }}>
-                    {`Get a ₱${deliveryDiscount.discountAmount} delivery discount if your order reaches more than ₱${deliveryDiscount.minimumOrderAmount}!`}
-                  </Text>
-                )}
+                {storeDetails.deliveryDiscount &&
+                  storeDetails.deliveryDiscount.activated && (
+                    <Text
+                      numberOfLines={2}
+                      adjustsFontSizeToFit
+                      style={{
+                        fontSize: 13,
+                        fontFamily: 'ProductSans-Bold',
+                        flexShrink: 1,
+                        color: colors.primary,
+                      }}>
+                      {`Get a ₱${storeDetails.deliveryDiscount.discountAmount} delivery discount if your order reaches more than ₱${storeDetails.deliveryDiscount.minimumOrderAmount}!`}
+                    </Text>
+                  )}
               </View>
             </View>
             <View>
@@ -771,7 +771,7 @@ class CartStoreCard extends PureComponent {
                 {this.deliveryDiscountApplicable && (
                   <ListItem
                     title="Delivery Discount"
-                    rightTitle={`-₱${deliveryDiscount.discountAmount}`}
+                    rightTitle={`-₱${storeDetails.deliveryDiscount.discountAmount}`}
                     rightTitleStyle={{
                       flex: 1,
                       fontSize: 18,

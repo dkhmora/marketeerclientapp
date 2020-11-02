@@ -42,7 +42,7 @@ class ItemsList extends Component {
   }
 
   renderItem = ({item, index}) => {
-    const {storeType} = this.props.route.params;
+    const {storeType, storeId} = this.props.route.params;
     const ItemCardComponent = storeType === 'food' ? FoodItemCard : ItemCard;
 
     if (item.empty) {
@@ -54,6 +54,7 @@ class ItemsList extends Component {
     return (
       <ItemCardComponent
         item={item}
+        storeId={storeId}
         navigation={this.props.navigation}
         key={`${item.name}${this.props.route.params.category}`}
       />
