@@ -10,6 +10,7 @@ import moment from 'moment';
 import {styles} from '../../assets/styles';
 import {ScrollView} from 'react-native-gesture-handler';
 import {Modalize} from 'react-native-modalize';
+import Divider from './Divider';
 
 @inject('generalStore')
 class StoreDetailsModal extends Component {
@@ -51,8 +52,8 @@ class StoreDetailsModal extends Component {
         style={{
           width: '100%',
           flexDirection: 'column',
-          paddingVertical: 10,
-          paddingHorizontal: 15,
+          paddingVertical: 5,
+          paddingHorizontal: 10,
         }}>
         <View
           style={{
@@ -68,7 +69,6 @@ class StoreDetailsModal extends Component {
               overlayContainerStyle={{
                 backgroundColor: colors.primary,
               }}
-              activeOpacity={0.7}
               titleStyle={{
                 fontFamily: 'ProductSans-Light',
                 color: colors.icons,
@@ -98,13 +98,15 @@ class StoreDetailsModal extends Component {
           />
         </View>
 
-        <View style={{paddingHorizontal: 8, paddingTop: 8}}>
+        <View style={{paddingHorizontal: 8, paddingVertical: 8}}>
           <Text style={{fontSize: 15, paddingBottom: 10, textAlign: 'justify'}}>
             {item.reviewBody}
           </Text>
 
           <Text style={{color: colors.text_secondary}}>{timeStamp}</Text>
         </View>
+
+        <Divider />
       </View>
     );
   }
@@ -183,8 +185,6 @@ class StoreDetailsModal extends Component {
               }
               style={{
                 borderRadius: 10,
-                borderWidth: 0.7,
-                borderColor: 'rgba(255,255,255,0.4)',
                 width: 90,
                 aspectRatio: 1,
                 shadowColor: '#000',
@@ -242,22 +242,44 @@ class StoreDetailsModal extends Component {
                 onPress={onChangeButtonIndex}
                 selectedIndex={selectedIndex}
                 buttons={['Store Info', 'Reviews']}
+                buttonStyle={{
+                  borderRadius: 40,
+                  paddingRight: 0,
+                  padding: 0,
+                }}
+                buttonContainerStyle={{
+                  borderRadius: 40,
+                  overflow: 'hidden',
+                }}
+                innerBorderStyle={{color: 'transparent', width: 10}}
                 activeOpacity={0.7}
+                textStyle={{color: colors.primary}}
                 containerStyle={{
                   height: 30,
                   width: '80%',
-                  borderRadius: 8,
-                  elevation: 5,
+                  borderRadius: 40,
+                  paddingLeft: -5,
+                  elevation: 2,
                   shadowColor: '#000',
                   shadowOffset: {
                     width: 0,
-                    height: 2,
+                    height: 1,
                   },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 3.84,
-                  borderColor: 'rgba(0,0,0,0.7)',
+                  shadowOpacity: 0.2,
+                  shadowRadius: 1.41,
+                  backgroundColor: colors.icons,
+                  borderWidth: 0,
                 }}
-                selectedButtonStyle={{backgroundColor: colors.primary}}
+                selectedButtonStyle={{
+                  backgroundColor: colors.primary,
+                  borderColor: colors.primary,
+                  borderWidth: 1,
+                  elevation: 2,
+                  overflow: 'hidden',
+                }}
+                selectedTextStyle={{
+                  color: colors.icons,
+                }}
               />
             </View>
           </View>
