@@ -15,7 +15,6 @@ import {styles} from '../../assets/styles';
 import ItemCategoriesTab from '../navigation/ItemCategoriesTab';
 import StoreDetailsModal from '../components/StoreDetailsModal';
 import {initialWindowMetrics} from 'react-native-safe-area-context';
-import BottomSheet from 'reanimated-bottom-sheet';
 import {Modalize} from 'react-native-modalize';
 import SlidingCartHeader from '../components/SlidingCartHeader';
 import CartStoreCard from '../components/CartStoreCard';
@@ -199,7 +198,6 @@ class StoreScreen extends Component {
                 onPress={() => {
                   this.storeDetailsModalRef &&
                     this.storeDetailsModalRef.modalizeRef.open('top');
-                  this.modalizeRef && this.modalizeRef.close();
                 }}
                 buttonStyle={{borderRadius: 30}}
                 containerStyle={[
@@ -304,6 +302,9 @@ class StoreScreen extends Component {
           store={store}
           coverImageUrl={coverImageUrl}
           displayImageUrl={displayImageUrl}
+          onClose={() =>
+            this.modalizeRef && this.modalizeRef.open('alwaysOpen')
+          }
         />
       </View>
     );
