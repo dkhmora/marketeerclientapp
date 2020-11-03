@@ -11,6 +11,7 @@ import AddReviewModal from './AddReviewModal';
 import Toast from './Toast';
 import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
+import { CDN_BASE_URL } from './util/variables';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -158,7 +159,7 @@ class OrderCard extends PureComponent {
     const orderStatusText =
       orderStatus[0] === 'PAID' ? 'PROCESSING' : orderStatus;
     const displayImageUrl = {
-      uri: `https://cdn.marketeer.ph/images/stores/${storeId}/display.jpg`,
+      uri: `${CDN_BASE_URL}/images/stores/${storeId}/display.jpg`,
     };
 
     return (

@@ -10,6 +10,7 @@ import FastImage from 'react-native-fast-image';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import ItemDescriptionModal from '../../ItemDescriptionModal';
 import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
+import { CDN_BASE_URL } from '../../util/variables';
 
 @inject('authStore')
 @inject('shopStore')
@@ -146,7 +147,7 @@ class ItemCard extends PureComponent {
 
     const {addButtonDisabled, ready} = this.state;
     const url = image
-      ? {uri: `https://cdn.marketeer.ph${image}`}
+      ? {uri: `${CDN_BASE_URL}${image}`}
       : require('../../../../assets/images/placeholder.jpg');
 
     return (

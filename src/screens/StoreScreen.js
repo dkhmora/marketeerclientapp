@@ -20,6 +20,7 @@ import SlidingCartHeader from '../components/SlidingCartHeader';
 import CartStoreCard from '../components/CartStoreCard';
 import SlidingCartFooter from '../components/SlidingCartFooter';
 import crashlytics from '@react-native-firebase/crashlytics';
+import { CDN_BASE_URL } from '../components/util/variables';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -84,8 +85,8 @@ class StoreScreen extends Component {
     const {storeCategoryItems} = this.state;
     const dataSource = this.props.shopStore.cartStores.slice();
     const emptyCartText = 'Your cart is empty';
-    const displayImageUrl = `https://cdn.marketeer.ph${store.displayImage}`;
-    const coverImageUrl = `https://cdn.marketeer.ph${store.coverImage}`;
+    const displayImageUrl = `${CDN_BASE_URL}${store.displayImage}`;
+    const coverImageUrl = `${CDN_BASE_URL}${store.coverImage}`;
 
     return (
       <View style={{flex: 1, backgroundColor: colors.text_primary}}>

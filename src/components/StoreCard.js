@@ -8,6 +8,7 @@ import {styles} from '../../assets/styles';
 import {PlaceholderMedia, Placeholder, Fade} from 'rn-placeholder';
 import {computed} from 'mobx';
 import {observer} from 'mobx-react';
+import {CDN_BASE_URL} from './util/variables';
 
 @observer
 class StoreCard extends Component {
@@ -79,8 +80,8 @@ class StoreCard extends Component {
   render() {
     const {store, navigation} = this.props;
     const {coverImageReady, displayImageReady} = this.state;
-    const displayImageUrl = `https://cdn.marketeer.ph${store.displayImage}`;
-    const coverImageUrl = `https://cdn.marketeer.ph${store.coverImage}`;
+    const displayImageUrl = `${CDN_BASE_URL}${store.displayImage}`;
+    const coverImageUrl = `${CDN_BASE_URL}${store.coverImage}`;
 
     return (
       <View

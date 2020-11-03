@@ -24,6 +24,7 @@
   "dependencies": {
     "@babel/plugin-proposal-decorators": "^7.10.5",
     "@react-native-community/async-storage": "^1.11.0",
+    "@react-native-community/blur": "^3.6.0",
     "@react-native-community/clipboard": "^1.2.3",
     "@react-native-community/datetimepicker": "^3.0.3",
     "@react-native-community/geolocation": "^2.0.2",
@@ -84,6 +85,7 @@
     "react-native-safe-area-context": "^2.0.0",
     "react-native-screens": "^2.9.0",
     "react-native-splash-screen": "^3.2.0",
+    "react-native-sticky-parallax-header": "^0.4.0",
     "react-native-tab-view": "^2.15.0",
     "react-native-vector-icons": "^6.7.0",
     "react-native-version-check": "^3.4.1",

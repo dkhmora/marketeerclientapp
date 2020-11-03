@@ -12,6 +12,7 @@ import stripHtml from 'string-strip-html';
 import Toast from './Toast';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import * as Animatable from 'react-native-animatable';
+import { CDN_BASE_URL } from './util/variables';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -609,7 +610,7 @@ class CartStoreCard extends PureComponent {
     const selectedPaymentKey = storeSelectedPaymentMethod[storeId];
     const email = storeUserEmail[storeId];
     const storeImageUrl = {
-      uri: `https://cdn.marketeer.ph/images/stores/${storeId}/display.jpg`,
+      uri: `${CDN_BASE_URL}/images/stores/${storeId}/display.jpg`,
     };
 
     return (

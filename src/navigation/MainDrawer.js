@@ -363,6 +363,12 @@ class MainDrawer extends Component {
                 leftIcon={<Icon name="user" color={colors.primary} size={18} />}
                 onPress={() => navigation.navigate('Account')}
               />
+
+              <ListItem
+                title="Food Item Details"
+                leftIcon={<Icon name="user" color={colors.primary} size={18} />}
+                onPress={() => navigation.navigate('Food Item Details')}
+              />
             </View>
           )}
 

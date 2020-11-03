@@ -8,6 +8,7 @@ import {colors} from '../../../../assets/colors';
 import FastImage from 'react-native-fast-image';
 import {Fade, Placeholder, PlaceholderMedia} from 'rn-placeholder';
 import Divider from '../../Divider';
+import { CDN_BASE_URL } from '../../util/variables';
 
 @inject('authStore')
 @inject('shopStore')
@@ -19,7 +20,7 @@ class FoodItemCard extends PureComponent {
     const {item} = this.props;
 
     this.state = {
-      url: item.image ? {uri: `https://cdn.marketeer.ph${item.image}`} : null,
+      url: item.image ? {uri: `${CDN_BASE_URL}${item.image}`} : null,
       imageReady: false,
     };
   }

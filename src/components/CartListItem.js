@@ -6,6 +6,7 @@ import {View} from 'react-native';
 import {observer, inject} from 'mobx-react';
 import {styles} from '../../assets/styles';
 import {colors} from '../../assets/colors';
+import { CDN_BASE_URL } from './util/variables';
 
 @inject('shopStore')
 @inject('authStore')
@@ -56,7 +57,7 @@ class CartListItem extends PureComponent {
     const {item, itemSnapshot, checkout} = this.props;
     const itemPrice = item.discountedPrice ? item.discountedPrice : item.price;
     const imageUrl = item.image
-      ? {uri: `https://cdn.marketeer.ph${item.image}`}
+      ? {uri: `${CDN_BASE_URL}${item.image}`}
       : require('../../assets/images/placeholder.jpg');
 
     return (

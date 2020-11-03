@@ -6,6 +6,7 @@ import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
 import {observer, inject} from 'mobx-react';
 import {Fade, Placeholder, PlaceholderMedia} from 'rn-placeholder';
+import { CDN_BASE_URL } from './util/variables';
 
 @inject('shopStore')
 @observer
@@ -32,7 +33,7 @@ class StoreCategoryCard extends Component {
     const {item} = this.props;
     const {ready, imageViewWidth} = this.state;
     const imageUrl = {
-      uri: `https://cdn.marketeer.ph/images/store_categories/${item.name}.jpg`,
+      uri: `${CDN_BASE_URL}/images/store_categories/${item.name}.jpg`,
     };
 
     return (
