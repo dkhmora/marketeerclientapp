@@ -725,14 +725,7 @@ class OrderDetailsScreen extends Component {
                       borderRadius: 10,
                       overflow: 'hidden',
                     }}>
-                    <CardItem
-                      header
-                      bordered
-                      style={{backgroundColor: colors.primary}}>
-                      <Text style={{color: colors.icons, fontSize: 20}}>
-                        Order Cancellation Details
-                      </Text>
-                    </CardItem>
+                    <CardItemHeader title="Order Cancellation Details" />
 
                     <CardItem>
                       <Left>
@@ -974,14 +967,7 @@ class OrderDetailsScreen extends Component {
                     borderRadius: 10,
                     overflow: 'hidden',
                   }}>
-                  <CardItem
-                    header
-                    bordered
-                    style={{backgroundColor: colors.primary}}>
-                    <Text style={{color: colors.icons, fontSize: 20}}>
-                      Order Items
-                    </Text>
-                  </CardItem>
+                  <CardItemHeader title="Order Items" />
 
                   {itemsReady ? (
                     <View>
