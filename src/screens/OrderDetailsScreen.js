@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Card, CardItem, Left, Right} from 'native-base';
 import {View, ActivityIndicator, Linking} from 'react-native';
-import {Text, Input, Icon, Button, Badge} from 'react-native-elements';
+import {Text, Input, Icon, Button, Badge, Image} from 'react-native-elements';
 import BaseHeader from '../components/BaseHeader';
 import {ScrollView} from 'react-native-gesture-handler';
 import {colors} from '../../assets/colors';
@@ -14,6 +14,8 @@ import InAppBrowser from 'react-native-inappbrowser-reborn';
 import {computed, when} from 'mobx';
 import PrimaryActivityIndicator from '../components/PrimaryActivityIndicator';
 import crashlytics from '@react-native-firebase/crashlytics';
+import MapCardItem from '../components/MapCardItem';
+import CardItemHeader from '../components/CardItemHeader';
 
 @inject('generalStore')
 @inject('authStore')
@@ -31,6 +33,8 @@ class OrderDetailsScreen extends Component {
       cancelReasonInput: '',
       cancelOrderLoading: false,
       paymentProcessing: false,
+      courierCoordinates: null,
+      allowDragging: true,
     };
   }
 
@@ -81,6 +85,26 @@ class OrderDetailsScreen extends Component {
             });
         }
       }
+
+      if (
+        this.props.generalStore.selectedOrder.deliveryMethod === 'Mr. Speedy' &&
+        this.props.generalStore.selectedOrder.mrspeedyBookingData &&
+        this.props.generalStore.selectedOrder.mrspeedyBookingData.order
+      ) {
+        if (
+          this.props.generalStore.selectedOrder.mrspeedyBookingData.order
+            .courier &&
+          this.props.generalStore.selectedOrder.mrspeedyBookingData.order
+            .status === 'active' &&
+          !this.props.generalStore.getCourierInterval
+        ) {
+          this.setCourierInfo();
+
+          this.props.generalStore.getCourierInterval = setInterval(() => {
+            this.setCourierInfo();
+          }, 10000);
+        }
+      }
     }
   }
 
@@ -89,6 +113,40 @@ class OrderDetailsScreen extends Component {
 
     this.props.generalStore.unsubscribeGetOrder &&
       this.props.generalStore.unsubscribeGetOrder();
+  }
+
+  setCourierInfo() {
+    if (
+      this.props.generalStore.selectedOrder &&
+      this.props.generalStore.selectedOrder.deliveryMethod === 'Mr. Speedy' &&
+      this.props.generalStore.selectedOrder.mrspeedyBookingData &&
+      this.props.generalStore.selectedOrder.mrspeedyBookingData.order &&
+      this.props.generalStore.selectedOrder.mrspeedyBookingData.order.courier &&
+      this.props.generalStore.selectedOrder.mrspeedyBookingData.order.status ===
+        'active'
+    ) {
+      this.props.generalStore
+        .getMrSpeedyCourierInfo(
+          this.props.generalStore.selectedOrder.mrspeedyBookingData.order
+            .order_id,
+        )
+        .then((response) => {
+          if (response.s === 200) {
+            const courierInfo = response.d;
+
+            if (courierInfo && courierInfo.latitude && courierInfo.longitude) {
+              const courierCoordinates = {
+                latitude: Number(courierInfo.latitude),
+                longitude: Number(courierInfo.longitude),
+              };
+
+              this.setState({courierCoordinates});
+            }
+          }
+        });
+    } else {
+      this.props.generalStore.clearGetCourierInterval();
+    }
   }
 
   @computed get orderStatus() {
@@ -176,6 +234,21 @@ class OrderDetailsScreen extends Component {
     }
 
     return 'N/A';
+  }
+
+  @computed get mrspeedyVehicleType() {
+    const {selectedOrder} = this.props.generalStore;
+
+    if (
+      selectedOrder.mrspeedyBookingData &&
+      selectedOrder.mrspeedyBookingData.order
+    ) {
+      return selectedOrder.mrspeedyBookingData.order.vehicle_type_id === 8
+        ? 'Motorbike'
+        : 'Car';
+    }
+
+    return null;
   }
 
   handleCancelReasonChange = (cancelReasonInput) => {
@@ -303,6 +376,8 @@ class OrderDetailsScreen extends Component {
       cancelReasonCheck,
       cancelReasonInput,
       cancelOrderLoading,
+      courierCoordinates,
+      allowDragging,
     } = this.state;
     const {orderStatus} = this;
     const {availablePaymentMethods, selectedOrder} = this.props.generalStore;
@@ -423,6 +498,7 @@ class OrderDetailsScreen extends Component {
             />
 
             <ScrollView
+              scrollEnabled={allowDragging}
               style={{
                 flex: 1,
                 flexDirection: 'column',
@@ -444,47 +520,61 @@ class OrderDetailsScreen extends Component {
                     borderRadius: 10,
                     overflow: 'hidden',
                   }}>
-                  <CardItem
+                  <CardItemHeader
                     onPress={() => this.openOrderChat()}
-                    button
                     activeOpacity={0.85}
-                    header
-                    bordered
-                    style={{
-                      backgroundColor: colors.primary,
-                      justifyContent: 'space-between',
-                      paddingTop: 8,
-                      paddingBottom: 8,
-                    }}>
-                    <Text style={{color: colors.icons, fontSize: 20}}>
-                      Order Details
-                    </Text>
-
-                    <View style={{alignItems: 'center'}}>
+                    title={
                       <View
                         style={{
                           flexDirection: 'row',
-                          paddingHorizontal: 5,
-                          paddingTop: 5,
+                          flex: 1,
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
                         }}>
-                        <Icon name="message-square" color={colors.icons} />
+                        <Text
+                          style={{
+                            color: colors.primary,
+                            fontFamily: 'ProductSans-Bold',
+                            fontSize: 20,
+                          }}>
+                          Order Details
+                        </Text>
 
-                        {selectedOrder.userUnreadCount !== null &&
-                          selectedOrder.userUnreadCount > 0 && (
-                            <Badge
-                              value={selectedOrder.userUnreadCount}
-                              badgeStyle={{backgroundColor: colors.accent}}
-                              containerStyle={{
-                                position: 'absolute',
-                                top: 0,
-                                right: 0,
-                              }}
+                        <View style={{alignItems: 'center'}}>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              paddingHorizontal: 5,
+                              paddingTop: 5,
+                            }}>
+                            <Icon
+                              name="message-square"
+                              color={colors.primary}
                             />
-                          )}
+
+                            {selectedOrder.userUnreadCount !== null &&
+                              selectedOrder.userUnreadCount > 0 && (
+                                <Badge
+                                  value={selectedOrder.userUnreadCount}
+                                  badgeStyle={{backgroundColor: colors.accent}}
+                                  containerStyle={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    right: 0,
+                                  }}
+                                />
+                              )}
+                          </View>
+                          <Text
+                            style={{
+                              color: colors.primary,
+                            }}>
+                            Chat
+                          </Text>
+                        </View>
                       </View>
-                      <Text style={{color: colors.icons}}>Chat</Text>
-                    </View>
-                  </CardItem>
+                    }
+                  />
 
                   {selectedOrder ? (
                     <View>
@@ -548,14 +638,25 @@ class OrderDetailsScreen extends Component {
                         </Left>
 
                         <Right>
-                          <Text
-                            style={{
-                              color: colors.text_primary,
-                              fontSize: 16,
-                              textAlign: 'right',
-                            }}>
-                            {selectedOrder.deliveryMethod}
-                          </Text>
+                          {selectedOrder.deliveryMethod === 'Mr. Speedy' ? (
+                            <Image
+                              source={require('../../assets/images/mrspeedy-logo.png')}
+                              style={{
+                                height: 20,
+                                width: 100,
+                                resizeMode: 'contain',
+                              }}
+                            />
+                          ) : (
+                            <Text
+                              style={{
+                                color: colors.text_primary,
+                                fontSize: 16,
+                                textAlign: 'right',
+                              }}>
+                              {selectedOrder.deliveryMethod}
+                            </Text>
+                          )}
                         </Right>
                       </CardItem>
 
@@ -590,6 +691,18 @@ class OrderDetailsScreen extends Component {
                           </View>
                         </Right>
                       </CardItem>
+
+                      <MapCardItem
+                        onTouchStart={() =>
+                          this.setState({allowDragging: false})
+                        }
+                        onTouchEnd={() => this.setState({allowDragging: true})}
+                        onTouchCancel={() =>
+                          this.setState({allowDragging: true})
+                        }
+                        vehicleType={this.mrspeedyVehicleType}
+                        courierCoordinates={courierCoordinates}
+                      />
                     </View>
                   ) : (
                     <PrimaryActivityIndicator />

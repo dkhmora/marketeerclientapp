@@ -35,6 +35,7 @@ class generalStore {
   @observable navigation = null;
   @observable storeCategories = [];
   @observable availablePaymentMethods = {};
+  @observable getCourierInterval = null;
   @observable additionalPaymentMethods = {
     COD: {
       longName: 'Cash On Delivery',
@@ -46,6 +47,11 @@ class generalStore {
       surcharge: 0,
     },
   };
+
+  @action clearGetCourierInterval() {
+    clearInterval(this.getCourierInterval);
+    this.getCourierInterval = null;
+  }
 
   @action async setAppData() {
     await firestore()
