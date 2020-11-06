@@ -21,27 +21,24 @@ class MainTab extends Component {
         initialRouteName="Near You"
         tabBarOptions={{
           allowFontScaling: false,
+          activeTintColor: colors.primary,
+          inactiveTintColor: colors.text_secondary,
           tabStyle: {
             paddingTop: 0,
           },
-          labelStyle: {marginTop: 0},
-          activeTintColor: colors.primary,
+          labelStyle: {
+            marginTop: 0,
+            fontFamily: 'ProductSans-Regular',
+          },
           indicatorStyle: {
             width: '25%',
             left: '12.5%',
+            height: 1,
             backgroundColor: colors.primary,
-            elevation: 7,
-            shadowColor: '#000',
-            shadowOffset: {
-              width: 0,
-              height: 1,
-            },
-            shadowOpacity: 0.2,
-            shadowRadius: 1.41,
           },
           style: {
             backgroundColor: colors.icons,
-            height: 30,
+            height: 35,
             paddingTop: 0,
             shadowColor: '#000',
             shadowOffset: {

@@ -59,26 +59,23 @@ class ItemCategoriesTab extends Component {
             tabBarOptions={{
               allowFontScaling: false,
               scrollEnabled: true,
-              activeTintColor: colors.icons,
+              activeTintColor: colors.primary,
+              inactiveTintColor: colors.text_secondary,
               tabStyle: {
                 width: this.tabWidth,
                 paddingTop: 0,
               },
-              labelStyle: {marginTop: 0},
+              labelStyle: {
+                marginTop: 0,
+                fontFamily: 'ProductSans-Regular',
+              },
               indicatorStyle: {
-                backgroundColor: colors.icons,
-                elevation: 7,
-                shadowColor: '#000',
-                shadowOffset: {
-                  width: 0,
-                  height: 1,
-                },
-                shadowOpacity: 0.2,
-                shadowRadius: 1.41,
+                height: 1,
+                backgroundColor: colors.primary,
               },
               style: {
-                backgroundColor: colors.primary,
-                height: 30,
+                backgroundColor: colors.icons,
+                height: 35,
                 paddingTop: 0,
                 shadowColor: '#000',
                 shadowOffset: {
