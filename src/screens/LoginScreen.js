@@ -20,6 +20,7 @@ import ForgotPasswordModal from '../components/ForgotPasswordModal';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import Toast from '../components/Toast';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 @inject('authStore')
 @inject('generalStore')
@@ -35,6 +36,10 @@ class LoginScreen extends Component {
       secureTextEntry: true,
       forgotPasswordModal: false,
     };
+  }
+
+  componentDidMount() {
+    crashlytics().log('LoginScreen');
   }
 
   handleUserCredentialChange = (userCredential) => {
@@ -199,8 +204,14 @@ class LoginScreen extends Component {
         <Animatable.View
           useNativeDriver
           animation="fadeInUpBig"
-          style={styles.footer}>
-          <KeyboardAwareScrollView>
+          style={{
+            flex: 1,
+            backgroundColor: '#fff',
+            borderTopLeftRadius: 30,
+            borderTopRightRadius: 30,
+            paddingTop: 10,
+          }}>
+          <KeyboardAwareScrollView style={{paddingHorizontal: 20}}>
             <Text style={styles.text_header}>{titleText}</Text>
 
             <Text style={styles.text_footer}>Email Address/Phone Number</Text>

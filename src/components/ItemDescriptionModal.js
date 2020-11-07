@@ -29,45 +29,61 @@ class ItemDescriptionModal extends Component {
         {...otherProps}
         isVisible={isVisible}
         onBackdropPress={onBackdropPress}
+        animationType="fade"
         statusBarTranslucent
         width="auto"
         height="auto"
         overlayStyle={{borderRadius: 10, padding: 0}}>
-        <View style={{alignItems: 'center', maxWidth: SCREEN_WIDTH}}>
-          {url ? (
-            <FastImage
-              source={{uri: url}}
-              style={{
-                borderTopLeftRadius: 10,
-                borderTopRightRadius: 10,
-                width: null,
-                height: SCREEN_WIDTH,
-                aspectRatio: 1,
-              }}
-              resizeMode={FastImage.resizeMode.contain}
-            />
-          ) : (
-            <FastImage
-              source={require('../../assets/images/placeholder.jpg')}
-              style={{
-                borderTopLeftRadius: 10,
-                borderTopRightRadius: 10,
-                width: null,
-                height: 300,
-                aspectRatio: 1,
-                backgroundColor: colors.primary,
-              }}
-              resizeMode={FastImage.resizeMode.contain}
-            />
-          )}
+        <View
+          style={{
+            alignItems: 'center',
+            maxWidth: SCREEN_WIDTH,
+            backgroundColor: colors.icons,
+            borderRadius: 10,
+            overflow: 'hidden',
+          }}>
+          <View
+            style={{
+              elevation: 5,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 2,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+              borderBottomWidth: 0.6,
+              borderColor: 'rgba(0,0,0,0.3)',
+            }}>
+            {url ? (
+              <FastImage
+                source={url}
+                style={{
+                  width: null,
+                  height: SCREEN_WIDTH,
+                  aspectRatio: 1,
+                }}
+                resizeMode={FastImage.resizeMode.contain}
+              />
+            ) : (
+              <FastImage
+                source={require('../../assets/images/placeholder.jpg')}
+                style={{
+                  width: null,
+                  height: SCREEN_WIDTH,
+                  aspectRatio: 1,
+                }}
+                resizeMode={FastImage.resizeMode.contain}
+              />
+            )}
+          </View>
+
           <View
             style={{
               paddingHorizontal: 10,
-              paddingVertical: 10,
-              borderRadius: 10,
+              paddingBottom: 10,
+              paddingTop: 5,
               backgroundColor: colors.icons,
-              elevation: 10,
-              marginTop: -10,
               width: '100%',
             }}>
             <Text
@@ -80,7 +96,7 @@ class ItemDescriptionModal extends Component {
             </Text>
 
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              {discountedPrice && (
+              {discountedPrice ? (
                 <Text
                   maxFontSizeMultiplier={1.5}
                   style={{
@@ -92,7 +108,7 @@ class ItemDescriptionModal extends Component {
                   }}>
                   ₱{price}
                 </Text>
-              )}
+              ) : null}
 
               <Text
                 maxFontSizeMultiplier={1.5}
@@ -106,7 +122,11 @@ class ItemDescriptionModal extends Component {
               </Text>
             </View>
 
-            <View style={{width: SCREEN_WIDTH, padding: 10, marginBottom: 20}}>
+            <View
+              style={{
+                padding: 10,
+                marginBottom: 20,
+              }}>
               {description ? (
                 <Text maxFontSizeMultiplier={1.5} style={{fontSize: 18}}>
                   {description}

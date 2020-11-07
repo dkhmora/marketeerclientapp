@@ -17,6 +17,7 @@ import {styles} from '../../assets/styles';
 import Toast from '../components/Toast';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import BackButton from '../components/BackButton';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -38,6 +39,8 @@ class PhoneVerificationScreen extends Component {
     this.props.generalStore.appReady = false;
 
     this.signInWithPhoneNumber(phoneNumber, false);
+
+    crashlytics().log('PhoneVerificationScreen');
   }
 
   handleResend() {

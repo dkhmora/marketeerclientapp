@@ -1,23 +1,19 @@
-import React, {Component} from 'react';
+import React, {PureComponent} from 'react';
 import FastImage from 'react-native-fast-image';
-import {Card, Text, ListItem, Button, Icon} from 'react-native-elements';
-import {observable, computed} from 'mobx';
-import storage from '@react-native-firebase/storage';
-import {View, Image} from 'react-native';
+import {Text, Button, Icon} from 'react-native-elements';
+import {computed} from 'mobx';
+import {View} from 'react-native';
 import {observer, inject} from 'mobx-react';
 import {styles} from '../../assets/styles';
 import {colors} from '../../assets/colors';
+import { CDN_BASE_URL } from './util/variables';
 
 @inject('shopStore')
 @inject('authStore')
 @observer
-class CartListItem extends Component {
+class CartListItem extends PureComponent {
   constructor(props) {
     super(props);
-
-    this.state = {
-      url: require('../../assets/images/placeholder.jpg'),
-    };
   }
 
   @computed get addButtonDisabled() {
@@ -28,8 +24,6 @@ class CartListItem extends Component {
     }
     return false;
   }
-
-  @observable url = null;
 
   handleIncreaseQuantity() {
     const {item, storeId} = this.props;
@@ -49,18 +43,6 @@ class CartListItem extends Component {
     this.props.shopStore.updateCartItems();
   }
 
-  getImage = async () => {
-    const ref = storage().ref(this.props.item.image);
-    const link = await ref.getDownloadURL();
-    this.setState({url: {uri: link}});
-  };
-
-  componentDidMount() {
-    if (this.props.item.image) {
-      this.getImage();
-    }
-  }
-
   componentDidUpdate(prevProps, prevState) {
     const {item, itemSnapshot} = this.props;
 
@@ -73,7 +55,10 @@ class CartListItem extends Component {
 
   render() {
     const {item, itemSnapshot, checkout} = this.props;
-    const {url} = this.state;
+    const itemPrice = item.discountedPrice ? item.discountedPrice : item.price;
+    const imageUrl = item.image
+      ? {uri: `${CDN_BASE_URL}${item.image}`}
+      : require('../../assets/images/placeholder.jpg');
 
     return (
       <View
@@ -87,7 +72,7 @@ class CartListItem extends Component {
         }}>
         <FastImage
           key={item.itemId}
-          source={url}
+          source={imageUrl}
           style={{
             backgroundColor: colors.primary,
             height: 55,
@@ -132,7 +117,6 @@ class CartListItem extends Component {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'flex-end',
-              marginRight: 10,
               shadowColor: '#000',
               shadowOffset: {
                 width: 0,
@@ -300,7 +284,7 @@ class CartListItem extends Component {
               fontSize: 16,
               color: colors.text_secondary,
             }}>
-            ₱{item.price}
+            ₱{itemPrice}
           </Text>
 
           <Text
@@ -320,7 +304,7 @@ class CartListItem extends Component {
             adjustsFontSizeToFit
             numberOfLines={1}
             style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
-            ₱{item.price * item.quantity}
+            ₱{itemPrice * item.quantity}
           </Text>
         </View>
       </View>

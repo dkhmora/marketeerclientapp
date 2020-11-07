@@ -1,73 +1,87 @@
 import React, {Component} from 'react';
-import {Text} from 'react-native-elements';
-import storage from '@react-native-firebase/storage';
+import {Text, Icon} from 'react-native-elements';
 import FastImage from 'react-native-fast-image';
 import {View, TouchableOpacity} from 'react-native';
 import {Card, CardItem} from 'native-base';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
-import {Rating} from 'react-native-rating-element';
 import {PlaceholderMedia, Placeholder, Fade} from 'rn-placeholder';
+import {computed} from 'mobx';
+import {observer} from 'mobx-react';
+import {CDN_BASE_URL} from './util/variables';
 
+@observer
 class StoreCard extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      displayImageUrl: '',
-      coverImageUrl: '',
-      ready: false,
+      coverImageReady: false,
+      displayImageReady: false,
     };
   }
 
-  getImage = async () => {
-    const {displayImage, coverImage} = this.props.store;
+  @computed get paymentMethods() {
+    const {store} = this.props;
 
-    const displayImageRef = storage().ref(displayImage);
-    const coverImageRef = storage().ref(coverImage);
-    const coverImageUrl = await coverImageRef.getDownloadURL();
-    const displayImageUrl = await displayImageRef.getDownloadURL();
+    if (store) {
+      const {availablePaymentMethods} = store;
 
-    this.setState({displayImageUrl, coverImageUrl, ready: true});
-  };
+      if (availablePaymentMethods) {
+        return Object.entries(availablePaymentMethods)
+          .filter(([key, value]) => value.activated)
+          .map(([key, value]) => key)
+          .sort((a, b) => a > b);
+      }
+    }
 
-  componentDidMount() {
-    this.getImage();
+    return [];
   }
 
   PaymentMethods = () => {
-    const {paymentMethods} = this.props.store;
+    const {paymentMethods} = this;
     const pills = [];
 
-    paymentMethods.map((method, index) => {
-      pills.push(
-        <View
-          key={`${method}${index}`}
-          style={{
-            borderRadius: 20,
-            backgroundColor: colors.accent,
-            padding: 3,
-            paddingHorizontal: 10,
-            marginRight: 2,
-          }}>
-          <Text
+    paymentMethods &&
+      paymentMethods.map((method, index) => {
+        pills.push(
+          <View
+            key={`${method}${index}`}
             style={{
-              fontSize: 13,
-              fontFamily: 'ProductSans-Regular',
-              color: colors.icons,
+              borderRadius: 20,
+              backgroundColor: colors.accent,
+              padding: 2,
+              paddingHorizontal: 5,
+              marginRight: 2,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 1,
+              },
+              shadowOpacity: 0.2,
+              shadowRadius: 1.41,
+              elevation: 2,
             }}>
-            {method}
-          </Text>
-        </View>,
-      );
-    });
+            <Text
+              style={{
+                fontSize: 12,
+                fontFamily: 'ProductSans-Regular',
+                color: colors.icons,
+              }}>
+              {method}
+            </Text>
+          </View>,
+        );
+      });
 
     return pills;
   };
 
   render() {
     const {store, navigation} = this.props;
-    const {displayImageUrl, coverImageUrl, ready} = this.state;
+    const {coverImageReady, displayImageReady} = this.state;
+    const displayImageUrl = `${CDN_BASE_URL}${store.displayImage}`;
+    const coverImageUrl = `${CDN_BASE_URL}${store.coverImage}`;
 
     return (
       <View
@@ -91,7 +105,8 @@ class StoreCard extends Component {
             overflow: 'hidden',
           }}>
           <TouchableOpacity
-            activeOpacity={0.85}
+            activeOpacity={0.9}
+            style={{backgroundColor: colors.primary}}
             onPress={() =>
               navigation.navigate('Store', {
                 store,
@@ -100,22 +115,23 @@ class StoreCard extends Component {
               })
             }>
             <View style={{height: 200}}>
-              {coverImageUrl && ready ? (
-                <FastImage
-                  source={{uri: coverImageUrl}}
-                  style={{
-                    backgroundColor: colors.primary,
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: 150,
-                    borderTopLeftRadius: 8,
-                    borderTopRightRadius: 8,
-                  }}
-                  resizeMode={FastImage.resizeMode.cover}
-                />
-              ) : (
+              <FastImage
+                source={{uri: coverImageUrl}}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 150,
+                  borderTopLeftRadius: 8,
+                  borderTopRightRadius: 8,
+                  opacity: coverImageReady ? 1 : 0,
+                }}
+                resizeMode={FastImage.resizeMode.cover}
+                onLoad={() => this.setState({coverImageReady: true})}
+              />
+
+              {!coverImageReady && (
                 <Placeholder Animation={Fade}>
                   <PlaceholderMedia
                     style={{
@@ -139,31 +155,60 @@ class StoreCard extends Component {
                   alignItems: 'center',
                   justifyContent: 'center',
                   position: 'absolute',
-                  borderTopLeftRadius: 8,
-                  borderBottomLeftRadius: 8,
-                  borderColor: 'rgba(0,0,0,0.3)',
-                  borderWidth: 1,
+                  borderTopLeftRadius: 3,
+                  borderBottomLeftRadius: 3,
                   right: -1,
-                  padding: 7,
-                  marginTop: 20,
-                  backgroundColor: colors.icons,
+                  top: 10,
+                  padding: 4,
+                  backgroundColor: colors.accent,
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 2,
+                  },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
+                  elevation: 5,
                 }}>
-                <Text style={{color: colors.text_primary}}>
-                  {store.deliveryType}
-                </Text>
+                <Text style={{color: colors.icons}}>{store.deliveryType}</Text>
 
-                {store.freeDelivery && (
-                  <Text
+                {store.deliveryDiscount && store.deliveryDiscount.activated && (
+                  <View
                     style={{
-                      color: colors.text_primary,
-                      fontFamily: 'ProductSans-Black',
+                      width: '100%',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}>
-                    Free Delivery (₱
-                    {store.freeDeliveryMinimum
-                      ? store.freeDeliveryMinimum
-                      : 0}{' '}
-                    Min.)
-                  </Text>
+                    <View
+                      style={{
+                        height: 1,
+                        width: '70%',
+                        backgroundColor: colors.icons,
+                        marginVertical: 3,
+                      }}
+                    />
+
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Icon
+                        name="gift"
+                        color={colors.icons}
+                        size={11}
+                        style={{marginRight: 4}}
+                      />
+                      <Text
+                        style={{
+                          color: colors.icons,
+                          fontFamily: 'ProductSans-Black',
+                        }}>
+                        Delivery Promo
+                      </Text>
+                    </View>
+                  </View>
                 )}
               </View>
 
@@ -177,44 +222,19 @@ class StoreCard extends Component {
                   borderBottomRightRadius: 8,
                   top: 0,
                   left: 0,
-                  elevation: 10,
-                  padding: 7,
+                  padding: 4,
                   backgroundColor: colors.primary,
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 5,
+                  },
+                  shadowOpacity: 0.34,
+                  shadowRadius: 6.27,
+                  elevation: 10,
                 }}>
-                <Text style={{color: colors.icons, fontSize: 17}}>
-                  {store.storeCategory}
-                </Text>
+                <Text style={{color: colors.icons}}>{store.storeCategory}</Text>
               </View>
-
-              {store.ratingAverage && (
-                <View
-                  style={{
-                    overflow: 'hidden',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    position: 'absolute',
-                    borderTopLeftRadius: 8,
-                    borderBottomLeftRadius: 8,
-                    bottom: 60,
-                    right: 0,
-                    padding: 5,
-                    backgroundColor: colors.primary,
-                  }}>
-                  <Rating
-                    type="custom"
-                    direction="row"
-                    rated={store.ratingAverage}
-                    selectedIconImage={require('../../assets/images/feather_filled.png')}
-                    emptyIconImage={require('../../assets/images/feather_unfilled.png')}
-                    size={23}
-                    tintColor={colors.primary}
-                    ratingColor={colors.accent}
-                    ratingBackgroundColor="#455A64"
-                    readonly
-                  />
-                </View>
-              )}
             </View>
 
             <CardItem
@@ -226,32 +246,73 @@ class StoreCard extends Component {
                 paddingLeft: 10,
                 paddingRight: 10,
                 paddingBottom: 10,
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+                elevation: 5,
+                backgroundColor: colors.icons,
               }}>
               <View
                 style={{
                   width: '100%',
                   flexDirection: 'column',
-                  paddingTop: 5,
                 }}>
-                <Text
-                  numberOfLines={1}
-                  style={[
-                    styles.text_footer,
-                    {
-                      fontFamily: 'ProductSans-Regular',
-                      textAlign: 'left',
-                      alignSelf: 'flex-start',
-                      flexWrap: 'wrap',
-                    },
-                  ]}>
-                  {store.storeName}
-                </Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}>
+                  <Text
+                    numberOfLines={1}
+                    style={[
+                      styles.text_footer,
+                      {
+                        fontFamily: 'ProductSans-Regular',
+                        textAlign: 'left',
+                        alignSelf: 'flex-start',
+                        flexWrap: 'wrap',
+                        flex: 1,
+                      },
+                    ]}>
+                    {store.storeName}
+                  </Text>
+
+                  {store.ratingAverage && (
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Text style={{color: colors.text_primary}}>
+                        {store.ratingAverage.toFixed(1)}
+                      </Text>
+
+                      <FastImage
+                        source={require('../../assets/images/feather_filled.png')}
+                        style={{
+                          backgroundColor: colors.icons,
+                          width: 17,
+                          height: 17,
+                          marginLeft: 5,
+                        }}
+                        resizeMode={FastImage.resizeMode.cover}
+                      />
+                    </View>
+                  )}
+                </View>
 
                 <Text
                   numberOfLines={2}
                   style={[
                     styles.text_subtext,
                     {
+                      fontSize: 12,
                       fontFamily: 'ProductSans-light',
                       flexWrap: 'wrap',
                       minHeight: 28,
@@ -275,7 +336,7 @@ class StoreCard extends Component {
                     <this.PaymentMethods />
                   </View>
 
-                  <Text style={{color: colors.text_secondary}}>
+                  <Text style={{color: colors.text_secondary, fontSize: 12}}>
                     {store.distance
                       ? store.distance > 1000
                         ? `${(store.distance / 1000).toFixed(2)} km`
@@ -286,39 +347,50 @@ class StoreCard extends Component {
               </View>
             </CardItem>
 
-            {displayImageUrl && ready ? (
+            <View
+              style={{
+                position: 'absolute',
+                top: 95,
+                left: 20,
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+                elevation: 6,
+                borderRadius: 8,
+                borderWidth: 0.7,
+                borderColor: 'rgba(0,0,0,0.3)',
+                overflow: 'hidden',
+                width: 60,
+                height: 60,
+              }}>
               <FastImage
                 source={{uri: displayImageUrl}}
                 style={{
-                  backgroundColor: colors.primary,
-                  position: 'absolute',
-                  top: 80,
-                  left: 20,
-                  width: 80,
-                  height: 80,
-                  borderRadius: 8,
-                  borderWidth: 1,
-                  borderColor: colors.primary,
+                  width: 60,
+                  height: 60,
+                  opacity: displayImageReady ? 1 : 0,
                 }}
                 resizeMode={FastImage.resizeMode.cover}
+                onLoad={() => this.setState({displayImageReady: true})}
+                visibility={displayImageReady ? null : 'hidden'}
               />
-            ) : (
-              <Placeholder Animation={Fade}>
-                <PlaceholderMedia
-                  style={{
-                    backgroundColor: colors.primary,
-                    position: 'absolute',
-                    bottom: 95,
-                    left: 20,
-                    width: 80,
-                    height: 80,
-                    borderRadius: 8,
-                    borderWidth: 1,
-                    borderColor: colors.primary,
-                  }}
-                />
-              </Placeholder>
-            )}
+
+              {!displayImageReady && (
+                <Placeholder Animation={Fade}>
+                  <PlaceholderMedia
+                    style={{
+                      backgroundColor: colors.primary,
+                      width: 60,
+                      height: 60,
+                    }}
+                  />
+                </Placeholder>
+              )}
+            </View>
           </TouchableOpacity>
         </Card>
       </View>

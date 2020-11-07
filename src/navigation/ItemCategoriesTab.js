@@ -15,28 +15,32 @@ class ItemCategoriesTab extends Component {
 
   @computed get tabWidth() {
     const {storeCategoryItems} = this.props;
+    const tabLength = storeCategoryItems
+      ? this.TabScreens(storeCategoryItems).length
+      : 0;
 
-    return storeCategoryItems && storeCategoryItems.size > 5
-      ? 'auto'
-      : SCREEN_WIDTH / storeCategoryItems.size;
+    return tabLength > 2 ? 'auto' : SCREEN_WIDTH / tabLength;
   }
 
   TabScreens(storeCategoryItems) {
-    const {storeId} = this.props;
+    const {storeId, storeType} = this.props;
     const tabs = [];
 
     storeCategoryItems.forEach((key, value) => {
-      tabs.push(
-        <ItemTab.Screen
-          name={value}
-          component={ItemsList}
-          initialParams={{
-            items: key,
-            storeId,
-          }}
-          key={value}
-        />,
-      );
+      if (value !== '') {
+        tabs.push(
+          <ItemTab.Screen
+            name={value}
+            component={ItemsList}
+            initialParams={{
+              items: key,
+              storeId,
+              storeType,
+            }}
+            key={value}
+          />,
+        );
+      }
     });
 
     return tabs;
@@ -55,11 +59,24 @@ class ItemCategoriesTab extends Component {
             tabBarOptions={{
               allowFontScaling: false,
               scrollEnabled: true,
-              tabStyle: {width: this.tabWidth},
+              activeTintColor: colors.primary,
+              inactiveTintColor: colors.text_secondary,
+              tabStyle: {
+                width: this.tabWidth,
+                paddingTop: 0,
+              },
+              labelStyle: {
+                marginTop: 0,
+                fontFamily: 'ProductSans-Regular',
+              },
               indicatorStyle: {
+                height: 1,
                 backgroundColor: colors.primary,
               },
               style: {
+                backgroundColor: colors.icons,
+                height: 35,
+                paddingTop: 0,
                 shadowColor: '#000',
                 shadowOffset: {
                   width: 0,
@@ -67,9 +84,10 @@ class ItemCategoriesTab extends Component {
                 },
                 shadowOpacity: 0.2,
                 shadowRadius: 1.41,
+                elevation: 5,
               },
             }}>
-            {storeCategoryItems && this.TabScreens(storeCategoryItems)}
+            {this.TabScreens(storeCategoryItems)}
           </ItemTab.Navigator>
         </View>
       );

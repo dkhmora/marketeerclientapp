@@ -1,37 +1,49 @@
 import React, {Component} from 'react';
 import {
   View,
-  Text,
   StatusBar,
   Image,
   ImageBackground,
   Dimensions,
+  Platform,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
-import {Icon, Button} from 'react-native-elements';
+import {Icon, Button, Text} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
-import SlidingCartPanel from '../components/SlidingCartPanel';
 import ItemCategoriesTab from '../navigation/ItemCategoriesTab';
 import StoreDetailsModal from '../components/StoreDetailsModal';
+import {initialWindowMetrics} from 'react-native-safe-area-context';
+import {Modalize} from 'react-native-modalize';
+import SlidingCartHeader from '../components/SlidingCartHeader';
+import CartStoreCard from '../components/CartStoreCard';
+import SlidingCartFooter from '../components/SlidingCartFooter';
+import crashlytics from '@react-native-firebase/crashlytics';
+import { CDN_BASE_URL } from '../components/util/variables';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
+const inset = initialWindowMetrics && initialWindowMetrics.insets;
+const bottomPadding = Platform.OS === 'ios' ? inset.bottom : 0;
 @inject('shopStore')
+@inject('authStore')
 @observer
 class StoreScreen extends Component {
   constructor(props) {
     super(props);
 
+    const {store, displayImageUrl, coverImageUrl} = this.props.route.params;
+
     this.state = {
       storeItemCategories: {},
+      displayImageUrl,
+      coverImageUrl,
       ready: false,
       detailsModal: false,
+      allowScrolling: false,
     };
-
-    const {store} = this.props.route.params;
 
     this.props.shopStore
       .setStoreItems(
@@ -47,24 +59,38 @@ class StoreScreen extends Component {
       });
   }
 
-  render() {
-    const {store, displayImageUrl, coverImageUrl} = this.props.route.params;
+  componentDidMount() {
+    crashlytics().log('StoreScreen');
+  }
+
+  handleCheckout() {
     const {navigation} = this.props;
-    const {storeCategoryItems, detailsModal} = this.state;
+
+    this.props.authStore.checkAuthStatus().then(() => {
+      if (this.props.authStore.guest) {
+        navigation.navigate('Auth', {checkout: true});
+      } else {
+        navigation.navigate('Set Location', {checkout: true});
+      }
+    });
+  }
+
+  renderItem = ({item, index}) => (
+    <CartStoreCard cart={false} checkout={false} storeId={item} key={item} />
+  );
+
+  render() {
+    const {store} = this.props.route.params;
+    const {navigation} = this.props;
+    const {storeCategoryItems} = this.state;
+    const dataSource = this.props.shopStore.cartStores.slice();
+    const emptyCartText = 'Your cart is empty';
+    const displayImageUrl = `${CDN_BASE_URL}${store.displayImage}`;
+    const coverImageUrl = `${CDN_BASE_URL}${store.coverImage}`;
 
     return (
       <View style={{flex: 1, backgroundColor: colors.text_primary}}>
         <StatusBar animated translucent backgroundColor={colors.statusBar} />
-
-        {coverImageUrl && displayImageUrl && (
-          <StoreDetailsModal
-            isVisible={detailsModal}
-            closeModal={() => this.setState({detailsModal: false})}
-            store={store}
-            coverImageUrl={coverImageUrl}
-            displayImageUrl={displayImageUrl}
-          />
-        )}
 
         <Animatable.View
           useNativeDriver
@@ -72,7 +98,11 @@ class StoreScreen extends Component {
           duration={600}
           style={{flexDirection: 'row', paddingBottom: 20}}>
           <ImageBackground
-            source={{uri: coverImageUrl}}
+            source={
+              coverImageUrl
+                ? {uri: coverImageUrl}
+                : require('../../assets/images/black.jpg')
+            }
             style={{
               flex: 1,
               flexDirection: 'row',
@@ -81,7 +111,7 @@ class StoreScreen extends Component {
               justifyContent: 'center',
               paddingTop: STATUS_BAR_HEIGHT + 20,
               paddingBottom: 40 + STATUS_BAR_HEIGHT,
-              paddingHorizontal: 5,
+              paddingHorizontal: 10,
               alignItems: 'center',
               backgroundColor: 'rgba(0,0,0,0.2)',
             }}>
@@ -101,35 +131,41 @@ class StoreScreen extends Component {
               }}
             />
 
-            <Animatable.View
-              animation="fadeInUp"
-              useNativeDriver
-              duration={600}
-              style={{paddingHorizontal: 10}}>
-              <Button
-                onPress={() => navigation.goBack()}
-                type="clear"
-                color={colors.icons}
-                icon={<Icon name="arrow-left" color={colors.primary} />}
-                buttonStyle={{borderRadius: 30}}
-                containerStyle={[
-                  styles.buttonContainer,
-                  {backgroundColor: '#fff', height: 40},
-                ]}
-              />
-            </Animatable.View>
+            <Button
+              onPress={() => navigation.goBack()}
+              type="clear"
+              color={colors.icons}
+              icon={<Icon name="arrow-left" color={colors.primary} />}
+              buttonStyle={{borderRadius: 30}}
+              containerStyle={[
+                styles.buttonContainer,
+                {backgroundColor: '#fff', height: 40},
+              ]}
+            />
 
             <Animatable.Image
               animation="fadeInUp"
               useNativeDriver
               duration={600}
-              source={{uri: displayImageUrl}}
+              source={
+                displayImageUrl
+                  ? {uri: displayImageUrl}
+                  : require('../../assets/images/black.jpg')
+              }
               style={{
                 height: 75,
                 width: 75,
                 borderRadius: 8,
-                borderWidth: 1,
-                borderColor: colors.primary,
+                borderWidth: 0.7,
+                borderColor: 'rgba(255,255,255,0.4)',
+                marginHorizontal: 10,
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
               }}
             />
 
@@ -152,7 +188,7 @@ class StoreScreen extends Component {
                     color: colors.icons,
                     fontSize: 30,
                     flex: 1,
-                    paddingHorizontal: 10,
+                    paddingRight: 10,
                   },
                 ]}>
                 {store.storeName}
@@ -160,11 +196,14 @@ class StoreScreen extends Component {
 
               <Button
                 type="clear"
-                onPress={() => this.setState({detailsModal: true})}
+                onPress={() => {
+                  this.storeDetailsModalRef &&
+                    this.storeDetailsModalRef.modalizeRef.open('top');
+                }}
                 buttonStyle={{borderRadius: 30}}
                 containerStyle={[
                   styles.buttonContainer,
-                  {marginRight: 5, backgroundColor: '#fff', height: 40},
+                  {backgroundColor: '#fff', height: 40},
                 ]}
                 icon={
                   <Icon
@@ -177,7 +216,6 @@ class StoreScreen extends Component {
             </Animatable.View>
           </ImageBackground>
         </Animatable.View>
-
         <Image
           source={require('../../assets/images/logo.png')}
           style={{
@@ -189,7 +227,6 @@ class StoreScreen extends Component {
             left: '25%',
           }}
         />
-
         <Animatable.View
           animation="fadeInUpBig"
           duration={600}
@@ -206,11 +243,70 @@ class StoreScreen extends Component {
           <ItemCategoriesTab
             storeCategoryItems={storeCategoryItems}
             storeId={store.storeId}
-            style={{paddingBottom: 75}}
+            storeType={store.storeType}
+            style={{paddingBottom: bottomPadding}}
           />
         </Animatable.View>
 
-        <SlidingCartPanel navigation={navigation} />
+        <Modalize
+          ref={(modalizeRef) => (this.modalizeRef = modalizeRef)}
+          alwaysOpen={60 + bottomPadding}
+          flatListProps={{
+            ListEmptyComponent: (
+              <View
+                style={{
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    textAlign: 'center',
+                    paddingHorizontal: 15,
+                  }}>
+                  {emptyCartText}
+                </Text>
+              </View>
+            ),
+            data: dataSource ? dataSource : [],
+            renderItem: this.renderItem,
+            keyExtractor: (item, index) => item,
+            contentContainerStyle: {flexGrow: 1},
+            style: {paddingHorizontal: 10},
+          }}
+          handleStyle={{backgroundColor: colors.text_secondary, opacity: 0.85}}
+          panGestureComponentEnabled
+          modalStyle={{
+            backgroundColor: colors.icons,
+            borderWidth: 0.8,
+            borderColor: 'rgba(0,0,0,0.2)',
+          }}
+          HeaderComponent={() => (
+            <SlidingCartHeader
+              handleCheckout={() => this.handleCheckout()}
+              onPress={() => this.modalizeRef && this.modalizeRef.open('top')}
+            />
+          )}
+          FooterComponent={() => (
+            <SlidingCartFooter
+              bottomPadding={bottomPadding}
+              handleCheckout={() => this.handleCheckout()}
+            />
+          )}
+        />
+
+        <StoreDetailsModal
+          ref={(storeDetailsModalRef) =>
+            (this.storeDetailsModalRef = storeDetailsModalRef)
+          }
+          store={store}
+          coverImageUrl={coverImageUrl}
+          displayImageUrl={displayImageUrl}
+          onClose={() =>
+            this.modalizeRef && this.modalizeRef.open('alwaysOpen')
+          }
+        />
       </View>
     );
   }

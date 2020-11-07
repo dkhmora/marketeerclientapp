@@ -2,8 +2,9 @@ import React, {Component} from 'react';
 import {FlatList, View} from 'react-native';
 import {observer} from 'mobx-react';
 // Custom Components
-import ItemCard from './ItemCard';
+import ItemCard from './store_items/basic/ItemCard';
 import DeviceInfo from 'react-native-device-info';
+import FoodItemCard from './store_items/food/FoodItemCard';
 
 @observer
 class ItemsList extends Component {
@@ -30,7 +31,8 @@ class ItemsList extends Component {
     this.unsubscribeTabPress = this.props.navigation.addListener(
       'tabPress',
       (e) => {
-        this.flatList.scrollToOffset({animated: true, offset: 0});
+        this.flatList &&
+          this.flatList.scrollToOffset({animated: true, offset: 0});
       },
     );
   }
@@ -39,30 +41,38 @@ class ItemsList extends Component {
     this.unsubscribeTabPress && this.unsubscribeTabPress();
   }
 
-  renderItem = ({item, index}) =>
-    item.empty ? (
-      <View
-        style={{flex: 1, backgroundColor: 'transparent'}}
-        key={item.itemId}
-      />
-    ) : (
-      <ItemCard
+  renderItem = ({item, index}) => {
+    const {storeType, storeId} = this.props.route.params;
+    const ItemCardComponent = storeType === 'food' ? FoodItemCard : ItemCard;
+
+    if (item.empty) {
+      return (
+        <View style={{flex: 1, backgroundColor: 'transparent'}} key={index} />
+      );
+    }
+
+    return (
+      <ItemCardComponent
         item={item}
-        storeId={this.props.route.params.storeId}
-        key={item.itemId}
+        storeId={storeId}
+        navigation={this.props.navigation}
+        key={`${item.name}${this.props.route.params.category}`}
       />
     );
+  };
 
   render() {
-    const {items} = this.props.route.params;
+    const {items, storeType} = this.props.route.params;
     const dataSource = [...items];
 
     const isTablet = DeviceInfo.isTablet();
-    const numColumns = isTablet ? 3 : 2;
+    const numColumns =
+      storeType === 'food' ? (isTablet ? 2 : 1) : isTablet ? 3 : 2;
 
     return (
       <FlatList
         style={{flex: 1, paddingHorizontal: 5}}
+        contentContainerStyle={{paddingBottom: 60}}
         ref={(flatList) => (this.flatList = flatList)}
         data={this.formatData(dataSource, numColumns)}
         numColumns={numColumns}

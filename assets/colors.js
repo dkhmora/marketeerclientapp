@@ -2,6 +2,7 @@ export const colors = {
   primary: '#E91E63',
   dark: '#C2185B',
   light: '#F8BBD0',
+  lightest: '#fce4ec',
   accent: '#448AFF',
   dark_accent: '#3c7be6',
   text_primary: '#212121',

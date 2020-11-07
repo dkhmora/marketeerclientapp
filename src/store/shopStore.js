@@ -6,25 +6,29 @@ import '@react-native-firebase/functions';
 import * as geolib from 'geolib';
 import {persist} from 'mobx-persist';
 import Toast from '../components/Toast';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 const functions = firebase.app().functions('asia-northeast1');
 
 const userCartCollection = firestore().collection('user_carts');
 const storesCollection = firestore().collection('stores');
 class shopStore {
-  @persist('object') @observable storeCartItems = {};
+  @persist('object') @observable allStoresMap = {};
+  @persist @observable maxStoreUpdatedAt = 0;
+  @observable storeCartItems = {};
   @observable storeDetails = {};
   @observable storeSelectedDeliveryMethod = {};
   @observable storeSelectedPaymentMethod = {};
-  @observable storeCategories = [];
-  @observable storeList = [];
-  @observable categoryStoreList = {};
+  @observable storeAssignedMerchantId = {};
+  @observable storeDeliveryDiscount = {};
+  @observable storeUserEmail = {};
+  @observable viewableStoreList = [];
   @observable itemCategories = [];
   @observable storeCategoryItems = new Map();
   @observable unsubscribeToGetCartItems = null;
   @observable cartUpdateTimeout = null;
-  @observable storeFetchLimit = 8;
   @observable validItemQuantity = {};
+  @observable storeMrSpeedyDeliveryFee = {};
 
   @computed get totalCartItemQuantity() {
     let quantity = 0;
@@ -50,14 +54,39 @@ class shopStore {
     return true;
   }
 
-  @computed get validPlaceOrder() {
-    if (this.cartStores.length > 0) {
-      const storeSelectedMethods = this.cartStores.map((storeName) => {
-        if (!this.storeSelectedPaymentMethod[storeName]) {
+  @computed get validStoreUserEmail() {
+    const emailRegexp = new RegExp(
+      /^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,5})$/,
+    );
+
+    if (Object.values(this.storeUserEmail).length > 0) {
+      return Object.entries(this.storeUserEmail).map(([storeId, email]) => {
+        if (
+          this.storeSelectedPaymentMethod[storeId] !== 'COD' &&
+          !emailRegexp.test(email)
+        ) {
           return false;
         }
 
-        if (!this.storeSelectedDeliveryMethod[storeName]) {
+        return true;
+      });
+    }
+
+    return true;
+  }
+
+  @computed get validPlaceOrder() {
+    if (this.cartStores.length > 0) {
+      const storeSelectedMethods = this.cartStores.map((storeId) => {
+        if (!this.storeSelectedPaymentMethod[storeId]) {
+          return false;
+        }
+
+        if (!this.storeSelectedDeliveryMethod[storeId]) {
+          return false;
+        }
+
+        if (this.validStoreUserEmail.includes(false)) {
           return false;
         }
 
@@ -77,21 +106,38 @@ class shopStore {
 
     if (this.storeCartItems) {
       Object.keys(this.storeCartItems).map(async (storeId) => {
-        const storeDetails = this.getStoreDetails(storeId);
+        const storeDetails = this.allStoresMap[storeId];
+        const selectedDelivery = this.storeSelectedDeliveryMethod[storeId];
         let storeTotal = 0;
 
         this.storeCartItems[storeId].map(async (item) => {
-          let itemTotal = item.quantity * item.price;
+          const itemPrice = item.discountedPrice
+            ? item.discountedPrice
+            : item.price;
+          let itemTotal = item.quantity * itemPrice;
 
           storeTotal += itemTotal;
         });
 
-        if (this.storeSelectedDeliveryMethod[storeId] === 'Own Delivery') {
-          if (
-            storeDetails.freeDeliveryMinimum > storeTotal ||
-            !storeDetails.freeDelivery
-          ) {
-            amount += storeDetails.ownDeliveryServiceFee;
+        if (selectedDelivery === 'Own Delivery') {
+          const selectedDeliveryMethod =
+            storeDetails.availableDeliveryMethods[selectedDelivery];
+          const {discountAmount} = storeDetails.deliveryDiscount;
+          const {deliveryPrice} = selectedDeliveryMethod;
+
+          if (storeDetails.deliveryDiscount) {
+            const {deliveryDiscount} = storeDetails;
+
+            if (
+              deliveryDiscount.activated &&
+              storeTotal >= deliveryDiscount.minimumOrderAmount
+            ) {
+              amount -= Math.max(0, deliveryPrice - discountAmount);
+            } else {
+              amount += deliveryPrice;
+            }
+          } else {
+            amount += deliveryPrice;
           }
         }
 
@@ -104,6 +150,51 @@ class shopStore {
     return 0;
   }
 
+  @computed get totalAmountDisplay() {
+    let lowerEstimate = this.totalCartSubTotalAmount;
+    let upperEstimate = this.totalCartSubTotalAmount;
+
+    if (
+      this.storeCartItems &&
+      Object.keys(this.storeSelectedDeliveryMethod).length > 0
+    ) {
+      Object.entries(this.storeSelectedDeliveryMethod).map(
+        ([storeId, deliveryMethod]) => {
+          if (deliveryMethod === 'Mr. Speedy') {
+            const mrSpeedyDeliveryEstimates = this.storeMrSpeedyDeliveryFee[
+              storeId
+            ];
+            const selectedPaymentMethod = this.storeSelectedPaymentMethod[
+              storeId
+            ];
+
+            if (mrSpeedyDeliveryEstimates) {
+              const motorbikeDeliveryFee =
+                selectedPaymentMethod === 'COD'
+                  ? Number(mrSpeedyDeliveryEstimates.motorbike) + 30
+                  : Number(mrSpeedyDeliveryEstimates.motorbike);
+              const carDeliveryFee =
+                selectedPaymentMethod === 'COD'
+                  ? Number(mrSpeedyDeliveryEstimates.car) + 30
+                  : Number(mrSpeedyDeliveryEstimates.car);
+
+              lowerEstimate += motorbikeDeliveryFee;
+              upperEstimate += carDeliveryFee;
+            }
+          }
+        },
+      );
+
+      if (upperEstimate === lowerEstimate) {
+        return `₱${this.totalCartSubTotalAmount.toFixed(2)}`;
+      }
+
+      return `₱${lowerEstimate.toFixed(2)} - ₱${upperEstimate.toFixed(2)}`;
+    }
+
+    return 0;
+  }
+
   @computed get cartStores() {
     if (this.storeCartItems) {
       const stores = [...Object.keys(this.storeCartItems)];
@@ -111,6 +202,27 @@ class shopStore {
       return stores;
     }
     return [];
+  }
+
+  @action async getMrSpeedyDeliveryPriceEstimate(
+    deliveryLocation,
+    deliveryAddress,
+  ) {
+    return await functions
+      .httpsCallable('getUserMrSpeedyDeliveryPriceEstimate')({
+        deliveryLocation,
+        deliveryAddress,
+      })
+      .then((response) => {
+        if (response.data.s === 200) {
+          this.storeMrSpeedyDeliveryFee = response.data.d;
+
+          return;
+        }
+
+        return Toast({text: response.data.m, type: 'danger'});
+      })
+      .catch((err) => Toast({text: err, type: 'danger'}));
   }
 
   @action async getStoreDetailsFromStoreId(storeId) {
@@ -133,24 +245,10 @@ class shopStore {
           }
         })
         .catch((err) => {
+          crashlytics().recordError(err);
           return reject(err);
         });
     });
-  }
-
-  @action async setStoreCategories() {
-    await firestore()
-      .collection('application')
-      .doc('client_config')
-      .get()
-      .then((document) => {
-        if (document.exists) {
-          this.storeCategories = document
-            .data()
-            .storeCategories.sort((a, b) => a.name > b.name);
-        }
-      })
-      .catch((err) => Toast({text: err.message, type: 'danger'}));
   }
 
   @action async setCartItems(userId) {
@@ -159,6 +257,12 @@ class shopStore {
       .doc(userId)
       .set({
         ...this.storeCartItems,
+      })
+      .catch((err) => {
+        crashlytics().recordError(err);
+        Toast({text: err.message, type: 'danger'});
+
+        return null;
       });
   }
 
@@ -168,10 +272,16 @@ class shopStore {
     deliveryAddress,
     userCoordinates,
     userName,
-    storeSelectedDeliveryMethod,
-    storeSelectedPaymentMethod,
   }) {
     this.cartUpdateTimeout ? clearTimeout(this.cartUpdateTimeout) : null;
+
+    const {
+      storeDeliveryDiscount,
+      storeSelectedDeliveryMethod,
+      storeSelectedPaymentMethod,
+      storeAssignedMerchantId,
+      storeUserEmail,
+    } = this;
 
     return await this.updateCartItemsInstantly()
       .then(async () => {
@@ -182,8 +292,11 @@ class shopStore {
             deliveryAddress,
             userCoordinates,
             userName,
+            storeUserEmail,
             storeSelectedDeliveryMethod,
             storeSelectedPaymentMethod,
+            storeAssignedMerchantId,
+            storeDeliveryDiscount,
           }),
         });
       })
@@ -193,6 +306,7 @@ class shopStore {
         return response;
       })
       .catch((err) => {
+        crashlytics().recordError(err);
         Toast({text: err.message, type: 'danger'});
       });
   }
@@ -200,13 +314,8 @@ class shopStore {
   @action resetData() {
     this.storeCartItems = {};
     this.storeSelectedDeliveryMethod = {};
+    this.storeDeliveryDiscount = {};
     this.itemCategories = [];
-  }
-
-  @action getStoreDetails(storeId) {
-    const store = this.storeList.find((element) => element.storeId === storeId);
-
-    return store;
   }
 
   @action getCartItemQuantity(item, storeId) {
@@ -234,7 +343,9 @@ class shopStore {
       .doc(userId)
       .onSnapshot((documentSnapshot) => {
         if (documentSnapshot) {
-          this.storeCartItems = documentSnapshot.data();
+          this.storeCartItems = documentSnapshot.data()
+            ? documentSnapshot.data()
+            : {};
         }
       });
   }
@@ -308,181 +419,110 @@ class shopStore {
     const guest = auth().currentUser.isAnonymous;
 
     if (userId && !guest) {
-      if (this.storeCartItems && Object.keys(this.storeCartItems).length > 0) {
-        await userCartCollection
-          .doc(userId)
-          .update({...this.storeCartItems})
-          .catch((err) => Toast({text: err.message, type: 'danger'}));
-      } else {
-        await userCartCollection
-          .doc(userId)
-          .set({})
-          .catch((err) => Toast({text: err.message, type: 'danger'}));
-      }
+      await userCartCollection
+        .doc(userId)
+        .set(this.storeCartItems)
+        .catch((err) => {
+          crashlytics().recordError(err);
+          Toast({text: err.message, type: 'danger'});
+        });
     }
   }
 
-  @action async getStoreList({
-    currentLocationGeohash,
-    locationCoordinates,
-    storeCategory,
-    lastVisible,
-  }) {
-    if (
-      currentLocationGeohash &&
-      locationCoordinates &&
-      storeCategory &&
-      lastVisible
-    ) {
+  @action async getStoreList({currentLocationGeohash, locationCoordinates}) {
+    if (currentLocationGeohash && locationCoordinates) {
       return await storesCollection
         .where('visibleToPublic', '==', true)
-        .where('vacationMode', '==', false)
-        .where('creditData.creditThresholdReached', '==', false)
-        .where('storeCategory', '==', storeCategory)
-        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
-        .orderBy('deliveryCoordinates.lowerRange')
-        .startAfter(lastVisible)
-        .limit(this.storeFetchLimit)
+        .where('updatedAt', '>', this.maxStoreUpdatedAt)
         .get()
         .then((querySnapshot) => {
-          const list = [];
-
           querySnapshot.forEach((documentSnapshot, index) => {
-            list.push(documentSnapshot.data());
+            const storeId = documentSnapshot.id;
+            const storeData = documentSnapshot.data();
 
-            list[index].storeId = documentSnapshot.id;
+            if (storeData.updatedAt > this.maxStoreUpdatedAt) {
+              this.maxStoreUpdatedAt = storeData.updatedAt;
+            }
+
+            this.allStoresMap[storeId] = storeData;
           });
-
-          return list;
         })
-        .then(async (list) => {
-          this.categoryStoreList[
-            storeCategory
-          ] = await this.sortStoresByDistance(list, locationCoordinates);
-        })
-        .catch((err) => Toast({text: err.message, type: 'danger'}));
-    } else if (currentLocationGeohash && locationCoordinates && storeCategory) {
-      return await storesCollection
-        .where('visibleToPublic', '==', true)
-        .where('vacationMode', '==', false)
-        .where('creditData.creditThresholdReached', '==', false)
-        .where('storeCategory', '==', storeCategory)
-        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
-        .orderBy('deliveryCoordinates.lowerRange')
-        .limit(this.storeFetchLimit)
-        .get()
-        .then((querySnapshot) => {
-          const list = [];
-
-          querySnapshot.forEach((documentSnapshot, index) => {
-            list.push(documentSnapshot.data());
-
-            list[index].storeId = documentSnapshot.id;
-          });
-
-          return list;
-        })
-        .then(async (list) => {
-          this.categoryStoreList[
-            storeCategory
-          ] = await this.sortStoresByDistance(list, locationCoordinates);
-        })
-        .catch((err) => Toast({text: err.message, type: 'danger'}));
-    } else if (currentLocationGeohash && locationCoordinates && lastVisible) {
-      return await storesCollection
-        .where('visibleToPublic', '==', true)
-        .where('vacationMode', '==', false)
-        .where('creditData.creditThresholdReached', '==', false)
-        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
-        .orderBy('deliveryCoordinates.lowerRange')
-        .startAfter(lastVisible)
-        .limit(this.storeFetchLimit)
-        .get()
-        .then((querySnapshot) => {
-          const list = [];
-
-          querySnapshot.forEach((documentSnapshot, index) => {
-            list.push(documentSnapshot.data());
-
-            list[index].storeId = documentSnapshot.id;
-          });
-
-          return list;
-        })
-        .then(async (list) => {
-          this.storeList = await this.sortStoresByDistance(
-            list,
+        .then(async () => {
+          this.viewableStoreList = await this.setVisibleStores(
             locationCoordinates,
           );
         })
-        .catch((err) => Toast({text: err.message, type: 'danger'}));
-    } else if (currentLocationGeohash && locationCoordinates) {
-      return await storesCollection
-        .where('visibleToPublic', '==', true)
-        .where('vacationMode', '==', false)
-        .where('creditData.creditThresholdReached', '==', false)
-        .where('deliveryCoordinates.lowerRange', '<=', currentLocationGeohash)
-        .orderBy('deliveryCoordinates.lowerRange')
-        .limit(this.storeFetchLimit)
-        .get()
-        .then((querySnapshot) => {
-          const list = [];
-
-          querySnapshot.forEach((documentSnapshot, index) => {
-            list.push(documentSnapshot.data());
-
-            list[index].storeId = documentSnapshot.id;
-          });
-
-          return list;
-        })
-        .then(async (list) => {
-          this.storeList = await this.sortStoresByDistance(
-            list,
-            locationCoordinates,
-          );
-        })
-        .catch((err) => Toast({text: err.message, type: 'danger'}));
+        .catch((err) => {
+          crashlytics().recordError(err);
+          Toast({text: err.message, type: 'danger'});
+        });
+    } else {
+      Toast({
+        text:
+          'Error: No location coordinates set. Please set your location to view stores.',
+        duration: 7000,
+        type: 'danger',
+      });
     }
   }
 
-  @action async sortStoresByDistance(list, locationCoordinates) {
-    const filteredList = await list.filter((element) =>
-      geolib.isPointInPolygon(
-        {
-          latitude: locationCoordinates.latitude,
-          longitude: locationCoordinates.longitude,
-        },
-        [...element.deliveryCoordinates.boundingBox],
+  @action async setVisibleStores(locationCoordinates) {
+    const storeList = [];
+
+    return await new Promise((resolve, reject) =>
+      resolve(
+        Object.entries(this.allStoresMap).map(([storeId, storeData]) => {
+          const {
+            deliveryCoordinates,
+            storeLocation,
+            vacationMode,
+            creditThresholdReached,
+          } = storeData;
+
+          if (!vacationMode && !creditThresholdReached) {
+            const isPointInPolygon =
+              deliveryCoordinates && deliveryCoordinates.boundingBox
+                ? geolib.isPointInPolygon(
+                    {
+                      latitude: locationCoordinates.latitude,
+                      longitude: locationCoordinates.longitude,
+                    },
+                    [...deliveryCoordinates.boundingBox],
+                  )
+                : false;
+
+            if (isPointInPolygon) {
+              const distance = storeLocation
+                ? geolib.getDistance(
+                    {
+                      latitude: locationCoordinates.latitude,
+                      longitude: locationCoordinates.longitude,
+                    },
+                    {
+                      latitude: storeLocation.latitude,
+                      longitude: storeLocation.longitude,
+                    },
+                  )
+                : null;
+
+              const completeStoreData = {...storeData, storeId, distance};
+
+              storeList.push(completeStoreData);
+            }
+          }
+        }),
       ),
-    );
+    ).then(async () => {
+      const sortedList = await storeList.sort((a, b) => {
+        return (
+          (a.distance === null) - (b.distance === null) ||
+          +(a.distance > b.distance) ||
+          -(a.distance < b.distance)
+        );
+      });
 
-    const listWithDistance = await filteredList.map((store) => {
-      const distance = store.storeLocation
-        ? geolib.getDistance(
-            {
-              latitude: locationCoordinates.latitude,
-              longitude: locationCoordinates.longitude,
-            },
-            {
-              latitude: store.storeLocation.latitude,
-              longitude: store.storeLocation.longitude,
-            },
-          )
-        : null;
-
-      return {...store, distance};
+      return sortedList;
     });
-
-    const sortedList = await listWithDistance.sort((a, b) => {
-      return (
-        (a.distance === null) - (b.distance === null) ||
-        +(a.distance > b.distance) ||
-        -(a.distance < b.distance)
-      );
-    });
-
-    return sortedList;
   }
 
   @action async setStoreItems(storeId, itemCategories) {
@@ -526,7 +566,10 @@ class shopStore {
       .then((categoryItems) => {
         this.storeCategoryItems.set(storeId, categoryItems);
       })
-      .catch((err) => Toast({text: err.message, type: 'danger'}));
+      .catch((err) => {
+        crashlytics().recordError(err);
+        Toast({text: err.message, type: 'danger'});
+      });
   }
 }
 

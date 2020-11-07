@@ -8,10 +8,13 @@ import {Text, Icon, ListItem, Avatar} from 'react-native-elements';
 import {View, Image, Linking} from 'react-native';
 import {colors} from '../../assets/colors';
 import {inject, observer} from 'mobx-react';
-import {computed} from 'mobx';
+import {computed, when} from 'mobx';
 import Toast from '../components/Toast';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import ConfirmationModal from '../components/ConfirmationModal';
+import dynamicLinks from '@react-native-firebase/dynamic-links';
+import messaging from '@react-native-firebase/messaging';
+import RemotePushController from '../services/RemotePushController';
 
 @inject('authStore')
 @inject('shopStore')
@@ -26,8 +29,22 @@ class MainDrawer extends Component {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.props.generalStore.navigation = this.props.navigation;
+
+    this.initializeForegroundNotificationHandlers();
+
+    this.unsubscribe = dynamicLinks().onLink((link) =>
+      this.handleDynamicLink(link),
+    );
+
+    try {
+      const initialLink = await dynamicLinks().getInitialLink();
+
+      if (initialLink.url !== null) {
+        this.handleDynamicLink(initialLink);
+      }
+    } catch (error) {}
   }
 
   @computed get authenticationButtonText() {
@@ -51,6 +68,135 @@ class MainDrawer extends Component {
   @computed get userInitial() {
     return this.userNameText.charAt(0);
   }
+
+  initializeForegroundNotificationHandlers() {
+    messaging()
+      .getInitialNotification()
+      .then((notification) => {
+        if (notification) {
+          if (notification.data.type === 'order_message') {
+            this.props.navigation.navigate('Order Chat', {
+              orderId: notification.data.orderId,
+            });
+          }
+
+          if (
+            notification.data.type === 'order_update' ||
+            notification.data.type === 'order_review'
+          ) {
+            this.props.navigation.navigate('Order Details', {
+              orderId: notification.data.orderId,
+            });
+          }
+        }
+      });
+  }
+
+  handleDynamicLink = (link) => {
+    switch (link.url) {
+      case 'https://marketeer.ph/app/order/payment/success':
+        Toast({text: 'Payment successful!', duration: 5000});
+        this.props.navigation.reset({
+          index: 1,
+          routes: [{name: 'Home'}, {name: 'Orders'}],
+        });
+        break;
+      case 'https://marketeer.ph/app/order/payment/failure':
+        Toast({
+          text: 'Error: Payment failure. Please try again later.',
+          type: 'danger',
+          duration: 5000,
+        });
+        this.props.navigation.reset({
+          index: 1,
+          routes: [{name: 'Home'}, {name: 'Orders'}],
+        });
+        break;
+      case 'https://marketeer.ph/app/order/payment/pending':
+        Toast({
+          text:
+            'Payment pending. Please check your email for payment instructions.',
+          type: 'info',
+          duration: 8000,
+        });
+        this.props.navigation.reset({
+          index: 1,
+          routes: [{name: 'Home'}, {name: 'Orders'}],
+        });
+        break;
+      case 'https://marketeer.ph/app/order/payment/unknown':
+        Toast({text: 'Payment status unknown', type: 'info'});
+        this.props.navigation.reset({
+          index: 1,
+          routes: [{name: 'Home'}, {name: 'Orders'}],
+        });
+        break;
+      case 'https://marketeer.ph/app/order/payment/refund':
+        Toast({text: 'Payment refunded', type: 'info'});
+        this.props.navigation.reset({
+          index: 1,
+          routes: [{name: 'Home'}, {name: 'Orders'}],
+        });
+        break;
+      case 'https://marketeer.ph/app/order/payment/chargeback':
+        Toast({text: 'Payment chargedback', type: 'info'});
+        this.props.navigation.reset({
+          index: 1,
+          routes: [{name: 'Home'}, {name: 'Orders'}],
+        });
+        break;
+      case 'https://marketeer.ph/app/order/payment/void':
+        Toast({text: 'Payment voided', type: 'info'});
+        this.props.navigation.reset({
+          index: 1,
+          routes: [{name: 'Home'}, {name: 'Orders'}],
+        });
+        break;
+      case 'https://marketeer.ph/app/order/payment/authorized':
+        Toast({text: 'Payment authorized', type: 'info'});
+        this.props.navigation.reset({
+          index: 1,
+          routes: [{name: 'Home'}, {name: 'Orders'}],
+        });
+        break;
+      case 'https://marketeer.ph/app/fb/install':
+        when(
+          () => this.props.generalStore.appReady === true,
+          () => {
+            Toast({
+              text:
+                'Welcome to Marketeer! Choose from the best stores in your area!',
+              duration: 10000,
+            });
+          },
+        );
+        break;
+      case 'https://marketeer.ph/app/twit/install':
+        when(
+          () => this.props.generalStore.appReady === true,
+          () => {
+            Toast({
+              text:
+                'Welcome to Marketeer! Choose from the best stores in your area!',
+              duration: 10000,
+            });
+          },
+        );
+        break;
+      case 'https://marketeer.ph/app/ig/install':
+        when(
+          () => this.props.generalStore.appReady === true,
+          () => {
+            Toast({
+              text:
+                'Welcome to Marketeer! Choose from the best stores in your area!',
+              duration: 10000,
+            });
+          },
+        );
+        break;
+    }
+  };
 
   handleAuthentication() {
     if (this.props.authStore.guest && this.props.authStore.userAuthenticated) {
@@ -217,6 +363,16 @@ class MainDrawer extends Component {
                 leftIcon={<Icon name="user" color={colors.primary} size={18} />}
                 onPress={() => navigation.navigate('Account')}
               />
+
+              {/*
+                FOR UI TEST
+                
+                <ListItem
+                title="Food Item Details"
+                leftIcon={<Icon name="user" color={colors.primary} size={18} />}
+                onPress={() => navigation.navigate('Food Item Details')}
+              />
+              */}
             </View>
           )}
 
@@ -259,6 +415,7 @@ class MainDrawer extends Component {
 
   render() {
     const DrawerMain = createDrawerNavigator();
+    const {navigation} = this.props;
 
     return (
       <View style={{flex: 1}}>
@@ -284,6 +441,8 @@ class MainDrawer extends Component {
           }}>
           <DrawerMain.Screen name="Main" component={MainScreen} />
         </DrawerMain.Navigator>
+
+        <RemotePushController navigation={navigation} />
       </View>
     );
   }

@@ -14,6 +14,7 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import StoreList from '../components/StoreList';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -24,6 +25,10 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 class CategoryStoresScreen extends Component {
   constructor(props) {
     super(props);
+  }
+
+  componentDidMount() {
+    crashlytics().log('CategoryStoresScreen');
   }
 
   render() {

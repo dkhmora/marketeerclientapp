@@ -22,6 +22,7 @@ import {colors} from '../../assets/colors';
 import {inject, observer} from 'mobx-react';
 import MainTab from '../navigation/MainTab';
 import {computed} from 'mobx';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
 const pixelsFromTop = getStatusBarHeight() + headerHeight;
@@ -92,6 +93,10 @@ class MainScreen extends Component {
     } else {
       return 'Current Location';
     }
+  }
+
+  componentDidMount() {
+    crashlytics().log('MainScreen');
   }
 
   menuButton = () => {
@@ -241,87 +246,58 @@ class MainScreen extends Component {
           shadowOpacity: 0.23,
           shadowRadius: 2.62,
         }}>
-        <ListItem
-          title="Current Location"
-          containerStyle={{
-            backgroundColor:
-              this.props.generalStore.selectedDeliveryLabel ===
-              'Current Location'
-                ? 'rgba(248, 187, 208, 0.4)'
-                : colors.icons,
-          }}
-          titleStyle={[
-            styles.header_topDrawerTitleText,
-            {
-              fontFamily:
-                this.props.generalStore.selectedDeliveryLabel ===
-                'Current Location'
-                  ? 'ProductSans-Bold'
-                  : 'ProductSans-Light',
-              color:
-                this.props.generalStore.selectedDeliveryLabel ===
-                'Current Location'
-                  ? colors.primary
-                  : colors.text_primary,
-            },
-          ]}
-          subtitle={
-            !this.props.generalStore.addressLoading &&
-            this.props.generalStore.selectedDeliveryLabel === 'Current Location'
-              ? this.props.generalStore.currentLocationDetails
-              : null
-          }
-          leftIcon={<Icon name="map-pin" color={colors.primary} />}
-          bottomDivider
-          chevron
-          onPress={() => {
-            this.props.generalStore.setCurrentLocation().then(() => {
-              this.props.shopStore.getStoreList({
-                currentLocationGeohash: this.props.generalStore
-                  .currentLocationGeohash,
-                locationCoordinates: this.props.generalStore.currentLocation,
-              });
-            });
-            this.hideLocationMenu();
-          }}
-        />
-
-        {this.props.generalStore.userDetails.addresses && (
+        <View
+          style={{
+            marginHorizontal: 10,
+            marginTop: 10,
+            marginBottom: 5,
+          }}>
           <ListItem
-            title="Last Delivery Location"
+            activeOpacity={0.95}
+            title="Current Location"
             containerStyle={{
               backgroundColor:
                 this.props.generalStore.selectedDeliveryLabel ===
-                'Last Delivery Location'
-                  ? 'rgba(248, 187, 208, 0.4)'
+                'Current Location'
+                  ? colors.lightest
                   : colors.icons,
+              borderRadius: 15,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 1,
+              },
+              shadowOpacity: 0.2,
+              shadowRadius: 1.41,
+              elevation: 2,
             }}
+            style={{borderRadius: 15}}
             titleStyle={[
               styles.header_topDrawerTitleText,
               {
                 fontFamily:
                   this.props.generalStore.selectedDeliveryLabel ===
-                  'Last Delivery Location'
+                  'Current Location'
                     ? 'ProductSans-Bold'
                     : 'ProductSans-Light',
                 color:
                   this.props.generalStore.selectedDeliveryLabel ===
-                  'Last Delivery Location'
+                  'Current Location'
                     ? colors.primary
                     : colors.text_primary,
               },
             ]}
             subtitle={
-              this.props.generalStore.userDetails.addresses
-                ? this.props.generalStore.userDetails.addresses.Home.address
+              !this.props.generalStore.addressLoading &&
+              this.props.generalStore.selectedDeliveryLabel ===
+                'Current Location'
+                ? this.props.generalStore.currentLocationDetails
                 : null
             }
-            subtitleStyle={styles.subtitleStyle}
-            leftIcon={<Icon name="navigation" color={colors.primary} />}
-            bottomDivider
+            leftIcon={<Icon name="map-pin" color={colors.primary} />}
             chevron
             onPress={() => {
-              this.props.generalStore.setLastDeliveryLocation().then(() => {
+              this.props.generalStore.setCurrentLocation().then(() => {
                 this.props.shopStore.getStoreList({
                   currentLocationGeohash: this.props.generalStore
                     .currentLocationGeohash,
@@ -331,43 +307,127 @@ class MainScreen extends Component {
               this.hideLocationMenu();
             }}
           />
+        </View>
+
+        {this.props.generalStore.userDetails.addresses && (
+          <View
+            style={{
+              borderRadius: 15,
+              marginVertical: 5,
+              marginHorizontal: 10,
+            }}>
+            <ListItem
+              activeOpacity={0.95}
+              title="Last Delivery Location"
+              containerStyle={{
+                backgroundColor:
+                  this.props.generalStore.selectedDeliveryLabel ===
+                  'Last Delivery Location'
+                    ? colors.lightest
+                    : colors.icons,
+                borderRadius: 15,
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 1.41,
+                elevation: 2,
+              }}
+              style={{borderRadius: 15}}
+              titleStyle={[
+                styles.header_topDrawerTitleText,
+                {
+                  fontFamily:
+                    this.props.generalStore.selectedDeliveryLabel ===
+                    'Last Delivery Location'
+                      ? 'ProductSans-Bold'
+                      : 'ProductSans-Light',
+                  color:
+                    this.props.generalStore.selectedDeliveryLabel ===
+                    'Last Delivery Location'
+                      ? colors.primary
+                      : colors.text_primary,
+                },
+              ]}
+              subtitle={
+                this.props.generalStore.userDetails.addresses
+                  ? this.props.generalStore.userDetails.addresses.Home.address
+                  : null
+              }
+              subtitleStyle={styles.subtitleStyle}
+              leftIcon={<Icon name="navigation" color={colors.primary} />}
+              chevron
+              onPress={() => {
+                this.props.generalStore.setLastDeliveryLocation().then(() => {
+                  this.props.shopStore.getStoreList({
+                    currentLocationGeohash: this.props.generalStore
+                      .currentLocationGeohash,
+                    locationCoordinates: this.props.generalStore
+                      .currentLocation,
+                  });
+                });
+                this.hideLocationMenu();
+              }}
+            />
+          </View>
         )}
 
-        <ListItem
-          title="Set Location"
-          containerStyle={{
-            backgroundColor:
+        <View
+          style={{
+            marginHorizontal: 10,
+            marginTop: 5,
+            marginBottom: 10,
+          }}>
+          <ListItem
+            activeOpacity={0.95}
+            title="Set Location"
+            containerStyle={{
+              backgroundColor:
+                this.props.generalStore.selectedDeliveryLabel === 'Set Location'
+                  ? colors.lightest
+                  : colors.icons,
+              borderRadius: 15,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 1,
+              },
+              shadowOpacity: 0.2,
+              shadowRadius: 1.41,
+              elevation: 2,
+            }}
+            style={{borderRadius: 15}}
+            titleStyle={[
+              styles.header_topDrawerTitleText,
+              {
+                fontFamily:
+                  this.props.generalStore.selectedDeliveryLabel ===
+                  'Set Location'
+                    ? 'ProductSans-Bold'
+                    : 'ProductSans-Light',
+                color:
+                  this.props.generalStore.selectedDeliveryLabel ===
+                  'Set Location'
+                    ? colors.primary
+                    : colors.text_primary,
+              },
+            ]}
+            subtitle={
+              !this.props.generalStore.addressLoading &&
               this.props.generalStore.selectedDeliveryLabel === 'Set Location'
-                ? 'rgba(248, 187, 208, 0.4)'
-                : colors.icons,
-          }}
-          titleStyle={[
-            styles.header_topDrawerTitleText,
-            {
-              fontFamily:
-                this.props.generalStore.selectedDeliveryLabel === 'Set Location'
-                  ? 'ProductSans-Bold'
-                  : 'ProductSans-Light',
-              color:
-                this.props.generalStore.selectedDeliveryLabel === 'Set Location'
-                  ? colors.primary
-                  : colors.text_primary,
-            },
-          ]}
-          subtitle={
-            !this.props.generalStore.addressLoading &&
-            this.props.generalStore.selectedDeliveryLabel === 'Set Location'
-              ? this.props.generalStore.currentLocationDetails
-              : null
-          }
-          leftIcon={<Icon name="map" color={colors.primary} />}
-          bottomDivider
-          chevron
-          onPress={() => {
-            navigation.navigate('Set Location', {checkout: false});
-            this.hideLocationMenu();
-          }}
-        />
+                ? this.props.generalStore.currentLocationDetails
+                : null
+            }
+            leftIcon={<Icon name="map" color={colors.primary} />}
+            chevron
+            onPress={() => {
+              navigation.navigate('Set Location', {checkout: false});
+              this.hideLocationMenu();
+            }}
+          />
+        </View>
       </Animatable.View>
     );
   };

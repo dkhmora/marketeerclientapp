@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 import {Overlay, Text, Button, Input} from 'react-native-elements';
-import {View, ActivityIndicator} from 'react-native';
+import {View} from 'react-native';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import {inject} from 'mobx-react';
@@ -57,6 +57,7 @@ class AddReviewModal extends PureComponent {
         isVisible={isVisible}
         onBackdropPress={() => this.handleBackdropPress()}
         statusBarTranslucent
+        animationType="fade"
         width="auto"
         height="auto"
         overlayStyle={{borderRadius: 10, padding: 0}}>

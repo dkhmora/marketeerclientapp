@@ -5,7 +5,7 @@ import {inject, observer} from 'mobx-react';
 import {colors} from '../../assets/colors';
 import DeviceInfo from 'react-native-device-info';
 
-@inject('shopStore')
+@inject('generalStore')
 @observer
 class StoreCategoryList extends Component {
   constructor(props) {
@@ -14,7 +14,7 @@ class StoreCategoryList extends Component {
   }
 
   componentDidMount() {
-    this.props.shopStore.setStoreCategories().then(() => {
+    this.props.generalStore.setAppData().then(() => {
       this.setState({refreshing: false});
     });
   }
@@ -22,18 +22,24 @@ class StoreCategoryList extends Component {
   onRefresh() {
     this.setState({refreshing: true});
 
-    this.props.shopStore.setStoreCategories().then(() => {
+    this.props.generalStore.setAppData().then(() => {
       this.setState({refreshing: false});
     });
   }
 
-  renderItem = ({item, index}) => (
-    <StoreCategoryCard
-      item={item}
-      navigation={this.props.navigation}
-      key={`${item.name}${index}`}
-    />
-  );
+  renderItem = ({item, index}) =>
+    item.empty ? (
+      <View
+        style={{flex: 1, backgroundColor: 'transparent'}}
+        key={item.itemId}
+      />
+    ) : (
+      <StoreCategoryCard
+        item={item}
+        navigation={this.props.navigation}
+        key={`${item.name}${index}`}
+      />
+    );
 
   formatData(data, numColumns) {
     const numberOfFullRows = Math.floor(data.length / numColumns);
@@ -52,12 +58,12 @@ class StoreCategoryList extends Component {
 
   render() {
     const {refreshing} = this.state;
-    const dataSource = this.props.shopStore.storeCategories.slice();
+    const dataSource = this.props.generalStore.storeCategories.slice();
     const isTablet = DeviceInfo.isTablet();
 
     const numOfColumns = isTablet ? 2 : 1;
 
-    if (this.props.shopStore.storeCategories) {
+    if (this.props.generalStore.storeCategories) {
       return (
         <View style={{flex: 1}}>
           <FlatList

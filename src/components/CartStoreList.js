@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, ScrollView} from 'react-native';
+import {View, ScrollView, FlatList} from 'react-native';
 import {Text} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
 import CartStoreCard from './CartStoreCard';
@@ -12,51 +12,54 @@ class CartStoreList extends Component {
     super(props);
   }
 
+  renderItem = ({item, index}) => (
+    <CartStoreCard
+      cart={this.props.cart}
+      checkout={this.props.checkout}
+      storeId={item}
+      key={item}
+    />
+  );
+
   render() {
     const dataSource = this.props.shopStore.cartStores.slice();
-    const {
-      emptyCartText,
-      checkout,
-      onTouchEnd,
-      onTouchStart,
-      onTouchCancel,
-      cart,
-    } = this.props;
+    const {emptyCartText, onTouchEnd, onTouchStart, onTouchCancel} = this.props;
 
     return (
-      <View style={{flex: 1, marginVertical: -10}}>
-        {dataSource.length > 0 ? (
-          <ScrollView
-            style={{flex: 1}}
-            onTouchEnd={() => onTouchEnd && onTouchEnd()}
-            onTouchStart={() => onTouchStart && onTouchStart()}
-            onTouchCancel={() => onTouchCancel && onTouchCancel()}>
-            {dataSource.map((storeId, index) => {
-              return (
-                <CartStoreCard
-                  cart={cart}
-                  checkout={checkout}
-                  storeId={storeId}
-                  key={storeId}
-                />
-              );
-            })}
-            <View style={{height: 10}} />
-          </ScrollView>
-        ) : (
+      <FlatList
+        onTouchEnd={() => onTouchEnd && onTouchEnd()}
+        onTouchStart={() => onTouchStart && onTouchStart()}
+        onTouchCancel={() => onTouchCancel && onTouchCancel()}
+        ListEmptyComponent={
           <View
-            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
             <Text
               style={{
+                textAlign: 'center',
+                paddingHorizontal: 15,
                 fontSize: 18,
                 fontFamily: 'ProductSans-Black',
-                textAlign: 'center',
               }}>
               {emptyCartText}
             </Text>
           </View>
-        )}
-      </View>
+        }
+        data={dataSource ? dataSource : []}
+        keyExtractor={(item, index) => item}
+        renderItem={this.renderItem}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingBottom: 15,
+        }}
+        style={{
+          paddingHorizontal: 10,
+          marginVertical: -10,
+        }}
+      />
     );
   }
 }

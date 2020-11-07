@@ -9,19 +9,23 @@ import {
   Linking,
   SafeAreaView,
   Platform,
-  Picker,
+  Dimensions,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
 import {Icon, Button} from 'react-native-elements';
+import {Picker} from 'native-base';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import BackButton from '../components/BackButton';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import Toast from '../components/Toast';
-import {DatePicker} from 'native-base';
 import moment, {ISO_8601} from 'moment';
+import crashlytics from '@react-native-firebase/crashlytics';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+
+const SCREEN_WIDTH = Dimensions.get('screen').width;
 @inject('generalStore')
 @inject('authStore')
 @observer
@@ -34,7 +38,9 @@ class SignUpScreen extends Component {
       email: '',
       phoneNumber: '',
       password: '',
+      datePickerVisible: false,
       selectedBirthdate: null,
+      selectedDate: null,
       maxDate: moment().subtract(18, 'years').toDate(),
       selectedTitle: 'Mr',
       passwordCheck: false,
@@ -46,6 +52,10 @@ class SignUpScreen extends Component {
       secureTextEntry: true,
       confirm_secureTextEntry: true,
     };
+  }
+
+  componentDidMount() {
+    crashlytics().log('SignUpScreen');
   }
 
   handleNameChange = (name) => {
@@ -230,12 +240,37 @@ class SignUpScreen extends Component {
       maxDate,
       selectedBirthdate,
       selectedTitle,
+      datePickerVisible,
+      selectedDate,
     } = this.state;
     const {navigation} = this.props;
 
     return (
       <View style={[styles.container, {paddingTop: 0}]}>
         <StatusBar animated translucent backgroundColor={colors.statusBar} />
+
+        <DateTimePickerModal
+          isVisible={datePickerVisible}
+          mode="date"
+          onConfirm={(newDate) =>
+            this.setState({
+              datePickerVisible: false,
+              selectedDate: newDate,
+              selectedBirthdate: moment(newDate, ISO_8601).format('YYYY-MM-DD'),
+            })
+          }
+          onCancel={() => this.setState({datePickerVisible: false})}
+          maximumDate={maxDate}
+          date={selectedDate ? selectedDate : new Date()}
+          locale={'en'}
+          timeZoneOffsetInMinutes={undefined}
+          modalTransparent={false}
+          animationType={'fade'}
+          androidMode={'default'}
+          placeHolderText="Select Your Birthdate"
+          textStyle={{color: colors.primary}}
+          disabled={false}
+        />
 
         <View
           style={{
@@ -261,8 +296,14 @@ class SignUpScreen extends Component {
         <Animatable.View
           useNativeDriver
           animation="fadeInUpBig"
-          style={styles.footer}>
-          <KeyboardAwareScrollView>
+          style={{
+            flex: 1,
+            backgroundColor: '#fff',
+            borderTopLeftRadius: 30,
+            borderTopRightRadius: 30,
+            paddingTop: 10,
+          }}>
+          <KeyboardAwareScrollView style={{paddingHorizontal: 20}}>
             <Text style={styles.text_header}>Sign Up</Text>
 
             <Text style={[styles.text_subtext]}>
@@ -287,14 +328,40 @@ class SignUpScreen extends Component {
               </View>
             )}
 
-            <Text style={styles.text_footer}>Title</Text>
+            <Text
+              style={{
+                paddingTop: 20,
+                color: colors.text_primary,
+                fontSize: 18,
+              }}>
+              Title
+            </Text>
 
             <View style={[styles.action]}>
               <Picker
-                style={{flex: 1}}
+                textStyle={{
+                  fontFamily: 'ProductSans-Bold',
+                  color: colors.primary,
+                  width: SCREEN_WIDTH - 80,
+                }}
+                itemTextStyle={{
+                  color: colors.primary,
+                  fontFamily: 'ProductSans-Light',
+                }}
+                headerTitleStyle={{
+                  fontFamily: 'ProductSans-Light',
+                  color: colors.text_primary,
+                }}
                 mode="dropdown"
                 selectedValue={selectedTitle}
                 iosIcon={<Icon name="chevron-down" />}
+                iosHeader="Select a Title"
+                headerBackButtonText="Back"
+                headerBackButtonTextStyle={{
+                  fontFamily: 'ProductSans-Light',
+                  color: colors.primary,
+                }}
+                itemStyle={{flex: 1}}
                 onValueChange={(value) =>
                   this.setState({selectedTitle: value})
                 }>
@@ -332,9 +399,7 @@ class SignUpScreen extends Component {
               style={[
                 styles.action,
                 {
-                  marginTop: 0,
                   flexDirection: 'column',
-                  justifyContent: 'center',
                 },
               ]}>
               <View
@@ -354,29 +419,31 @@ class SignUpScreen extends Component {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                   }}>
-                  <DatePicker
-                    maximumDate={maxDate}
-                    locale={'en'}
-                    timeZoneOffsetInMinutes={undefined}
-                    modalTransparent={false}
-                    animationType={'fade'}
-                    androidMode={'default'}
-                    placeHolderText="Select date"
-                    textStyle={{color: colors.primary}}
-                    placeHolderTextStyle={{
-                      color: colors.text_secondary,
-                      fontSize: 15,
-                      fontWeight: 'bold',
+                  <TouchableOpacity
+                    style={{
+                      flex: 1,
+                      marginTop: 5,
+                      paddingLeft: 10,
                     }}
-                    onDateChange={(newDate) => {
-                      this.setState({
-                        selectedBirthdate: moment(newDate, ISO_8601).format(
-                          'YYYY-MM-DD',
-                        ),
-                      });
-                    }}
-                    disabled={false}
-                  />
+                    onPress={() => this.setState({datePickerVisible: true})}>
+                    {selectedBirthdate ? (
+                      <Text
+                        style={{
+                          color: colors.primary,
+                          fontFamily: 'ProductSans-Bold',
+                        }}>
+                        {selectedBirthdate}
+                      </Text>
+                    ) : (
+                      <Text
+                        style={{
+                          fontFamily: 'ProductSans-Bold',
+                          color: colors.text_secondary,
+                        }}>
+                        Select Date
+                      </Text>
+                    )}
+                  </TouchableOpacity>
 
                   {selectedBirthdate ? (
                     <Animatable.View useNativeDriver animation="bounceIn">
@@ -386,7 +453,7 @@ class SignUpScreen extends Component {
                 </View>
               </View>
 
-              <View style={{flexDirection: 'row'}}>
+              <View style={{flexDirection: 'row', paddingTop: 15}}>
                 <Text style={{color: colors.text_secondary, fontSize: 12}}>
                   You must be atleast{' '}
                 </Text>
@@ -460,7 +527,12 @@ class SignUpScreen extends Component {
                 ) : null}
               </View>
 
-              <Text style={{color: colors.text_secondary, fontSize: 12}}>
+              <Text
+                style={{
+                  color: colors.text_secondary,
+                  fontSize: 12,
+                  paddingTop: Platform.OS === 'ios' ? 15 : 0,
+                }}>
                 We will send you a verification code here. *Standard rates may
                 apply
               </Text>

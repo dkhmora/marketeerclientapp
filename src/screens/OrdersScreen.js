@@ -4,12 +4,17 @@ import OrderList from '../components/OrderList';
 import BaseHeader from '../components/BaseHeader';
 import {inject, observer} from 'mobx-react';
 import {View} from 'react-native';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 @inject('authStore')
 @observer
 class OrdersScreen extends Component {
   constructor(props) {
     super(props);
+  }
+
+  componentDidMount() {
+    crashlytics().log('OrdersScreen');
   }
 
   render() {

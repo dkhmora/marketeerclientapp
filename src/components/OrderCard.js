@@ -1,16 +1,17 @@
 import React, {PureComponent} from 'react';
 import {Card, CardItem, Body, View} from 'native-base';
-import {ActionSheetIOS} from 'react-native';
+import {ActionSheetIOS, Linking} from 'react-native';
 import moment from 'moment';
 import {observer, inject} from 'mobx-react';
 import {observable, action, computed} from 'mobx';
 import FastImage from 'react-native-fast-image';
 import {Button, Icon, Text, Badge} from 'react-native-elements';
-import storage from '@react-native-firebase/storage';
 import {colors} from '../../assets/colors';
 import AddReviewModal from './AddReviewModal';
 import Toast from './Toast';
 import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
+import { CDN_BASE_URL } from './util/variables';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -59,24 +60,46 @@ class OrderCard extends PureComponent {
     this.confirmationModal = false;
   }
 
-  componentDidMount() {
-    this.getDisplayImageUrl();
-  }
-
-  async getDisplayImageUrl() {
-    const {storeId} = this.props.order;
-
-    const ref = storage().ref(`/images/stores/${storeId}/display.jpg`);
-    const link = await ref.getDownloadURL();
-
-    this.setState({url: {uri: link}, ready: true});
+  async openLink(url) {
+    try {
+      if (await InAppBrowser.isAvailable()) {
+        await InAppBrowser.open(url, {
+          dismissButtonStyle: 'close',
+          preferredBarTintColor: colors.primary,
+          preferredControlTintColor: 'white',
+          readerMode: false,
+          animated: true,
+          modalPresentationStyle: 'pageSheet',
+          modalTransitionStyle: 'coverVertical',
+          modalEnabled: true,
+          enableBarCollapsing: false,
+          // Android Properties
+          showTitle: true,
+          toolbarColor: colors.primary,
+          secondaryToolbarColor: 'black',
+          enableUrlBarHiding: true,
+          enableDefaultShare: true,
+          forceCloseOnRedirection: false,
+          animations: {
+            startEnter: 'slide_in_right',
+            startExit: 'slide_out_left',
+            endEnter: 'slide_in_left',
+            endExit: 'slide_out_right',
+          },
+        });
+      } else {
+        Linking.openURL(url);
+      }
+      this.props.generalStore.appReady = true;
+    } catch (err) {
+      Toast({text: err.message, type: 'danger'});
+    }
   }
 
   handleViewOrderItems() {
     const {navigation, order} = this.props;
-    const {orderStatus} = this;
 
-    navigation.navigate('Order Details', {order, orderStatus});
+    navigation.navigate('Order Details', {orderId: order.orderId});
   }
 
   handleCancelOrder() {
@@ -114,14 +137,9 @@ class OrderCard extends PureComponent {
 
   openOrderChat() {
     const {navigation, order} = this.props;
-    const {userAddress, userOrderNumber, storeName} = order;
 
     navigation.navigate('Order Chat', {
-      storeName,
-      userAddress,
-      order,
-      userOrderNumber,
-      orderStatus: this.orderStatus,
+      orderId: order.orderId,
     });
   }
 
@@ -130,16 +148,19 @@ class OrderCard extends PureComponent {
   }
 
   CardHeader = ({
-    imageUrl,
     imageReady,
     paymentMethod,
     userOrderNumber,
     userUnreadCount,
     orderStatus,
     storeName,
+    storeId,
   }) => {
     const orderStatusText =
       orderStatus[0] === 'PAID' ? 'PROCESSING' : orderStatus;
+    const displayImageUrl = {
+      uri: `${CDN_BASE_URL}/images/stores/${storeId}/display.jpg`,
+    };
 
     return (
       <CardItem
@@ -159,34 +180,38 @@ class OrderCard extends PureComponent {
               flexDirection: 'row',
               alignItems: 'center',
             }}>
-            {imageUrl && imageReady ? (
-              <FastImage
-                source={imageUrl}
-                style={{
-                  height: 35,
-                  width: 35,
-                  borderRadius: 10,
-                  borderWidth: 1,
-                  borderColor: colors.primary,
-                  marginRight: 10,
-                  backgroundColor: colors.primary,
-                }}
-                resizeMode={FastImage.resizeMode.cover}
-              />
-            ) : (
-              <Placeholder Animation={Fade}>
-                <PlaceholderMedia
-                  style={{
-                    backgroundColor: colors.primary,
-                    height: 35,
-                    width: 35,
-                    borderRadius: 10,
-                    borderWidth: 1,
-                    borderColor: colors.primary,
-                    marginRight: 10,
-                  }}
-                />
-              </Placeholder>
+            <FastImage
+              source={displayImageUrl}
+              style={{
+                height: 35,
+                width: 35,
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: colors.primary,
+                marginRight: 10,
+                backgroundColor: colors.primary,
+                opacity: imageReady ? 1 : 0,
+              }}
+              resizeMode={FastImage.resizeMode.cover}
+              onLoad={() => this.setState({ready: true})}
+            />
+
+            {!imageReady && (
+              <View style={{position: 'absolute'}}>
+                <Placeholder Animation={Fade}>
+                  <PlaceholderMedia
+                    style={{
+                      backgroundColor: colors.primary,
+                      height: 35,
+                      width: 35,
+                      borderRadius: 10,
+                      borderWidth: 1,
+                      borderColor: colors.primary,
+                      marginRight: 10,
+                    }}
+                  />
+                </Placeholder>
+              </View>
             )}
 
             <View>
@@ -254,6 +279,7 @@ class OrderCard extends PureComponent {
 
   CardFooter = ({orderStatus}) => {
     const {order} = this.props;
+    const {paymentLink, paymentMethod, reviewed} = order;
 
     return (
       <View
@@ -264,10 +290,11 @@ class OrderCard extends PureComponent {
           justifyContent: 'space-between',
           paddingHorizontal: 15,
           paddingBottom: 5,
+          minHeight: 35,
         }}>
         <Text>Updated {this.timeStamp}</Text>
 
-        {orderStatus[0] === 'COMPLETED' && !order.reviewed ? (
+        {orderStatus[0] === 'COMPLETED' && !reviewed && (
           <Button
             title="Review"
             type="clear"
@@ -275,9 +302,22 @@ class OrderCard extends PureComponent {
             titleStyle={{color: colors.primary}}
             containerStyle={{borderRadius: 24}}
           />
-        ) : (
-          <View style={{height: 34}} />
         )}
+
+        {orderStatus[0] === 'UNPAID' &&
+          paymentMethod === 'Online Banking' &&
+          paymentLink && (
+            <Button
+              title="Pay Now"
+              type="clear"
+              onPress={() => {
+                this.props.generalStore.appReady = false;
+                this.openLink(paymentLink);
+              }}
+              titleStyle={{color: colors.primary}}
+              containerStyle={{borderRadius: 24}}
+            />
+          )}
       </View>
     );
   };
@@ -294,6 +334,7 @@ class OrderCard extends PureComponent {
       paymentMethod,
       createdAt,
       storeName,
+      storeId,
     } = order;
     const {url, ready, addReviewModal} = this.state;
 
@@ -327,6 +368,7 @@ class OrderCard extends PureComponent {
                 paymentMethod={paymentMethod}
                 orderStatus={this.orderStatus}
                 storeName={storeName}
+                storeId={storeId}
               />
 
               <View

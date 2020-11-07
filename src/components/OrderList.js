@@ -53,14 +53,20 @@ class OrderList extends Component {
     return data;
   }
 
-  renderItem = ({item, index}) => (
-    <OrderCard
-      order={item}
-      navigation={this.props.navigation}
-      refresh={() => this.retrieveInitial()}
-      key={item.orderId}
-    />
-  );
+  renderItem = ({item, index}) =>
+    item.empty ? (
+      <View
+        style={{flex: 1, backgroundColor: 'transparent'}}
+        key={item.itemId}
+      />
+    ) : (
+      <OrderCard
+        order={item}
+        navigation={this.props.navigation}
+        refresh={() => this.retrieveInitial()}
+        key={item.orderId}
+      />
+    );
 
   render() {
     const dataSource = this.props.generalStore.orders.slice();

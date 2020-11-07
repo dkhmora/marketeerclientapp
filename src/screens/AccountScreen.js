@@ -7,6 +7,7 @@ import {Text, Button, Icon, Input, Overlay} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import Toast from '../components/Toast';
 import {styles} from '../../assets/styles';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 @inject('authStore')
 @observer
@@ -24,6 +25,10 @@ class AccountScreen extends Component {
       newPhoneNumber: noPrefixUserPhoneNumber,
       currentPassword: '',
     };
+  }
+
+  componentDidMount() {
+    crashlytics().log('AccountScreen');
   }
 
   handleSaveAccountDetails() {
@@ -125,6 +130,7 @@ class AccountScreen extends Component {
           width="auto"
           height="auto"
           statusBarTranslucent
+          animationType="fade"
           onBackdropPress={() =>
             this.setState({passwordInputModal: false, editMode: false})
           }

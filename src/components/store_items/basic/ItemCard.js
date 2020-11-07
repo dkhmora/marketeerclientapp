@@ -1,16 +1,17 @@
 import React, {PureComponent} from 'react';
 import {Card, CardItem, Text, View} from 'native-base';
 import {Button, Icon} from 'react-native-elements';
-import storage from '@react-native-firebase/storage';
 import {inject, observer} from 'mobx-react';
-import {observable, computed} from 'mobx';
+import {computed} from 'mobx';
 import * as Animatable from 'react-native-animatable';
-import {colors} from '../../assets/colors';
-import {styles} from '../../assets/styles';
+import {colors} from '../../../../assets/colors';
+import {styles} from '../../../../assets/styles';
 import FastImage from 'react-native-fast-image';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import ItemDescriptionModal from './ItemDescriptionModal';
+import ItemDescriptionModal from '../../ItemDescriptionModal';
 import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
+import { CDN_BASE_URL } from '../../util/variables';
+
 @inject('authStore')
 @inject('shopStore')
 @observer
@@ -26,15 +27,13 @@ class ItemCard extends PureComponent {
     const itemStock = item.stock;
 
     this.state = {
-      loading: this.props.item.image ? true : false,
+      ready: false,
       addButtonDisabled: itemQuantity >= itemStock ? true : false,
       minusButtonShown: itemQuantity > 0 ? true : false,
       writeTimer: null,
       overlay: false,
     };
   }
-
-  @observable url = null;
 
   @computed get cartItemQuantity() {
     const {item, storeId} = this.props;
@@ -72,12 +71,6 @@ class ItemCard extends PureComponent {
     return 0;
   }
 
-  getImage = async () => {
-    const ref = storage().ref(this.props.item.image);
-    const link = await ref.getDownloadURL();
-    this.url = link;
-  };
-
   componentDidUpdate() {
     if (this.state.minusButtonShown && this.cartItemQuantity <= 0) {
       this.hideMinusButton();
@@ -85,20 +78,6 @@ class ItemCard extends PureComponent {
 
     if (this.cartItemQuantity > 0 && !this.state.minusButtonShown) {
       this.showMinusButton();
-    }
-  }
-
-  componentDidMount() {
-    if (this.props.item.image) {
-      this.getImage()
-        .then(() => {
-          this.setState({loading: false});
-        })
-        .then(() => {
-          if (this.cartItemQuantity >= 1) {
-            this.showMinusButton();
-          }
-        });
     }
   }
 
@@ -166,7 +145,10 @@ class ItemCard extends PureComponent {
       description,
     } = this.props.item;
 
-    const {addButtonDisabled, loading} = this.state;
+    const {addButtonDisabled, ready} = this.state;
+    const url = image
+      ? {uri: `${CDN_BASE_URL}${image}`}
+      : require('../../../../assets/images/placeholder.jpg');
 
     return (
       <Animatable.View
@@ -187,7 +169,7 @@ class ItemCard extends PureComponent {
           discountedPrice={discountedPrice}
           unit={unit}
           stock={stock}
-          url={this.url}
+          url={url}
         />
 
         <View
@@ -220,8 +202,6 @@ class ItemCard extends PureComponent {
                 },
                 shadowOpacity: 0.2,
                 shadowRadius: 1.41,
-                borderBottomLeftRadius: 10,
-                borderBottomRightRadius: 10,
               }}>
               <TouchableOpacity onPress={() => this.setState({overlay: true})}>
                 <View
@@ -244,9 +224,11 @@ class ItemCard extends PureComponent {
                     </Text>
 
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                      {discountedPrice && (
+                      {discountedPrice ? (
                         <Text
                           maxFontSizeMultiplier={1}
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
                           style={{
                             textDecorationLine: 'line-through',
                             textDecorationStyle: 'solid',
@@ -256,13 +238,15 @@ class ItemCard extends PureComponent {
                           }}>
                           ₱{price}
                         </Text>
-                      )}
+                      ) : null}
 
                       <Text
                         maxFontSizeMultiplier={1}
+                        numberOfLines={1}
                         style={{
                           color: colors.text_primary,
                           fontFamily: 'ProductSans-Black',
+                          flexWrap: 'wrap',
                         }}>
                         ₱{discountedPrice ? discountedPrice : price}
                         {unit && `/${unit}`}
@@ -278,58 +262,62 @@ class ItemCard extends PureComponent {
             </View>
 
             <CardItem cardBody>
-              {image ? (
-                loading ? (
-                  <Placeholder Animation={Fade}>
-                    <PlaceholderMedia
-                      style={{
-                        backgroundColor: colors.primary,
-                        flex: 1,
-                        marginTop: -10,
-                        height: '100%',
-                        width: '100%',
-                        aspectRatio: 1,
-                      }}
-                    />
-                  </Placeholder>
-                ) : (
-                  <FastImage
-                    source={{uri: this.url}}
-                    style={{
-                      backgroundColor: colors.primary,
-                      aspectRatio: 1,
-                      flex: 1,
-                      marginTop: -10,
-                    }}
-                    resizeMode={FastImage.resizeMode.contain}
-                  />
-                )
-              ) : (
+              <View style={{flex: 1}}>
                 <FastImage
-                  source={require('../../assets/images/placeholder.jpg')}
+                  source={url}
                   style={{
-                    backgroundColor: colors.primary,
                     aspectRatio: 1,
                     flex: 1,
-                    marginTop: -10,
+                    opacity: ready ? 1 : 0,
                   }}
+                  onLoad={() =>
+                    this.setState({ready: true}, () => {
+                      if (this.cartItemQuantity >= 1) {
+                        this.showMinusButton();
+                      }
+                    })
+                  }
                   resizeMode={FastImage.resizeMode.contain}
                 />
-              )}
+
+                {!ready && (
+                  <View style={{position: 'absolute'}}>
+                    <Placeholder Animation={Fade}>
+                      <PlaceholderMedia
+                        style={{
+                          backgroundColor: colors.primary,
+                          flex: 1,
+                          height: '100%',
+                          width: '100%',
+                          aspectRatio: 1,
+                        }}
+                      />
+                    </Placeholder>
+                  </View>
+                )}
+              </View>
 
               <View
                 style={{
                   flexDirection: 'row',
                   position: 'absolute',
-                  bottom: 10,
-                  left: 10,
-                  borderRadius: 10,
-                  borderWidth: 1,
+                  top: 0,
+                  left: 0,
+                  borderBottomRightRadius: 10,
                   backgroundColor: colors.icons,
                   opacity: 0.9,
-                  borderColor: colors.text_secondary,
-                  padding: 5,
+                  borderColor: 'rgba(0,0,0,0.4)',
+                  padding: 2,
+                  paddingRight: 4,
                   alignItems: 'center',
+                  elevation: 5,
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 2,
+                  },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
                 }}>
                 {stock > 0 ? (
                   <View style={{flexDirection: 'row'}}>

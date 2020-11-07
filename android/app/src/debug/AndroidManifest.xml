@@ -4,5 +4,10 @@
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
-    <application android:usesCleartextTraffic="true" tools:targetApi="28" tools:ignore="GoogleAppIndexingWarning" />
+    <application android:usesCleartextTraffic="true" tools:targetApi="28" tools:ignore="GoogleAppIndexingWarning">
+        <meta-data
+            tools:replace="android:value"
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyB1llLVQNcKxi9uCw_C2M3_zhHV6GvdO0U" />
+    </application>
 </manifest>

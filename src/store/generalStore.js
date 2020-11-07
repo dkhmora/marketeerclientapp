@@ -4,7 +4,7 @@ import storage from '@react-native-firebase/storage';
 import GiftedChat from 'react-native-gifted-chat';
 import 'react-native-get-random-values';
 import {v4 as uuidv4} from 'uuid';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import geohash from 'ngeohash';
 import firebase from '@react-native-firebase/app';
 import auth from '@react-native-firebase/auth';
@@ -13,6 +13,7 @@ import {Platform, PermissionsAndroid} from 'react-native';
 import Toast from '../components/Toast';
 import {persist} from 'mobx-persist';
 import messaging from '@react-native-firebase/messaging';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 const functions = firebase.app().functions('asia-northeast1');
 class generalStore {
@@ -23,6 +24,8 @@ class generalStore {
   @observable orderItems = [];
   @observable orderMessages = [];
   @observable unsubscribeGetMessages = null;
+  @observable unsubscribeGetOrder = null;
+  @observable selectedOrder = null;
   @observable currentLocation = null;
   @observable currentLocationDetails = null;
   @observable selectedDeliveryLabel = null;
@@ -30,6 +33,56 @@ class generalStore {
   @observable userDetails = {};
   @observable addressLoading = false;
   @observable navigation = null;
+  @observable storeCategories = [];
+  @observable availablePaymentMethods = {};
+  @observable getCourierInterval = null;
+  @observable additionalPaymentMethods = {
+    COD: {
+      longName: 'Cash On Delivery',
+      shortName: 'COD',
+      remarks: 'Pay in cash when you receive your order!',
+      cost: 0,
+      currencies: 'PHP',
+      status: 'A',
+      surcharge: 0,
+    },
+  };
+
+  @action clearGetCourierInterval() {
+    clearInterval(this.getCourierInterval);
+    this.getCourierInterval = null;
+  }
+
+  @action async setAppData() {
+    await firestore()
+      .collection('application')
+      .doc('client_config')
+      .get()
+      .then(async (document) => {
+        if (document.exists) {
+          const data = document.data();
+          this.storeCategories = data.storeCategories.sort(
+            (a, b) => a.name > b.name,
+          );
+          let sortedAvailablePaymentMethods = {};
+
+          await Object.entries(data.availablePaymentMethods)
+            .sort((a, b) => a[1].longName > b[1].longName)
+            .map(([key, value], index) => {
+              sortedAvailablePaymentMethods[key] = value;
+            });
+
+          this.availablePaymentMethods = {
+            ...this.additionalPaymentMethods,
+            ...sortedAvailablePaymentMethods,
+          };
+        }
+      })
+      .catch((err) => {
+        crashlytics().recordError(err);
+        Toast({text: err.message, type: 'danger'});
+      });
+  }
 
   @action async cancelOrder(orderId, cancelReason) {
     return await functions
@@ -38,6 +91,7 @@ class generalStore {
         return response;
       })
       .catch((err) => {
+        crashlytics().recordError(err);
         Toast({text: err.message, type: 'danger'});
       });
   }
@@ -63,7 +117,10 @@ class generalStore {
               .doc(userId)
               .update('fcmTokens', firestore.FieldValue.arrayUnion(token));
           })
-          .catch((err) => Toast({text: err.message, type: 'danger'}));
+          .catch((err) => {
+            crashlytics().recordError(err);
+            Toast({text: err.message, type: 'danger'});
+          });
       }
     }
   }
@@ -88,6 +145,7 @@ class generalStore {
         return data;
       })
       .catch((err) => {
+        crashlytics().recordError(err);
         Toast({text: err.message, type: 'danger'});
       });
   }
@@ -110,6 +168,7 @@ class generalStore {
         }
       })
       .catch((err) => {
+        crashlytics().recordError(err);
         Toast({text: err.message, type: 'danger'});
       });
   }
@@ -128,6 +187,7 @@ class generalStore {
         return response.data.locationDetails;
       })
       .catch((err) => {
+        crashlytics().recordError(err);
         Toast({text: err.message, type: 'danger'});
       });
   }
@@ -157,6 +217,7 @@ class generalStore {
           resolve(position.coords);
         },
         (err) => {
+          crashlytics().recordError(err);
           Toast({text: err.message, type: 'danger'});
           reject();
         },
@@ -223,6 +284,8 @@ class generalStore {
           resolve();
         },
         (err) => {
+          crashlytics().recordError(err);
+
           if (err.code === 2) {
             Toast({
               text:
@@ -245,7 +308,9 @@ class generalStore {
           }
         },
         {
-          timeout: 20000,
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 10000,
         },
       );
     });
@@ -302,18 +367,11 @@ class generalStore {
     }
   }
 
-  @action async getImageURI(imageRef) {
-    if (imageRef) {
-      const ref = storage().ref(imageRef);
-      const link = await ref.getDownloadURL();
-      return link;
-    }
-    return 0;
-  }
-
   @action async getImageUrl(imageRef) {
     const ref = storage().ref(imageRef);
-    const link = await ref.getDownloadURL();
+    const link = await ref.getDownloadURL().catch((err) => {
+      return null;
+    });
 
     return link;
   }
@@ -323,11 +381,59 @@ class generalStore {
       clearTimeout(this.markMessagesAsReadTimeout);
 
     this.markMessagesAsReadTimeout = setTimeout(() => {
-      firestore().collection('orders').doc(orderId).update({
-        userUnreadCount: 0,
-        updatedAt: firestore.Timestamp.now().toMillis(),
-      });
+      firestore()
+        .collection('orders')
+        .doc(orderId)
+        .update({
+          userUnreadCount: 0,
+          updatedAt: firestore.Timestamp.now().toMillis(),
+        })
+        .catch((err) => {
+          crashlytics().recordError(err);
+          Toast({text: err.message, type: 'danger'});
+
+          return null;
+        });
     }, 100);
+  }
+
+  @action getOrder({orderId, readMessages}) {
+    this.orderMessages = null;
+    this.selectedOrder = null;
+
+    if (orderId) {
+      this.unsubscribeGetOrder = firestore()
+        .collection('orders')
+        .doc(orderId)
+        .onSnapshot((documentSnapshot) => {
+          if (documentSnapshot) {
+            if (documentSnapshot.exists) {
+              this.orderMessages = [];
+
+              if (
+                documentSnapshot.data().userUnreadCount !== 0 &&
+                readMessages
+              ) {
+                this.markMessagesAsRead(orderId);
+              }
+
+              this.selectedOrder = {...documentSnapshot.data(), orderId};
+
+              if (
+                documentSnapshot.data().messages.length <= 0 &&
+                this.orderMessages.length > 0
+              ) {
+                this.orderMessages = GiftedChat.append(
+                  this.orderMessages,
+                  documentSnapshot.data().messages,
+                );
+              } else {
+                this.orderMessages = documentSnapshot.data().messages.reverse();
+              }
+            }
+          }
+        });
+    }
   }
 
   @action getMessages(orderId) {
@@ -370,7 +476,10 @@ class generalStore {
         storeUnreadCount: firestore.FieldValue.increment(1),
         updatedAt: firestore.Timestamp.now().toMillis(),
       })
-      .catch((err) => Toast({text: err.message, type: 'danger'}));
+      .catch((err) => {
+        crashlytics().recordError(err);
+        Toast({text: err.message, type: 'danger'});
+      });
   }
 
   @action async createImageMessage(orderId, messageId, user, imageLink) {
@@ -390,7 +499,10 @@ class generalStore {
         storeUnreadCount: firestore.FieldValue.increment(1),
         updatedAt: firestore.Timestamp.now().toMillis(),
       })
-      .catch((err) => Toast({text: err.message, type: 'danger'}));
+      .catch((err) => {
+        crashlytics().recordError(err);
+        Toast({text: err.message, type: 'danger'});
+      });
   }
 
   @action async sendImage(orderId, customerUserId, storeId, user, imagePath) {
@@ -411,7 +523,10 @@ class generalStore {
       .then((imageLink) =>
         this.createImageMessage(orderId, messageId, user, imageLink),
       )
-      .catch((err) => Toast({text: err.message, type: 'danger'}));
+      .catch((err) => {
+        crashlytics().recordError(err);
+        Toast({text: err.message, type: 'danger'});
+      });
   }
 
   @action async setOrders(userId) {
@@ -444,7 +559,10 @@ class generalStore {
           .slice()
           .sort((a, b) => b.updatedAt - a.updatedAt);
       })
-      .catch((err) => Toast({text: err.message, type: 'danger'}));
+      .catch((err) => {
+        crashlytics().recordError(err);
+        Toast({text: err.message, type: 'danger'});
+      });
   }
 
   @action async setOrderItems(orderId) {
@@ -454,6 +572,12 @@ class generalStore {
       .get()
       .then((document) => {
         return (this.orderItems = document.data().items);
+      })
+      .catch((err) => {
+        crashlytics().recordError(err);
+        Toast({text: err.message, type: 'danger'});
+
+        return null;
       });
   }
 
@@ -466,9 +590,55 @@ class generalStore {
         if (document.exists) {
           return document.data().items;
         }
+      })
+      .catch((err) => {
+        crashlytics().recordError(err);
+        Toast({text: err.message, type: 'danger'});
+
+        return null;
       });
 
     return orderItems;
+  }
+
+  @action async getOrderPayment(orderId) {
+    const orderPayment = await firestore()
+      .collection('order_payments')
+      .doc(orderId)
+      .get()
+      .then((document) => {
+        if (document.exists) {
+          return document.data();
+        }
+      })
+      .catch((err) => {
+        crashlytics().recordError(err);
+        Toast({text: err.message, type: 'danger'});
+
+        return null;
+      });
+
+    return orderPayment;
+  }
+
+  @action async getOrderDetails(orderId) {
+    const orderDetails = await firestore()
+      .collection('orders')
+      .doc(orderId)
+      .get()
+      .then((document) => {
+        if (document.exists) {
+          return document.data();
+        }
+      })
+      .catch((err) => {
+        crashlytics().recordError(err);
+        Toast({text: err.message, type: 'danger'});
+
+        return null;
+      });
+
+    return orderDetails;
   }
 }
 

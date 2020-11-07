@@ -17,8 +17,9 @@ import geohash from 'ngeohash';
 import Toast from '../components/Toast';
 import BaseHeader from '../components/BaseHeader';
 import RNGooglePlaces from 'react-native-google-places';
-import {computed, observable} from 'mobx';
+import {computed} from 'mobx';
 import {Card, CardItem} from 'native-base';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 @inject('authStore')
 @inject('shopStore')
@@ -70,6 +71,8 @@ class SetLocationScreen extends Component {
     } else {
       setCurrentLocation();
     }
+
+    crashlytics().log('SetLocationScreen');
   }
 
   getGeohash = (coordinates) => {
@@ -136,29 +139,33 @@ class SetLocationScreen extends Component {
   }
 
   panMapToLocation(position) {
-    this.map.animateCamera(
-      {
-        center: position,
-        pitch: 2,
-        heading: 1,
-        altitude: 200,
-        zoom: 18,
-      },
-      150,
-    );
+    if (this.map) {
+      this.map.animateCamera(
+        {
+          center: position,
+          pitch: 2,
+          heading: 1,
+          altitude: 200,
+          zoom: 18,
+        },
+        150,
+      );
+    }
   }
 
   panMapToMarker() {
-    this.map.animateCamera(
-      {
-        center: this.state.markerPosition,
-        pitch: 2,
-        heading: 1,
-        altitude: 200,
-        zoom: 18,
-      },
-      150,
-    );
+    if (this.map) {
+      this.map.animateCamera(
+        {
+          center: this.state.markerPosition,
+          pitch: 2,
+          heading: 1,
+          altitude: 200,
+          zoom: 18,
+        },
+        150,
+      );
+    }
   }
 
   _onMapReady = () => {
@@ -247,19 +254,17 @@ class SetLocationScreen extends Component {
   }
 
   openSearchModal() {
-    RNGooglePlaces.openAutocompleteModal(
-      {country: 'PH', useOverlay: true, type: 'address'},
-      ['location', 'addressComponents'],
-    )
-      .then((place) => {
-        const coordinates = place.location;
-        const address = place.addressComponents;
-        const formattedAddress = `${address[1].name} ${address[0].name}, ${address[6].name} ${address[3].name}, ${address[5].name}`;
+    RNGooglePlaces.openAutocompleteModal({country: 'PH', useOverlay: true}, [
+      'location',
+      'address',
+    ])
+      .then(async (place) => {
+        const {location, address} = place;
 
         this.setState(
           {
-            selectedLocationAddress: formattedAddress,
-            newMarkerPosition: {...coordinates},
+            selectedLocationAddress: address,
+            newMarkerPosition: {...location},
             editMode: false,
           },
           () => {

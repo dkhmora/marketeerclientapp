@@ -1,5 +1,12 @@
 import React, {Component} from 'react';
-import {View, Text, StatusBar, Image, SafeAreaView} from 'react-native';
+import {
+  View,
+  Text,
+  StatusBar,
+  Image,
+  SafeAreaView,
+  Platform,
+} from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
 import {Icon, Button} from 'react-native-elements';
@@ -8,7 +15,12 @@ import {styles} from '../../assets/styles';
 import CartStoreList from '../components/CartStoreList';
 import BackButton from '../components/BackButton';
 import Toast from '../components/Toast';
+import {initialWindowMetrics} from 'react-native-safe-area-context';
+import crashlytics from '@react-native-firebase/crashlytics';
+import {when} from 'mobx';
 
+const inset = initialWindowMetrics && initialWindowMetrics.insets;
+const bottomPadding = Platform.OS === 'ios' ? inset.bottom : 0;
 @inject('shopStore')
 @inject('authStore')
 @inject('generalStore')
@@ -25,10 +37,6 @@ class CheckoutScreen extends Component {
       currentLocationDetails,
       currentLocationGeohash,
     } = this.props.generalStore;
-    const {
-      storeSelectedDeliveryMethod,
-      storeSelectedPaymentMethod,
-    } = this.props.shopStore;
 
     const {userName} = this.props.authStore;
 
@@ -47,8 +55,6 @@ class CheckoutScreen extends Component {
         deliveryAddress,
         userCoordinates,
         userName,
-        storeSelectedDeliveryMethod,
-        storeSelectedPaymentMethod,
       })
       .then(async (response) => {
         this.props.generalStore.appReady = true;
@@ -60,7 +66,10 @@ class CheckoutScreen extends Component {
             duration: 6000,
           });
 
-          navigation.replace('Cart');
+          navigation.reset({
+            index: 1,
+            routes: [{name: 'Home'}, {name: 'Cart'}],
+          });
         } else {
           let responses = '';
 
@@ -68,20 +77,47 @@ class CheckoutScreen extends Component {
             if (res.s === 200) {
               responses = `${responses !== '' ? `${responses}; ` : ''}${
                 res.m
-              }; Thank you for shopping at Marketeer!`;
+              };`;
             }
           });
 
           if (responses) {
             Toast({
-              text: responses,
-              duration: 5000,
+              text: `${responses} Thank you for shopping at Marketeer! Kindly wait for your orders to be confirmed.`,
+              duration: 10000,
             });
 
-            navigation.replace('Home');
+            navigation.reset({
+              index: 1,
+              routes: [{name: 'Home'}, {name: 'Orders'}],
+            });
           }
         }
       });
+  }
+
+  getMrSpeedyDeliveryFees() {
+    when(
+      () =>
+        this.props.generalStore.currentLocation &&
+        this.props.generalStore.currentLocationDetails,
+      () =>
+        this.props.shopStore.getMrSpeedyDeliveryPriceEstimate(
+          {
+            latitude: this.props.generalStore.currentLocation.latitude,
+            longitude: this.props.generalStore.currentLocation.longitude,
+          },
+          this.props.generalStore.currentLocationDetails,
+        ),
+    );
+  }
+
+  componentDidMount() {
+    this.props.generalStore.setAppData();
+
+    crashlytics().log('CheckoutScreen');
+
+    this.getMrSpeedyDeliveryFees();
   }
 
   componentWillUnmount() {
@@ -89,6 +125,10 @@ class CheckoutScreen extends Component {
     const {getCartItems, unsubscribeToGetCartItems} = this.props.shopStore;
 
     !unsubscribeToGetCartItems && getCartItems(userId);
+
+    this.props.shopStore.storeSelectedDeliveryMethod = {};
+    this.props.shopStore.storeSelectedPaymentMethod = {};
+    this.props.shopStore.storeMrSpeedyDeliveryFee = {};
   }
 
   render() {
@@ -130,7 +170,11 @@ class CheckoutScreen extends Component {
           animation="fadeInUpBig"
           style={[
             styles.footer,
-            {paddingBottom: 100, paddingHorizontal: 10, overflow: 'hidden'},
+            {
+              paddingHorizontal: 0,
+              overflow: 'hidden',
+              paddingBottom: 100,
+            },
           ]}>
           <CartStoreList
             checkout
@@ -155,30 +199,37 @@ class CheckoutScreen extends Component {
             backgroundColor: colors.primary,
             borderTopLeftRadius: 30,
             borderTopRightRadius: 30,
-            paddingVertical: 10,
-            paddingHorizontal: 20,
+            paddingTop: 10,
+            paddingBottom: Platform.OS === 'android' ? 10 : 0,
+            paddingHorizontal: 15,
+            marginBottom: bottomPadding,
           }}>
           <View
             style={{
-              width: '30%',
+              height: '100%',
+              width: 150,
               marginRight: 10,
               borderRadius: 24,
               borderWidth: 1,
               borderColor: colors.icons,
-              padding: 10,
               alignItems: 'center',
+              justifyContent: 'center',
+              paddingHorizontal: 10,
+              paddingVertical: 5,
             }}>
             <Text
               adjustsFontSizeToFit
-              numberOfLines={1}
+              numberOfLines={2}
               style={{
-                width: '100%',
+                flex: 1,
                 textAlign: 'center',
+                textAlignVertical: 'center',
                 fontFamily: 'ProductSans-Black',
                 color: colors.icons,
                 fontSize: 26,
+                paddingHorizontal: 8,
               }}>
-              ₱ {this.props.shopStore.totalCartSubTotalAmount}
+              {this.props.shopStore.totalAmountDisplay}
             </Text>
 
             <Text

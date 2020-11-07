@@ -1,0 +1,6 @@
+{
+  "react-native": {
+    "messaging_android_notification_color": "@color/primary",
+    "crashlytics_debug_enabled": true
+  }
+}
