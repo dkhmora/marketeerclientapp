@@ -20,7 +20,8 @@ import SlidingCartHeader from '../components/SlidingCartHeader';
 import CartStoreCard from '../components/CartStoreCard';
 import SlidingCartFooter from '../components/SlidingCartFooter';
 import crashlytics from '@react-native-firebase/crashlytics';
-import { CDN_BASE_URL } from '../components/util/variables';
+import {CDN_BASE_URL} from '../components/util/variables';
+import FastImage from 'react-native-fast-image';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -97,7 +98,7 @@ class StoreScreen extends Component {
           animation="fadeInUp"
           duration={600}
           style={{flexDirection: 'row', paddingBottom: 20}}>
-          <ImageBackground
+          <FastImage
             source={
               coverImageUrl
                 ? {uri: coverImageUrl}
@@ -107,14 +108,14 @@ class StoreScreen extends Component {
               flex: 1,
               flexDirection: 'row',
               height: 200,
-              resizeMode: 'cover',
               justifyContent: 'center',
               paddingTop: STATUS_BAR_HEIGHT + 20,
               paddingBottom: 40 + STATUS_BAR_HEIGHT,
               paddingHorizontal: 10,
               alignItems: 'center',
               backgroundColor: 'rgba(0,0,0,0.2)',
-            }}>
+            }}
+            resizeMode={FastImage.resizeMode.cover}>
             <Animatable.View
               useNativeDriver
               animation="fadeIn"
@@ -214,7 +215,7 @@ class StoreScreen extends Component {
                 }
               />
             </Animatable.View>
-          </ImageBackground>
+          </FastImage>
         </Animatable.View>
         <Image
           source={require('../../assets/images/logo.png')}

@@ -51,7 +51,6 @@ class CategoryStoresScreen extends Component {
               flex: 1,
               flexDirection: 'row',
               height: 230,
-              resizeMode: 'cover',
               paddingTop: STATUS_BAR_HEIGHT,
               paddingBottom: 40 + STATUS_BAR_HEIGHT,
               paddingHorizontal: 5,
@@ -59,7 +58,7 @@ class CategoryStoresScreen extends Component {
               justifyContent: 'flex-start',
               backgroundColor: 'rgba(0,0,0,0.2)',
             }}
-            resizeMode={FastImage.resizeMode.fill}>
+            resizeMode={FastImage.resizeMode.cover}>
             <Animatable.View
               useNativeDriver
               animation="fadeIn"
