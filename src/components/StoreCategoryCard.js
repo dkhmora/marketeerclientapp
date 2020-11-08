@@ -6,7 +6,7 @@ import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
 import {observer, inject} from 'mobx-react';
 import {Fade, Placeholder, PlaceholderMedia} from 'rn-placeholder';
-import { CDN_BASE_URL } from './util/variables';
+import {CDN_BASE_URL} from './util/variables';
 
 @inject('shopStore')
 @observer
@@ -24,7 +24,7 @@ class StoreCategoryCard extends Component {
     const {item} = this.props;
 
     this.props.navigation.navigate('Category Stores', {
-      coverImageUrl: imageUrl.uri,
+      coverImageUrl: imageUrl,
       categoryDetails: item,
     });
   }

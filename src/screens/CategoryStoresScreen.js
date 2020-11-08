@@ -15,6 +15,7 @@ import {styles} from '../../assets/styles';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import StoreList from '../components/StoreList';
 import crashlytics from '@react-native-firebase/crashlytics';
+import FastImage from 'react-native-fast-image';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -44,21 +45,21 @@ class CategoryStoresScreen extends Component {
           animation="fadeInUp"
           duration={800}
           style={{flexDirection: 'row'}}>
-          <ImageBackground
+          <FastImage
             source={coverImageUrl}
             style={{
               flex: 1,
               flexDirection: 'row',
               height: 230,
               resizeMode: 'cover',
-              justifyContent: 'center',
               paddingTop: STATUS_BAR_HEIGHT,
               paddingBottom: 40 + STATUS_BAR_HEIGHT,
               paddingHorizontal: 5,
               alignItems: 'center',
               justifyContent: 'flex-start',
               backgroundColor: 'rgba(0,0,0,0.2)',
-            }}>
+            }}
+            resizeMode={FastImage.resizeMode.fill}>
             <Animatable.View
               useNativeDriver
               animation="fadeIn"
@@ -139,7 +140,7 @@ class CategoryStoresScreen extends Component {
                 </View>
               </SafeAreaView>
             </Animatable.View>
-          </ImageBackground>
+          </FastImage>
         </Animatable.View>
 
         <Image
