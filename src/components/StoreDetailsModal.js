@@ -121,7 +121,7 @@ class StoreDetailsModal extends Component {
   }) {
     return (
       <View>
-        <ImageBackground
+        <FastImage
           source={
             coverImageUrl
               ? {uri: coverImageUrl}
@@ -147,7 +147,8 @@ class StoreDetailsModal extends Component {
             shadowOpacity: 0.34,
             shadowRadius: 6.27,
             backgroundColor: 'rgba(0,0,0,0.5)',
-          }}>
+          }}
+          resizeMode={FastImage.resizeMode.cover}>
           <View
             style={{
               flexDirection: 'column',
@@ -251,7 +252,7 @@ class StoreDetailsModal extends Component {
                   borderRadius: 40,
                   overflow: 'hidden',
                 }}
-                innerBorderStyle={{color: 'transparent', width: 10}}
+                innerBorderStyle={{color: 'transparent'}}
                 activeOpacity={0.7}
                 textStyle={{color: colors.primary}}
                 containerStyle={{
@@ -283,7 +284,7 @@ class StoreDetailsModal extends Component {
               />
             </View>
           </View>
-        </ImageBackground>
+        </FastImage>
       </View>
     );
   }
