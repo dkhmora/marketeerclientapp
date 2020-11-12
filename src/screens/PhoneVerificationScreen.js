@@ -15,9 +15,9 @@ import firebase from '@react-native-firebase/app';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import Toast from '../components/Toast';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import BackButton from '../components/BackButton';
 import crashlytics from '@react-native-firebase/crashlytics';
+import {ScrollView} from 'react-native-gesture-handler';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -258,7 +258,7 @@ class PhoneVerificationScreen extends Component {
           useNativeDriver
           animation="fadeInUpBig"
           style={styles.footer}>
-          <KeyboardAwareScrollView style={{flex: 1}}>
+          <ScrollView style={{flex: 1}}>
             <View style={{flex: 1, justifyContent: 'flex-start'}}>
               <Text style={styles.text_header}>SMS Verification</Text>
               <Text style={styles.text_subtext}>
@@ -299,7 +299,7 @@ class PhoneVerificationScreen extends Component {
                 </TouchableOpacity>
               </View>
             </View>
-          </KeyboardAwareScrollView>
+          </ScrollView>
         </Animatable.View>
       </View>
     );

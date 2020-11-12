@@ -20,7 +20,7 @@ class ItemQuantityControlButtons extends PureComponent {
     } = this.props;
 
     return (
-      <>
+      <View style={{flexDirection: 'row'}}>
         <Animatable.View
           ref={(buttonCounterView) =>
             (this.buttonCounterView = buttonCounterView)
@@ -149,7 +149,7 @@ class ItemQuantityControlButtons extends PureComponent {
             />
           </View>
         </Animatable.View>
-      </>
+      </View>
     );
   }
 }

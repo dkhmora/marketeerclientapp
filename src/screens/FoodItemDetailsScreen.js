@@ -14,6 +14,7 @@ import {colors} from '../../assets/colors';
 import {CDN_BASE_URL} from '../components/util/variables';
 import FastImage from 'react-native-fast-image';
 import CustomizationOptionsCard from '../components/store_items/food/CustomizationOptionsCard';
+import ItemQuantityControlButtons from '../components/ItemQuantityControlButtons';
 
 const {event, ValueXY} = Animated;
 const scrollY = new ValueXY();
@@ -276,12 +277,34 @@ class FoodItemDetailsScreen extends Component {
 
         <View
           style={{
+            flexDirection: 'row',
             height: 80,
             width: '100%',
             borderTopRightRadius: 10,
             borderTopLeftRadius: 10,
             backgroundColor: colors.primary,
-          }}></View>
+          }}>
+          <View
+            style={{
+              alignItems: 'flex-end',
+              justifyContent: 'flex-start',
+            }}>
+            <ItemQuantityControlButtons
+              ref={(itemQuantityControlButtonsRef) =>
+                (this.itemQuantityControlButtonsRef = itemQuantityControlButtonsRef)
+              }
+              addDisabled={false}
+              onIncreaseQuantity={() => this.handleIncreaseQuantity()}
+              onDecreaseQuantity={() => this.handleDecreaseQuantity()}
+              itemQuantity={1}
+              itemStock={1}
+            />
+          </View>
+
+          <View style={{flex: 1}}>
+            <Button title="Add to cart" />
+          </View>
+        </View>
 
         <StatusBar
           translucent

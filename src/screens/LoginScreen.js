@@ -6,7 +6,6 @@ import {
   TextInput,
   StatusBar,
   Image,
-  ActivityIndicator,
   SafeAreaView,
   Linking,
 } from 'react-native';
@@ -17,10 +16,10 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import BackButton from '../components/BackButton';
 import ForgotPasswordModal from '../components/ForgotPasswordModal';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import Toast from '../components/Toast';
 import crashlytics from '@react-native-firebase/crashlytics';
+import {ScrollView} from 'react-native-gesture-handler';
 
 @inject('authStore')
 @inject('generalStore')
@@ -206,12 +205,12 @@ class LoginScreen extends Component {
           animation="fadeInUpBig"
           style={{
             flex: 1,
-            backgroundColor: '#fff',
+            backgroundColor: colors.icons,
             borderTopLeftRadius: 30,
             borderTopRightRadius: 30,
             paddingTop: 10,
           }}>
-          <KeyboardAwareScrollView style={{paddingHorizontal: 20}}>
+          <ScrollView style={{paddingHorizontal: 20}}>
             <Text style={styles.text_header}>{titleText}</Text>
 
             <Text style={styles.text_footer}>Email Address/Phone Number</Text>
@@ -343,15 +342,7 @@ class LoginScreen extends Component {
                 <Text style={styles.touchable_text}> here</Text>
               </TouchableOpacity>
             </View>
-            {/*
-            <SocialIcon
-              title="Sign In With Facebook"
-              button
-              type="facebook"
-              style={{marginHorizontal: 0, marginTop: 30}}
-            />
-            */}
-          </KeyboardAwareScrollView>
+          </ScrollView>
         </Animatable.View>
       </View>
     );
