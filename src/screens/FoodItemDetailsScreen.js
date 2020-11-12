@@ -251,8 +251,6 @@ class FoodItemDetailsScreen extends Component {
       },
     } = this.props;
 
-    console.log(name);
-
     const {renderForeground, renderHeader, renderBody} = this;
 
     return (
@@ -283,7 +281,6 @@ class FoodItemDetailsScreen extends Component {
             borderTopRightRadius: 10,
             borderTopLeftRadius: 10,
             backgroundColor: colors.primary,
-            elevation: 2,
           }}></View>
 
         <StatusBar

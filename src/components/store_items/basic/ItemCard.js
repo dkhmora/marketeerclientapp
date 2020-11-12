@@ -10,7 +10,8 @@ import FastImage from 'react-native-fast-image';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import ItemDescriptionModal from '../../ItemDescriptionModal';
 import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
-import { CDN_BASE_URL } from '../../util/variables';
+import {CDN_BASE_URL} from '../../util/variables';
+import ItemQuantityControlButtons from '../../ItemQuantityControlButtons';
 
 @inject('authStore')
 @inject('shopStore')
@@ -28,7 +29,7 @@ class ItemCard extends PureComponent {
 
     this.state = {
       ready: false,
-      addButtonDisabled: itemQuantity >= itemStock ? true : false,
+      addDisabled: itemQuantity >= itemStock ? true : false,
       minusButtonShown: itemQuantity > 0 ? true : false,
       writeTimer: null,
       overlay: false,
@@ -38,15 +39,13 @@ class ItemCard extends PureComponent {
   @computed get cartItemQuantity() {
     const {item, storeId} = this.props;
 
-    if (this.props.shopStore.storeCartItems) {
-      if (this.props.shopStore.storeCartItems[storeId]) {
-        const cartItem = this.props.shopStore.storeCartItems[storeId].find(
-          (storeCartItem) => storeCartItem.itemId === item.itemId,
-        );
+    if (this.props.shopStore.storeCartItems?.[storeId]) {
+      const cartItem = this.props.shopStore.storeCartItems[storeId].find(
+        (storeCartItem) => storeCartItem.itemId === item.itemId,
+      );
 
-        if (cartItem) {
-          return cartItem.quantity;
-        }
+      if (cartItem) {
+        return cartItem.quantity;
       }
     }
 
@@ -83,19 +82,21 @@ class ItemCard extends PureComponent {
 
   showMinusButton() {
     this.setState({minusButtonShown: true}, () => {
-      if (this.buttonCounterView && this.plusButton) {
-        this.buttonCounterView.fadeInRight(200) &&
-          this.plusButton.transformPlusButton(300);
-      }
+      this.itemQuantityControlButtonsRef?.buttonCounterView?.fadeInRight(200) &&
+        this.itemQuantityControlButtonsRef?.plusButton?.transformPlusButton(
+          300,
+        );
     });
   }
 
   hideMinusButton() {
     this.setState({minusButtonShown: false}, () => {
-      if (this.buttonCounterView && this.plusButton) {
-        this.buttonCounterView.fadeOutRight(200) &&
-          this.plusButton.deTransformPlusButton(300);
-      }
+      this.itemQuantityControlButtonsRef?.buttonCounterView?.fadeOutRight(
+        200,
+      ) &&
+        this.itemQuantityControlButtonsRef?.plusButton?.deTransformPlusButton(
+          300,
+        );
     });
   }
 
@@ -109,29 +110,16 @@ class ItemCard extends PureComponent {
     }
 
     this.cartItemQuantity === parseInt(item.stock, 10) &&
-      this.setState({addButtonDisabled: true});
-
-    /*
-    if (!this.state.minusButtonShown && this.cartItemQuantity >= 1) {
-      this.showMinusButton();
-    }
-    */
+      this.setState({addDisabled: true});
   }
 
   handleDecreaseQuantity() {
     const {item, storeId} = this.props;
 
     this.props.shopStore.deleteCartItemInStorage(item, storeId);
-
     this.props.shopStore.updateCartItems();
 
-    /*
-    if (this.cartItemQuantity <= 0 && this.state.minusButtonShown) {
-      this.hideMinusButton();
-    }*/
-
-    this.cartItemQuantity <= item.stock &&
-      this.setState({addButtonDisabled: false});
+    this.cartItemQuantity <= item.stock && this.setState({addDisabled: false});
   }
 
   render() {
@@ -145,7 +133,7 @@ class ItemCard extends PureComponent {
       description,
     } = this.props.item;
 
-    const {addButtonDisabled, ready} = this.state;
+    const {addDisabled, ready} = this.state;
     const url = image
       ? {uri: `${CDN_BASE_URL}${image}`}
       : require('../../../../assets/images/placeholder.jpg');
@@ -358,139 +346,16 @@ class ItemCard extends PureComponent {
                 bottom: 10,
                 right: 10,
               }}>
-              <Animatable.View
-                ref={(buttonCounterView) =>
-                  (this.buttonCounterView = buttonCounterView)
+              <ItemQuantityControlButtons
+                ref={(itemQuantityControlButtonsRef) =>
+                  (this.itemQuantityControlButtonsRef = itemQuantityControlButtonsRef)
                 }
-                useNativeDriver
-                style={{
-                  flexDirection: 'row',
-                  opacity: 0,
-                  backgroundColor: '#fff',
-                  borderTopLeftRadius: 24,
-                  borderBottomLeftRadius: 24,
-                  shadowColor: '#000',
-                  shadowOffset: {
-                    width: 0,
-                    height: 2,
-                  },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 1.84,
-                  elevation: 2,
-                }}>
-                <View
-                  style={{
-                    shadowColor: '#000',
-                    shadowOffset: {
-                      width: 0,
-                      height: 2,
-                    },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 1.84,
-                    paddingRight: 4,
-                  }}>
-                  <Button
-                    onPress={() => this.handleDecreaseQuantity()}
-                    type="clear"
-                    color={colors.icons}
-                    icon={
-                      this.cartItemQuantity === 1 ? (
-                        <Icon name="trash-2" color={colors.primary} />
-                      ) : (
-                        <Icon name="minus" color={colors.primary} />
-                      )
-                    }
-                    containerStyle={[
-                      styles.buttonContainer,
-                      {
-                        backgroundColor: '#fff',
-                        height: 40,
-                        borderRadius: 24,
-                        elevation: 3,
-                        shadowColor: '#000',
-                        shadowOffset: {
-                          width: 0,
-                          height: 1,
-                        },
-                        shadowOpacity: 0.22,
-                        shadowRadius: 2.22,
-                      },
-                    ]}
-                  />
-                </View>
-
-                <View
-                  style={{
-                    backgroundColor: '#fff',
-                    height: 40,
-                    width: 40,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <Text
-                    style={{
-                      textAlign: 'center',
-                      fontFamily: 'ProductSans-Black',
-                      paddingRight: 4,
-                      color:
-                        this.cartItemQuantity > stock && stock
-                          ? '#F44336'
-                          : colors.text_primary,
-                    }}>
-                    {this.cartItemQuantity}
-                  </Text>
-                </View>
-              </Animatable.View>
-
-              <Animatable.View
-                ref={(plusButton) => (this.plusButton = plusButton)}
-                useNativeDriver
-                style={[
-                  styles.buttonContainer,
-                  {
-                    borderRadius: 24,
-                    backgroundColor: '#fff',
-                    height: 40,
-                    elevation: 2,
-                  },
-                ]}>
-                <View
-                  style={{
-                    shadowColor: '#000',
-                    shadowOffset: {
-                      width: 0,
-                      height: 2,
-                    },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 3.84,
-                  }}>
-                  <Button
-                    onPress={() => this.handleIncreaseQuantity()}
-                    disabled={addButtonDisabled}
-                    type="clear"
-                    color={colors.icons}
-                    icon={
-                      <Icon
-                        name="plus"
-                        color={
-                          addButtonDisabled
-                            ? colors.text_secondary
-                            : colors.primary
-                        }
-                      />
-                    }
-                    containerStyle={[
-                      styles.buttonContainer,
-                      {
-                        backgroundColor: '#fff',
-                        height: 40,
-                        borderRadius: 24,
-                        elevation: 3,
-                      },
-                    ]}
-                  />
-                </View>
-              </Animatable.View>
+                addDisabled={addDisabled}
+                onIncreaseQuantity={() => this.handleIncreaseQuantity()}
+                onDecreaseQuantity={() => this.handleDecreaseQuantity()}
+                itemQuantity={this.cartItemQuantity}
+                itemStock={stock}
+              />
             </View>
           </Card>
         </View>
