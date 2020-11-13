@@ -10,6 +10,14 @@ class ItemQuantityControlButtons extends PureComponent {
     super(props);
     this.state = {};
   }
+
+  componentDidMount() {
+    if (this.props.alwaysShowMinusButton) {
+      this.buttonCounterView?.fadeInRight(200) &&
+        this.plusButton?.transformPlusButton(300);
+    }
+  }
+
   render() {
     const {
       addDisabled,

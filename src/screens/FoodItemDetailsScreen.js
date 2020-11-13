@@ -278,8 +278,9 @@ class FoodItemDetailsScreen extends Component {
         <View
           style={{
             flexDirection: 'row',
-            height: 80,
+            height: 70,
             width: '100%',
+            padding: 10,
             borderTopRightRadius: 10,
             borderTopLeftRadius: 10,
             backgroundColor: colors.primary,
@@ -287,7 +288,7 @@ class FoodItemDetailsScreen extends Component {
           <View
             style={{
               alignItems: 'flex-end',
-              justifyContent: 'flex-start',
+              justifyContent: 'center',
             }}>
             <ItemQuantityControlButtons
               ref={(itemQuantityControlButtonsRef) =>
@@ -298,11 +299,40 @@ class FoodItemDetailsScreen extends Component {
               onDecreaseQuantity={() => this.handleDecreaseQuantity()}
               itemQuantity={1}
               itemStock={1}
+              alwaysShowMinusButton
             />
           </View>
 
-          <View style={{flex: 1}}>
-            <Button title="Add to cart" />
+          <View style={{flex: 1, paddingLeft: 10}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                borderRadius: 30,
+                overflow: 'hidden',
+              }}>
+              <Button
+                title="Add to cart"
+                raised
+                icon={<Icon name="plus" color={colors.icons} />}
+                iconRight
+                titleStyle={{
+                  color: colors.icons,
+                  fontFamily: 'ProductSans-Bold',
+                  fontSize: 22,
+                  marginRight: '20%',
+                }}
+                buttonStyle={{
+                  height: '100%',
+                  backgroundColor: colors.accent,
+                  borderRadius: 30,
+                }}
+                containerStyle={{
+                  flex: 1,
+                  padding: 0,
+                  borderRadius: 30,
+                }}
+              />
+            </View>
           </View>
         </View>
 
