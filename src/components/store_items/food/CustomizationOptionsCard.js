@@ -1,30 +1,73 @@
-import {Field, Formik} from 'formik';
 import React, {Component} from 'react';
 import {View} from 'react-native';
-import {Button, Card, CheckBox, Icon, Text} from 'react-native-elements';
+import {Card, CheckBox, Icon, Text} from 'react-native-elements';
 import {colors} from '../../../../assets/colors';
-import CustomInput from '../../CustomInput';
-import Divider from '../../Divider';
-import {Switch} from 'react-native-gesture-handler';
+import {inject, observer} from 'mobx-react';
+import {computed} from 'mobx';
 
+@inject('shopStore')
+@observer
 class CustomizationOptionsCard extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      selectedSelections: {},
+    };
   }
 
-  OptionsList(props) {
-    const {options, checkedIcon, uncheckedIcon, onDeleteSelection} = props;
+  @computed get isValid() {
+    const {
+      props: {multipleSelection},
+      state: {selectedSelections},
+    } = this;
 
-    if (options) {
-      return options
+    if (!multipleSelection && Object.keys(selectedSelections).length === 0) {
+      return false;
+    }
+
+    return true;
+  }
+
+  onSelectionPress(selection) {
+    const {
+      props: {multipleSelection},
+      state: {selectedSelections},
+    } = this;
+
+    if (selection && multipleSelection) {
+      let tempSelectedSelections = JSON.parse(
+        JSON.stringify(selectedSelections),
+      );
+
+      if (tempSelectedSelections?.[selection.title] !== undefined) {
+        delete tempSelectedSelections[selection.title];
+      } else {
+        tempSelectedSelections[selection.title] = selection.price;
+      }
+
+      this.setState({selectedSelections: tempSelectedSelections});
+    } else {
+      this.setState({selectedSelections: {[selection.title]: selection.price}});
+    }
+  }
+
+  SelectionsList({
+    checkedIcon,
+    uncheckedIcon,
+    selections,
+    onSelectionPress,
+    selectedSelections,
+  }) {
+    if (selections) {
+      return selections
         .slice()
         .sort((a, b) => a.title.localeCompare(b.title, 'en', {numeric: true}))
-        .map((item, index) => {
+        .map((selection, index) => {
           return (
-            <View key={item.title}>
+            <View key={`${selection.title}${index}`}>
               <CheckBox
                 center
+                onPress={() => onSelectionPress(selection)}
                 title={
                   <View
                     style={{
@@ -34,7 +77,9 @@ class CustomizationOptionsCard extends Component {
                       alignItems: 'center',
                       paddingHorizontal: 10,
                     }}>
-                    <Text style={{flex: 1, fontSize: 16}}>{item.title}</Text>
+                    <Text style={{flex: 1, fontSize: 16}}>
+                      {selection.title}
+                    </Text>
 
                     <View
                       style={{
@@ -48,11 +93,12 @@ class CustomizationOptionsCard extends Component {
                           fontFamily: 'ProductSans-Bold',
                           textAlign: 'center',
                         }}>
-                        +₱{item.price.toFixed(2)}
+                        +₱{selection.price.toFixed(2)}
                       </Text>
                     </View>
                   </View>
                 }
+                checked={selectedSelections?.[selection.title] !== undefined}
                 checkedIcon={checkedIcon}
                 uncheckedIcon={uncheckedIcon}
                 containerStyle={{
@@ -77,17 +123,12 @@ class CustomizationOptionsCard extends Component {
 
   render() {
     const {
-      title,
-      multipleSelection,
-      options,
-      onDeleteCustomizationOption,
-      onDeleteSelection,
-      onAddSelection,
-      onChangeMultipleSelection,
-    } = this.props;
+      onSelectionPress,
+      props: {title, multipleSelection, selections},
+      state: {selectedSelections},
+    } = this;
     const checkedIcon = multipleSelection ? 'check-square' : 'check-circle';
     const uncheckedIcon = multipleSelection ? 'square' : 'circle';
-    const {OptionsList} = this;
 
     return (
       <Card
@@ -136,11 +177,12 @@ class CustomizationOptionsCard extends Component {
           )}
         </View>
 
-        <OptionsList
-          options={options}
+        <this.SelectionsList
+          selections={selections}
           checkedIcon={<Icon name={checkedIcon} color={colors.primary} />}
           uncheckedIcon={<Icon name={uncheckedIcon} color={colors.primary} />}
-          onDeleteSelection={(index) => onDeleteSelection(index)}
+          onSelectionPress={onSelectionPress.bind(this)}
+          selectedSelections={selectedSelections}
         />
       </Card>
     );

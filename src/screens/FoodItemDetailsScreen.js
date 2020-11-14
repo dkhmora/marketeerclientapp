@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import StickyParallaxHeader from 'react-native-sticky-parallax-header';
 import {BlurView} from '@react-native-community/blur';
-import {Button, Divider, Icon, Text} from 'react-native-elements';
+import {Button, Card, Divider, Icon, Input, Text} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {CDN_BASE_URL} from '../components/util/variables';
 import FastImage from 'react-native-fast-image';
@@ -217,7 +217,7 @@ class FoodItemDetailsScreen extends Component {
                     key={optionTitle}
                     title={optionTitle}
                     multipleSelection={multipleSelection}
-                    options={selection}
+                    selections={selection}
                     onDeleteCustomizationOption={() =>
                       this.setState({selectedOptionTitle: optionTitle})
                     }
@@ -236,6 +236,40 @@ class FoodItemDetailsScreen extends Component {
                 );
               },
             )}
+
+            <Card
+              containerStyle={{
+                paddingBottom: 10,
+                paddingTop: 10,
+                marginLeft: 0,
+                marginRight: 0,
+                borderRadius: 10,
+              }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    fontFamily: 'ProductSans-Bold',
+                    marginBottom: 10,
+                    flex: 1,
+                  }}>
+                  Special Instructions
+                </Text>
+              </View>
+
+              <Input
+                multiline
+                numberOfLines={3}
+                inputStyle={{textAlignVertical: 'top'}}
+                maxLength={200}
+                placeholder="Enter any special instructions for this item"
+              />
+            </Card>
           </View>
         </View>
       </View>
