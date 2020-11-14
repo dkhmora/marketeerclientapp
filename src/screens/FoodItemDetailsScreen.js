@@ -23,7 +23,12 @@ const scrollY = new ValueXY();
 class FoodItemDetailsScreen extends Component {
   constructor(props) {
     super(props);
-    this.state = {itemOptions: {}, isValid: false, optionSelections: {}};
+    this.state = {
+      itemOptions: {},
+      isValid: false,
+      optionSelections: {},
+      specialInstructions: '',
+    };
   }
 
   componentDidMount() {
@@ -96,8 +101,7 @@ class FoodItemDetailsScreen extends Component {
                   color: colors.text_secondary,
                   flexWrap: 'wrap',
                 }}>
-                {description}asdasad sadada asd ad a a da dad ad adad asd asd
-                adada dsa da da da asdasd sad ad sad as asd sad a
+                {description}
               </Text>
             </View>
           </View>
@@ -207,14 +211,16 @@ class FoodItemDetailsScreen extends Component {
 
   renderBody = () => {
     const {
-      navigation,
-      route: {
-        params: {
-          item: {image, name},
+      props: {
+        navigation,
+        route: {
+          params: {
+            item: {image, name},
+          },
         },
       },
-    } = this.props;
-    const {itemOptions} = this.state;
+      state: {itemOptions, specialInstructions},
+    } = this;
 
     return (
       <View style={{paddingHorizontal: 15, paddingVertical: 10}}>
@@ -287,9 +293,13 @@ class FoodItemDetailsScreen extends Component {
               <Input
                 multiline
                 numberOfLines={3}
+                value={specialInstructions}
+                onChangeText={(value) =>
+                  this.setState({specialInstructions: value})
+                }
                 inputStyle={{textAlignVertical: 'top'}}
                 maxLength={200}
-                placeholder="Enter any special instructions for this item"
+                placeholder={`Enter any special instructions for ${name}`}
               />
             </Card>
           </View>

@@ -37,6 +37,25 @@ const theme = {
       fontFamily: 'ProductSans-Light',
     },
   },
+  Input: {
+    inputStyle: {
+      fontFamily: 'ProductSans-Light',
+    },
+    errorStyle: {
+      fontFamily: 'ProductSans-Light',
+      color: colors.danger,
+    },
+    placeholderTextColor: colors.text_secondary,
+  },
+  CheckBox: {
+    checkedColor: colors.accent,
+    fontFamily: 'ProductSans-Light',
+    containerStyle: {
+      borderRadius: 30,
+      backgroundColor: colors.icons,
+      borderColor: colors.icons,
+    },
+  },
 };
 @inject('authStore')
 @inject('generalStore')
