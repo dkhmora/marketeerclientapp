@@ -395,7 +395,6 @@ class FoodItemDetailsScreen extends Component {
               }
               itemQuantity={quantity}
               minusDisabled={quantity === 1}
-              alwaysShowMinusButton
             />
           </View>
 

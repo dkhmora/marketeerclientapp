@@ -12,7 +12,7 @@ class ItemQuantityControlButtons extends PureComponent {
   }
 
   componentDidMount() {
-    if (this.props.alwaysShowMinusButton) {
+    if (this.props.persistMinusButton) {
       this.buttonCounterView?.fadeInRight(200) &&
         this.plusButton?.transformPlusButton(300);
     }
@@ -26,12 +26,23 @@ class ItemQuantityControlButtons extends PureComponent {
       onDecreaseQuantity,
       itemQuantity,
       itemStock,
+      iconSize,
       persistMinusButton,
+      addButtonContainerStyle,
+      minusButtonContainerStyle,
+      quantityContainerStyle,
+      containerStyle,
     } = this.props;
 
     return (
       <View
-        style={{flexDirection: 'row', borderRadius: 30, overflow: 'hidden'}}>
+        style={{
+          flexDirection: 'row',
+          borderRadius: 100,
+          backgroundColor: persistMinusButton ? colors.icons : 'transparent',
+          elevation: 3,
+          ...containerStyle,
+        }}>
         <Animatable.View
           ref={(buttonCounterView) =>
             (this.buttonCounterView = buttonCounterView)
@@ -40,7 +51,7 @@ class ItemQuantityControlButtons extends PureComponent {
           style={{
             flexDirection: 'row',
             opacity: 0,
-            backgroundColor: '#fff',
+            backgroundColor: colors.icons,
             borderTopLeftRadius: 24,
             borderBottomLeftRadius: 24,
             shadowColor: '#000',
@@ -50,7 +61,7 @@ class ItemQuantityControlButtons extends PureComponent {
             },
             shadowOpacity: 0.25,
             shadowRadius: 1.84,
-            elevation: 2,
+            elevation: 3,
           }}>
           <View
             style={{
@@ -75,13 +86,13 @@ class ItemQuantityControlButtons extends PureComponent {
                       ? 'trash-2'
                       : 'minus'
                   }
+                  size={iconSize}
                   color={minusDisabled ? colors.text_secondary : colors.primary}
                 />
               }
               containerStyle={[
-                styles.buttonContainer,
                 {
-                  backgroundColor: '#fff',
+                  backgroundColor: colors.icons,
                   height: 40,
                   borderRadius: 24,
                   elevation: 3,
@@ -93,17 +104,19 @@ class ItemQuantityControlButtons extends PureComponent {
                   shadowOpacity: 0.22,
                   shadowRadius: 2.22,
                 },
+                minusButtonContainerStyle,
               ]}
             />
           </View>
 
           <View
             style={{
-              backgroundColor: '#fff',
+              backgroundColor: colors.icons,
               height: 40,
               width: 40,
               justifyContent: 'center',
               alignItems: 'center',
+              ...quantityContainerStyle,
             }}>
             <Text
               style={{
@@ -124,13 +137,13 @@ class ItemQuantityControlButtons extends PureComponent {
           ref={(plusButton) => (this.plusButton = plusButton)}
           useNativeDriver
           style={[
-            styles.buttonContainer,
             {
               borderRadius: 24,
-              backgroundColor: '#fff',
+              backgroundColor: colors.icons,
               height: 40,
-              elevation: 2,
+              elevation: 3,
             },
+            addButtonContainerStyle,
           ]}>
           <View
             style={{
@@ -151,16 +164,17 @@ class ItemQuantityControlButtons extends PureComponent {
                 <Icon
                   name="plus"
                   color={addDisabled ? colors.text_secondary : colors.primary}
+                  size={iconSize}
                 />
               }
               containerStyle={[
-                styles.buttonContainer,
                 {
-                  backgroundColor: '#fff',
+                  backgroundColor: colors.icons,
                   height: 40,
                   borderRadius: 24,
                   elevation: 3,
                 },
+                addButtonContainerStyle,
               ]}
             />
           </View>

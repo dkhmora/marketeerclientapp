@@ -7,6 +7,7 @@ import {observer, inject} from 'mobx-react';
 import {styles} from '../../assets/styles';
 import {colors} from '../../assets/colors';
 import {CDN_BASE_URL} from './util/variables';
+import ItemQuantityControlButtons from './ItemQuantityControlButtons';
 
 @inject('shopStore')
 @inject('authStore')
@@ -167,120 +168,49 @@ class CartListItem extends PureComponent {
                 </View>
               )}
 
-              <View
-                style={{
-                  flexDirection: 'row',
+              <ItemQuantityControlButtons
+                ref={(itemQuantityControlButtonsRef) =>
+                  (this.itemQuantityControlButtonsRef = itemQuantityControlButtonsRef)
+                }
+                addDisabled={this.addButtonDisabled}
+                onIncreaseQuantity={() => this.handleIncreaseQuantity()}
+                onDecreaseQuantity={() => this.handleDecreaseQuantity()}
+                itemQuantity={item.quantity}
+                itemStock={itemSnapshot?.stock}
+                addButtonContainerStyle={{
                   backgroundColor: '#fff',
+                  height: 30,
                   borderRadius: 30,
-                  overflow: 'hidden',
                   elevation: 3,
-                }}>
-                <View
-                  style={{
-                    shadowColor: '#000',
-                    shadowOffset: {
-                      width: 0,
-                      height: 1,
-                    },
-                    shadowOpacity: 0.22,
-                    shadowRadius: 2.22,
-                    borderRadius: 30,
-                  }}>
-                  <Button
-                    onPress={() => this.handleDecreaseQuantity()}
-                    type="clear"
-                    color={colors.icons}
-                    icon={
-                      item.quantity === 1 ? (
-                        <Icon name="trash-2" color={colors.primary} size={15} />
-                      ) : (
-                        <Icon name="minus" color={colors.primary} size={15} />
-                      )
-                    }
-                    containerStyle={[
-                      styles.buttonContainer,
-                      {
-                        backgroundColor: '#fff',
-                        height: 30,
-                        borderRadius: 30,
-                        elevation: 3,
-                        shadowColor: '#000',
-                        shadowOffset: {
-                          width: 0,
-                          height: 1,
-                        },
-                        shadowOpacity: 0.22,
-                        shadowRadius: 2.22,
-                      },
-                    ]}
-                  />
-                </View>
-
-                <View
-                  style={{
-                    width: 30,
-                    justifyContent: 'center',
-                    elevation: 3,
-                  }}>
-                  <Text
-                    style={{
-                      textAlign: 'center',
-                      fontFamily: 'ProductSans-Black',
-                      color:
-                        itemSnapshot?.stock !== undefined &&
-                        item.quantity > itemSnapshot.stock
-                          ? '#F44336'
-                          : colors.text_primary,
-                    }}>
-                    {item.quantity}
-                  </Text>
-                </View>
-
-                <View
-                  style={{
-                    shadowColor: '#000',
-                    shadowOffset: {
-                      width: 0,
-                      height: 2,
-                    },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 3.84,
-                  }}>
-                  <Button
-                    onPress={() => this.handleIncreaseQuantity()}
-                    disabled={this.addButtonDisabled}
-                    type="clear"
-                    color={colors.icons}
-                    icon={
-                      <Icon
-                        name="plus"
-                        color={
-                          this.addButtonDisabled
-                            ? colors.text_secondary
-                            : colors.primary
-                        }
-                        size={15}
-                      />
-                    }
-                    containerStyle={[
-                      styles.buttonContainer,
-                      {
-                        backgroundColor: '#fff',
-                        height: 30,
-                        borderRadius: 30,
-                        elevation: 3,
-                        shadowColor: '#000',
-                        shadowOffset: {
-                          width: 0,
-                          height: 1,
-                        },
-                        shadowOpacity: 0.22,
-                        shadowRadius: 2.22,
-                      },
-                    ]}
-                  />
-                </View>
-              </View>
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 1,
+                  },
+                  shadowOpacity: 0.22,
+                  shadowRadius: 2.22,
+                }}
+                iconSize={15}
+                minusButtonContainerStyle={{
+                  backgroundColor: '#fff',
+                  height: 30,
+                  borderRadius: 30,
+                  elevation: 3,
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 1,
+                  },
+                  shadowOpacity: 0.22,
+                  shadowRadius: 2.22,
+                }}
+                persistMinusButton
+                quantityContainerStyle={{
+                  width: 30,
+                  height: 30,
+                }}
+                containerStyle={{elevation: 3, height: 30}}
+              />
             </View>
           )}
 
