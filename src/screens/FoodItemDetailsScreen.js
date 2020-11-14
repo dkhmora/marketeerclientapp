@@ -15,6 +15,7 @@ import {CDN_BASE_URL} from '../components/util/variables';
 import FastImage from 'react-native-fast-image';
 import CustomizationOptionsCard from '../components/store_items/food/CustomizationOptionsCard';
 import ItemQuantityControlButtons from '../components/ItemQuantityControlButtons';
+import {computed} from 'mobx';
 
 const {event, ValueXY} = Animated;
 const scrollY = new ValueXY();
@@ -22,7 +23,7 @@ const scrollY = new ValueXY();
 class FoodItemDetailsScreen extends Component {
   constructor(props) {
     super(props);
-    this.state = {itemOptions: {}};
+    this.state = {itemOptions: {}, isValid: false, optionSelections: {}};
   }
 
   componentDidMount() {
@@ -31,6 +32,23 @@ class FoodItemDetailsScreen extends Component {
     if (item && item.options) {
       const itemOptions = JSON.parse(JSON.stringify(item.options));
       this.setState({itemOptions});
+    }
+
+    this.customizationOptionsRef = {};
+  }
+
+  handleSelectionChange(optionTitle, selection) {
+    const {
+      state: {optionSelections},
+    } = this;
+
+    if (selection && optionTitle) {
+      let tempOptionSelections = JSON.parse(JSON.stringify(optionSelections));
+      tempOptionSelections[optionTitle] = selection;
+
+      this.setState({optionSelections: tempOptionSelections}, () =>
+        console.log(this.state.optionSelections),
+      );
     }
   }
 
@@ -214,6 +232,10 @@ class FoodItemDetailsScreen extends Component {
 
                 return (
                   <CustomizationOptionsCard
+                    onIsValidChanged={(isValid) => this.setState({isValid})}
+                    onSelectionChanged={() =>
+                      this.handleSelectionChange(optionTitle, selection)
+                    }
                     key={optionTitle}
                     title={optionTitle}
                     multipleSelection={multipleSelection}

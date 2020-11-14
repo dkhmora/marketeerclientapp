@@ -15,17 +15,15 @@ class CustomizationOptionsCard extends Component {
     };
   }
 
-  @computed get isValid() {
+  componentDidUpdate(prevProps, prevState) {
     const {
-      props: {multipleSelection},
       state: {selectedSelections},
+      props: {onSelectionChanged, title},
     } = this;
 
-    if (!multipleSelection && Object.keys(selectedSelections).length === 0) {
-      return false;
+    if (prevState !== this.state) {
+      onSelectionChanged(title, selectedSelections);
     }
-
-    return true;
   }
 
   onSelectionPress(selection) {
