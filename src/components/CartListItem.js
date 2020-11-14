@@ -70,7 +70,15 @@ class CartListItem extends PureComponent {
             paddingVertical: 5,
             backgroundColor: colors.icons,
           }}>
-          <View style={{elevation: 100}}>
+          <View
+            style={{
+              elevation: 3,
+              borderRadius: 10,
+              overflow: 'hidden',
+              backgroundColor: colors.icons,
+              borderWidth: StyleSheet.hairlineWidth,
+              borderColor: colors.divider,
+            }}>
             <FastImage
               key={item.itemId}
               source={imageUrl}
@@ -78,7 +86,6 @@ class CartListItem extends PureComponent {
                 backgroundColor: colors.primary,
                 height: 55,
                 width: 55,
-                borderRadius: 10,
               }}
               resizeMode={FastImage.resizeMode.cover}
             />
@@ -131,24 +138,30 @@ class CartListItem extends PureComponent {
                 <View
                   style={{
                     flexDirection: 'row',
-                    borderRadius: 10,
-                    borderWidth: 1,
-                    backgroundColor: colors.icons,
-                    opacity: 0.9,
-                    borderColor: colors.text_secondary,
+                    borderRadius: 30,
+                    borderWidth: StyleSheet.hairlineWidth,
+                    backgroundColor: colors.primary,
+                    borderColor: colors.divider,
                     marginBottom: 5,
                     padding: 5,
                     alignItems: 'center',
+                    elevation: 2,
                   }}>
-                  <Text style={{fontSize: 14}}>{itemSnapshot.stock}</Text>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      fontFamily: 'ProductSans-Bold',
+                      color: colors.icons,
+                    }}>
+                    {`${itemSnapshot.stock}  `}
+                  </Text>
 
                   <Text
                     style={{
                       fontSize: 14,
                       textAlign: 'center',
-                      color: colors.text_secondary,
+                      color: colors.icons,
                     }}>
-                    {' '}
                     Left
                   </Text>
                 </View>
