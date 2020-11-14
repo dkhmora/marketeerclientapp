@@ -38,6 +38,7 @@ import AlertModal from './src/components/AlertModal';
 LogBox.ignoreLogs([
   'Animated: `useNativeDriver` was not specified. This is a required option and must be explicitly set to `true` or `false`',
   '"message":"Parse Error.',
+  'Warning: Failed prop type: Invalid prop `color` supplied to `Text`: hsl(208, 8%, 63%)',
 ]);
 // ------- END OF WARNING SUPPRESSION
 
