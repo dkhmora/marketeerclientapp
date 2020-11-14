@@ -23,7 +23,7 @@ import AuthStore from './src/store/authStore';
 import ShopStore from './src/store/shopStore';
 
 import Setup from './src/boot/setup';
-import {AppState, Linking, Platform} from 'react-native';
+import {AppState, Linking, LogBox, Platform} from 'react-native';
 import {create} from 'mobx-persist';
 
 const hydrate = create({storage: AsyncStorage});
@@ -32,12 +32,12 @@ const authStore = (window.store = new AuthStore());
 const shopStore = (window.store = new ShopStore());
 hydrate('list', generalStore);
 hydrate('object', shopStore);
-// @TODO: This is to hide a Warning caused by NativeBase after upgrading to RN 0.62
-import {YellowBox} from 'react-native';
+
 import AlertModal from './src/components/AlertModal';
 
-YellowBox.ignoreWarnings([
+LogBox.ignoreLogs([
   'Animated: `useNativeDriver` was not specified. This is a required option and must be explicitly set to `true` or `false`',
+  '"message":"Parse Error.',
 ]);
 // ------- END OF WARNING SUPPRESSION
 

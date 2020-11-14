@@ -16,17 +16,20 @@ import FastImage from 'react-native-fast-image';
 import CustomizationOptionsCard from '../components/store_items/food/CustomizationOptionsCard';
 import ItemQuantityControlButtons from '../components/ItemQuantityControlButtons';
 import {computed} from 'mobx';
+import {inject, observer} from 'mobx-react';
 
 const {event, ValueXY} = Animated;
 const scrollY = new ValueXY();
 
+@inject('shopStore')
+@observer
 class FoodItemDetailsScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
       itemOptions: {},
       isValid: false,
-      optionSelections: {},
+      options: {},
       specialInstructions: '',
       quantity: 1,
     };
@@ -45,17 +48,37 @@ class FoodItemDetailsScreen extends Component {
 
   handleSelectionChange(optionTitle, selection) {
     const {
-      state: {optionSelections},
+      state: {options},
     } = this;
 
     if (selection && optionTitle) {
-      let tempOptionSelections = JSON.parse(JSON.stringify(optionSelections));
+      let tempOptionSelections = JSON.parse(JSON.stringify(options));
       tempOptionSelections[optionTitle] = selection;
 
-      this.setState({optionSelections: tempOptionSelections}, () =>
-        console.log(this.state.optionSelections),
+      this.setState({options: tempOptionSelections}, () =>
+        console.log(this.state.options),
       );
     }
+  }
+
+  handleAddToCart() {
+    const {
+      props: {
+        navigation,
+        route: {
+          params: {storeId, item},
+        },
+      },
+      state: {options, specialInstructions, quantity},
+    } = this;
+
+    this.props.shopStore.addCartItemToStorage(
+      {...item, options, specialInstructions, quantity},
+      storeId,
+      {ignoreExistingCartItems: true, instantUpdate: true},
+    );
+
+    navigation.goBack();
   }
 
   renderForeground = () => {
@@ -311,14 +334,6 @@ class FoodItemDetailsScreen extends Component {
 
   render() {
     const {
-      props: {
-        navigation,
-        route: {
-          params: {
-            item: {image, name},
-          },
-        },
-      },
       state: {quantity},
       renderForeground,
       renderHeader,
@@ -394,6 +409,7 @@ class FoodItemDetailsScreen extends Component {
                 raised
                 icon={<Icon name="plus" color={colors.icons} />}
                 iconRight
+                onPress={() => this.handleAddToCart()}
                 titleStyle={{
                   color: colors.icons,
                   fontFamily: 'ProductSans-Bold',

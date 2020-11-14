@@ -350,7 +350,7 @@ class shopStore {
       });
   }
 
-  @action async addCartItemToStorage(item, storeId) {
+  @action async addCartItemToStorage(item, storeId, options) {
     const storeCartItems = this.storeCartItems[storeId];
     const dateNow = firestore.Timestamp.now().toMillis();
 
@@ -363,22 +363,32 @@ class shopStore {
     delete newItem.sales;
 
     if (storeCartItems) {
-      const cartItemIndex = storeCartItems.findIndex(
-        (storeCartItem) => storeCartItem.itemId === item.itemId,
-      );
+      if (!options?.ignoreExistingCartItems) {
+        const cartItemIndex = storeCartItems.findIndex(
+          (storeCartItem) => storeCartItem.itemId === item.itemId,
+        );
 
-      if (cartItemIndex >= 0) {
-        storeCartItems[cartItemIndex].quantity += 1;
-        storeCartItems[cartItemIndex].updatedAt = dateNow;
+        if (cartItemIndex >= 0) {
+          storeCartItems[cartItemIndex].quantity += 1;
+          storeCartItems[cartItemIndex].updatedAt = dateNow;
+        } else {
+          storeCartItems.push(newItem);
+        }
       } else {
         storeCartItems.push(newItem);
       }
     } else {
       this.storeCartItems[storeId] = [{...newItem}];
     }
+
+    if (options?.instantUpdate) {
+      this.updateCartItemsInstantly();
+    } else {
+      this.updateCartItems();
+    }
   }
 
-  @action async deleteCartItemInStorage(item, storeId) {
+  @action async deleteCartItemInStorage(item, storeId, options) {
     const storeCart = this.storeCartItems[storeId];
     const dateNow = firestore.Timestamp.now().toMillis();
 
@@ -400,8 +410,12 @@ class shopStore {
             delete this.storeCartItems[storeId];
           }
         }
+      }
+
+      if (options?.instantUpdate) {
+        this.updateCartItemsInstantly();
       } else {
-        Toast({text: 'Error: Item cannot be found in store!', type: 'danger'});
+        this.updateCartItems();
       }
     }
   }
@@ -421,7 +435,10 @@ class shopStore {
     if (userId && !guest) {
       await userCartCollection
         .doc(userId)
-        .set(this.storeCartItems)
+        .set({
+          ...this.storeCartItems,
+          //updatedAt: firestore.Timestamp.now().toMillis(),
+        })
         .catch((err) => {
           crashlytics().recordError(err);
           Toast({text: err.message, type: 'danger'});

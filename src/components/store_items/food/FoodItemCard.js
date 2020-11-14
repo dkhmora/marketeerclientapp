@@ -30,10 +30,6 @@ class FoodItemCard extends PureComponent {
     return moment(this.props.item.updatedAt, 'x').fromNow();
   }
 
-  handleEditItem() {
-    this.props.navigation.navigate('Edit Item', {item: this.props.item});
-  }
-
   RightElement(props) {
     const {source, imageReady, onImageReady} = props;
 
@@ -100,13 +96,15 @@ class FoodItemCard extends PureComponent {
   }
 
   render() {
-    const {item, navigation, ...otherProps} = this.props;
+    const {item, navigation, storeId, ...otherProps} = this.props;
     const {url, imageReady} = this.state;
     const {Subtitle, RightElement} = this;
 
     return (
       <TouchableWithoutFeedback
-        onPress={() => navigation.navigate('Food Item Details', {item})}>
+        onPress={() =>
+          navigation.navigate('Food Item Details', {item, storeId})
+        }>
         <View
           style={{
             flex: 1,

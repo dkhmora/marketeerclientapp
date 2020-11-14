@@ -105,10 +105,6 @@ class ItemCard extends PureComponent {
 
     this.props.shopStore.addCartItemToStorage(item, storeId);
 
-    if (this.cartItemQuantity <= item.stock) {
-      this.props.shopStore.updateCartItems();
-    }
-
     this.cartItemQuantity === parseInt(item.stock, 10) &&
       this.setState({addDisabled: true});
   }
@@ -117,7 +113,6 @@ class ItemCard extends PureComponent {
     const {item, storeId} = this.props;
 
     this.props.shopStore.deleteCartItemInStorage(item, storeId);
-    this.props.shopStore.updateCartItems();
 
     this.cartItemQuantity <= item.stock && this.setState({addDisabled: false});
   }
