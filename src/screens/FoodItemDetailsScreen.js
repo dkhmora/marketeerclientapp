@@ -17,6 +17,7 @@ import CustomizationOptionsCard from '../components/store_items/food/Customizati
 import ItemQuantityControlButtons from '../components/ItemQuantityControlButtons';
 import {computed} from 'mobx';
 import {inject, observer} from 'mobx-react';
+import {v4 as uuidv4} from 'uuid';
 
 const {event, ValueXY} = Animated;
 const scrollY = new ValueXY();
@@ -71,9 +72,10 @@ class FoodItemDetailsScreen extends Component {
       },
       state: {options, specialInstructions, quantity},
     } = this;
+    const cartId = uuidv4();
 
     this.props.shopStore.addCartItemToStorage(
-      {...item, options, specialInstructions, quantity},
+      {...item, options, specialInstructions, quantity, cartId},
       storeId,
       {ignoreExistingCartItems: true, instantUpdate: true},
     );

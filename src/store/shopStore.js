@@ -204,6 +204,18 @@ class shopStore {
     return [];
   }
 
+  @action getCartItemIndex(item, storeId) {
+    const storeCartItems = this.storeCartItems[storeId];
+
+    return storeCartItems.findIndex((storeCartItem) => {
+      if (item.cartId) {
+        return storeCartItem.cartId === item.cartId;
+      }
+
+      return storeCartItem.itemId === item.itemId;
+    });
+  }
+
   @action async getMrSpeedyDeliveryPriceEstimate(
     deliveryLocation,
     deliveryAddress,
@@ -364,9 +376,7 @@ class shopStore {
 
     if (storeCartItems) {
       if (!options?.ignoreExistingCartItems) {
-        const cartItemIndex = storeCartItems.findIndex(
-          (storeCartItem) => storeCartItem.itemId === item.itemId,
-        );
+        const cartItemIndex = this.getCartItemIndex(item, storeId);
 
         if (cartItemIndex >= 0) {
           storeCartItems[cartItemIndex].quantity += 1;
@@ -389,20 +399,18 @@ class shopStore {
   }
 
   @action async deleteCartItemInStorage(item, storeId, options) {
-    const storeCart = this.storeCartItems[storeId];
+    const storeCartItems = this.storeCartItems[storeId];
     const dateNow = firestore.Timestamp.now().toMillis();
 
-    if (storeCart) {
-      const cartItemIndex = storeCart.findIndex(
-        (storeCartItem) => storeCartItem.itemId === item.itemId,
-      );
+    if (storeCartItems) {
+      const cartItemIndex = this.getCartItemIndex(item, storeId);
 
       if (cartItemIndex >= 0) {
-        storeCart[cartItemIndex].quantity -= 1;
-        storeCart[cartItemIndex].updatedAt = dateNow;
+        storeCartItems[cartItemIndex].quantity -= 1;
+        storeCartItems[cartItemIndex].updatedAt = dateNow;
 
-        if (storeCart[cartItemIndex].quantity <= 0) {
-          storeCart.splice(cartItemIndex, 1);
+        if (storeCartItems[cartItemIndex].quantity <= 0) {
+          storeCartItems.splice(cartItemIndex, 1);
 
           delete this.validItemQuantity[item.itemId];
 
