@@ -21,14 +21,17 @@ class ItemQuantityControlButtons extends PureComponent {
   render() {
     const {
       addDisabled,
+      minusDisabled,
       onIncreaseQuantity,
       onDecreaseQuantity,
       itemQuantity,
       itemStock,
+      persistMinusButton,
     } = this.props;
 
     return (
-      <View style={{flexDirection: 'row'}}>
+      <View
+        style={{flexDirection: 'row', borderRadius: 30, overflow: 'hidden'}}>
         <Animatable.View
           ref={(buttonCounterView) =>
             (this.buttonCounterView = buttonCounterView)
@@ -62,12 +65,17 @@ class ItemQuantityControlButtons extends PureComponent {
             }}>
             <Button
               onPress={onDecreaseQuantity}
+              disabled={minusDisabled}
               type="clear"
               color={colors.icons}
               icon={
                 <Icon
-                  name={itemQuantity === 1 ? 'trash-2' : 'minus'}
-                  color={colors.primary}
+                  name={
+                    !persistMinusButton && itemQuantity === 1
+                      ? 'trash-2'
+                      : 'minus'
+                  }
+                  color={minusDisabled ? colors.text_secondary : colors.primary}
                 />
               }
               containerStyle={[
@@ -103,7 +111,7 @@ class ItemQuantityControlButtons extends PureComponent {
                 fontFamily: 'ProductSans-Black',
                 paddingRight: 4,
                 color:
-                  itemQuantity > itemStock && itemStock
+                  itemStock && itemQuantity > itemStock
                     ? '#F44336'
                     : colors.text_primary,
               }}>

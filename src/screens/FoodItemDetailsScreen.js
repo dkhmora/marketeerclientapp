@@ -28,6 +28,7 @@ class FoodItemDetailsScreen extends Component {
       isValid: false,
       optionSelections: {},
       specialInstructions: '',
+      quantity: 1,
     };
   }
 
@@ -310,15 +311,19 @@ class FoodItemDetailsScreen extends Component {
 
   render() {
     const {
-      navigation,
-      route: {
-        params: {
-          item: {image, name},
+      props: {
+        navigation,
+        route: {
+          params: {
+            item: {image, name},
+          },
         },
       },
-    } = this.props;
-
-    const {renderForeground, renderHeader, renderBody} = this;
+      state: {quantity},
+      renderForeground,
+      renderHeader,
+      renderBody,
+    } = this;
 
     return (
       <View style={{...StyleSheet.absoluteFillObject}}>
@@ -360,11 +365,19 @@ class FoodItemDetailsScreen extends Component {
               ref={(itemQuantityControlButtonsRef) =>
                 (this.itemQuantityControlButtonsRef = itemQuantityControlButtonsRef)
               }
-              addDisabled={false}
-              onIncreaseQuantity={() => this.handleIncreaseQuantity()}
-              onDecreaseQuantity={() => this.handleDecreaseQuantity()}
-              itemQuantity={1}
-              itemStock={1}
+              persistMinusButton
+              onIncreaseQuantity={() =>
+                this.setState((prevState) => ({
+                  quantity: prevState.quantity + 1,
+                }))
+              }
+              onDecreaseQuantity={() =>
+                this.setState((prevState) => ({
+                  quantity: prevState.quantity - 1,
+                }))
+              }
+              itemQuantity={quantity}
+              minusDisabled={quantity === 1}
               alwaysShowMinusButton
             />
           </View>
