@@ -54,9 +54,9 @@ class CartStoreList extends Component {
         contentContainerStyle={{
           flexGrow: 1,
           paddingBottom: 15,
+          paddingHorizontal: 10,
         }}
         style={{
-          paddingHorizontal: 10,
           marginVertical: -10,
         }}
       />

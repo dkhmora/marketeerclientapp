@@ -723,7 +723,7 @@ class CartStoreCard extends PureComponent {
               </View>
             </View>
 
-            <Divider style={{height: 1}} />
+            <Divider />
 
             <View>
               {this.cartItems.map((item) => {
@@ -743,6 +743,7 @@ class CartStoreCard extends PureComponent {
                 );
               })}
             </View>
+
             <ListItem
               title="Order Subtotal"
               subtitle={`(${this.totalItemQuantity} Items)`}
