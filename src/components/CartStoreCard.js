@@ -740,10 +740,13 @@ class CartStoreCard extends PureComponent {
                     storeId={storeId}
                     checkout={checkout}
                     onPress={() =>
-                      navigation.navigate('Food Item Details', {
-                        item,
-                        itemSnapshot,
-                      })
+                      item?.selectedOptions !== undefined &&
+                      itemSnapshot?.options !== undefined
+                        ? navigation.navigate('Food Item Details', {
+                            item,
+                            itemSnapshot,
+                          })
+                        : null
                     }
                     key={`${item.itemId}${item.cartId ? item.cartId : ''}`}
                   />
