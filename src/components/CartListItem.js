@@ -8,6 +8,7 @@ import {styles} from '../../assets/styles';
 import {colors} from '../../assets/colors';
 import {CDN_BASE_URL} from './util/variables';
 import ItemQuantityControlButtons from './ItemQuantityControlButtons';
+import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 
 @inject('shopStore')
 @inject('authStore')
@@ -55,14 +56,14 @@ class CartListItem extends PureComponent {
   }
 
   render() {
-    const {item, storeType, itemSnapshot, checkout} = this.props;
+    const {item, storeType, itemSnapshot, checkout, onPress} = this.props;
     const itemPrice = item.discountedPrice ? item.discountedPrice : item.price;
     const imageUrl = item.image
       ? {uri: `${CDN_BASE_URL}${item.image}`}
       : require('../../assets/images/placeholder.jpg');
     console.log(storeType);
     return (
-      <View>
+      <TouchableWithoutFeedback onPress={onPress}>
         <View
           style={{
             flexDirection: 'row',
@@ -186,7 +187,7 @@ class CartListItem extends PureComponent {
                   height: 30,
                   borderRadius: 30,
                 }}
-                persistMinusButton
+                alwaysShowMinusButton
                 quantityContainerStyle={{
                   width: 30,
                   height: 30,
@@ -237,7 +238,7 @@ class CartListItem extends PureComponent {
         </View>
 
         <Divider style={{paddingBottom: 0.5}} />
-      </View>
+      </TouchableWithoutFeedback>
     );
   }
 }

@@ -12,7 +12,7 @@ class ItemQuantityControlButtons extends PureComponent {
   }
 
   componentDidMount() {
-    if (this.props.persistMinusButton) {
+    if (this.props.alwaysShowMinusButton) {
       this.buttonCounterView?.fadeInRight(200) &&
         this.plusButton?.transformPlusButton(300);
     }
@@ -27,7 +27,7 @@ class ItemQuantityControlButtons extends PureComponent {
       itemQuantity,
       itemStock,
       iconSize,
-      persistMinusButton,
+      persistMinusIcon,
       addButtonContainerStyle,
       minusButtonContainerStyle,
       quantityContainerStyle,
@@ -39,7 +39,7 @@ class ItemQuantityControlButtons extends PureComponent {
         style={{
           flexDirection: 'row',
           borderRadius: 100,
-          backgroundColor: persistMinusButton ? colors.icons : 'transparent',
+          backgroundColor: persistMinusIcon ? colors.icons : 'transparent',
           elevation: 3,
           ...containerStyle,
         }}>
@@ -82,7 +82,7 @@ class ItemQuantityControlButtons extends PureComponent {
               icon={
                 <Icon
                   name={
-                    !persistMinusButton && itemQuantity === 1
+                    !persistMinusIcon && itemQuantity === 1
                       ? 'trash-2'
                       : 'minus'
                   }

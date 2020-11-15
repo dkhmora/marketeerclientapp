@@ -10,25 +10,32 @@ import {computed} from 'mobx';
 class CustomizationOptionsCard extends Component {
   constructor(props) {
     super(props);
+
+    const {selectedSelections, title} = this.props;
+
     this.state = {
-      selectedSelections: {},
+      selectedSelections:
+        selectedSelections !== undefined ? selectedSelections : {},
     };
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const {
-      state: {selectedSelections},
-      props: {onSelectionChanged, title},
-    } = this;
+  componentDidMount() {
+    console.log('selectedshit', this.state.selectedSelections);
+  }
 
+  componentDidUpdate(prevProps, prevState) {
     if (prevState !== this.state) {
-      onSelectionChanged(title, selectedSelections);
+      const {
+        props: {onSelectionChanged, title},
+      } = this;
+
+      onSelectionChanged(this.state.selectedSelections);
     }
   }
 
   onSelectionPress(selection) {
     const {
-      props: {multipleSelection},
+      props: {multipleSelection, selections},
       state: {selectedSelections},
     } = this;
 

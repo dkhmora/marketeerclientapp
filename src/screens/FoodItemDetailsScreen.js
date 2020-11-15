@@ -27,27 +27,37 @@ const scrollY = new ValueXY();
 class FoodItemDetailsScreen extends Component {
   constructor(props) {
     super(props);
+
+    const {
+      item: {specialInstructions, selectedOptions},
+    } = this.props.route.params;
+
     this.state = {
       itemOptions: {},
       isValid: false,
-      selectedOptions: {},
-      specialInstructions: '',
+      selectedOptions: selectedOptions ? selectedOptions : {},
+      specialInstructions: specialInstructions ? specialInstructions : '',
       quantity: 1,
     };
   }
 
   componentDidMount() {
-    const {item} = this.props.route.params;
+    const {item, itemSnapshot} = this.props.route.params;
 
-    if (item && item.options) {
+    if (item?.options !== undefined) {
       const itemOptions = JSON.parse(JSON.stringify(item.options));
+      this.setState({itemOptions});
+    }
+
+    if (itemSnapshot?.options !== undefined) {
+      const itemOptions = JSON.parse(JSON.stringify(itemSnapshot.options));
       this.setState({itemOptions});
     }
 
     this.customizationOptionsRef = {};
   }
 
-  handleSelectionChange(optionTitle, selection) {
+  handleSelectionChange(optionTitle, selection, yes) {
     const {
       state: {selectedOptions},
     } = this;
@@ -252,7 +262,7 @@ class FoodItemDetailsScreen extends Component {
           },
         },
       },
-      state: {itemOptions, specialInstructions},
+      state: {itemOptions, specialInstructions, selectedOptions},
     } = this;
 
     return (
@@ -272,13 +282,17 @@ class FoodItemDetailsScreen extends Component {
                 return (
                   <CustomizationOptionsCard
                     onIsValidChanged={(isValid) => this.setState({isValid})}
-                    onSelectionChanged={() =>
-                      this.handleSelectionChange(optionTitle, selection)
+                    onSelectionChanged={(selectedSelections) =>
+                      this.handleSelectionChange(
+                        optionTitle,
+                        selectedSelections,
+                      )
                     }
                     key={optionTitle}
                     title={optionTitle}
                     multipleSelection={multipleSelection}
                     selections={selection}
+                    selectedSelections={selectedOptions?.[optionTitle]}
                     onDeleteCustomizationOption={() =>
                       this.setState({selectedOptionTitle: optionTitle})
                     }
@@ -389,7 +403,8 @@ class FoodItemDetailsScreen extends Component {
               ref={(itemQuantityControlButtonsRef) =>
                 (this.itemQuantityControlButtonsRef = itemQuantityControlButtonsRef)
               }
-              persistMinusButton
+              alwaysShowMinusButton
+              persistMinusIcon
               onIncreaseQuantity={() =>
                 this.setState((prevState) => ({
                   quantity: prevState.quantity + 1,

@@ -27,6 +27,7 @@ import Toast from './Toast';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import * as Animatable from 'react-native-animatable';
 import {CDN_BASE_URL} from './util/variables';
+import {withNavigation} from '@react-navigation/compat';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -607,7 +608,7 @@ class CartStoreCard extends PureComponent {
   }
 
   render() {
-    const {storeId, checkout} = this.props;
+    const {storeId, checkout, navigation} = this.props;
     const {
       storeSelectedDeliveryMethod,
       storeSelectedPaymentMethod,
@@ -738,6 +739,12 @@ class CartStoreCard extends PureComponent {
                     storeType={storeDetails.storeType}
                     storeId={storeId}
                     checkout={checkout}
+                    onPress={() =>
+                      navigation.navigate('Food Item Details', {
+                        item,
+                        itemSnapshot,
+                      })
+                    }
                     key={`${item.itemId}${item.cartId ? item.cartId : ''}`}
                   />
                 );
@@ -1014,4 +1021,4 @@ class CartStoreCard extends PureComponent {
   }
 }
 
-export default CartStoreCard;
+export default withNavigation(CartStoreCard);
