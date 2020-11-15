@@ -178,31 +178,13 @@ class CartListItem extends PureComponent {
                 itemQuantity={item.quantity}
                 itemStock={itemSnapshot?.stock}
                 addButtonContainerStyle={{
-                  backgroundColor: '#fff',
                   height: 30,
                   borderRadius: 30,
-                  elevation: 3,
-                  shadowColor: '#000',
-                  shadowOffset: {
-                    width: 0,
-                    height: 1,
-                  },
-                  shadowOpacity: 0.22,
-                  shadowRadius: 2.22,
                 }}
                 iconSize={15}
                 minusButtonContainerStyle={{
-                  backgroundColor: '#fff',
                   height: 30,
                   borderRadius: 30,
-                  elevation: 3,
-                  shadowColor: '#000',
-                  shadowOffset: {
-                    width: 0,
-                    height: 1,
-                  },
-                  shadowOpacity: 0.22,
-                  shadowRadius: 2.22,
                 }}
                 persistMinusButton
                 quantityContainerStyle={{

@@ -30,7 +30,7 @@ class FoodItemDetailsScreen extends Component {
     this.state = {
       itemOptions: {},
       isValid: false,
-      options: {},
+      selectedOptions: {},
       specialInstructions: '',
       quantity: 1,
     };
@@ -49,16 +49,14 @@ class FoodItemDetailsScreen extends Component {
 
   handleSelectionChange(optionTitle, selection) {
     const {
-      state: {options},
+      state: {selectedOptions},
     } = this;
 
     if (selection && optionTitle) {
-      let tempOptionSelections = JSON.parse(JSON.stringify(options));
+      let tempOptionSelections = JSON.parse(JSON.stringify(selectedOptions));
       tempOptionSelections[optionTitle] = selection;
 
-      this.setState({options: tempOptionSelections}, () =>
-        console.log(this.state.options),
-      );
+      this.setState({selectedOptions: tempOptionSelections});
     }
   }
 
@@ -70,15 +68,24 @@ class FoodItemDetailsScreen extends Component {
           params: {storeId, item},
         },
       },
-      state: {options, specialInstructions, quantity},
+      state: {selectedOptions, specialInstructions, quantity},
     } = this;
     const cartId = uuidv4();
 
-    this.props.shopStore.addCartItemToStorage(
-      {...item, options, specialInstructions, quantity, cartId},
-      storeId,
-      {ignoreExistingCartItems: true, instantUpdate: true},
-    );
+    const finalItem = {
+      ...item,
+      selectedOptions,
+      specialInstructions,
+      quantity,
+      cartId,
+    };
+
+    delete finalItem.options;
+
+    this.props.shopStore.addCartItemToStorage(finalItem, storeId, {
+      ignoreExistingCartItems: true,
+      instantUpdate: true,
+    });
 
     navigation.goBack();
   }
