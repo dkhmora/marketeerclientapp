@@ -363,39 +363,38 @@ class shopStore {
   }
 
   @action async addCartItemToStorage(item, storeId, options) {
-    const storeCartItems = this.storeCartItems[storeId];
-    const dateNow = firestore.Timestamp.now().toMillis();
+    return new Promise((resolve, reject) => {
+      const storeCartItems = this.storeCartItems[storeId];
+      const dateNow = firestore.Timestamp.now().toMillis();
 
-    const newItem = {
-      ...item,
-      quantity: 1,
-      createdAt: dateNow,
-      updatedAt: dateNow,
-    };
-    delete newItem.sales;
+      item.sales && delete item.sales;
+      item.options && delete item.options;
 
-    if (storeCartItems) {
-      if (!options?.ignoreExistingCartItems) {
-        const cartItemIndex = this.getCartItemIndex(item, storeId);
-
-        if (cartItemIndex >= 0) {
-          storeCartItems[cartItemIndex].quantity += 1;
-          storeCartItems[cartItemIndex].updatedAt = dateNow;
-        } else {
-          storeCartItems.push(newItem);
-        }
-      } else {
-        storeCartItems.push(newItem);
+      if (!item.createdAt) {
+        item.createdAt = dateNow;
       }
-    } else {
-      this.storeCartItems[storeId] = [{...newItem}];
-    }
+      item.updatedAt = dateNow;
 
-    if (options?.instantUpdate) {
-      this.updateCartItemsInstantly();
-    } else {
-      this.updateCartItems();
-    }
+      if (storeCartItems) {
+        if (!options?.ignoreExistingCartItems) {
+          const cartItemIndex = this.getCartItemIndex(item, storeId);
+
+          if (cartItemIndex >= 0) {
+            return resolve((storeCartItems[cartItemIndex] = item));
+          }
+        }
+
+        resolve(storeCartItems.push(item));
+      } else {
+        resolve((this.storeCartItems[storeId] = [item]));
+      }
+    }).then(() => {
+      if (options?.instantUpdate) {
+        this.updateCartItemsInstantly();
+      } else {
+        this.updateCartItems();
+      }
+    });
   }
 
   @action async deleteCartItemInStorage(item, storeId, options) {

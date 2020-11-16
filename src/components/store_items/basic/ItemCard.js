@@ -101,9 +101,16 @@ class ItemCard extends PureComponent {
   }
 
   handleIncreaseQuantity() {
-    const {item, storeId} = this.props;
+    const {
+      props: {item, storeId},
+      cartItemQuantity,
+    } = this;
 
-    this.props.shopStore.addCartItemToStorage(item, storeId);
+    const updatedItem = JSON.parse(JSON.stringify(item));
+
+    updatedItem.quantity = cartItemQuantity + 1;
+
+    this.props.shopStore.addCartItemToStorage(updatedItem, storeId);
 
     this.cartItemQuantity === parseInt(item.stock, 10) &&
       this.setState({addDisabled: true});

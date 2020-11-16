@@ -29,7 +29,7 @@ class FoodItemDetailsScreen extends Component {
     super(props);
 
     const {
-      item: {specialInstructions, selectedOptions},
+      item: {specialInstructions, selectedOptions, quantity},
     } = this.props.route.params;
 
     this.state = {
@@ -37,7 +37,7 @@ class FoodItemDetailsScreen extends Component {
       isValid: false,
       selectedOptions: selectedOptions ? selectedOptions : {},
       specialInstructions: specialInstructions ? specialInstructions : '',
-      quantity: 1,
+      quantity: quantity && quantity > 0 ? quantity : 1,
     };
   }
 
@@ -89,8 +89,6 @@ class FoodItemDetailsScreen extends Component {
       quantity,
       cartId,
     };
-
-    delete finalItem.options;
 
     this.props.shopStore.addCartItemToStorage(finalItem, storeId, {
       ignoreExistingCartItems: true,
@@ -358,6 +356,11 @@ class FoodItemDetailsScreen extends Component {
   render() {
     const {
       state: {quantity},
+      props: {
+        route: {
+          params: {item},
+        },
+      },
       renderForeground,
       renderHeader,
       renderBody,
@@ -428,9 +431,14 @@ class FoodItemDetailsScreen extends Component {
                 overflow: 'hidden',
               }}>
               <Button
-                title="Add to cart"
+                title={item.cartId ? 'Update Item' : 'Add To Cart'}
                 raised
-                icon={<Icon name="plus" color={colors.icons} />}
+                icon={
+                  <Icon
+                    name={item.cartId ? 'edit-2' : 'plus'}
+                    color={colors.icons}
+                  />
+                }
                 iconRight
                 onPress={() => this.handleAddToCart()}
                 titleStyle={{
