@@ -6,6 +6,7 @@ import {
   ImageBackground,
   Dimensions,
   Platform,
+  StyleSheet,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -273,15 +274,23 @@ class StoreScreen extends Component {
             data: dataSource ? dataSource : [],
             renderItem: this.renderItem,
             keyExtractor: (item, index) => item,
-            contentContainerStyle: {flexGrow: 1},
-            style: {paddingHorizontal: 10},
+            contentContainerStyle: {
+              flexGrow: 1,
+              paddingHorizontal: 10,
+              paddingBottom: 50 + 10 + bottomPadding,
+            },
           }}
           handleStyle={{backgroundColor: colors.text_secondary, opacity: 0.85}}
           panGestureComponentEnabled
           modalStyle={{
             backgroundColor: colors.icons,
-            borderWidth: 0.8,
-            borderColor: 'rgba(0,0,0,0.2)',
+            borderTopLeftRadius: 10,
+            borderTopRightRadius: 10,
+            overflow: 'hidden',
+            borderTopWidth: StyleSheet.hairlineWidth,
+            borderLeftWidth: StyleSheet.hairlineWidth,
+            borderRightWidth: StyleSheet.hairlineWidth,
+            borderColor: colors.divider,
           }}
           HeaderComponent={() => (
             <SlidingCartHeader

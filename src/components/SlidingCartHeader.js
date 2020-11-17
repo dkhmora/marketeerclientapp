@@ -24,8 +24,8 @@ class SlidingCartHeader extends Component {
           alignItems: 'center',
           paddingHorizontal: 15,
           paddingVertical: 10,
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
+          backgroundColor: colors.icons,
+          elevation: 5,
         }}>
         <View
           onTouchStart={() => onPress && onPress()}
