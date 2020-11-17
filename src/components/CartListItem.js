@@ -180,20 +180,26 @@ class CartListItem extends PureComponent {
                   itemQuantity={item.quantity}
                   itemStock={itemSnapshot?.stock}
                   addButtonContainerStyle={{
-                    height: 30,
-                    borderRadius: 30,
+                    height: 26,
+                    width: 26,
+                    borderRadius: 26,
                   }}
-                  iconSize={15}
+                  iconSize={10}
                   minusButtonContainerStyle={{
-                    height: 30,
-                    borderRadius: 30,
+                    height: 26,
+                    width: 26,
+                    borderRadius: 26,
                   }}
                   alwaysShowMinusButton
                   quantityContainerStyle={{
-                    width: 30,
-                    height: 30,
+                    width: 26,
+                    height: 26,
                   }}
-                  containerStyle={{elevation: 3, height: 30}}
+                  containerStyle={{
+                    elevation: 3,
+                    height: 26,
+                    marginHorizontal: 5,
+                  }}
                 />
               </View>
             )}
