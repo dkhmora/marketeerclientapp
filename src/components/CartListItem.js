@@ -58,6 +58,7 @@ class CartListItem extends PureComponent {
     const {item, storeType, cart, itemSnapshot, checkout, onPress} = this.props;
     const optionsPrice = item.totalOptionsPrice ? item.totalOptionsPrice : 0;
     const itemPrice = item.discountedPrice ? item.discountedPrice : item.price;
+    const totalItemPrice = itemPrice + optionsPrice;
     const imageUrl = item.image
       ? {uri: `${CDN_BASE_URL}${item.image}`}
       : require('../../assets/images/placeholder.jpg');
@@ -219,7 +220,7 @@ class CartListItem extends PureComponent {
                   fontSize: 16,
                   color: colors.text_secondary,
                 }}>
-                ₱{itemPrice + optionsPrice}
+                ₱{totalItemPrice}
               </Text>
 
               <Text
@@ -239,7 +240,7 @@ class CartListItem extends PureComponent {
                 adjustsFontSizeToFit
                 numberOfLines={1}
                 style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
-                ₱{itemPrice * item.quantity}
+                ₱{totalItemPrice * item.quantity}
               </Text>
             </View>
           </View>

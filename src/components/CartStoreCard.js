@@ -134,12 +134,16 @@ class CartStoreCard extends PureComponent {
 
     if (this.cartItems) {
       this.cartItems.map((item) => {
+        const optionsPrice = item.totalOptionsPrice
+          ? item.totalOptionsPrice
+          : 0;
         const itemPrice = item.discountedPrice
           ? item.discountedPrice
           : item.price;
-        const itemTotal = item.quantity * itemPrice;
+        const totalItemPrice = itemPrice + optionsPrice;
+        const totalCartPrice = item.quantity * totalItemPrice;
 
-        amount = itemTotal + amount;
+        amount = totalCartPrice + amount;
       });
     }
 
