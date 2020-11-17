@@ -6,7 +6,24 @@ import {colors} from '../../../../assets/colors';
 class CustomizationOptionsCard extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+
+    this.state = {isValid: false};
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const {
+      multipleSelection,
+      selectedSelections,
+      onIsValidChanged,
+    } = this.props;
+
+    if (prevProps.selectedSelections !== this.props.selectedSelections) {
+      if (!multipleSelection && selectedSelections !== undefined) {
+        this.setState({isValid: true}, () => {
+          onIsValidChanged(this.state.isValid);
+        });
+      }
+    }
   }
 
   SelectionsList({

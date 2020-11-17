@@ -34,7 +34,7 @@ class FoodItemDetailsScreen extends Component {
 
     this.state = {
       itemOptions: {},
-      isValid: false,
+      isValid: {},
       selectedOptions: selectedOptions ? selectedOptions : {},
       specialInstructions: specialInstructions ? specialInstructions : '',
       quantity: quantity && quantity > 0 ? quantity : 1,
@@ -281,7 +281,7 @@ class FoodItemDetailsScreen extends Component {
           },
         },
       },
-      state: {itemOptions, specialInstructions, selectedOptions},
+      state: {itemOptions, specialInstructions, selectedOptions, isValid},
     } = this;
 
     return (
@@ -298,9 +298,30 @@ class FoodItemDetailsScreen extends Component {
               ([optionTitle, optionData], index) => {
                 const {multipleSelection, selection} = optionData;
 
+                if (
+                  !multipleSelection &&
+                  selectedOptions?.[optionTitle] === undefined &&
+                  isValid?.[optionTitle] === undefined
+                ) {
+                  this.setState((prevState) => ({
+                    isValid: {
+                      ...prevState.isValid,
+                      [optionTitle]: false,
+                    },
+                  }));
+                }
+
                 return (
                   <CustomizationOptionsCard
-                    onIsValidChanged={(isValid) => this.setState({isValid})}
+                    isValid={isValid?.[optionTitle]}
+                    onIsValidChanged={(value) =>
+                      this.setState((prevState) => ({
+                        isValid: {
+                          ...prevState.isValid,
+                          [optionTitle]: value,
+                        },
+                      }))
+                    }
                     onSelectionPress={(selectedSelection) =>
                       this.handleSelectionPress(
                         optionTitle,
@@ -363,7 +384,7 @@ class FoodItemDetailsScreen extends Component {
 
   render() {
     const {
-      state: {quantity},
+      state: {quantity, isValid},
       props: {
         route: {
           params: {item},
@@ -447,6 +468,7 @@ class FoodItemDetailsScreen extends Component {
                     color={colors.icons}
                   />
                 }
+                disabled={Object.values(isValid).includes(false)}
                 iconRight
                 onPress={() => this.handleAddToCart()}
                 titleStyle={{
