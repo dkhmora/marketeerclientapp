@@ -55,7 +55,7 @@ class CartListItem extends PureComponent {
   }
 
   render() {
-    const {item, storeType, itemSnapshot, checkout, onPress} = this.props;
+    const {item, storeType, cart, itemSnapshot, checkout, onPress} = this.props;
     const optionsPrice = item.totalOptionsPrice ? item.totalOptionsPrice : 0;
     const itemPrice = item.discountedPrice ? item.discountedPrice : item.price;
     const imageUrl = item.image
@@ -137,7 +137,7 @@ class CartListItem extends PureComponent {
                   shadowRadius: 2.22,
                   borderRadius: 30,
                 }}>
-                {itemSnapshot?.stock !== undefined && (
+                {cart && itemSnapshot?.stock !== undefined && (
                   <View
                     style={{
                       flexDirection: 'row',

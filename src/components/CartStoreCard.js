@@ -608,7 +608,7 @@ class CartStoreCard extends PureComponent {
   }
 
   render() {
-    const {storeId, checkout, navigation} = this.props;
+    const {storeId, checkout, navigation, cart} = this.props;
     const {
       storeSelectedDeliveryMethod,
       storeSelectedPaymentMethod,
@@ -735,6 +735,7 @@ class CartStoreCard extends PureComponent {
                 return (
                   <CartListItem
                     item={item}
+                    cart={cart}
                     itemSnapshot={itemSnapshot}
                     storeType={storeDetails.storeType}
                     storeId={storeId}
