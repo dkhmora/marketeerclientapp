@@ -2,54 +2,11 @@ import React, {Component} from 'react';
 import {View} from 'react-native';
 import {Card, CheckBox, Icon, Text} from 'react-native-elements';
 import {colors} from '../../../../assets/colors';
-import {inject, observer} from 'mobx-react';
-import {computed} from 'mobx';
 
-@inject('shopStore')
-@observer
 class CustomizationOptionsCard extends Component {
   constructor(props) {
     super(props);
-
-    const {selectedSelections, title} = this.props;
-
-    this.state = {
-      selectedSelections:
-        selectedSelections !== undefined ? selectedSelections : {},
-    };
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState !== this.state) {
-      const {
-        props: {onSelectionChanged, title},
-      } = this;
-
-      onSelectionChanged(this.state.selectedSelections);
-    }
-  }
-
-  onSelectionPress(selection) {
-    const {
-      props: {multipleSelection, selections},
-      state: {selectedSelections},
-    } = this;
-
-    if (selection && multipleSelection) {
-      let tempSelectedSelections = JSON.parse(
-        JSON.stringify(selectedSelections),
-      );
-
-      if (tempSelectedSelections?.[selection.title] !== undefined) {
-        delete tempSelectedSelections[selection.title];
-      } else {
-        tempSelectedSelections[selection.title] = selection.price;
-      }
-
-      this.setState({selectedSelections: tempSelectedSelections});
-    } else {
-      this.setState({selectedSelections: {[selection.title]: selection.price}});
-    }
+    this.state = {};
   }
 
   SelectionsList({
@@ -124,9 +81,13 @@ class CustomizationOptionsCard extends Component {
 
   render() {
     const {
-      onSelectionPress,
-      props: {title, multipleSelection, selections},
-      state: {selectedSelections},
+      props: {
+        title,
+        multipleSelection,
+        selections,
+        selectedSelections,
+        onSelectionPress,
+      },
     } = this;
     const checkedIcon = multipleSelection ? 'check-square' : 'check-circle';
     const uncheckedIcon = multipleSelection ? 'square' : 'circle';
@@ -182,7 +143,7 @@ class CustomizationOptionsCard extends Component {
           selections={selections}
           checkedIcon={<Icon name={checkedIcon} color={colors.primary} />}
           uncheckedIcon={<Icon name={uncheckedIcon} color={colors.primary} />}
-          onSelectionPress={onSelectionPress.bind(this)}
+          onSelectionPress={onSelectionPress}
           selectedSelections={selectedSelections}
         />
       </Card>

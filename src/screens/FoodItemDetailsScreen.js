@@ -57,16 +57,34 @@ class FoodItemDetailsScreen extends Component {
     this.customizationOptionsRef = {};
   }
 
-  handleSelectionChange(optionTitle, selection, yes) {
+  handleSelectionPress(optionTitle, selectedSelection, multipleSelection) {
     const {
       state: {selectedOptions},
     } = this;
 
-    if (selection && optionTitle) {
-      let tempOptionSelections = JSON.parse(JSON.stringify(selectedOptions));
-      tempOptionSelections[optionTitle] = selection;
+    const selectedSelections = selectedOptions?.[optionTitle];
+    let tempSelectedOptions = JSON.parse(JSON.stringify(selectedOptions));
 
-      this.setState({selectedOptions: tempOptionSelections});
+    if (selectedSelections !== undefined && multipleSelection) {
+      if (
+        tempSelectedOptions?.[optionTitle]?.[selectedSelection.title] !==
+        undefined
+      ) {
+        delete tempSelectedOptions[optionTitle][selectedSelection.title];
+      } else {
+        tempSelectedOptions[optionTitle][selectedSelection.title] =
+          selectedSelection.price;
+      }
+
+      this.setState({selectedOptions: tempSelectedOptions});
+    } else {
+      tempSelectedOptions[optionTitle] = {
+        [selectedSelection.title]: selectedSelection.price,
+      };
+
+      this.setState({
+        selectedOptions: tempSelectedOptions,
+      });
     }
   }
 
@@ -283,10 +301,11 @@ class FoodItemDetailsScreen extends Component {
                 return (
                   <CustomizationOptionsCard
                     onIsValidChanged={(isValid) => this.setState({isValid})}
-                    onSelectionChanged={(selectedSelections) =>
-                      this.handleSelectionChange(
+                    onSelectionPress={(selectedSelection) =>
+                      this.handleSelectionPress(
                         optionTitle,
-                        selectedSelections,
+                        selectedSelection,
+                        multipleSelection,
                       )
                     }
                     key={optionTitle}
@@ -294,20 +313,6 @@ class FoodItemDetailsScreen extends Component {
                     multipleSelection={multipleSelection}
                     selections={selection}
                     selectedSelections={selectedOptions?.[optionTitle]}
-                    onDeleteCustomizationOption={() =>
-                      this.setState({selectedOptionTitle: optionTitle})
-                    }
-                    onDeleteSelection={(selectionIndex) =>
-                      this.handleDeleteSelection(optionTitle, selectionIndex)
-                    }
-                    onAddSelection={(values, {resetForm}) =>
-                      this.handleAddSelection(optionTitle, values, {
-                        resetForm,
-                      })
-                    }
-                    onChangeMultipleSelection={() =>
-                      this.handleChangeMultipleSelection(optionTitle)
-                    }
                   />
                 );
               },
