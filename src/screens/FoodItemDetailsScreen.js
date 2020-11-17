@@ -87,11 +87,14 @@ class FoodItemDetailsScreen extends Component {
       selectedOptions,
       specialInstructions,
       quantity,
-      cartId,
     };
 
+    if (!finalItem.cartId) {
+      finalItem.cartId = cartId;
+    }
+
     this.props.shopStore.addCartItemToStorage(finalItem, storeId, {
-      ignoreExistingCartItems: true,
+      ignoreExistingCartItems: item?.cartId === undefined,
       instantUpdate: true,
     });
 

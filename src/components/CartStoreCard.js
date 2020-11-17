@@ -745,6 +745,7 @@ class CartStoreCard extends PureComponent {
                         ? navigation.navigate('Food Item Details', {
                             item,
                             itemSnapshot,
+                            storeId,
                           })
                         : null
                     }

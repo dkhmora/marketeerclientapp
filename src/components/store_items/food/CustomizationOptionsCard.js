@@ -19,10 +19,6 @@ class CustomizationOptionsCard extends Component {
     };
   }
 
-  componentDidMount() {
-    console.log('selectedshit', this.state.selectedSelections);
-  }
-
   componentDidUpdate(prevProps, prevState) {
     if (prevState !== this.state) {
       const {

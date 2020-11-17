@@ -60,7 +60,7 @@ class CartListItem extends PureComponent {
     const imageUrl = item.image
       ? {uri: `${CDN_BASE_URL}${item.image}`}
       : require('../../assets/images/placeholder.jpg');
-    console.log(storeType);
+
     return (
       <TouchableWithoutFeedback onPress={onPress}>
         <View>
