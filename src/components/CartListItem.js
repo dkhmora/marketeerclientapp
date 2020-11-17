@@ -56,6 +56,7 @@ class CartListItem extends PureComponent {
 
   render() {
     const {item, storeType, itemSnapshot, checkout, onPress} = this.props;
+    const optionsPrice = item.totalOptionsPrice ? item.totalOptionsPrice : 0;
     const itemPrice = item.discountedPrice ? item.discountedPrice : item.price;
     const imageUrl = item.image
       ? {uri: `${CDN_BASE_URL}${item.image}`}
@@ -212,7 +213,7 @@ class CartListItem extends PureComponent {
                   fontSize: 16,
                   color: colors.text_secondary,
                 }}>
-                ₱{itemPrice}
+                ₱{itemPrice + optionsPrice}
               </Text>
 
               <Text

@@ -1,21 +1,12 @@
 import React, {Component} from 'react';
-import {
-  StyleSheet,
-  View,
-  Image,
-  Animated,
-  TouchableOpacity,
-  StatusBar,
-} from 'react-native';
+import {StyleSheet, View, Image, Animated, StatusBar} from 'react-native';
 import StickyParallaxHeader from 'react-native-sticky-parallax-header';
-import {BlurView} from '@react-native-community/blur';
 import {Button, Card, Divider, Icon, Input, Text} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {CDN_BASE_URL} from '../components/util/variables';
 import FastImage from 'react-native-fast-image';
 import CustomizationOptionsCard from '../components/store_items/food/CustomizationOptionsCard';
 import ItemQuantityControlButtons from '../components/ItemQuantityControlButtons';
-import {computed} from 'mobx';
 import {inject, observer} from 'mobx-react';
 import {v4 as uuidv4} from 'uuid';
 
@@ -99,9 +90,17 @@ class FoodItemDetailsScreen extends Component {
       state: {selectedOptions, specialInstructions, quantity},
     } = this;
     const cartId = uuidv4();
+    let totalOptionsPrice = 0;
+
+    Object.values(selectedOptions).map((optionData) => {
+      return Object.values(optionData).map(
+        (price) => (totalOptionsPrice += price),
+      );
+    });
 
     const finalItem = {
       ...item,
+      totalOptionsPrice,
       selectedOptions,
       specialInstructions,
       quantity,
