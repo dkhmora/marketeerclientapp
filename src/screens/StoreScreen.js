@@ -284,13 +284,6 @@ class StoreScreen extends Component {
           panGestureComponentEnabled
           modalStyle={{
             backgroundColor: colors.icons,
-            borderTopLeftRadius: 10,
-            borderTopRightRadius: 10,
-            overflow: 'hidden',
-            borderTopWidth: StyleSheet.hairlineWidth,
-            borderLeftWidth: StyleSheet.hairlineWidth,
-            borderRightWidth: StyleSheet.hairlineWidth,
-            borderColor: colors.divider,
           }}
           HeaderComponent={() => (
             <SlidingCartHeader

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {Image, Text} from 'react-native-animatable';
 import {Badge, Button, Icon} from 'react-native-elements';
 import {colors} from '../../assets/colors';
@@ -26,6 +26,13 @@ class SlidingCartHeader extends Component {
           paddingVertical: 10,
           backgroundColor: colors.icons,
           elevation: 5,
+          borderTopLeftRadius: 10,
+          borderTopRightRadius: 10,
+          overflow: 'hidden',
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderLeftWidth: StyleSheet.hairlineWidth,
+          borderRightWidth: StyleSheet.hairlineWidth,
+          borderColor: colors.divider,
         }}>
         <View
           onTouchStart={() => onPress && onPress()}
