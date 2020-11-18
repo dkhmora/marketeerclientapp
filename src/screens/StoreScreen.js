@@ -277,7 +277,6 @@ class StoreScreen extends Component {
             contentContainerStyle: {
               flexGrow: 1,
               paddingHorizontal: 10,
-              paddingBottom: 50 + 10 + bottomPadding,
             },
           }}
           handleStyle={{backgroundColor: colors.text_secondary, opacity: 0.85}}
@@ -291,12 +290,13 @@ class StoreScreen extends Component {
               onPress={() => this.modalizeRef && this.modalizeRef.open('top')}
             />
           )}
-          FooterComponent={() => (
+          // Temporary removal
+          /*FooterComponent={() => (
             <SlidingCartFooter
               bottomPadding={bottomPadding}
               handleCheckout={() => this.handleCheckout()}
             />
-          )}
+          )}*/
         />
 
         <StoreDetailsModal
