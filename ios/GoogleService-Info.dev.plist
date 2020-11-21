@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>1053004746180-2agiboifni2ar9uf3egej5q7up8fu54s.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.1053004746180-2agiboifni2ar9uf3egej5q7up8fu54s</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>1053004746180-gslchp4nogooho44rrohdjolmmgufke8.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDI9zTlI0raV8C6DBY9RJTU_qCpgxwXxHY</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1053004746180</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.marketeerph.marketeermerchantapp.ios.dev</string>
+	<key>PROJECT_ID</key>
+	<string>marketeerph-development</string>
+	<key>STORAGE_BUCKET</key>
+	<string>marketeerph-development.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1053004746180:ios:8536d0606f1a0d89996891</string>
+	<key>DATABASE_URL</key>
+	<string>https://marketeerph-development.firebaseio.com</string>
+</dict>
+</plist>
