@@ -47,7 +47,10 @@ class CartListItem extends PureComponent {
   componentDidUpdate(prevProps, prevState) {
     const {item, itemSnapshot} = this.props;
 
-    if (itemSnapshot && item.quantity > itemSnapshot.stock) {
+    if (
+      itemSnapshot?.stock !== undefined &&
+      item.quantity > itemSnapshot.stock
+    ) {
       this.props.shopStore.validItemQuantity[item.itemId] = false;
     } else {
       this.props.shopStore.validItemQuantity[item.itemId] = true;

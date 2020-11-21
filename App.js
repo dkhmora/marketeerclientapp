@@ -14,6 +14,7 @@ import moment from 'moment';
 import auth from '@react-native-firebase/auth';
 import VersionCheck from 'react-native-version-check';
 import AsyncStorage from '@react-native-community/async-storage';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 global._ = _;
 global.moment = moment;
@@ -58,22 +59,30 @@ class App extends React.Component {
     this.authState = auth().onAuthStateChanged((user) => {
       authStore.checkAuthStatus().then(() => {
         if (user) {
-          this.setState({user});
+          const {isAnonymous, email, displayName, phoneNumber, uid} = user;
 
-          const userId = user.uid;
+          this.setState({user}, () => {
+            crashlytics().setAttributes({
+              email,
+              displayName,
+              phoneNumber,
+              uid,
+              isAnonymous: isAnonymous.toString(),
+            });
+          });
 
           if (!authStore.guest) {
             authStore.reloadUser();
 
             if (shopStore.cartStores.length !== 0) {
               shopStore.updateCartItemsInstantly().then(() => {
-                shopStore.getCartItems(userId);
+                shopStore.getCartItems(uid);
               });
             } else {
-              shopStore.getCartItems(userId);
+              shopStore.getCartItems(uid);
             }
 
-            generalStore.getUserDetails(userId);
+            generalStore.getUserDetails(uid);
 
             generalStore.appReady = true;
           } else {
@@ -92,8 +101,8 @@ class App extends React.Component {
             if (!authStore.guest) {
               if (state === 'active') {
                 if (!authStore.guest && user) {
-                  shopStore.getCartItems(userId);
-                  generalStore.getUserDetails(userId);
+                  shopStore.getCartItems(uid);
+                  generalStore.getUserDetails(uid);
                 }
               } else if (state === 'background') {
                 if (shopStore.unsubscribeToGetCartItems) {
@@ -120,6 +129,10 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+    crashlytics().sendUnsentReports();
+    crashlytics().setCrashlyticsCollectionEnabled(true);
+    crashlytics().log('App Mounted');
+
     const provider = Platform.OS === 'android' ? 'playStore' : 'appStore';
 
     VersionCheck.needUpdate({
