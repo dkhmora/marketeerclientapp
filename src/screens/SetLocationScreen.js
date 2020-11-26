@@ -443,16 +443,13 @@ class SetLocationScreen extends Component {
             right: 20,
           }}>
           <Button
-            onPress={() => this.panToCurrentLocation()}
-            disabled={!this.state.currentUserLocation}
+            iconLeft
             icon={<Icon name="crosshair" color={colors.icons} size={35} />}
-            titleStyle={{color: colors.icons}}
-            buttonStyle={{
-              backgroundColor: colors.primary,
-              borderRadius: 35,
-              paddingBottom: Platform.OS === 'ios' ? 5 : null,
-            }}
+            onPress={() => this.panToCurrentLocation()}
+            titleStyle={{color: colors.icons, marginLeft: 5}}
+            buttonStyle={{backgroundColor: colors.primary}}
             containerStyle={{
+              borderRadius: 35,
               overflow: 'hidden',
             }}
           />

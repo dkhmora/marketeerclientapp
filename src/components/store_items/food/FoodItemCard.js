@@ -8,7 +8,8 @@ import {colors} from '../../../../assets/colors';
 import FastImage from 'react-native-fast-image';
 import {Fade, Placeholder, PlaceholderMedia} from 'rn-placeholder';
 import Divider from '../../Divider';
-import { CDN_BASE_URL } from '../../util/variables';
+import {CDN_BASE_URL} from '../../util/variables';
+import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 
 @inject('authStore')
 @inject('shopStore')
@@ -27,10 +28,6 @@ class FoodItemCard extends PureComponent {
 
   @computed get timeStamp() {
     return moment(this.props.item.updatedAt, 'x').fromNow();
-  }
-
-  handleEditItem() {
-    this.props.navigation.navigate('Edit Item', {item: this.props.item});
   }
 
   RightElement(props) {
@@ -99,43 +96,48 @@ class FoodItemCard extends PureComponent {
   }
 
   render() {
-    const {item, ...otherProps} = this.props;
+    const {item, navigation, storeId, ...otherProps} = this.props;
     const {url, imageReady} = this.state;
     const {Subtitle, RightElement} = this;
 
     return (
-      <View
-        style={{
-          flex: 1,
-          flexDirection: 'column',
-          paddingHorizontal: 10,
-        }}>
-        <ListItem
-          title={item.name}
-          titleStyle={{fontSize: 18, fontFamily: 'ProductSans-Bold'}}
-          subtitle={
-            <Subtitle description={item.description} basePrice={item.price} />
-          }
-          rightElement={
-            url ? (
-              <RightElement
-                source={url}
-                imageReady={imageReady}
-                onImageReady={() => this.setState({imageReady: true})}
-              />
-            ) : null
-          }
-          style={{paddingTop: 1, paddingBottom: 1}}
-          containerStyle={{
-            paddingTop: 10,
-            paddingBottom: 10,
-            paddingLeft: 5,
-            paddingRight: 5,
-          }}
-        />
+      <TouchableWithoutFeedback
+        onPress={() =>
+          navigation.navigate('Food Item Details', {item, storeId})
+        }>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'column',
+            paddingHorizontal: 10,
+          }}>
+          <ListItem
+            title={item.name}
+            titleStyle={{fontSize: 18, fontFamily: 'ProductSans-Bold'}}
+            subtitle={
+              <Subtitle description={item.description} basePrice={item.price} />
+            }
+            rightElement={
+              url ? (
+                <RightElement
+                  source={url}
+                  imageReady={imageReady}
+                  onImageReady={() => this.setState({imageReady: true})}
+                />
+              ) : null
+            }
+            style={{paddingTop: 1, paddingBottom: 1}}
+            containerStyle={{
+              paddingTop: 10,
+              paddingBottom: 10,
+              paddingLeft: 5,
+              paddingRight: 5,
+            }}
+          />
 
-        <Divider />
-      </View>
+          <Divider />
+        </View>
+      </TouchableWithoutFeedback>
     );
   }
 }

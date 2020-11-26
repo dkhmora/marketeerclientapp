@@ -204,6 +204,18 @@ class shopStore {
     return [];
   }
 
+  @action getCartItemIndex(item, storeId) {
+    const storeCartItems = this.storeCartItems[storeId];
+
+    return storeCartItems.findIndex((storeCartItem) => {
+      if (item.cartId) {
+        return storeCartItem.cartId === item.cartId;
+      }
+
+      return storeCartItem.itemId === item.itemId;
+    });
+  }
+
   @action async getMrSpeedyDeliveryPriceEstimate(
     deliveryLocation,
     deliveryAddress,
@@ -350,49 +362,54 @@ class shopStore {
       });
   }
 
-  @action async addCartItemToStorage(item, storeId) {
+  @action async addCartItemToStorage(item, storeId, options) {
+    return new Promise((resolve, reject) => {
+      const storeCartItems = this.storeCartItems[storeId];
+      const dateNow = firestore.Timestamp.now().toMillis();
+
+      item.sales && delete item.sales;
+      item.options && delete item.options;
+
+      if (!item.createdAt) {
+        item.createdAt = dateNow;
+      }
+      item.updatedAt = dateNow;
+
+      if (storeCartItems) {
+        if (!options?.ignoreExistingCartItems) {
+          const cartItemIndex = this.getCartItemIndex(item, storeId);
+
+          if (cartItemIndex >= 0) {
+            return resolve((storeCartItems[cartItemIndex] = item));
+          }
+        }
+
+        resolve(storeCartItems.push(item));
+      } else {
+        resolve((this.storeCartItems[storeId] = [item]));
+      }
+    }).then(() => {
+      if (options?.instantUpdate) {
+        this.updateCartItemsInstantly();
+      } else {
+        this.updateCartItems();
+      }
+    });
+  }
+
+  @action async deleteCartItemInStorage(item, storeId, options) {
     const storeCartItems = this.storeCartItems[storeId];
     const dateNow = firestore.Timestamp.now().toMillis();
 
-    const newItem = {
-      ...item,
-      quantity: 1,
-      createdAt: dateNow,
-      updatedAt: dateNow,
-    };
-    delete newItem.sales;
-
     if (storeCartItems) {
-      const cartItemIndex = storeCartItems.findIndex(
-        (storeCartItem) => storeCartItem.itemId === item.itemId,
-      );
+      const cartItemIndex = this.getCartItemIndex(item, storeId);
 
       if (cartItemIndex >= 0) {
-        storeCartItems[cartItemIndex].quantity += 1;
+        storeCartItems[cartItemIndex].quantity -= 1;
         storeCartItems[cartItemIndex].updatedAt = dateNow;
-      } else {
-        storeCartItems.push(newItem);
-      }
-    } else {
-      this.storeCartItems[storeId] = [{...newItem}];
-    }
-  }
 
-  @action async deleteCartItemInStorage(item, storeId) {
-    const storeCart = this.storeCartItems[storeId];
-    const dateNow = firestore.Timestamp.now().toMillis();
-
-    if (storeCart) {
-      const cartItemIndex = storeCart.findIndex(
-        (storeCartItem) => storeCartItem.itemId === item.itemId,
-      );
-
-      if (cartItemIndex >= 0) {
-        storeCart[cartItemIndex].quantity -= 1;
-        storeCart[cartItemIndex].updatedAt = dateNow;
-
-        if (storeCart[cartItemIndex].quantity <= 0) {
-          storeCart.splice(cartItemIndex, 1);
+        if (storeCartItems[cartItemIndex].quantity <= 0) {
+          storeCartItems.splice(cartItemIndex, 1);
 
           delete this.validItemQuantity[item.itemId];
 
@@ -400,8 +417,12 @@ class shopStore {
             delete this.storeCartItems[storeId];
           }
         }
+      }
+
+      if (options?.instantUpdate) {
+        this.updateCartItemsInstantly();
       } else {
-        Toast({text: 'Error: Item cannot be found in store!', type: 'danger'});
+        this.updateCartItems();
       }
     }
   }
@@ -421,7 +442,10 @@ class shopStore {
     if (userId && !guest) {
       await userCartCollection
         .doc(userId)
-        .set(this.storeCartItems)
+        .set({
+          ...this.storeCartItems,
+          //updatedAt: firestore.Timestamp.now().toMillis(),
+        })
         .catch((err) => {
           crashlytics().recordError(err);
           Toast({text: err.message, type: 'danger'});

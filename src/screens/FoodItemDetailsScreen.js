@@ -1,77 +1,226 @@
 import React, {Component} from 'react';
-import {
-  StyleSheet,
-  View,
-  Image,
-  Animated,
-  TouchableOpacity,
-  StatusBar,
-} from 'react-native';
+import {StyleSheet, View, Image, Animated, StatusBar} from 'react-native';
 import StickyParallaxHeader from 'react-native-sticky-parallax-header';
-import {BlurView} from '@react-native-community/blur';
-import {Button, Icon, Text} from 'react-native-elements';
+import {Button, Card, Divider, Icon, Input, Text} from 'react-native-elements';
 import {colors} from '../../assets/colors';
+import {CDN_BASE_URL} from '../components/util/variables';
+import FastImage from 'react-native-fast-image';
+import CustomizationOptionsCard from '../components/store_items/food/CustomizationOptionsCard';
+import ItemQuantityControlButtons from '../components/ItemQuantityControlButtons';
+import {inject, observer} from 'mobx-react';
+import {v4 as uuidv4} from 'uuid';
 
 const {event, ValueXY} = Animated;
 const scrollY = new ValueXY();
 
+@inject('shopStore')
+@observer
 class FoodItemDetailsScreen extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+
+    const {
+      item: {specialInstructions, selectedOptions, quantity},
+    } = this.props.route.params;
+
+    this.state = {
+      itemOptions: {},
+      isValid: {},
+      selectedOptions: selectedOptions ? selectedOptions : {},
+      specialInstructions: specialInstructions ? specialInstructions : '',
+      quantity: quantity && quantity > 0 ? quantity : 1,
+    };
   }
 
-  renderForeground = () => (
-    <View>
-      <Image
-        source={{
-          uri: 'https://i.ytimg.com/vi/gGca2DVEegc/maxresdefault.jpg',
-        }}
-        style={styles.foregroundImage}
-      />
-      <View style={styles.foregroundContainer}>
-        <Image
+  componentDidMount() {
+    const {item, itemSnapshot} = this.props.route.params;
+
+    if (item?.options !== undefined) {
+      const itemOptions = JSON.parse(JSON.stringify(item.options));
+      this.setState({itemOptions});
+    }
+
+    if (itemSnapshot?.options !== undefined) {
+      const itemOptions = JSON.parse(JSON.stringify(itemSnapshot.options));
+      this.setState({itemOptions});
+    }
+
+    this.customizationOptionsRef = {};
+  }
+
+  handleSelectionPress(optionTitle, selectedSelection, multipleSelection) {
+    const {
+      state: {selectedOptions},
+    } = this;
+
+    const selectedSelections = selectedOptions?.[optionTitle];
+    let tempSelectedOptions = JSON.parse(JSON.stringify(selectedOptions));
+
+    if (selectedSelections !== undefined && multipleSelection) {
+      if (
+        tempSelectedOptions?.[optionTitle]?.[selectedSelection.title] !==
+        undefined
+      ) {
+        delete tempSelectedOptions[optionTitle][selectedSelection.title];
+      } else {
+        tempSelectedOptions[optionTitle][selectedSelection.title] =
+          selectedSelection.price;
+      }
+
+      this.setState({selectedOptions: tempSelectedOptions});
+    } else {
+      tempSelectedOptions[optionTitle] = {
+        [selectedSelection.title]: selectedSelection.price,
+      };
+
+      this.setState({
+        selectedOptions: tempSelectedOptions,
+      });
+    }
+  }
+
+  handleAddToCart() {
+    const {
+      props: {
+        navigation,
+        route: {
+          params: {storeId, item},
+        },
+      },
+      state: {selectedOptions, specialInstructions, quantity},
+    } = this;
+    const cartId = uuidv4();
+    let totalOptionsPrice = 0;
+
+    Object.values(selectedOptions).map((optionData) => {
+      return Object.values(optionData).map(
+        (price) => (totalOptionsPrice += price),
+      );
+    });
+
+    const finalItem = {
+      ...item,
+      totalOptionsPrice,
+      selectedOptions,
+      specialInstructions,
+      quantity,
+    };
+
+    if (!finalItem.cartId) {
+      finalItem.cartId = cartId;
+    }
+
+    this.props.shopStore.addCartItemToStorage(finalItem, storeId, {
+      ignoreExistingCartItems: item?.cartId === undefined,
+      instantUpdate: true,
+    });
+
+    navigation.goBack();
+  }
+
+  renderForeground = () => {
+    const {
+      navigation,
+      route: {
+        params: {
+          item: {price, discountedPrice, image, name, description},
+        },
+      },
+    } = this.props;
+    const displayPrice =
+      discountedPrice && price > discountedPrice ? discountedPrice : price;
+
+    return (
+      <View
+        style={{
+          flex: 1,
+        }}>
+        <FastImage
           source={{
-            uri:
-              'https://is2-ssl.mzstatic.com/image/thumb/Purple123/v4/0c/9e/88/0c9e8824-1373-995f-3be0-30814b1e4d15/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-85-220.png/460x0w.png',
+            uri: `${CDN_BASE_URL}${image}`,
           }}
-          style={styles.foregroundLogo}
+          style={styles.foregroundImage}
+          resizeMode={FastImage.resizeMode.cover}
         />
-        <View style={styles.foregroundDetails}>
-          <Text style={styles.foregroundDetailsHeader}>The Sims™ Mobile</Text>
-          <Text style={styles.foregroundDetailsDesc}>Play with life.</Text>
-          <View style={styles.foregroundActionsContainer}>
-            <TouchableOpacity style={styles.foregroundActionsButton}>
-              <Text style={styles.headerDetailsButtonTitle}>GET</Text>
-            </TouchableOpacity>
-            <Text style={styles.foregroundActionsButtonTitle}>
-              {'In-App\nPurchases'}
+
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: 15,
+          }}>
+          <View style={{flex: 1}}>
+            <View style={{flex: 1, justifyContent: 'center'}}>
+              <Text style={{fontSize: 20, fontFamily: 'ProductSans-Bold'}}>
+                {name}
+              </Text>
+              <Text
+                numberOfLines={2}
+                style={{
+                  fontSize: 16,
+                  color: colors.text_secondary,
+                  flexWrap: 'wrap',
+                }}>
+                {description}
+              </Text>
+            </View>
+          </View>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              alignSelf: 'flex-end',
+              paddingBottom: 10,
+              paddingLeft: 10,
+            }}>
+            <Text style={{fontSize: 16}}>from </Text>
+            <Text
+              style={{
+                color: colors.primary,
+                fontSize: 16,
+                fontFamily: 'ProductSans-Bold',
+              }}>
+              ₱{displayPrice.toFixed(2)}
             </Text>
-            <Icon name="share-2" size={22} style={{marginLeft: 30}} />
           </View>
         </View>
+
+        <View style={{paddingHorizontal: 15}}>
+          <Divider />
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   renderHeader = () => {
     const opacity = scrollY.y.interpolate({
-      inputRange: [0, 110, 150],
+      inputRange: [0, 150, 235],
       outputRange: [0, 0, 1],
       extrapolate: 'clamp',
     });
 
     const left = scrollY.y.interpolate({
-      inputRange: [0, 110, 160],
+      inputRange: [0, 150, 180],
       outputRange: [12, 12, -40],
       extrapolate: 'clamp',
     });
 
     const arrowOpacity = scrollY.y.interpolate({
-      inputRange: [0, 110, 140],
+      inputRange: [0, 150, 180],
       outputRange: [1, 1, 0],
       extrapolate: 'clamp',
     });
+
+    const {
+      navigation,
+      route: {
+        params: {
+          item: {image, name},
+        },
+      },
+    } = this.props;
+    const {itemOptions} = this.state;
 
     return (
       <View>
@@ -82,14 +231,14 @@ class FoodItemDetailsScreen extends Component {
             {opacity: arrowOpacity},
           ]}>
           <Button
-            onPress={() => this.props.navigation.goBack()}
+            onPress={() => navigation.goBack()}
             type="clear"
             color={colors.icons}
             icon={<Icon name="arrow-left" color={colors.primary} />}
             buttonStyle={{borderRadius: 30}}
             containerStyle={[
               styles.buttonContainer,
-              {backgroundColor: '#fff', height: 40},
+              {backgroundColor: colors.icons, height: 40, elevation: 2},
             ]}
           />
         </Animated.View>
@@ -108,13 +257,12 @@ class FoodItemDetailsScreen extends Component {
 
               <Image
                 source={{
-                  uri:
-                    'https://is2-ssl.mzstatic.com/image/thumb/Purple123/v4/0c/9e/88/0c9e8824-1373-995f-3be0-30814b1e4d15/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-85-220.png/460x0w.png',
+                  uri: `${CDN_BASE_URL}${image}`,
                 }}
                 style={styles.headerDetailsImage}
               />
 
-              <Text style={styles.headerSearchText}>Item Name</Text>
+              <Text style={styles.headerSearchText}>{name}</Text>
             </Animated.View>
           </View>
         </Animated.View>
@@ -123,45 +271,225 @@ class FoodItemDetailsScreen extends Component {
   };
 
   renderBody = () => {
+    const {
+      props: {
+        navigation,
+        route: {
+          params: {
+            item: {image, name},
+          },
+        },
+      },
+      state: {itemOptions, specialInstructions, selectedOptions, isValid},
+    } = this;
+
     return (
-      <View>
-        <Text>Try</Text>
+      <View style={{paddingHorizontal: 15, paddingVertical: 10}}>
+        <View
+          style={{
+            flex: 1,
+            paddingVertical: 10,
+          }}>
+          <View>
+            <Text style={{fontSize: 22, marginBottom: 5}}>Customization</Text>
+
+            {Object.entries(itemOptions).map(
+              ([optionTitle, optionData], index) => {
+                const {multipleSelection, selection} = optionData;
+
+                if (
+                  !multipleSelection &&
+                  selectedOptions?.[optionTitle] === undefined &&
+                  isValid?.[optionTitle] === undefined
+                ) {
+                  this.setState((prevState) => ({
+                    isValid: {
+                      ...prevState.isValid,
+                      [optionTitle]: false,
+                    },
+                  }));
+                }
+
+                return (
+                  <CustomizationOptionsCard
+                    isValid={isValid?.[optionTitle]}
+                    onIsValidChanged={(value) =>
+                      this.setState((prevState) => ({
+                        isValid: {
+                          ...prevState.isValid,
+                          [optionTitle]: value,
+                        },
+                      }))
+                    }
+                    onSelectionPress={(selectedSelection) =>
+                      this.handleSelectionPress(
+                        optionTitle,
+                        selectedSelection,
+                        multipleSelection,
+                      )
+                    }
+                    key={optionTitle}
+                    title={optionTitle}
+                    multipleSelection={multipleSelection}
+                    selections={selection}
+                    selectedSelections={selectedOptions?.[optionTitle]}
+                  />
+                );
+              },
+            )}
+
+            <Card
+              containerStyle={{
+                paddingBottom: 10,
+                paddingTop: 10,
+                marginLeft: 0,
+                marginRight: 0,
+                borderRadius: 10,
+              }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    fontFamily: 'ProductSans-Bold',
+                    marginBottom: 10,
+                    flex: 1,
+                  }}>
+                  Special Instructions
+                </Text>
+              </View>
+
+              <Input
+                multiline
+                numberOfLines={3}
+                value={specialInstructions}
+                onChangeText={(value) =>
+                  this.setState({specialInstructions: value})
+                }
+                inputStyle={{textAlignVertical: 'top'}}
+                maxLength={200}
+                placeholder={`Enter any special instructions for ${name}`}
+              />
+            </Card>
+          </View>
+        </View>
       </View>
     );
   };
 
   render() {
-    /*
     const {
-      navigation,
-      route: {
-        params: {
-          item: {image, name},
+      state: {quantity, isValid},
+      props: {
+        route: {
+          params: {item},
         },
       },
-    } = this.props;
-    */
-
-    const {renderForeground, renderHeader} = this;
+      renderForeground,
+      renderHeader,
+      renderBody,
+    } = this;
 
     return (
       <View style={{...StyleSheet.absoluteFillObject}}>
         <StickyParallaxHeader
           headerType="AvatarHeader"
           hasBorderRadius={false}
-          backgroundColor="black"
+          backgroundColor={colors.icons}
           scrollEvent={event([{nativeEvent: {contentOffset: {y: scrollY.y}}}], {
             useNativeDriver: false,
           })}
-          parallaxHeight={430}
+          parallaxHeight={330}
           transparentHeader={true}
           foreground={renderForeground.bind(this)}
           header={renderHeader.bind(this)}
           headerHeight={97}
-          snapStartThreshold={50}
-          snapStopThreshold={150}
-          renderBody={this.renderBody}
-          snapValue={167}></StickyParallaxHeader>
+          snapStartThreshold={150}
+          snapStopThreshold={235}
+          renderBody={renderBody.bind(this)}
+          snapValue={150}>
+          {renderBody.bind(this)}
+        </StickyParallaxHeader>
+
+        <View
+          style={{
+            flexDirection: 'row',
+            height: 70,
+            width: '100%',
+            padding: 10,
+            borderTopRightRadius: 10,
+            borderTopLeftRadius: 10,
+            backgroundColor: colors.primary,
+          }}>
+          <View
+            style={{
+              alignItems: 'flex-end',
+              justifyContent: 'center',
+            }}>
+            <ItemQuantityControlButtons
+              ref={(itemQuantityControlButtonsRef) =>
+                (this.itemQuantityControlButtonsRef = itemQuantityControlButtonsRef)
+              }
+              alwaysShowMinusButton
+              persistMinusIcon
+              onIncreaseQuantity={() =>
+                this.setState((prevState) => ({
+                  quantity: prevState.quantity + 1,
+                }))
+              }
+              onDecreaseQuantity={() =>
+                this.setState((prevState) => ({
+                  quantity: prevState.quantity - 1,
+                }))
+              }
+              itemQuantity={quantity}
+              minusDisabled={quantity === 1}
+            />
+          </View>
+
+          <View style={{flex: 1, paddingLeft: 10}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                borderRadius: 30,
+                overflow: 'hidden',
+              }}>
+              <Button
+                title={item.cartId ? 'Update Item' : 'Add To Cart'}
+                raised
+                icon={
+                  <Icon
+                    name={item.cartId ? 'edit-2' : 'plus'}
+                    color={colors.icons}
+                  />
+                }
+                disabled={Object.values(isValid).includes(false)}
+                iconRight
+                onPress={() => this.handleAddToCart()}
+                titleStyle={{
+                  color: colors.icons,
+                  fontFamily: 'ProductSans-Bold',
+                  fontSize: 22,
+                  marginRight: '20%',
+                }}
+                buttonStyle={{
+                  height: '100%',
+                  backgroundColor: colors.accent,
+                  borderRadius: 30,
+                }}
+                containerStyle={{
+                  flex: 1,
+                  padding: 0,
+                  borderRadius: 30,
+                }}
+              />
+            </View>
+          </View>
+        </View>
 
         <StatusBar
           translucent
@@ -260,6 +588,7 @@ const styles = StyleSheet.create({
     width: '110%',
     height: 250,
     marginLeft: -25,
+    backgroundColor: colors.icons,
   },
   foregroundContainer: {
     flexDirection: 'row',
@@ -278,7 +607,7 @@ const styles = StyleSheet.create({
   foregroundDetailsHeader: {
     color: 'white',
     fontSize: 22,
-    fontWeight: 'bold',
+    fontFamily: 'ProductSans-Light',
   },
   foregroundDetailsDesc: {
     color: 'gray',

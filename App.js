@@ -14,6 +14,7 @@ import moment from 'moment';
 import auth from '@react-native-firebase/auth';
 import VersionCheck from 'react-native-version-check';
 import AsyncStorage from '@react-native-community/async-storage';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 global._ = _;
 global.moment = moment;
@@ -23,7 +24,7 @@ import AuthStore from './src/store/authStore';
 import ShopStore from './src/store/shopStore';
 
 import Setup from './src/boot/setup';
-import {AppState, Linking, Platform} from 'react-native';
+import {AppState, Linking, LogBox, Platform} from 'react-native';
 import {create} from 'mobx-persist';
 
 const hydrate = create({storage: AsyncStorage});
@@ -32,12 +33,13 @@ const authStore = (window.store = new AuthStore());
 const shopStore = (window.store = new ShopStore());
 hydrate('list', generalStore);
 hydrate('object', shopStore);
-// @TODO: This is to hide a Warning caused by NativeBase after upgrading to RN 0.62
-import {YellowBox} from 'react-native';
+
 import AlertModal from './src/components/AlertModal';
 
-YellowBox.ignoreWarnings([
+LogBox.ignoreLogs([
   'Animated: `useNativeDriver` was not specified. This is a required option and must be explicitly set to `true` or `false`',
+  '"message":"Parse Error.',
+  'Warning: Failed prop type: Invalid prop `color` supplied to `Text`: hsl(208, 8%, 63%)',
 ]);
 // ------- END OF WARNING SUPPRESSION
 
@@ -57,22 +59,30 @@ class App extends React.Component {
     this.authState = auth().onAuthStateChanged((user) => {
       authStore.checkAuthStatus().then(() => {
         if (user) {
-          this.setState({user});
+          const {isAnonymous, email, displayName, phoneNumber, uid} = user;
 
-          const userId = user.uid;
+          this.setState({user}, () => {
+            crashlytics().setAttributes({
+              email,
+              displayName,
+              phoneNumber,
+              uid,
+              isAnonymous: isAnonymous.toString(),
+            });
+          });
 
           if (!authStore.guest) {
             authStore.reloadUser();
 
             if (shopStore.cartStores.length !== 0) {
               shopStore.updateCartItemsInstantly().then(() => {
-                shopStore.getCartItems(userId);
+                shopStore.getCartItems(uid);
               });
             } else {
-              shopStore.getCartItems(userId);
+              shopStore.getCartItems(uid);
             }
 
-            generalStore.getUserDetails(userId);
+            generalStore.getUserDetails(uid);
 
             generalStore.appReady = true;
           } else {
@@ -91,8 +101,8 @@ class App extends React.Component {
             if (!authStore.guest) {
               if (state === 'active') {
                 if (!authStore.guest && user) {
-                  shopStore.getCartItems(userId);
-                  generalStore.getUserDetails(userId);
+                  shopStore.getCartItems(uid);
+                  generalStore.getUserDetails(uid);
                 }
               } else if (state === 'background') {
                 if (shopStore.unsubscribeToGetCartItems) {
@@ -119,6 +129,10 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+    crashlytics().sendUnsentReports();
+    crashlytics().setCrashlyticsCollectionEnabled(true);
+    crashlytics().log('App Mounted');
+
     const provider = Platform.OS === 'android' ? 'playStore' : 'appStore';
 
     VersionCheck.needUpdate({

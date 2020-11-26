@@ -18,12 +18,12 @@ import {Picker} from 'native-base';
 import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import BackButton from '../components/BackButton';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import Toast from '../components/Toast';
 import moment, {ISO_8601} from 'moment';
 import crashlytics from '@react-native-firebase/crashlytics';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import {ScrollView} from 'react-native-gesture-handler';
 
 const SCREEN_WIDTH = Dimensions.get('screen').width;
 @inject('generalStore')
@@ -303,7 +303,7 @@ class SignUpScreen extends Component {
             borderTopRightRadius: 30,
             paddingTop: 10,
           }}>
-          <KeyboardAwareScrollView style={{paddingHorizontal: 20}}>
+          <ScrollView style={{paddingHorizontal: 20}}>
             <Text style={styles.text_header}>Sign Up</Text>
 
             <Text style={[styles.text_subtext]}>
@@ -693,7 +693,7 @@ class SignUpScreen extends Component {
                 <Text style={styles.touchable_text}>here</Text>
               </TouchableOpacity>
             </View>
-          </KeyboardAwareScrollView>
+          </ScrollView>
         </Animatable.View>
       </View>
     );

@@ -1,6 +1,20 @@
 import React, {PureComponent} from 'react';
-import {View, ActivityIndicator, Linking, ScrollView} from 'react-native';
-import {Card, Text, Image, Icon, ListItem, Input} from 'react-native-elements';
+import {
+  View,
+  ActivityIndicator,
+  Linking,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
+import {
+  Card,
+  Text,
+  Image,
+  Icon,
+  ListItem,
+  Input,
+  Divider,
+} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
 import CartListItem from './CartListItem';
 import {colors} from '../../assets/colors';
@@ -12,7 +26,8 @@ import stripHtml from 'string-strip-html';
 import Toast from './Toast';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import * as Animatable from 'react-native-animatable';
-import { CDN_BASE_URL } from './util/variables';
+import {CDN_BASE_URL} from './util/variables';
+import {withNavigation} from '@react-navigation/compat';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -119,12 +134,16 @@ class CartStoreCard extends PureComponent {
 
     if (this.cartItems) {
       this.cartItems.map((item) => {
+        const optionsPrice = item.totalOptionsPrice
+          ? item.totalOptionsPrice
+          : 0;
         const itemPrice = item.discountedPrice
           ? item.discountedPrice
           : item.price;
-        const itemTotal = item.quantity * itemPrice;
+        const totalItemPrice = itemPrice + optionsPrice;
+        const totalCartPrice = item.quantity * totalItemPrice;
 
-        amount = itemTotal + amount;
+        amount = totalCartPrice + amount;
       });
     }
 
@@ -593,7 +612,7 @@ class CartStoreCard extends PureComponent {
   }
 
   render() {
-    const {storeId, checkout} = this.props;
+    const {storeId, checkout, navigation, cart} = this.props;
     const {
       storeSelectedDeliveryMethod,
       storeSelectedPaymentMethod,
@@ -646,7 +665,7 @@ class CartStoreCard extends PureComponent {
           containerStyle={{
             margin: 0,
             marginVertical: 10,
-            paddingTop: 5,
+            paddingTop: 0,
             paddingLeft: 0,
             paddingRight: 0,
             marginBottom: 5,
@@ -660,21 +679,22 @@ class CartStoreCard extends PureComponent {
                 flex: 1,
                 flexDirection: 'row',
                 alignItems: 'center',
-                paddingBottom: 5,
+                paddingVertical: 5,
                 paddingHorizontal: 10,
-                borderBottomWidth: 1,
-                borderBottomColor: colors.primary,
+                elevation: 3,
+                backgroundColor: colors.icons,
               }}>
-              <Image
+              <FastImage
                 source={storeImageUrl}
                 style={{
                   height: 40,
                   width: 40,
                   marginRight: 10,
-                  borderRadius: 10,
+                  borderRadius: 30,
                   borderColor: colors.primary,
-                  borderWidth: 1,
+                  borderWidth: 3,
                 }}
+                resizeMode={FastImage.resizeMode.contain}
               />
 
               <View style={{flex: 1}}>
@@ -683,7 +703,7 @@ class CartStoreCard extends PureComponent {
                     numberOfLines={3}
                     style={{
                       fontSize: 19,
-                      fontFamily: 'ProductSans-Light',
+                      fontFamily: 'ProductSans-Bold',
                       maxWidth: '50%',
                       flexWrap: 'wrap',
                     }}>
@@ -707,6 +727,9 @@ class CartStoreCard extends PureComponent {
                   )}
               </View>
             </View>
+
+            <Divider />
+
             <View>
               {this.cartItems.map((item) => {
                 const itemSnapshot = this.currentStoreItems.find(
@@ -716,14 +739,27 @@ class CartStoreCard extends PureComponent {
                 return (
                   <CartListItem
                     item={item}
+                    cart={cart}
                     itemSnapshot={itemSnapshot}
+                    storeType={storeDetails.storeType}
                     storeId={storeId}
                     checkout={checkout}
-                    key={item.itemId}
+                    onPress={() =>
+                      item?.selectedOptions !== undefined &&
+                      itemSnapshot?.options !== undefined
+                        ? navigation.navigate('Food Item Details', {
+                            item,
+                            itemSnapshot,
+                            storeId,
+                          })
+                        : null
+                    }
+                    key={`${item.itemId}${item.cartId ? item.cartId : ''}`}
                   />
                 );
               })}
             </View>
+
             <ListItem
               title="Order Subtotal"
               subtitle={`(${this.totalItemQuantity} Items)`}
@@ -994,4 +1030,4 @@ class CartStoreCard extends PureComponent {
   }
 }
 
-export default CartStoreCard;
+export default withNavigation(CartStoreCard);

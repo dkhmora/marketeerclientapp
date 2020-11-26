@@ -2,16 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>FirebaseAppDelegateProxyEnabled</key>
-	<false/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>$(PRODUCT_NAME)</string>
-	<key>CFBundleDocumentTypes</key>
-	<array>
-		<dict/>
-	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -39,6 +33,12 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
+	<true/>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
+	<key>FirebaseCrashlyticsCollectionEnabled</key>
+	<true/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -55,13 +55,13 @@
 		</dict>
 	</dict>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Marketeer needs access to the user&apos;s photos in order to send user photos through chat</string>
+	<string>Marketeer needs access to the user's photos in order to send user photos through chat</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Marketeer needs access to user&apos;s location in order to show nearby stores</string>
+	<string>Marketeer needs access to user's location in order to show nearby stores</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Marketeer needs access to user&apos;s location in order to show nearby stores</string>
+	<string>Marketeer needs access to user's location in order to show nearby stores</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Marketeer needs access to the user&apos;s photos in order to send user photos through chat</string>
+	<string>Marketeer needs access to the user's photos in order to send user photos through chat</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>

@@ -1,12 +1,13 @@
 import React, {PureComponent} from 'react';
 import FastImage from 'react-native-fast-image';
-import {Text, Button, Icon} from 'react-native-elements';
+import {Text, Button, Icon, Divider} from 'react-native-elements';
 import {computed} from 'mobx';
-import {View} from 'react-native';
+import {StyleSheet, View, TouchableWithoutFeedback} from 'react-native';
 import {observer, inject} from 'mobx-react';
 import {styles} from '../../assets/styles';
 import {colors} from '../../assets/colors';
-import { CDN_BASE_URL } from './util/variables';
+import {CDN_BASE_URL} from './util/variables';
+import ItemQuantityControlButtons from './ItemQuantityControlButtons';
 
 @inject('shopStore')
 @inject('authStore')
@@ -28,11 +29,11 @@ class CartListItem extends PureComponent {
   handleIncreaseQuantity() {
     const {item, storeId} = this.props;
 
-    this.props.shopStore.addCartItemToStorage(item, storeId);
+    const updatedItem = JSON.parse(JSON.stringify(item));
 
-    if (!this.addButtonDisabled) {
-      this.props.shopStore.updateCartItems();
-    }
+    updatedItem.quantity = item.quantity + 1;
+
+    this.props.shopStore.addCartItemToStorage(updatedItem, storeId);
   }
 
   handleDecreaseQuantity() {
@@ -46,7 +47,10 @@ class CartListItem extends PureComponent {
   componentDidUpdate(prevProps, prevState) {
     const {item, itemSnapshot} = this.props;
 
-    if (itemSnapshot && item.quantity > itemSnapshot.stock) {
+    if (
+      itemSnapshot?.stock !== undefined &&
+      item.quantity > itemSnapshot.stock
+    ) {
       this.props.shopStore.validItemQuantity[item.itemId] = false;
     } else {
       this.props.shopStore.validItemQuantity[item.itemId] = true;
@@ -54,115 +58,80 @@ class CartListItem extends PureComponent {
   }
 
   render() {
-    const {item, itemSnapshot, checkout} = this.props;
+    const {item, storeType, cart, itemSnapshot, checkout, onPress} = this.props;
+    const optionsPrice = item.totalOptionsPrice ? item.totalOptionsPrice : 0;
     const itemPrice = item.discountedPrice ? item.discountedPrice : item.price;
+    const totalItemPrice = itemPrice + optionsPrice;
     const imageUrl = item.image
       ? {uri: `${CDN_BASE_URL}${item.image}`}
       : require('../../assets/images/placeholder.jpg');
 
     return (
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 10,
-          paddingVertical: 5,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.divider,
-        }}>
-        <FastImage
-          key={item.itemId}
-          source={imageUrl}
-          style={{
-            backgroundColor: colors.primary,
-            height: 55,
-            width: 55,
-            borderColor: colors.primary,
-            borderWidth: 1,
-            borderRadius: 10,
-          }}
-          resizeMode={FastImage.resizeMode.cover}
-        />
-        <View
-          style={{
-            flex: 1,
-            flexDirection: 'column',
-            paddingHorizontal: 10,
-          }}>
-          <Text
-            numberOfLines={1}
-            style={{
-              fontFamily: 'ProductSans-Regular',
-              fontSize: 18,
-              flexWrap: 'wrap',
-            }}>
-            {item.name}
-          </Text>
-
-          <Text
-            numberOfLines={2}
-            style={{
-              fontFamily: 'ProductSans-Light',
-              fontSize: 14,
-              color: colors.text_secondary,
-              flexWrap: 'wrap',
-            }}>
-            {item.description}
-          </Text>
-        </View>
-
-        {!checkout && (
+      <TouchableWithoutFeedback onPress={onPress}>
+        <View>
           <View
             style={{
-              flexDirection: 'column',
+              flexDirection: 'row',
               alignItems: 'center',
-              justifyContent: 'flex-end',
-              shadowColor: '#000',
-              shadowOffset: {
-                width: 0,
-                height: 1,
-              },
-              shadowOpacity: 0.22,
-              shadowRadius: 2.22,
-              borderRadius: 30,
+              paddingHorizontal: 10,
+              paddingVertical: 5,
+              backgroundColor: colors.icons,
             }}>
-            {itemSnapshot && (
-              <View
+            <View
+              style={{
+                elevation: 3,
+                borderRadius: 10,
+                overflow: 'hidden',
+                backgroundColor: colors.icons,
+                borderWidth: StyleSheet.hairlineWidth,
+                borderColor: colors.divider,
+              }}>
+              <FastImage
+                key={item.itemId}
+                source={imageUrl}
                 style={{
-                  flexDirection: 'row',
-                  borderRadius: 10,
-                  borderWidth: 1,
-                  backgroundColor: colors.icons,
-                  opacity: 0.9,
-                  borderColor: colors.text_secondary,
-                  marginBottom: 5,
-                  padding: 5,
-                  alignItems: 'center',
-                }}>
-                <Text style={{fontSize: 14}}>{itemSnapshot.stock}</Text>
-
-                <Text
-                  style={{
-                    fontSize: 14,
-                    textAlign: 'center',
-                    color: colors.text_secondary,
-                  }}>
-                  {' '}
-                  Left
-                </Text>
-              </View>
-            )}
+                  backgroundColor: colors.primary,
+                  height: 55,
+                  width: 55,
+                }}
+                resizeMode={FastImage.resizeMode.cover}
+              />
+            </View>
 
             <View
               style={{
-                flexDirection: 'row',
-                backgroundColor: '#fff',
-                borderRadius: 30,
-                overflow: 'hidden',
-                elevation: 3,
+                flex: 1,
+                flexDirection: 'column',
+                paddingHorizontal: 10,
               }}>
+              <Text
+                numberOfLines={1}
+                style={{
+                  fontFamily: 'ProductSans-Regular',
+                  fontSize: 18,
+                  flexWrap: 'wrap',
+                }}>
+                {item.name}
+              </Text>
+
+              <Text
+                numberOfLines={2}
+                style={{
+                  fontFamily: 'ProductSans-Light',
+                  fontSize: 14,
+                  color: colors.text_secondary,
+                  flexWrap: 'wrap',
+                }}>
+                {item.description}
+              </Text>
+            </View>
+
+            {!checkout && (
               <View
                 style={{
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
                   shadowColor: '#000',
                   shadowOffset: {
                     width: 0,
@@ -172,142 +141,116 @@ class CartListItem extends PureComponent {
                   shadowRadius: 2.22,
                   borderRadius: 30,
                 }}>
-                <Button
-                  onPress={() => this.handleDecreaseQuantity()}
-                  type="clear"
-                  color={colors.icons}
-                  icon={
-                    item.quantity === 1 ? (
-                      <Icon name="trash-2" color={colors.primary} size={15} />
-                    ) : (
-                      <Icon name="minus" color={colors.primary} size={15} />
-                    )
-                  }
-                  containerStyle={[
-                    styles.buttonContainer,
-                    {
-                      backgroundColor: '#fff',
-                      height: 30,
+                {cart && itemSnapshot?.stock !== undefined && (
+                  <View
+                    style={{
+                      flexDirection: 'row',
                       borderRadius: 30,
-                      elevation: 3,
-                      shadowColor: '#000',
-                      shadowOffset: {
-                        width: 0,
-                        height: 1,
-                      },
-                      shadowOpacity: 0.22,
-                      shadowRadius: 2.22,
-                    },
-                  ]}
+                      borderWidth: StyleSheet.hairlineWidth,
+                      backgroundColor: colors.primary,
+                      borderColor: colors.divider,
+                      marginBottom: 5,
+                      padding: 5,
+                      alignItems: 'center',
+                      elevation: 2,
+                    }}>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        fontFamily: 'ProductSans-Bold',
+                        color: colors.icons,
+                      }}>
+                      {`${itemSnapshot.stock}  `}
+                    </Text>
+
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        textAlign: 'center',
+                        color: colors.icons,
+                      }}>
+                      Left
+                    </Text>
+                  </View>
+                )}
+
+                <ItemQuantityControlButtons
+                  ref={(itemQuantityControlButtonsRef) =>
+                    (this.itemQuantityControlButtonsRef = itemQuantityControlButtonsRef)
+                  }
+                  addDisabled={this.addButtonDisabled}
+                  onIncreaseQuantity={() => this.handleIncreaseQuantity()}
+                  onDecreaseQuantity={() => this.handleDecreaseQuantity()}
+                  itemQuantity={item.quantity}
+                  itemStock={itemSnapshot?.stock}
+                  addButtonContainerStyle={{
+                    height: 26,
+                    width: 26,
+                    borderRadius: 26,
+                  }}
+                  iconSize={10}
+                  minusButtonContainerStyle={{
+                    height: 26,
+                    width: 26,
+                    borderRadius: 26,
+                  }}
+                  alwaysShowMinusButton
+                  quantityContainerStyle={{
+                    width: 26,
+                    height: 26,
+                  }}
+                  containerStyle={{
+                    elevation: 3,
+                    height: 26,
+                    marginHorizontal: 5,
+                  }}
                 />
               </View>
+            )}
 
-              <View
+            <View
+              style={{
+                flexDirection: 'column',
+                alignItems: 'flex-end',
+                justifyContent: 'flex-start',
+                width: 60,
+              }}>
+              <Text
+                adjustsFontSizeToFit
+                numberOfLines={1}
                 style={{
-                  width: 30,
-                  justifyContent: 'center',
-                  elevation: 3,
+                  fontFamily: 'ProductSans-Black',
+                  fontSize: 16,
+                  color: colors.text_secondary,
                 }}>
-                <Text
-                  style={{
-                    textAlign: 'center',
-                    fontFamily: 'ProductSans-Black',
-                    color:
-                      itemSnapshot && item.quantity > itemSnapshot.stock
-                        ? '#F44336'
-                        : colors.text_primary,
-                  }}>
-                  {item.quantity}
-                </Text>
-              </View>
+                ₱{totalItemPrice}
+              </Text>
 
-              <View
+              <Text
+                adjustsFontSizeToFit
+                numberOfLines={1}
                 style={{
-                  shadowColor: '#000',
-                  shadowOffset: {
-                    width: 0,
-                    height: 2,
-                  },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 3.84,
+                  color: colors.text_secondary,
+                  borderBottomColor: colors.divider,
+                  borderBottomWidth: 1,
+                  textAlign: 'right',
+                  width: '100%',
                 }}>
-                <Button
-                  onPress={() => this.handleIncreaseQuantity()}
-                  disabled={this.addButtonDisabled}
-                  type="clear"
-                  color={colors.icons}
-                  icon={
-                    <Icon
-                      name="plus"
-                      color={
-                        this.addButtonDisabled
-                          ? colors.text_secondary
-                          : colors.primary
-                      }
-                      size={15}
-                    />
-                  }
-                  containerStyle={[
-                    styles.buttonContainer,
-                    {
-                      backgroundColor: '#fff',
-                      height: 30,
-                      borderRadius: 30,
-                      elevation: 3,
-                      shadowColor: '#000',
-                      shadowOffset: {
-                        width: 0,
-                        height: 1,
-                      },
-                      shadowOpacity: 0.22,
-                      shadowRadius: 2.22,
-                    },
-                  ]}
-                />
-              </View>
+                x {item.quantity}
+              </Text>
+
+              <Text
+                adjustsFontSizeToFit
+                numberOfLines={1}
+                style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
+                ₱{totalItemPrice * item.quantity}
+              </Text>
             </View>
           </View>
-        )}
 
-        <View
-          style={{
-            flexDirection: 'column',
-            alignItems: 'flex-end',
-            justifyContent: 'flex-start',
-            width: 60,
-          }}>
-          <Text
-            adjustsFontSizeToFit
-            numberOfLines={1}
-            style={{
-              fontFamily: 'ProductSans-Black',
-              fontSize: 16,
-              color: colors.text_secondary,
-            }}>
-            ₱{itemPrice}
-          </Text>
-
-          <Text
-            adjustsFontSizeToFit
-            numberOfLines={1}
-            style={{
-              color: colors.text_secondary,
-              borderBottomColor: colors.divider,
-              borderBottomWidth: 1,
-              textAlign: 'right',
-              width: '100%',
-            }}>
-            x {item.quantity}
-          </Text>
-
-          <Text
-            adjustsFontSizeToFit
-            numberOfLines={1}
-            style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
-            ₱{itemPrice * item.quantity}
-          </Text>
+          <Divider style={{paddingBottom: 0.5}} />
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     );
   }
 }
