@@ -40,7 +40,8 @@ class ItemQuantityControlButtons extends PureComponent {
           flexDirection: 'row',
           borderRadius: 100,
           backgroundColor: persistMinusIcon ? colors.icons : 'transparent',
-          elevation: 3,
+          elevation: persistMinusIcon ? 3 : 0,
+          overflow: 'hidden',
           ...containerStyle,
         }}>
         <Animatable.View
