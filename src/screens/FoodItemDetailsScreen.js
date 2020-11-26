@@ -3,7 +3,7 @@ import {StyleSheet, View, Image, Animated, StatusBar} from 'react-native';
 import StickyParallaxHeader from 'react-native-sticky-parallax-header';
 import {Button, Card, Divider, Icon, Input, Text} from 'react-native-elements';
 import {colors} from '../../assets/colors';
-import {CDN_BASE_URL} from '../components/util/variables';
+import {CDN_BASE_URL} from '../util/variables';
 import FastImage from 'react-native-fast-image';
 import CustomizationOptionsCard from '../components/store_items/food/CustomizationOptionsCard';
 import ItemQuantityControlButtons from '../components/ItemQuantityControlButtons';

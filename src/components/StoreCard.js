@@ -8,9 +8,10 @@ import {styles} from '../../assets/styles';
 import {PlaceholderMedia, Placeholder, Fade} from 'rn-placeholder';
 import {computed} from 'mobx';
 import {observer} from 'mobx-react';
-import {CDN_BASE_URL} from './util/variables';
+import {CDN_BASE_URL} from '../util/variables';
 import moment from 'moment';
 import {BlurView} from '@react-native-community/blur';
+import {getStoreAvailability, getNextStoreOperationDate} from '../util/helpers';
 
 @observer
 class StoreCard extends Component {
@@ -44,32 +45,8 @@ class StoreCard extends Component {
     const {
       store: {storeHours, vacationMode},
     } = this.props;
-    const now = moment();
-    const currentDay = now.format('dddd');
-    const currentTime = now.format('HH:mm');
-    const currentStoreHours = storeHours?.[currentDay];
 
-    if (vacationMode) {
-      return false;
-    }
-
-    if (currentStoreHours !== undefined) {
-      if (currentStoreHours?.closed === true) {
-        return false;
-      }
-
-      if (typeof currentStoreHours?.start === 'string') {
-        if (moment(currentStoreHours.start, 'HH:mm').isBefore(currentTime)) {
-          return false;
-        }
-
-        if (moment(currentStoreHours.end, 'HH:mm').isAfter(currentTime)) {
-          return false;
-        }
-      }
-    }
-
-    return true;
+    return getStoreAvailability(storeHours, vacationMode);
   }
 
   PaymentMethods = () => {
@@ -126,6 +103,7 @@ class StoreCard extends Component {
           storeCategory,
           ratingAverage,
           distance,
+          storeHours,
         },
         navigation,
       },
@@ -315,7 +293,7 @@ class StoreCard extends Component {
                     }}>
                     {vacationMode
                       ? 'Currently Unavailable'
-                      : 'Opens on Friday, 7:00 AM'}
+                      : `Opens on ${getNextStoreOperationDate(storeHours)}`}
                   </Text>
                 </View>
               )}

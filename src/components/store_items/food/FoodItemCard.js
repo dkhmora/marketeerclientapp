@@ -8,7 +8,7 @@ import {colors} from '../../../../assets/colors';
 import FastImage from 'react-native-fast-image';
 import {Fade, Placeholder, PlaceholderMedia} from 'rn-placeholder';
 import Divider from '../../Divider';
-import {CDN_BASE_URL} from '../../util/variables';
+import {CDN_BASE_URL} from '../../../util/variables';
 import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
 
 @inject('authStore')

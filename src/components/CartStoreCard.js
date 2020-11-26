@@ -26,7 +26,7 @@ import stripHtml from 'string-strip-html';
 import Toast from './Toast';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import * as Animatable from 'react-native-animatable';
-import {CDN_BASE_URL} from './util/variables';
+import {CDN_BASE_URL} from '../util/variables';
 import {withNavigation} from '@react-navigation/compat';
 
 @inject('generalStore')

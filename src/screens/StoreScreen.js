@@ -21,7 +21,7 @@ import SlidingCartHeader from '../components/SlidingCartHeader';
 import CartStoreCard from '../components/CartStoreCard';
 import SlidingCartFooter from '../components/SlidingCartFooter';
 import crashlytics from '@react-native-firebase/crashlytics';
-import {CDN_BASE_URL} from '../components/util/variables';
+import {CDN_BASE_URL} from '../util/variables';
 import FastImage from 'react-native-fast-image';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;

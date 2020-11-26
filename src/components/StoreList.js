@@ -15,6 +15,7 @@ import * as Animatable from 'react-native-animatable';
 import {computed, when} from 'mobx';
 import {initialWindowMetrics} from 'react-native-safe-area-context';
 import DeviceInfo from 'react-native-device-info';
+import {getStoreAvailability} from '../util/helpers';
 
 const inset = initialWindowMetrics && initialWindowMetrics.insets;
 const bottomPadding = Platform.OS === 'ios' ? inset.bottom : 0;
@@ -43,9 +44,14 @@ class StoreList extends Component {
     }
 
     return finalList.sort((a, b) => {
-      if (a.vacationMode === b.vacationMode) {
+      const storeAvailability = [
+        getStoreAvailability(a.storeHours, a.vacationMode),
+        getStoreAvailability(b.storeHours, b.vacationMode),
+      ];
+
+      if (storeAvailability[0] === storeAvailability[1]) {
         return 0;
-      } else if (b.vacationMode) {
+      } else if (!storeAvailability[1]) {
         return -1;
       }
 

@@ -6,7 +6,7 @@ import {StyleSheet, View, TouchableWithoutFeedback} from 'react-native';
 import {observer, inject} from 'mobx-react';
 import {styles} from '../../assets/styles';
 import {colors} from '../../assets/colors';
-import {CDN_BASE_URL} from './util/variables';
+import {CDN_BASE_URL} from '../util/variables';
 import ItemQuantityControlButtons from './ItemQuantityControlButtons';
 
 @inject('shopStore')

@@ -7,6 +7,7 @@ import * as geolib from 'geolib';
 import {persist} from 'mobx-persist';
 import Toast from '../components/Toast';
 import crashlytics from '@react-native-firebase/crashlytics';
+import moment from 'moment';
 
 const functions = firebase.app().functions('asia-northeast1');
 

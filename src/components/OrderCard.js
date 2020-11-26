@@ -11,7 +11,7 @@ import AddReviewModal from './AddReviewModal';
 import Toast from './Toast';
 import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
-import { CDN_BASE_URL } from './util/variables';
+import { CDN_BASE_URL } from '../util/variables';
 
 @inject('generalStore')
 @inject('shopStore')
