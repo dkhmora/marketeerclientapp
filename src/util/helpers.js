@@ -49,26 +49,16 @@ const getStoreAvailability = (storeHours, vacationMode) => {
   }
 
   if (currentStoreHours !== undefined) {
-    if (currentStoreHours?.closed === true) {
+    if (
+      currentStoreHours?.closed === true ||
+      moment(currentStoreHours?.start, 'HH:mm').isAfter(
+        moment(currentTime, 'HH:mm'),
+      ) ||
+      moment(currentStoreHours?.end, 'HH:mm').isBefore(
+        moment(currentTime, 'HH:mm'),
+      )
+    ) {
       return false;
-    }
-
-    if (typeof currentStoreHours?.start === 'string') {
-      if (
-        moment(currentStoreHours.start, 'HH:mm').isAfter(
-          moment(currentTime, 'HH:mm'),
-        )
-      ) {
-        return false;
-      }
-
-      if (
-        moment(currentStoreHours.end, 'HH:mm').isBefore(
-          moment(currentTime, 'HH:mm'),
-        )
-      ) {
-        return false;
-      }
     }
   }
 
