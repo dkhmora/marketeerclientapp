@@ -275,26 +275,32 @@ class StoreCard extends Component {
                     left: 0,
                     right: 0,
                     height: 150,
-                    backgroundColor: 'rgba(0,0,0,0.4)',
-                    justifyContent: 'center',
-                    alignItems: 'center',
+                    backgroundColor: 'transparent',
                     elevation: 4,
                   }}>
-                  <Text
+                  <View
                     style={{
-                      color: colors.icons,
-                      fontFamily: 'ProductSans-Bold',
-                      fontSize: 16,
-                      backgroundColor: colors.primary,
-                      paddingHorizontal: 5,
-                      paddingVertical: 2,
-                      borderRadius: 10,
-                      elevation: 5,
+                      flex: 1,
+                      backgroundColor: 'rgba(0,0,0,0.4)',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}>
-                    {vacationMode
-                      ? 'Currently Unavailable'
-                      : `Opens on ${getNextStoreOperationDate(storeHours)}`}
-                  </Text>
+                    <Text
+                      style={{
+                        color: colors.icons,
+                        fontFamily: 'ProductSans-Bold',
+                        fontSize: 16,
+                        backgroundColor: colors.primary,
+                        paddingHorizontal: 5,
+                        paddingVertical: 2,
+                        borderRadius: 10,
+                        elevation: 5,
+                      }}>
+                      {vacationMode
+                        ? 'Currently Unavailable'
+                        : `Opens on ${getNextStoreOperationDate(storeHours)}`}
+                    </Text>
+                  </View>
                 </View>
               )}
             </View>
