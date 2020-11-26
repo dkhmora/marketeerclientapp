@@ -9,6 +9,7 @@ import {PlaceholderMedia, Placeholder, Fade} from 'rn-placeholder';
 import {computed} from 'mobx';
 import {observer} from 'mobx-react';
 import {CDN_BASE_URL} from './util/variables';
+import moment from 'moment';
 import {BlurView} from '@react-native-community/blur';
 
 @observer
@@ -37,6 +38,38 @@ class StoreCard extends Component {
     }
 
     return [];
+  }
+
+  @computed get storeAvailable() {
+    const {
+      store: {storeHours, vacationMode},
+    } = this.props;
+    const now = moment();
+    const currentDay = now.format('dddd');
+    const currentTime = now.format('HH:mm');
+    const currentStoreHours = storeHours?.[currentDay];
+
+    if (vacationMode) {
+      return false;
+    }
+
+    if (currentStoreHours !== undefined) {
+      if (currentStoreHours?.closed === true) {
+        return false;
+      }
+
+      if (typeof currentStoreHours?.start === 'string') {
+        if (moment(currentStoreHours.start, 'HH:mm').isBefore(currentTime)) {
+          return false;
+        }
+
+        if (moment(currentStoreHours.end, 'HH:mm').isAfter(currentTime)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 
   PaymentMethods = () => {
@@ -80,21 +113,24 @@ class StoreCard extends Component {
 
   render() {
     const {
-      store,
-      store: {
-        storeName,
-        storeDescription,
-        displayImage,
-        coverImage,
-        vacationMode,
-        deliveryType,
-        deliveryDiscount,
-        storeCategory,
-        ratingAverage,
-        distance,
+      props: {
+        store,
+        store: {
+          storeName,
+          storeDescription,
+          displayImage,
+          coverImage,
+          vacationMode,
+          deliveryType,
+          deliveryDiscount,
+          storeCategory,
+          ratingAverage,
+          distance,
+        },
+        navigation,
       },
-      navigation,
-    } = this.props;
+      storeAvailable,
+    } = this;
     const {coverImageReady, displayImageReady} = this.state;
     const displayImageUrl = `${CDN_BASE_URL}${displayImage}`;
     const coverImageUrl = `${CDN_BASE_URL}${coverImage}`;
@@ -121,9 +157,10 @@ class StoreCard extends Component {
             overflow: 'hidden',
           }}>
           <TouchableOpacity
-            activeOpacity={0.9}
+            activeOpacity={storeAvailable ? 0.9 : 1}
             style={{backgroundColor: colors.icons}}
             onPress={() =>
+              storeAvailable &&
               navigation.navigate('Store', {
                 store,
                 displayImageUrl,
@@ -252,7 +289,7 @@ class StoreCard extends Component {
                 <Text style={{color: colors.icons}}>{storeCategory}</Text>
               </View>
 
-              {vacationMode && (
+              {!storeAvailable && (
                 <View
                   style={{
                     position: 'absolute',
@@ -270,22 +307,15 @@ class StoreCard extends Component {
                       color: colors.icons,
                       fontFamily: 'ProductSans-Bold',
                       fontSize: 16,
-                    }}>
-                    Currently Unavailable
-                  </Text>
-
-                  <Text
-                    style={{
-                      color: colors.icons,
-                      fontFamily: 'ProductSans-Bold',
-                      fontSize: 16,
                       backgroundColor: colors.primary,
                       paddingHorizontal: 5,
                       paddingVertical: 2,
                       borderRadius: 10,
                       elevation: 5,
                     }}>
-                    Opens on Friday, 7:00 AM
+                    {vacationMode
+                      ? 'Currently Unavailable'
+                      : 'Opens on Friday, 7:00 AM'}
                   </Text>
                 </View>
               )}

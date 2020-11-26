@@ -499,11 +499,10 @@ class shopStore {
           const {
             deliveryCoordinates,
             storeLocation,
-            vacationMode,
             creditThresholdReached,
           } = storeData;
 
-          if (!vacationMode && !creditThresholdReached) {
+          if (!creditThresholdReached) {
             const isPointInPolygon =
               deliveryCoordinates && deliveryCoordinates.boundingBox
                 ? geolib.isPointInPolygon(

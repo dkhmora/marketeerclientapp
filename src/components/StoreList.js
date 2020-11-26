@@ -34,12 +34,23 @@ class StoreList extends Component {
   @computed get displayedStoreList() {
     const {categoryName} = this.props;
     const storeList = this.props.shopStore.viewableStoreList.slice();
+    let finalList = storeList;
 
     if (categoryName) {
-      return storeList.filter((store) => store.storeCategory === categoryName);
+      finalList = storeList.filter(
+        (store) => store.storeCategory === categoryName,
+      );
     }
 
-    return storeList;
+    return finalList.sort((a, b) => {
+      if (a.vacationMode === b.vacationMode) {
+        return 0;
+      } else if (b.vacationMode) {
+        return -1;
+      }
+
+      return 1;
+    });
   }
 
   componentDidMount() {
