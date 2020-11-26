@@ -9,6 +9,7 @@ import {PlaceholderMedia, Placeholder, Fade} from 'rn-placeholder';
 import {computed} from 'mobx';
 import {observer} from 'mobx-react';
 import {CDN_BASE_URL} from './util/variables';
+import {BlurView} from '@react-native-community/blur';
 
 @observer
 class StoreCard extends Component {
@@ -78,10 +79,25 @@ class StoreCard extends Component {
   };
 
   render() {
-    const {store, navigation} = this.props;
+    const {
+      store,
+      store: {
+        storeName,
+        storeDescription,
+        displayImage,
+        coverImage,
+        vacationMode,
+        deliveryType,
+        deliveryDiscount,
+        storeCategory,
+        ratingAverage,
+        distance,
+      },
+      navigation,
+    } = this.props;
     const {coverImageReady, displayImageReady} = this.state;
-    const displayImageUrl = `${CDN_BASE_URL}${store.displayImage}`;
-    const coverImageUrl = `${CDN_BASE_URL}${store.coverImage}`;
+    const displayImageUrl = `${CDN_BASE_URL}${displayImage}`;
+    const coverImageUrl = `${CDN_BASE_URL}${coverImage}`;
 
     return (
       <View
@@ -106,7 +122,7 @@ class StoreCard extends Component {
           }}>
           <TouchableOpacity
             activeOpacity={0.9}
-            style={{backgroundColor: colors.primary}}
+            style={{backgroundColor: colors.icons}}
             onPress={() =>
               navigation.navigate('Store', {
                 store,
@@ -168,11 +184,11 @@ class StoreCard extends Component {
                   },
                   shadowOpacity: 0.25,
                   shadowRadius: 3.84,
-                  elevation: 5,
+                  elevation: 3,
                 }}>
-                <Text style={{color: colors.icons}}>{store.deliveryType}</Text>
+                <Text style={{color: colors.icons}}>{deliveryType}</Text>
 
-                {store.deliveryDiscount && store.deliveryDiscount.activated && (
+                {deliveryDiscount && deliveryDiscount.activated && (
                   <View
                     style={{
                       width: '100%',
@@ -231,10 +247,48 @@ class StoreCard extends Component {
                   },
                   shadowOpacity: 0.34,
                   shadowRadius: 6.27,
-                  elevation: 10,
+                  elevation: 3,
                 }}>
-                <Text style={{color: colors.icons}}>{store.storeCategory}</Text>
+                <Text style={{color: colors.icons}}>{storeCategory}</Text>
               </View>
+
+              {vacationMode && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 150,
+                    backgroundColor: 'rgba(0,0,0,0.4)',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    elevation: 4,
+                  }}>
+                  <Text
+                    style={{
+                      color: colors.icons,
+                      fontFamily: 'ProductSans-Bold',
+                      fontSize: 16,
+                    }}>
+                    Currently Unavailable
+                  </Text>
+
+                  <Text
+                    style={{
+                      color: colors.icons,
+                      fontFamily: 'ProductSans-Bold',
+                      fontSize: 16,
+                      backgroundColor: colors.primary,
+                      paddingHorizontal: 5,
+                      paddingVertical: 2,
+                      borderRadius: 10,
+                      elevation: 5,
+                    }}>
+                    Opens on Friday, 7:00 AM
+                  </Text>
+                </View>
+              )}
             </View>
 
             <CardItem
@@ -279,10 +333,10 @@ class StoreCard extends Component {
                         flex: 1,
                       },
                     ]}>
-                    {store.storeName}
+                    {storeName}
                   </Text>
 
-                  {store.ratingAverage && (
+                  {ratingAverage && (
                     <View
                       style={{
                         flexDirection: 'row',
@@ -290,7 +344,7 @@ class StoreCard extends Component {
                         alignItems: 'center',
                       }}>
                       <Text style={{color: colors.text_primary}}>
-                        {store.ratingAverage.toFixed(1)}
+                        {ratingAverage.toFixed(1)}
                       </Text>
 
                       <FastImage
@@ -318,7 +372,7 @@ class StoreCard extends Component {
                       minHeight: 28,
                     },
                   ]}>
-                  {store.storeDescription}
+                  {storeDescription}
                 </Text>
 
                 <View
@@ -337,10 +391,10 @@ class StoreCard extends Component {
                   </View>
 
                   <Text style={{color: colors.text_secondary, fontSize: 12}}>
-                    {store.distance
-                      ? store.distance > 1000
-                        ? `${(store.distance / 1000).toFixed(2)} km`
-                        : `${store.distance} meters`
+                    {distance
+                      ? distance > 1000
+                        ? `${(distance / 1000).toFixed(2)} km`
+                        : `${distance} meters`
                       : ''}
                   </Text>
                 </View>
