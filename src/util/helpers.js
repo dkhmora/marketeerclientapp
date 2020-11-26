@@ -1,13 +1,41 @@
 import moment from 'moment';
 
 const getNextStoreOperationDate = (storeHours) => {
-  const nextDay = moment().add(1, 'day').format('dddd');
-  const nextDayDetails = storeHours?.[nextDay];
+  const now = moment();
+  const currentDayIndex = Number(now.format('e'));
+  let nextStoreOperationDate = null;
+  let closestDayIndex = 0;
 
-  if (nextDayDetails !== undefined) {
-    return `${nextDay}, ${nextDayDetails.start}`;
+  if (storeHours) {
+    Object.entries(storeHours).map(([day, dayDetails], index) => {
+      let dayIndex = Number(moment(day, 'dddd').format('e'));
+
+      if (dayIndex < currentDayIndex) {
+        dayIndex += currentDayIndex;
+      }
+
+      if (
+        dayIndex !== currentDayIndex &&
+        Math.abs(dayIndex - currentDayIndex) <
+          Math.abs(closestDayIndex - currentDayIndex)
+      ) {
+        closestDayIndex = dayIndex;
+
+        if (
+          dayDetails !== undefined &&
+          dayDetails?.closed !== true &&
+          !nextStoreOperationDate
+        ) {
+          nextStoreOperationDate = `${day}, ${moment(
+            dayDetails.start,
+            'HH:mm',
+          ).format('hh:mm A')}`;
+        }
+      }
+    });
+
+    return nextStoreOperationDate;
   }
-  return storeHours?.[nextDay];
 };
 
 const getStoreAvailability = (storeHours, vacationMode) => {
@@ -26,11 +54,19 @@ const getStoreAvailability = (storeHours, vacationMode) => {
     }
 
     if (typeof currentStoreHours?.start === 'string') {
-      if (moment(currentStoreHours.start, 'HH:mm').isBefore(currentTime)) {
+      if (
+        moment(currentStoreHours.start, 'HH:mm').isAfter(
+          moment(currentTime, 'HH:mm'),
+        )
+      ) {
         return false;
       }
 
-      if (moment(currentStoreHours.end, 'HH:mm').isAfter(currentTime)) {
+      if (
+        moment(currentStoreHours.end, 'HH:mm').isBefore(
+          moment(currentTime, 'HH:mm'),
+        )
+      ) {
         return false;
       }
     }
