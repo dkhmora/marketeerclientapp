@@ -19,13 +19,13 @@ const getNextStoreOperationDate = (storeHours) => {
         Math.abs(dayIndex - currentDayIndex) <
           Math.abs(closestDayIndex - currentDayIndex)
       ) {
-        closestDayIndex = dayIndex;
-
         if (
           dayDetails !== undefined &&
           dayDetails?.closed !== true &&
           !nextStoreOperationDate
         ) {
+          closestDayIndex = dayIndex;
+
           nextStoreOperationDate = `${day}, ${moment(
             dayDetails.start,
             'HH:mm',
