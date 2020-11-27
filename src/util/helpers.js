@@ -48,7 +48,11 @@ const getStoreAvailability = (storeHours, vacationMode) => {
     return false;
   }
 
-  if (currentStoreHours !== undefined) {
+  if (storeHours !== undefined) {
+    if (currentStoreHours === undefined) {
+      return false;
+    }
+
     if (
       currentStoreHours?.closed === true ||
       moment(currentStoreHours?.start, 'HH:mm').isAfter(

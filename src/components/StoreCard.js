@@ -139,7 +139,7 @@ class StoreCard extends Component {
             activeOpacity={storeAvailable ? 0.9 : 1}
             style={{backgroundColor: colors.icons}}
             onPress={() =>
-              !getStoreAvailability() &&
+              storeAvailable &&
               navigation.navigate('Store', {
                 store,
                 displayImageUrl,
