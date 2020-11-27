@@ -15,15 +15,10 @@ const getNextStoreOperationDate = (storeHours) => {
       }
 
       if (
-        dayIndex !== currentDayIndex &&
         Math.abs(dayIndex - currentDayIndex) <
-          Math.abs(closestDayIndex - currentDayIndex)
+        Math.abs(closestDayIndex - currentDayIndex)
       ) {
-        if (
-          dayDetails !== undefined &&
-          dayDetails?.closed !== true &&
-          !nextStoreOperationDate
-        ) {
+        if (dayDetails !== undefined && dayDetails?.closed !== true) {
           closestDayIndex = dayIndex;
 
           nextStoreOperationDate = `${day}, ${moment(
