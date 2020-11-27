@@ -152,6 +152,7 @@ class StoreList extends Component {
           justifyContent: 'center',
         }}>
         <FlatList
+          contentInsetAdjustmentBehavior="automatic"
           ref={(flatList) => (this.flatList = flatList)}
           style={{paddingHorizontal: 5}}
           contentContainerStyle={{flexGrow: 1}}

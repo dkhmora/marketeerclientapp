@@ -296,6 +296,8 @@ class StoreCard extends Component {
                         paddingVertical: 2,
                         borderRadius: 10,
                         elevation: 5,
+                        zIndex: 10,
+                        overflow: 'hidden',
                       }}>
                       {vacationMode || !nextStoreOperationDateText
                         ? 'Currently Unavailable'

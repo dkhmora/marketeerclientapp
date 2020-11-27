@@ -769,9 +769,9 @@ PODS:
     - React
   - RNVectorIcons (6.7.0):
     - React
-  - SDWebImage (5.9.5):
-    - SDWebImage/Core (= 5.9.5)
-  - SDWebImage/Core (5.9.5)
+  - SDWebImage (5.10.0):
+    - SDWebImage/Core (= 5.10.0)
+  - SDWebImage/Core (5.10.0)
   - SDWebImageWebPCoder (0.6.1):
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.7)
@@ -1121,13 +1121,13 @@ SPEC CHECKSUMS:
   RNReanimated: c2bb7438b57a3d987bb2e4e6e4bca94787e30b02
   RNScreens: c526239bbe0e957b988dacc8d75ac94ec9cb19da
   RNVectorIcons: 368d6d8b8301224e5ffb6254191f4f8876c2be0d
-  SDWebImage: 0b2ba0d56479bf6a45ecddbfd5558bea93150d25
+  SDWebImage: 9169792e9eec3e45bba2a0c02f74bf8bd922d1ee
   SDWebImageWebPCoder: d0dac55073088d24b2ac1b191a71a8f8d0adac21
   TOCropViewController: da59f531f8ac8a94ef6d6c0fc34009350f9e8bfe
   toolbar-android: 404f4450b203597e7b417f714ff417bed562a1be
   Yoga: 7d13633d129fd179e01b8953d38d47be90db185a
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 2976d972c87f9f454340a1c04c829200fca07088
+PODFILE CHECKSUM: fac9bb5bcdc2affd43acfc8a89e4ca8fe18f3311
 
 COCOAPODS: 1.9.2
