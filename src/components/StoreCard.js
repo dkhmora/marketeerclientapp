@@ -112,6 +112,7 @@ class StoreCard extends Component {
     const {coverImageReady, displayImageReady} = this.state;
     const displayImageUrl = `${CDN_BASE_URL}${displayImage}`;
     const coverImageUrl = `${CDN_BASE_URL}${coverImage}`;
+    const nextStoreOperationDateText = getNextStoreOperationDate(storeHours);
 
     return (
       <View
@@ -296,9 +297,9 @@ class StoreCard extends Component {
                         borderRadius: 10,
                         elevation: 5,
                       }}>
-                      {vacationMode
+                      {vacationMode || !nextStoreOperationDateText
                         ? 'Currently Unavailable'
-                        : `Opens on ${getNextStoreOperationDate(storeHours)}`}
+                        : `Opens on ${nextStoreOperationDateText}`}
                     </Text>
                   </View>
                 </View>
