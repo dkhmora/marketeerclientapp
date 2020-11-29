@@ -359,6 +359,14 @@ class MainDrawer extends Component {
               />
 
               <ListItem
+                title="Vouchers"
+                leftIcon={
+                  <Icon name="clipboard" color={colors.primary} size={18} />
+                }
+                onPress={() => navigation.navigate('Vouchers')}
+              />
+
+              <ListItem
                 title="Account"
                 leftIcon={<Icon name="user" color={colors.primary} size={18} />}
                 onPress={() => navigation.navigate('Account')}

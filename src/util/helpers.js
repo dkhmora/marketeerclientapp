@@ -16,12 +16,12 @@ const getNextStoreOperationDate = (storeHours) => {
         if (!nextStoreOperationDate && currentStoreHours?.closed !== true) {
           if (currentDay === day) {
             if (
-              !(moment(currentTime, 'HH:mm').isBefore(
-                moment(currentStoreHours?.start, 'HH:mm'),
-              ),
               moment(currentTime, 'HH:mm').isAfter(
+                moment(currentStoreHours?.start, 'HH:mm'),
+              ) &&
+              moment(currentTime, 'HH:mm').isBefore(
                 moment(currentStoreHours?.end, 'HH:mm'),
-              ))
+              )
             ) {
               nextStoreOperationDate = `${day}, ${moment(
                 currentStoreHours.start,

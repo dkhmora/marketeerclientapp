@@ -13,6 +13,7 @@ import CategoryStoresScreen from '../screens/CategoryStoresScreen';
 import AccountScreen from '../screens/AccountScreen';
 import PhoneVerificationScreen from '../screens/PhoneVerificationScreen';
 import FoodItemDetailsScreen from '../screens/FoodItemDetailsScreen';
+import VouchersScreen from '../screens/VouchersScreen';
 
 class MainStack extends Component {
   constructor(props) {
@@ -46,6 +47,7 @@ class MainStack extends Component {
           name="Food Item Details"
           component={FoodItemDetailsScreen}
         />
+        <StackMain.Screen name="Vouchers" component={VouchersScreen} />
       </StackMain.Navigator>
     );
   }
