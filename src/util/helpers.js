@@ -2,29 +2,38 @@ import moment from 'moment';
 
 const getNextStoreOperationDate = (storeHours) => {
   const now = moment();
-  const currentDayIndex = Number(now.format('e'));
+  const currentTime = now.format('HH:mm');
+  const currentDay = now.format('dddd');
+  const currentDayIndex = Number(moment(currentDay, 'dddd').format('e'));
   let nextStoreOperationDate = null;
-  let closestDayIndex = 0;
 
   if (storeHours) {
-    Object.entries(storeHours).map(([day, dayDetails], index) => {
-      let dayIndex = Number(moment(day, 'dddd').format('e'));
+    [...Array(7 + currentDayIndex).keys()].map((i) => {
+      if (i >= currentDayIndex) {
+        const day = moment(i, 'e').format('dddd');
+        const currentStoreHours = storeHours?.[day];
 
-      if (dayIndex < currentDayIndex) {
-        dayIndex += currentDayIndex;
-      }
-
-      if (
-        Math.abs(dayIndex - currentDayIndex) <
-        Math.abs(closestDayIndex - currentDayIndex)
-      ) {
-        if (dayDetails !== undefined && dayDetails?.closed !== true) {
-          closestDayIndex = dayIndex;
-
-          nextStoreOperationDate = `${day}, ${moment(
-            dayDetails.start,
-            'HH:mm',
-          ).format('hh:mm A')}`;
+        if (!nextStoreOperationDate && currentStoreHours?.closed !== true) {
+          if (currentDay === day) {
+            if (
+              !(moment(currentTime, 'HH:mm').isBefore(
+                moment(currentStoreHours?.start, 'HH:mm'),
+              ),
+              moment(currentTime, 'HH:mm').isAfter(
+                moment(currentStoreHours?.end, 'HH:mm'),
+              ))
+            ) {
+              nextStoreOperationDate = `${day}, ${moment(
+                currentStoreHours.start,
+                'HH:mm',
+              ).format('H:mm A')}`;
+            }
+          } else {
+            nextStoreOperationDate = `${day}, ${moment(
+              currentStoreHours.start,
+              'HH:mm',
+            ).format('H:mm A')}`;
+          }
         }
       }
     });
