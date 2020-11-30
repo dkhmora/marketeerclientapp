@@ -360,9 +360,7 @@ class MainDrawer extends Component {
 
               <ListItem
                 title="Vouchers"
-                leftIcon={
-                  <Icon name="clipboard" color={colors.primary} size={18} />
-                }
+                leftIcon={<Icon name="tag" color={colors.primary} size={18} />}
                 onPress={() => navigation.navigate('Vouchers')}
               />
 
@@ -371,16 +369,6 @@ class MainDrawer extends Component {
                 leftIcon={<Icon name="user" color={colors.primary} size={18} />}
                 onPress={() => navigation.navigate('Account')}
               />
-
-              {/*
-                FOR UI TEST
-                
-                <ListItem
-                title="Food Item Details"
-                leftIcon={<Icon name="user" color={colors.primary} size={18} />}
-                onPress={() => navigation.navigate('Food Item Details')}
-              />
-              */}
             </View>
           )}
 

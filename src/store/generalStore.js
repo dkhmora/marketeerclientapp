@@ -35,6 +35,7 @@ class generalStore {
   @observable navigation = null;
   @observable storeCategories = [];
   @observable availablePaymentMethods = {};
+  @observable appwideVouchers = {};
   @observable getCourierInterval = null;
   @observable additionalPaymentMethods = {
     COD: {
@@ -60,22 +61,35 @@ class generalStore {
       .get()
       .then(async (document) => {
         if (document.exists) {
-          const data = document.data();
-          this.storeCategories = data.storeCategories.sort(
-            (a, b) => a.name > b.name,
-          );
-          let sortedAvailablePaymentMethods = {};
+          const {
+            availablePaymentMethods,
+            storeCategories,
+            vouchers,
+          } = document.data();
+          if (storeCategories) {
+            this.storeCategories = storeCategories.sort(
+              (a, b) => a.name > b.name,
+            );
+          }
 
-          await Object.entries(data.availablePaymentMethods)
-            .sort((a, b) => a[1].longName > b[1].longName)
-            .map(([key, value], index) => {
-              sortedAvailablePaymentMethods[key] = value;
-            });
+          if (availablePaymentMethods) {
+            let sortedAvailablePaymentMethods = {};
 
-          this.availablePaymentMethods = {
-            ...this.additionalPaymentMethods,
-            ...sortedAvailablePaymentMethods,
-          };
+            await Object.entries(availablePaymentMethods)
+              .sort((a, b) => a[1].longName > b[1].longName)
+              .map(([key, value], index) => {
+                sortedAvailablePaymentMethods[key] = value;
+              });
+
+            this.availablePaymentMethods = {
+              ...this.additionalPaymentMethods,
+              ...sortedAvailablePaymentMethods,
+            };
+          }
+
+          if (vouchers) {
+            this.appwideVouchers = vouchers;
+          }
         }
       })
       .catch((err) => {
