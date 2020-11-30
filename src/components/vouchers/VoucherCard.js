@@ -12,7 +12,9 @@ export default class VoucherCard extends Component {
 
   render() {
     const {
-      props: {voucher},
+      props: {
+        voucher: {title, description, maxUses, voucherId, validUsers},
+      },
     } = this;
     return (
       <Card
@@ -33,21 +35,53 @@ export default class VoucherCard extends Component {
             paddingVertical: 5,
             alignItems: 'flex-start',
           }}>
-          <Text style={{fontFamily: 'ProductSans-Bold', fontSize: 18}}>
-            {voucher.title}
+          <Text
+            style={{
+              fontFamily: 'ProductSans-Bold',
+              fontSize: 18,
+              marginBottom: 5,
+            }}>
+            {title}
           </Text>
-          <Text>{voucher.description}</Text>
-          <Text>Use for up to {voucher.maxUses} uses</Text>
 
-          <Button
-            title="Use Voucher"
-            type="clear"
-            containerStyle={{
-              alignSelf: 'flex-end',
-              borderRadius: 30,
-              overflow: 'hidden',
-            }}
-          />
+          <Text>{description}</Text>
+
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              alignItems: 'flex-end',
+              justifyContent: 'space-between',
+              marginTop: 10,
+            }}>
+            <View>
+              <Text style={{color: colors.text_secondary}}>
+                *Valid for up to {maxUses} uses
+              </Text>
+
+              {validUsers && validUsers.includes('first_purchase_users') && (
+                <Text style={{color: colors.text_secondary}}>
+                  *Valid for new users
+                </Text>
+              )}
+
+              {validUsers && validUsers.includes('all_users') && (
+                <Text style={{color: colors.text_secondary}}>
+                  *Valid for all users
+                </Text>
+              )}
+            </View>
+
+            <Button
+              title="Claim Voucher"
+              type="clear"
+              containerStyle={{
+                alignSelf: 'flex-end',
+                borderRadius: 30,
+                overflow: 'hidden',
+              }}
+            />
+          </View>
         </View>
       </Card>
     );
