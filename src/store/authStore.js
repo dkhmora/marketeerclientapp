@@ -337,7 +337,9 @@ class authStore {
                   });
                 }
 
-                crashlytics().log(`${userCred.user.email} signed in.`);
+                crashlytics().log(
+                  `${userCred.user.email} signed in using phone number.`,
+                );
 
                 return await Promise.all([
                   crashlytics().setUserId(userCred.user.uid),
@@ -369,15 +371,32 @@ class authStore {
     } else {
       return await auth()
         .signInWithEmailAndPassword(userCredential, password)
-        .then((user) => {
+        .then(async (userCred) => {
           this.userAuthenticated = true;
 
           this.subscribeToNotifications();
 
           Toast({
-            text: `Welcome back to Marketeer, ${user.user.displayName}!`,
+            text: `Welcome back to Marketeer, ${userCred.user.displayName}!`,
             duration: 3500,
           });
+
+          const claims = (await userCred.user.getIdTokenResult(true)).claims;
+          const role = claims ? claims.role : null;
+          let storeIds = null;
+
+          crashlytics().log(`${userCred.user.email} signed in using email.`);
+
+          await Promise.all([
+            crashlytics().setUserId(userCred.user.uid),
+            crashlytics().setAttributes({
+              name: userCred.user.displayName,
+              phoneNumber: userCred.user.phoneNumber,
+              email: userCred.user.email,
+              role,
+              storeIds,
+            }),
+          ]);
 
           return {data: {s: 200}};
         })
