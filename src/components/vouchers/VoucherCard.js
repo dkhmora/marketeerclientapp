@@ -44,7 +44,9 @@ export default class VoucherCard extends Component {
             {title}
           </Text>
 
-          <Text>{description}</Text>
+          {description && description.length > 0 ? (
+            <Text>{description}</Text>
+          ) : null}
 
           <View
             style={{
