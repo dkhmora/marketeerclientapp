@@ -94,7 +94,9 @@ class App extends React.Component {
               generalStore.unsubscribeUserDetails();
             }
 
-            generalStore.setCurrentLocation();
+            if (!this.currentLocation) {
+              generalStore.setCurrentLocation();
+            }
           }
 
           AppState.addEventListener('change', (state) => {

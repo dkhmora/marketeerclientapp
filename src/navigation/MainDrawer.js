@@ -209,6 +209,7 @@ class MainDrawer extends Component {
         .then(() => {
           this.props.generalStore.orders = [];
           this.props.generalStore.maxOrderUpdatedAt = 0;
+          this.props.generalStore.userDetails = {};
           this.props.shopStore.resetData();
           this.props.authStore.checkAuthStatus();
         })
