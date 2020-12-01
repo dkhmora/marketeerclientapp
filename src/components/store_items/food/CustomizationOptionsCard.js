@@ -1,6 +1,7 @@
+import {Card} from 'native-base';
 import React, {Component} from 'react';
 import {View} from 'react-native';
-import {Card, CheckBox, Icon, Text} from 'react-native-elements';
+import {CheckBox, Icon, Text} from 'react-native-elements';
 import {colors} from '../../../../assets/colors';
 
 class CustomizationOptionsCard extends Component {
@@ -111,9 +112,9 @@ class CustomizationOptionsCard extends Component {
 
     return (
       <Card
-        containerStyle={{
-          paddingBottom: 10,
-          paddingTop: 10,
+        style={{
+          paddingVertical: 10,
+          paddingHorizontal: 10,
           marginLeft: 0,
           marginRight: 0,
           borderRadius: 10,
