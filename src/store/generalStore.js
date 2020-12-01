@@ -126,10 +126,15 @@ class generalStore {
         return await messaging()
           .getToken()
           .then((token) => {
-            firestore()
-              .collection('users')
-              .doc(userId)
-              .update('fcmTokens', firestore.FieldValue.arrayUnion(token));
+            if (
+              this.userDetails?.fcmTokens === undefined ||
+              !this.userDetails.fcmTokens.includes(token)
+            ) {
+              firestore()
+                .collection('users')
+                .doc(userId)
+                .update('fcmTokens', firestore.FieldValue.arrayUnion(token));
+            }
           })
           .catch((err) => {
             crashlytics().recordError(err);
@@ -354,13 +359,7 @@ class generalStore {
             if (documentSnapshot.exists) {
               this.userDetails = documentSnapshot.data();
 
-              if (
-                !documentSnapshot
-                  .data()
-                  .fcmTokens.includes(await messaging().getToken())
-              ) {
-                this.subscribeToNotifications();
-              }
+              this.subscribeToNotifications();
 
               if (this.firstLoad) {
                 this.firstLoad = false;
