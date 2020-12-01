@@ -1,11 +1,10 @@
 import React, {PureComponent} from 'react';
 import {Card, CardItem, Text, View} from 'native-base';
-import {Button, Icon} from 'react-native-elements';
+import {Icon} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
 import {computed} from 'mobx';
 import * as Animatable from 'react-native-animatable';
 import {colors} from '../../../../assets/colors';
-import {styles} from '../../../../assets/styles';
 import FastImage from 'react-native-fast-image';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import ItemDescriptionModal from '../../ItemDescriptionModal';
@@ -20,17 +19,8 @@ class ItemCard extends PureComponent {
   constructor(props) {
     super(props);
 
-    const {item, storeId} = this.props;
-    const itemQuantity = this.props.shopStore.getCartItemQuantity(
-      item,
-      storeId,
-    );
-    const itemStock = item.stock;
-
     this.state = {
       ready: false,
-      addDisabled: itemQuantity >= itemStock ? true : false,
-      minusButtonShown: itemQuantity > 0 ? true : false,
       writeTimer: null,
       overlay: false,
     };
@@ -68,36 +58,6 @@ class ItemCard extends PureComponent {
     }
 
     return 0;
-  }
-
-  componentDidUpdate() {
-    if (this.state.minusButtonShown && this.cartItemQuantity <= 0) {
-      this.hideMinusButton();
-    }
-
-    if (this.cartItemQuantity > 0 && !this.state.minusButtonShown) {
-      this.showMinusButton();
-    }
-  }
-
-  showMinusButton() {
-    this.setState({minusButtonShown: true}, () => {
-      this.itemQuantityControlButtonsRef?.buttonCounterView?.fadeInRight(200) &&
-        this.itemQuantityControlButtonsRef?.plusButton?.transformPlusButton(
-          300,
-        );
-    });
-  }
-
-  hideMinusButton() {
-    this.setState({minusButtonShown: false}, () => {
-      this.itemQuantityControlButtonsRef?.buttonCounterView?.fadeOutRight(
-        200,
-      ) &&
-        this.itemQuantityControlButtonsRef?.plusButton?.deTransformPlusButton(
-          300,
-        );
-    });
   }
 
   handleIncreaseQuantity() {
@@ -260,13 +220,7 @@ class ItemCard extends PureComponent {
                     flex: 1,
                     opacity: ready ? 1 : 0,
                   }}
-                  onLoad={() =>
-                    this.setState({ready: true}, () => {
-                      if (this.cartItemQuantity >= 1) {
-                        this.showMinusButton();
-                      }
-                    })
-                  }
+                  onLoad={() => this.setState({ready: true})}
                   resizeMode={FastImage.resizeMode.contain}
                 />
 
@@ -339,26 +293,21 @@ class ItemCard extends PureComponent {
               </View>
             </CardItem>
 
-            <View
-              style={{
+            <ItemQuantityControlButtons
+              containerStyle={{
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'center',
                 position: 'absolute',
                 bottom: 10,
                 right: 10,
-              }}>
-              <ItemQuantityControlButtons
-                ref={(itemQuantityControlButtonsRef) =>
-                  (this.itemQuantityControlButtonsRef = itemQuantityControlButtonsRef)
-                }
-                addDisabled={addDisabled}
-                onIncreaseQuantity={() => this.handleIncreaseQuantity()}
-                onDecreaseQuantity={() => this.handleDecreaseQuantity()}
-                itemQuantity={this.cartItemQuantity}
-                itemStock={stock}
-              />
-            </View>
+              }}
+              addDisabled={addDisabled}
+              onIncreaseQuantity={() => this.handleIncreaseQuantity()}
+              onDecreaseQuantity={() => this.handleDecreaseQuantity()}
+              itemQuantity={this.cartItemQuantity}
+              itemStock={stock}
+            />
           </Card>
         </View>
       </Animatable.View>

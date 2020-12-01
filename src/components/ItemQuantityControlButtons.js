@@ -3,36 +3,84 @@ import {Text, View} from 'native-base';
 import {Button, Icon} from 'react-native-elements';
 import * as Animatable from 'react-native-animatable';
 import {colors} from '../../assets/colors';
-import {styles} from '../../assets/styles';
 
 class ItemQuantityControlButtons extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {};
+
+    this.state = {
+      addDisabled: false,
+      minusButtonShown: false,
+    };
+  }
+
+  componentDidUpdate(prevProps) {
+    const {
+      props: {itemQuantity},
+    } = this;
+
+    if (prevProps.itemQuantity !== itemQuantity) {
+      this.updateButtons();
+    }
   }
 
   componentDidMount() {
-    if (this.props.alwaysShowMinusButton) {
+    this.updateButtons();
+  }
+
+  updateButtons() {
+    const {
+      props: {alwaysShowMinusButton, itemQuantity, itemStock},
+      state: {minusButtonShown},
+    } = this;
+
+    this.setState({addDisabled: itemStock ? itemQuantity >= itemStock : false});
+
+    if (!alwaysShowMinusButton) {
+      if (minusButtonShown && itemQuantity <= 0) {
+        this.hideMinusButton();
+      }
+
+      if (itemQuantity > 0 && !minusButtonShown) {
+        this.showMinusButton();
+      }
+    } else {
+      if (!minusButtonShown) {
+        this.showMinusButton();
+      }
+    }
+  }
+
+  showMinusButton() {
+    this.setState({minusButtonShown: true}, () => {
       this.buttonCounterView?.fadeInRight(200) &&
         this.plusButton?.transformPlusButton(300);
-    }
+    });
+  }
+
+  hideMinusButton() {
+    this.setState({minusButtonShown: false}, () => {
+      this.buttonCounterView?.fadeOutRight(200) &&
+        this.plusButton?.deTransformPlusButton(300);
+    });
   }
 
   render() {
     const {
-      addDisabled,
-      minusDisabled,
-      onIncreaseQuantity,
-      onDecreaseQuantity,
-      itemQuantity,
-      itemStock,
-      iconSize,
-      persistMinusIcon,
-      addButtonContainerStyle,
-      minusButtonContainerStyle,
-      quantityContainerStyle,
-      containerStyle,
-    } = this.props;
+      props: {
+        onIncreaseQuantity,
+        onDecreaseQuantity,
+        itemQuantity,
+        itemStock,
+        iconSize,
+        persistMinusIcon,
+        addButtonContainerStyle,
+        minusButtonContainerStyle,
+        quantityContainerStyle,
+        containerStyle,
+      },
+      state: {addDisabled, minusDisabled},
+    } = this;
 
     return (
       <View
@@ -41,7 +89,6 @@ class ItemQuantityControlButtons extends PureComponent {
           borderRadius: 100,
           backgroundColor: persistMinusIcon ? colors.icons : 'transparent',
           elevation: persistMinusIcon ? 3 : 0,
-          overflow: 'hidden',
           ...containerStyle,
         }}>
         <Animatable.View

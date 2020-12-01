@@ -17,15 +17,6 @@ class CartListItem extends PureComponent {
     super(props);
   }
 
-  @computed get addButtonDisabled() {
-    const {item, itemSnapshot} = this.props;
-
-    if (itemSnapshot) {
-      return item.quantity >= itemSnapshot.stock;
-    }
-    return false;
-  }
-
   handleIncreaseQuantity() {
     const {item, storeId} = this.props;
 
@@ -175,10 +166,6 @@ class CartListItem extends PureComponent {
                 )}
 
                 <ItemQuantityControlButtons
-                  ref={(itemQuantityControlButtonsRef) =>
-                    (this.itemQuantityControlButtonsRef = itemQuantityControlButtonsRef)
-                  }
-                  addDisabled={this.addButtonDisabled}
                   onIncreaseQuantity={() => this.handleIncreaseQuantity()}
                   onDecreaseQuantity={() => this.handleDecreaseQuantity()}
                   itemQuantity={item.quantity}
