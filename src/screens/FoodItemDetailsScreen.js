@@ -426,9 +426,6 @@ class FoodItemDetailsScreen extends Component {
               justifyContent: 'center',
             }}>
             <ItemQuantityControlButtons
-              ref={(itemQuantityControlButtonsRef) =>
-                (this.itemQuantityControlButtonsRef = itemQuantityControlButtonsRef)
-              }
               alwaysShowMinusButton
               persistMinusIcon
               onIncreaseQuantity={() =>

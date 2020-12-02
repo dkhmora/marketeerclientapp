@@ -78,8 +78,9 @@ class ItemQuantityControlButtons extends PureComponent {
         minusButtonContainerStyle,
         quantityContainerStyle,
         containerStyle,
+        minusDisabled,
       },
-      state: {addDisabled, minusDisabled},
+      state: {addDisabled},
     } = this;
 
     return (
