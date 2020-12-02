@@ -53,15 +53,15 @@ class ItemQuantityControlButtons extends PureComponent {
 
   showMinusButton() {
     this.setState({minusButtonShown: true}, () => {
-      this.buttonCounterView?.fadeInRight(200) &&
-        this.plusButton?.transformPlusButton(300);
+      this.buttonCounterView?.fadeInRight(150) &&
+        this.plusButton?.transformPlusButton(200);
     });
   }
 
   hideMinusButton() {
     this.setState({minusButtonShown: false}, () => {
-      this.buttonCounterView?.fadeOutRight(200) &&
-        this.plusButton?.deTransformPlusButton(300);
+      this.buttonCounterView?.fadeOutRight(150) &&
+        this.plusButton?.deTransformPlusButton(200);
     });
   }
 
@@ -86,33 +86,27 @@ class ItemQuantityControlButtons extends PureComponent {
       <View
         style={{
           flexDirection: 'row',
-          borderRadius: 100,
-          backgroundColor: persistMinusIcon ? colors.icons : 'transparent',
-          elevation: persistMinusIcon ? 3 : 0,
           ...containerStyle,
         }}>
-        <Animatable.View
-          ref={(buttonCounterView) =>
-            (this.buttonCounterView = buttonCounterView)
-          }
-          useNativeDriver
+        <View
           style={{
-            flexDirection: 'row',
-            opacity: 0,
-            backgroundColor: colors.icons,
-            borderTopLeftRadius: 24,
-            borderBottomLeftRadius: 24,
-            shadowColor: '#000',
-            shadowOffset: {
-              width: 0,
-              height: 2,
-            },
-            shadowOpacity: 0.25,
-            shadowRadius: 1.84,
+            overflow: 'hidden',
+            borderTopLeftRadius: 100,
+            borderBottomLeftRadius: 100,
+            marginLeft: -5,
             elevation: 3,
           }}>
-          <View
+          <Animatable.View
+            ref={(buttonCounterView) =>
+              (this.buttonCounterView = buttonCounterView)
+            }
+            useNativeDriver
             style={{
+              flexDirection: 'row',
+              opacity: 0,
+              backgroundColor: colors.icons,
+              borderTopLeftRadius: 24,
+              borderBottomLeftRadius: 24,
               shadowColor: '#000',
               shadowOffset: {
                 width: 0,
@@ -120,66 +114,79 @@ class ItemQuantityControlButtons extends PureComponent {
               },
               shadowOpacity: 0.25,
               shadowRadius: 1.84,
-              paddingRight: 4,
             }}>
-            <Button
-              onPress={onDecreaseQuantity}
-              disabled={minusDisabled}
-              type="clear"
-              color={colors.icons}
-              icon={
-                <Icon
-                  name={
-                    !persistMinusIcon && itemQuantity === 1
-                      ? 'trash-2'
-                      : 'minus'
-                  }
-                  size={iconSize}
-                  color={minusDisabled ? colors.text_secondary : colors.primary}
-                />
-              }
-              containerStyle={[
-                {
-                  backgroundColor: colors.icons,
-                  height: 40,
-                  borderRadius: 24,
-                  elevation: 3,
-                  shadowColor: '#000',
-                  shadowOffset: {
-                    width: 0,
-                    height: 1,
-                  },
-                  shadowOpacity: 0.22,
-                  shadowRadius: 2.22,
-                },
-                minusButtonContainerStyle,
-              ]}
-            />
-          </View>
-
-          <View
-            style={{
-              backgroundColor: colors.icons,
-              height: 40,
-              width: 40,
-              justifyContent: 'center',
-              alignItems: 'center',
-              ...quantityContainerStyle,
-            }}>
-            <Text
+            <View
               style={{
-                textAlign: 'center',
-                fontFamily: 'ProductSans-Black',
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.25,
+                shadowRadius: 1.84,
                 paddingRight: 4,
-                color:
-                  itemStock && itemQuantity > itemStock
-                    ? '#F44336'
-                    : colors.text_primary,
               }}>
-              {itemQuantity}
-            </Text>
-          </View>
-        </Animatable.View>
+              <Button
+                onPress={onDecreaseQuantity}
+                disabled={minusDisabled}
+                type="clear"
+                color={colors.icons}
+                icon={
+                  <Icon
+                    name={
+                      !persistMinusIcon && itemQuantity === 1
+                        ? 'trash-2'
+                        : 'minus'
+                    }
+                    size={iconSize}
+                    color={
+                      minusDisabled ? colors.text_secondary : colors.primary
+                    }
+                  />
+                }
+                containerStyle={[
+                  {
+                    backgroundColor: colors.icons,
+                    height: 40,
+                    borderRadius: 24,
+                    elevation: 3,
+                    shadowColor: '#000',
+                    shadowOffset: {
+                      width: 0,
+                      height: 1,
+                    },
+                    shadowOpacity: 0.22,
+                    shadowRadius: 2.22,
+                  },
+                  minusButtonContainerStyle,
+                ]}
+              />
+            </View>
+
+            <View
+              style={{
+                backgroundColor: colors.icons,
+                height: 40,
+                width: 40,
+                justifyContent: 'center',
+                alignItems: 'center',
+                ...quantityContainerStyle,
+              }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontFamily: 'ProductSans-Black',
+                  paddingRight: 4,
+                  color:
+                    itemStock && itemQuantity > itemStock
+                      ? '#F44336'
+                      : colors.text_primary,
+                }}>
+                {itemQuantity}
+              </Text>
+            </View>
+          </Animatable.View>
+        </View>
 
         <Animatable.View
           ref={(plusButton) => (this.plusButton = plusButton)}
