@@ -359,11 +359,11 @@ class MainDrawer extends Component {
                 onPress={() => navigation.navigate('Orders')}
               />
 
-              <ListItem
+              {/*<ListItem
                 title="Vouchers"
                 leftIcon={<Icon name="tag" color={colors.primary} size={18} />}
                 onPress={() => navigation.navigate('Vouchers')}
-              />
+              />*/}
 
               <ListItem
                 title="Account"
