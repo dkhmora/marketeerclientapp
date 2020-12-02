@@ -9,6 +9,7 @@
     "android:release": "cd android && gradlew clean && cd .. && react-native run-android --variant=release",
     "bundle:release": "cd android && gradlew clean && gradlew bundleRelease",
     "pod": "cd ios && pod install",
+    "ios:podinstall": "cd ios && pod update & pod install",
     "ios": "react-native run-ios --simulator='iPhone 11 Pro Max'",
     "ios:iphone8": "react-native run-ios --simulator='iPhone 8 Plus'",
     "ios:iphonese": "react-native run-ios --simulator='iPhone SE (2nd generation)'",
