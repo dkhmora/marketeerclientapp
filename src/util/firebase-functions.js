@@ -56,4 +56,37 @@ async function cancelOrder(orderId, cancelReason) {
     });
 }
 
-export {getAddressFromCoordinates, addReview, cancelOrder};
+async function placeOrder(orderInfo) {
+  return await functions
+    .httpsCallable('placeOrder')({
+      orderInfo: JSON.stringify(orderInfo),
+    })
+    .catch((err) => {
+      crashlytics().recordError(err);
+      Toast({text: err.message, type: 'danger'});
+    });
+}
+
+async function getUserMrSpeedyDeliveryPriceEstimate(deliveryData) {
+  return await functions
+    .httpsCallable('getUserMrSpeedyDeliveryPriceEstimate')(deliveryData)
+    .then((response) => {
+      if (response.data.s !== 200) {
+        Toast({text: response.data.m, type: 'danger'});
+      }
+
+      return response;
+    })
+    .catch((err) => {
+      crashlytics().recordError(err);
+      Toast({text: err.message, type: 'danger'});
+    });
+}
+
+export {
+  getAddressFromCoordinates,
+  addReview,
+  cancelOrder,
+  placeOrder,
+  getUserMrSpeedyDeliveryPriceEstimate,
+};

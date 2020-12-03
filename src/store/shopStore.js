@@ -2,14 +2,15 @@ import {observable, action, computed} from 'mobx';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
-import '@react-native-firebase/functions';
 import * as geolib from 'geolib';
 import {persist} from 'mobx-persist';
 import Toast from '../components/Toast';
 import crashlytics from '@react-native-firebase/crashlytics';
 import moment from 'moment';
-
-const functions = firebase.app().functions('asia-northeast1');
+import {
+  getUserMrSpeedyDeliveryPriceEstimate,
+  placeOrder,
+} from '../util/firebase-functions';
 
 const userCartCollection = firestore().collection('user_carts');
 const storesCollection = firestore().collection('stores');
@@ -221,21 +222,16 @@ class shopStore {
     deliveryLocation,
     deliveryAddress,
   ) {
-    return await functions
-      .httpsCallable('getUserMrSpeedyDeliveryPriceEstimate')({
-        deliveryLocation,
-        deliveryAddress,
-      })
-      .then((response) => {
-        if (response.data.s === 200) {
-          this.storeMrSpeedyDeliveryFee = response.data.d;
+    return await getUserMrSpeedyDeliveryPriceEstimate({
+      deliveryLocation,
+      deliveryAddress,
+    }).then((response) => {
+      if (response.data.s === 200) {
+        this.storeMrSpeedyDeliveryFee = response.data.d;
+      }
 
-          return;
-        }
-
-        return Toast({text: response.data.m, type: 'danger'});
-      })
-      .catch((err) => Toast({text: err, type: 'danger'}));
+      return;
+    });
   }
 
   @action async getStoreDetailsFromStoreId(storeId) {
@@ -279,48 +275,39 @@ class shopStore {
       });
   }
 
-  @action async placeOrder({
-    deliveryCoordinates,
-    deliveryCoordinatesGeohash,
-    deliveryAddress,
-    userCoordinates,
-    userName,
-  }) {
-    this.cartUpdateTimeout ? clearTimeout(this.cartUpdateTimeout) : null;
-
+  @action async placeOrder(orderData) {
     const {
       storeDeliveryDiscount,
       storeSelectedDeliveryMethod,
       storeSelectedPaymentMethod,
       storeAssignedMerchantId,
       storeUserEmail,
+      cartUpdateTimeout,
+      updateCartItemsInstantly,
+      getCartItems,
     } = this;
 
-    return await this.updateCartItemsInstantly()
+    if (cartUpdateTimeout) {
+      clearTimeout(cartUpdateTimeout);
+    }
+
+    const orderInfo = {
+      ...orderData,
+      storeDeliveryDiscount,
+      storeSelectedDeliveryMethod,
+      storeSelectedPaymentMethod,
+      storeAssignedMerchantId,
+      storeUserEmail,
+    };
+
+    return await updateCartItemsInstantly()
       .then(async () => {
-        return await functions.httpsCallable('placeOrder')({
-          orderInfo: JSON.stringify({
-            deliveryCoordinates,
-            deliveryCoordinatesGeohash,
-            deliveryAddress,
-            userCoordinates,
-            userName,
-            storeUserEmail,
-            storeSelectedDeliveryMethod,
-            storeSelectedPaymentMethod,
-            storeAssignedMerchantId,
-            storeDeliveryDiscount,
-          }),
-        });
+        return await placeOrder(orderInfo);
       })
       .then(async (response) => {
-        this.getCartItems();
+        getCartItems();
 
         return response;
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
       });
   }
 
