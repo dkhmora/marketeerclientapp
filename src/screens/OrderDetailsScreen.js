@@ -16,6 +16,7 @@ import PrimaryActivityIndicator from '../components/PrimaryActivityIndicator';
 import crashlytics from '@react-native-firebase/crashlytics';
 import MapCardItem from '../components/MapCardItem';
 import CardItemHeader from '../components/CardItemHeader';
+import {cancelOrder} from '../util/firebase-functions';
 
 @inject('generalStore')
 @inject('authStore')
@@ -270,37 +271,35 @@ class OrderDetailsScreen extends Component {
     const {userOrderNumber} = selectedOrder;
 
     this.setState({cancelOrderLoading: true}, () => {
-      this.props.generalStore
-        .cancelOrder(
-          this.props.route.params.orderId,
-          this.state.cancelReasonInput,
-        )
-        .then((response) => {
-          this.setState({
-            cancelOrderLoading: false,
-            confirmCancelOrderModal: false,
-            cancelReasonInput: '',
-            cancelReasonCheck: false,
-          });
-
-          this.closeModal();
-
-          if (response.data.s !== 500 && response.data.s !== 400) {
-            Toast({
-              text: `Order # ${userOrderNumber} successfully cancelled!`,
-              type: 'success',
-              duration: 3500,
-            });
-          } else {
-            this.props.navigation.goBack();
-
-            Toast({
-              text: response.data.m,
-              type: 'danger',
-              duration: 3500,
-            });
-          }
+      cancelOrder(
+        this.props.route.params.orderId,
+        this.state.cancelReasonInput,
+      ).then((response) => {
+        this.setState({
+          cancelOrderLoading: false,
+          confirmCancelOrderModal: false,
+          cancelReasonInput: '',
+          cancelReasonCheck: false,
         });
+
+        this.closeModal();
+
+        if (response.data.s !== 500 && response.data.s !== 400) {
+          Toast({
+            text: `Order # ${userOrderNumber} successfully cancelled!`,
+            type: 'success',
+            duration: 3500,
+          });
+        } else {
+          this.props.navigation.goBack();
+
+          Toast({
+            text: response.data.m,
+            type: 'danger',
+            duration: 3500,
+          });
+        }
+      });
     });
   }
 

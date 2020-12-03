@@ -11,7 +11,8 @@ import AddReviewModal from './AddReviewModal';
 import Toast from './Toast';
 import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
-import { CDN_BASE_URL } from '../util/variables';
+import {CDN_BASE_URL} from '../util/variables';
+import {cancelOrder} from '../util/firebase-functions';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -105,17 +106,21 @@ class OrderCard extends PureComponent {
   handleCancelOrder() {
     const {storeId, orderId, userOrderNumber} = this.props.order;
 
-    this.props.generalStore
-      .cancelOrder(storeId, orderId, this.cancelReason)
-      .then(() => {
-        Toast({
+    cancelOrder(storeId, orderId, this.cancelReason).then((response) => {
+      if (response.data.s !== 500 && response.data.s !== 400) {
+        return Toast({
           text: `Order # ${userOrderNumber} successfully cancelled!`,
-          buttonText: 'Okay',
           type: 'success',
           duration: 3500,
-          style: {margin: 20, borderRadius: 16},
         });
+      }
+
+      return Toast({
+        text: response.data.m,
+        type: 'danger',
+        duration: 3500,
       });
+    });
   }
 
   openOptions() {

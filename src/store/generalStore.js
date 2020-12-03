@@ -6,16 +6,14 @@ import 'react-native-get-random-values';
 import {v4 as uuidv4} from 'uuid';
 import Geolocation from 'react-native-geolocation-service';
 import geohash from 'ngeohash';
-import firebase from '@react-native-firebase/app';
 import auth from '@react-native-firebase/auth';
-import '@react-native-firebase/functions';
 import {Platform, PermissionsAndroid} from 'react-native';
 import Toast from '../components/Toast';
 import {persist} from 'mobx-persist';
 import messaging from '@react-native-firebase/messaging';
 import crashlytics from '@react-native-firebase/crashlytics';
+import {getAddressFromCoordinates} from '../util/firebase-functions';
 
-const functions = firebase.app().functions('asia-northeast1');
 class generalStore {
   @observable appReady = false;
   @persist('list') @observable orders = [];
@@ -98,18 +96,6 @@ class generalStore {
       });
   }
 
-  @action async cancelOrder(orderId, cancelReason) {
-    return await functions
-      .httpsCallable('cancelOrder')({orderId, cancelReason})
-      .then((response) => {
-        return response;
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-      });
-  }
-
   @action async subscribeToNotifications() {
     let authorizationStatus = null;
     const userId = auth().currentUser.uid;
@@ -162,48 +148,6 @@ class generalStore {
         });
 
         return data;
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-      });
-  }
-
-  @action async addReview({review}) {
-    return await functions
-      .httpsCallable('addReview')({
-        ...review,
-      })
-      .then((response) => {
-        if (response.data.s === 200) {
-          Toast({text: 'Successfully submitted review'});
-        } else {
-          Toast({
-            text: response.data.m
-              ? response.data.m
-              : 'Error: Something went wrong. Please try again later.',
-            type: 'danger',
-          });
-        }
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-      });
-  }
-
-  @action async getAddressFromCoordinates({latitude, longitude}) {
-    return await functions
-      .httpsCallable('getAddressFromCoordinates')({latitude, longitude})
-      .then((response) => {
-        if (response.data.s !== 200) {
-          Toast({
-            text: response.data.m,
-            type: 'danger',
-          });
-        }
-
-        return response.data.locationDetails;
       })
       .catch((err) => {
         crashlytics().recordError(err);
@@ -291,7 +235,7 @@ class generalStore {
             12,
           );
 
-          this.currentLocationDetails = await this.getAddressFromCoordinates({
+          this.currentLocationDetails = await getAddressFromCoordinates({
             ...coords,
           });
 

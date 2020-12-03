@@ -20,6 +20,7 @@ import RNGooglePlaces from 'react-native-google-places';
 import {computed} from 'mobx';
 import {Card, CardItem} from 'native-base';
 import crashlytics from '@react-native-firebase/crashlytics';
+import {getAddressFromCoordinates} from '../util/firebase-functions';
 
 @inject('authStore')
 @inject('shopStore')
@@ -243,11 +244,9 @@ class SetLocationScreen extends Component {
 
     this.getAddressTimeout = setTimeout(async () => {
       this.setState({
-        selectedLocationAddress: await this.props.generalStore.getAddressFromCoordinates(
-          {
-            ...mapData,
-          },
-        ),
+        selectedLocationAddress: await getAddressFromCoordinates({
+          ...mapData,
+        }),
         saveChangesLoading: false,
       });
     }, 100);
