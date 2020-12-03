@@ -17,6 +17,7 @@ import crashlytics from '@react-native-firebase/crashlytics';
 import MapCardItem from '../components/MapCardItem';
 import CardItemHeader from '../components/CardItemHeader';
 import {cancelOrder} from '../util/firebase-functions';
+import {getOrderPayment, getOrderItems} from '../util/firebase-firestore';
 
 @inject('generalStore')
 @inject('authStore')
@@ -44,7 +45,7 @@ class OrderDetailsScreen extends Component {
 
     this.props.generalStore.getOrder({orderId, readMessages: false});
 
-    this.props.generalStore.getOrderItems(orderId).then((orderItems) => {
+    getOrderItems(orderId).then((orderItems) => {
       this.setState({orderItems, itemsReady: true});
     });
 
@@ -79,11 +80,9 @@ class OrderDetailsScreen extends Component {
           !this.props.generalStore.selectedOrder.orderStatus.cancelled.status &&
           !this.state.paymentProcessing
         ) {
-          await this.props.generalStore
-            .getOrderPayment(orderId)
-            .then((orderPayment) => {
-              this.setState({orderPayment});
-            });
+          await getOrderPayment(orderId).then((orderPayment) => {
+            this.setState({orderPayment});
+          });
         }
       }
 

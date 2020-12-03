@@ -13,6 +13,7 @@ import {persist} from 'mobx-persist';
 import messaging from '@react-native-firebase/messaging';
 import crashlytics from '@react-native-firebase/crashlytics';
 import {getAddressFromCoordinates} from '../util/firebase-functions';
+import { nowMillis } from '../util/variables';
 
 class generalStore {
   @observable appReady = false;
@@ -343,7 +344,7 @@ class generalStore {
         .doc(orderId)
         .update({
           userUnreadCount: 0,
-          updatedAt: firestore.Timestamp.now().toMillis(),
+          updatedAt: nowMillis,
         })
         .catch((err) => {
           crashlytics().recordError(err);
@@ -431,7 +432,7 @@ class generalStore {
       .update({
         messages: firestore.FieldValue.arrayUnion(message),
         storeUnreadCount: firestore.FieldValue.increment(1),
-        updatedAt: firestore.Timestamp.now().toMillis(),
+        updatedAt: nowMillis,
       })
       .catch((err) => {
         crashlytics().recordError(err);
@@ -454,7 +455,7 @@ class generalStore {
       .update({
         messages: firestore.FieldValue.arrayUnion(message),
         storeUnreadCount: firestore.FieldValue.increment(1),
-        updatedAt: firestore.Timestamp.now().toMillis(),
+        updatedAt: nowMillis,
       })
       .catch((err) => {
         crashlytics().recordError(err);
@@ -520,82 +521,6 @@ class generalStore {
         crashlytics().recordError(err);
         Toast({text: err.message, type: 'danger'});
       });
-  }
-
-  @action async setOrderItems(orderId) {
-    await firestore()
-      .collection('order_items')
-      .doc(orderId)
-      .get()
-      .then((document) => {
-        return (this.orderItems = document.data().items);
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-
-        return null;
-      });
-  }
-
-  @action async getOrderItems(orderId) {
-    const orderItems = await firestore()
-      .collection('order_items')
-      .doc(orderId)
-      .get()
-      .then((document) => {
-        if (document.exists) {
-          return document.data().items;
-        }
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-
-        return null;
-      });
-
-    return orderItems;
-  }
-
-  @action async getOrderPayment(orderId) {
-    const orderPayment = await firestore()
-      .collection('order_payments')
-      .doc(orderId)
-      .get()
-      .then((document) => {
-        if (document.exists) {
-          return document.data();
-        }
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-
-        return null;
-      });
-
-    return orderPayment;
-  }
-
-  @action async getOrderDetails(orderId) {
-    const orderDetails = await firestore()
-      .collection('orders')
-      .doc(orderId)
-      .get()
-      .then((document) => {
-        if (document.exists) {
-          return document.data();
-        }
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-
-        return null;
-      });
-
-    return orderDetails;
   }
 }
 

@@ -1,3 +1,6 @@
-const CDN_BASE_URL = 'https://cdn.marketeer.ph';
+import firestore from '@react-native-firebase/firestore';
 
-export {CDN_BASE_URL};
+const CDN_BASE_URL = 'https://cdn.marketeer.ph';
+const nowMillis = firestore.Timestamp.now().toMillis();
+
+export {CDN_BASE_URL, nowMillis};

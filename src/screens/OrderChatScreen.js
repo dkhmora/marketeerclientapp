@@ -13,6 +13,7 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import firestore from '@react-native-firebase/firestore';
 import moment from 'moment';
 import crashlytics from '@react-native-firebase/crashlytics';
+import { nowMillis } from '../util/variables';
 @inject('generalStore')
 @inject('authStore')
 @observer
@@ -57,7 +58,7 @@ class OrderChatScreen extends Component {
       if (
         orderStatus[0] === 'CANCELLED' ||
         (orderStatus[0] === 'COMPLETED' &&
-          firestore.Timestamp.now().toMillis() >=
+          nowMillis >=
             moment(selectedOrder.orderStatus.completed.updatedAt, 'x')
               .add(7, 'days')
               .format('x'))

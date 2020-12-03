@@ -7,6 +7,7 @@ import {Platform} from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import crashlytics from '@react-native-firebase/crashlytics';
 import {signInWithPhoneAndPassword} from '../util/firebase-functions';
+import {nowMillis} from '../util/variables';
 
 class authStore {
   @observable userAuthenticated = false;
@@ -276,8 +277,8 @@ class authStore {
         phoneNumber,
         birthdate,
         gender,
-        updatedAt: firestore.Timestamp.now().toMillis(),
-        createdAt: firestore.Timestamp.now().toMillis(),
+        updatedAt: nowMillis,
+        createdAt: nowMillis,
       })
       .then(() => {
         auth().currentUser.updateProfile({displayName: name});

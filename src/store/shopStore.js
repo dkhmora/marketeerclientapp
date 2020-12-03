@@ -1,16 +1,15 @@
 import {observable, action, computed} from 'mobx';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import firebase from '@react-native-firebase/app';
 import * as geolib from 'geolib';
 import {persist} from 'mobx-persist';
 import Toast from '../components/Toast';
 import crashlytics from '@react-native-firebase/crashlytics';
-import moment from 'moment';
 import {
   getUserMrSpeedyDeliveryPriceEstimate,
   placeOrder,
 } from '../util/firebase-functions';
+import {nowMillis} from '../util/variables';
 
 const userCartCollection = firestore().collection('user_carts');
 const storesCollection = firestore().collection('stores');
@@ -353,15 +352,14 @@ class shopStore {
   @action async addCartItemToStorage(item, storeId, options) {
     return new Promise((resolve, reject) => {
       const storeCartItems = this.storeCartItems[storeId];
-      const dateNow = firestore.Timestamp.now().toMillis();
 
       item.sales && delete item.sales;
       item.options && delete item.options;
 
       if (!item.createdAt) {
-        item.createdAt = dateNow;
+        item.createdAt = nowMillis;
       }
-      item.updatedAt = dateNow;
+      item.updatedAt = nowMillis;
 
       if (storeCartItems) {
         if (!options?.ignoreExistingCartItems) {
@@ -387,14 +385,13 @@ class shopStore {
 
   @action async deleteCartItemInStorage(item, storeId, options) {
     const storeCartItems = this.storeCartItems[storeId];
-    const dateNow = firestore.Timestamp.now().toMillis();
 
     if (storeCartItems) {
       const cartItemIndex = this.getCartItemIndex(item, storeId);
 
       if (cartItemIndex >= 0) {
         storeCartItems[cartItemIndex].quantity -= 1;
-        storeCartItems[cartItemIndex].updatedAt = dateNow;
+        storeCartItems[cartItemIndex].updatedAt = nowMillis;
 
         if (storeCartItems[cartItemIndex].quantity <= 0) {
           storeCartItems.splice(cartItemIndex, 1);
@@ -432,7 +429,6 @@ class shopStore {
         .doc(userId)
         .set({
           ...this.storeCartItems,
-          //updatedAt: firestore.Timestamp.now().toMillis(),
         })
         .catch((err) => {
           crashlytics().recordError(err);
