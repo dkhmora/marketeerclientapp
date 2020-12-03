@@ -1,6 +1,6 @@
 import firebase from '@react-native-firebase/app';
-import auth from '@react-native-firebase/auth';
 import crashlytics from '@react-native-firebase/crashlytics';
+import '@react-native-firebase/functions';
 import Toast from '../components/Toast';
 
 const functions = firebase.app().functions('asia-northeast1');
