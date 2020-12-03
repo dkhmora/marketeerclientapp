@@ -82,18 +82,15 @@ class OrderChatScreen extends Component {
     const routes = this.props.navigation.dangerouslyGetState().routes;
     const index = this.props.navigation.dangerouslyGetState().index;
 
-    if (routes[index].name === 'Order Details') {
-      this.props.generalStore.unsubscribeGetOrder &&
-        this.props.generalStore.unsubscribeGetOrder();
+    this.props.generalStore.unsubscribeGetOrder &&
+      this.props.generalStore.unsubscribeGetOrder();
 
+    if (routes[index].name === 'Order Details') {
       this.props.generalStore.getOrder({orderId, readMessages: false});
     } else if (routes[index].name === 'Orders') {
       this.props.generalStore.setOrders(this.props.authStore.userId);
     } else {
       this.props.generalStore.selectedOrder = null;
-
-      this.props.generalStore.unsubscribeGetOrder &&
-        this.props.generalStore.unsubscribeGetOrder();
     }
   }
 
@@ -269,6 +266,7 @@ class OrderChatScreen extends Component {
               messages={dataSource}
               onSend={(messages) => this.onSend(messages)}
               user={user}
+              keyboardShouldPersistTaps="handled"
             />
           </KeyboardAvoidingView>
         </Container>
