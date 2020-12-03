@@ -3,12 +3,11 @@ import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import firestore from '@react-native-firebase/firestore';
 import Toast from '../components/Toast';
-import '@react-native-firebase/functions';
 import {Platform} from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import crashlytics from '@react-native-firebase/crashlytics';
+import {signInWithPhoneAndPassword} from '../util/firebase-functions';
 
-const functions = firebase.app().functions('asia-northeast1');
 class authStore {
   @observable userAuthenticated = false;
 
@@ -305,12 +304,8 @@ class authStore {
       const phoneBody = userCredential.slice(1, 11);
       const phoneNumber = `+63${phoneBody}`;
 
-      return await functions
-        .httpsCallable('signInWithPhoneAndPassword')({
-          phone: phoneNumber,
-          password,
-        })
-        .then((response) => {
+      return await signInWithPhoneAndPassword({phoneNumber, password}).then(
+        (response) => {
           if (response.data.s === 200) {
             auth()
               .signInWithCustomToken(response.data.t)
@@ -361,13 +356,8 @@ class authStore {
           }
 
           return response;
-        })
-        .catch((err) => {
-          crashlytics().recordError(err);
-          Toast({text: err.message, type: 'danger'});
-
-          return null;
-        });
+        },
+      );
     } else {
       return await auth()
         .signInWithEmailAndPassword(userCredential, password)
