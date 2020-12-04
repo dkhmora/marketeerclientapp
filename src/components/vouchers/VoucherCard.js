@@ -1,21 +1,34 @@
+import {inject, observer} from 'mobx-react';
 import {Card} from 'native-base';
 import React, {Component} from 'react';
 import {View} from 'react-native';
 import {Button, Text} from 'react-native-elements';
 import {colors} from '../../../assets/colors';
+import {claimVoucher} from '../../util/firebase-functions';
 
-export default class VoucherCard extends Component {
+@inject('generalStore')
+@observer
+class VoucherCard extends Component {
   constructor(props) {
     super(props);
     this.state = {};
   }
+
+  handleClaimVoucher = (voucherId) => {
+    this.props.generalStore
+      .toggleAppLoader()
+      .then(() => claimVoucher(voucherId))
+      .then(() => this.props.generalStore.toggleAppLoader());
+  };
 
   render() {
     const {
       props: {
         voucher: {title, description, maxUses, voucherId, validUsers},
       },
+      handleClaimVoucher,
     } = this;
+
     return (
       <Card
         style={{
@@ -82,6 +95,7 @@ export default class VoucherCard extends Component {
                 borderRadius: 30,
                 overflow: 'hidden',
               }}
+              onPress={() => handleClaimVoucher(voucherId)}
             />
           </View>
         </View>
@@ -89,3 +103,5 @@ export default class VoucherCard extends Component {
     );
   }
 }
+
+export default VoucherCard;

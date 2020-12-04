@@ -5,6 +5,26 @@ import Toast from '../components/Toast';
 
 const functions = firebase.app().functions('asia-northeast1');
 
+async function claimVoucher(voucherId) {
+  return await functions
+    .httpsCallable('claimVoucher')({voucherId})
+    .then((response) => {
+      console.log(response);
+      if (response.data.s !== 200) {
+        return Toast({
+          text: response.data.m,
+          type: 'danger',
+        });
+      }
+
+      return Toast({text: response.data.m});
+    })
+    .catch((err) => {
+      crashlytics().recordError(err);
+      Toast({text: err.message, type: 'danger'});
+    });
+}
+
 async function getAddressFromCoordinates({latitude, longitude}) {
   return await functions
     .httpsCallable('getAddressFromCoordinates')({latitude, longitude})
@@ -96,6 +116,7 @@ async function signInWithPhoneAndPassword({phoneNumber, password}) {
 }
 
 export {
+  claimVoucher,
   getAddressFromCoordinates,
   addReview,
   cancelOrder,

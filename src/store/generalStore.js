@@ -13,7 +13,7 @@ import {persist} from 'mobx-persist';
 import messaging from '@react-native-firebase/messaging';
 import crashlytics from '@react-native-firebase/crashlytics';
 import {getAddressFromCoordinates} from '../util/firebase-functions';
-import { nowMillis } from '../util/variables';
+import {nowMillis} from '../util/variables';
 
 class generalStore {
   @observable appReady = false;
@@ -47,6 +47,13 @@ class generalStore {
       surcharge: 0,
     },
   };
+
+  @action toggleAppLoader() {
+    return new Promise((res) => {
+      console.log('yes');
+      res((this.appReady = !this.appReady));
+    });
+  }
 
   @action clearGetCourierInterval() {
     clearInterval(this.getCourierInterval);
