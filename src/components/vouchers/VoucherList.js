@@ -32,6 +32,7 @@ export default class VoucherList extends Component {
       />
     ) : (
       <VoucherCard
+        claimed={this.props.keyPrefix !== undefined}
         voucher={item}
         navigation={this.props.navigation}
         key={item.voucherId}

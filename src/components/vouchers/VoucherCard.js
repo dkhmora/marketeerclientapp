@@ -25,6 +25,7 @@ class VoucherCard extends Component {
     const {
       props: {
         voucher: {title, description, maxUses, voucherId, validUsers},
+        claimed,
       },
       handleClaimVoucher,
     } = this;
@@ -87,16 +88,18 @@ class VoucherCard extends Component {
               )}
             </View>
 
-            <Button
-              title="Claim Voucher"
-              type="clear"
-              containerStyle={{
-                alignSelf: 'flex-end',
-                borderRadius: 30,
-                overflow: 'hidden',
-              }}
-              onPress={() => handleClaimVoucher(voucherId)}
-            />
+            {!claimed && (
+              <Button
+                title="Claim Voucher"
+                type="clear"
+                containerStyle={{
+                  alignSelf: 'flex-end',
+                  borderRadius: 30,
+                  overflow: 'hidden',
+                }}
+                onPress={() => handleClaimVoucher(voucherId)}
+              />
+            )}
           </View>
         </View>
       </Card>
