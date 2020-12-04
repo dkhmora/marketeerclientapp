@@ -14,7 +14,11 @@ const getNextStoreOperationDate = (storeHours) => {
         const day = moment(String(dayIndex), 'e').format('dddd');
         const currentStoreHours = storeHours?.[day];
 
-        if (!nextStoreOperationDate && currentStoreHours?.closed !== true) {
+        if (
+          currentStoreHours !== undefined &&
+          !nextStoreOperationDate &&
+          currentStoreHours?.closed !== true
+        ) {
           if (currentDay === day) {
             if (
               moment(currentTime, 'HH:mm').isAfter(
@@ -22,14 +26,15 @@ const getNextStoreOperationDate = (storeHours) => {
               ) &&
               moment(currentTime, 'HH:mm').isBefore(
                 moment(currentStoreHours?.end, 'HH:mm'),
-              )
+              ) &&
+              currentStoreHours?.start !== undefined
             ) {
               nextStoreOperationDate = `${day}, ${moment(
                 currentStoreHours?.start,
                 'HH:mm',
               ).format('H:mm A')}`;
             }
-          } else {
+          } else if (currentStoreHours?.start !== undefined) {
             nextStoreOperationDate = `${day}, ${moment(
               currentStoreHours?.start,
               'HH:mm',
