@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import {View} from 'react-native';
 import BaseHeader from '../components/BaseHeader';
 import VoucherList from '../components/vouchers/VoucherList';
+import VouchersTab from '../navigation/VouchersTab';
 
 @inject('generalStore')
 @observer
@@ -21,21 +22,37 @@ class VouchersScreen extends Component {
       props: {
         navigation,
         route: {params},
-        generalStore: {appwideVouchers},
+        generalStore: {
+          appwideVouchers,
+          userDetails: {claimedVouchers},
+        },
       },
     } = this;
 
-    const vouchers = Object.entries(appwideVouchers).map(
-      ([voucherId, voucherData]) => {
+    const claimedVouchersArray = Object.keys(claimedVouchers);
+
+    const voucherList = Object.entries(appwideVouchers)
+      .filter(
+        ([voucherId, voucherData]) => !claimedVouchersArray.includes(voucherId),
+      )
+      .map(([voucherId, voucherData]) => {
         return {voucherId, ...voucherData};
-      },
-    );
+      });
+
+    const claimedVoucherList = claimedVouchersArray.map((voucherId) => {
+      return appwideVouchers[voucherId];
+    });
 
     return (
       <View style={{flex: 1}}>
         <BaseHeader title="Vouchers" backButton navigation={navigation} />
 
-        <VoucherList vouchers={vouchers} />
+        <VouchersTab
+          VoucherList={() => <VoucherList vouchers={voucherList} />}
+          ClaimedVoucherList={() => (
+            <VoucherList vouchers={claimedVoucherList} keyPrefix="claimed" />
+          )}
+        />
       </View>
     );
   }

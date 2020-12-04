@@ -40,7 +40,7 @@ export default class VoucherList extends Component {
 
   render() {
     const {
-      props: {vouchers},
+      props: {vouchers, keyPrefix},
       formatData,
       renderItem,
     } = this;
@@ -54,7 +54,7 @@ export default class VoucherList extends Component {
         initialNumToRender={10}
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{paddingHorizontal: 10, flexGrow: 1}}
-        keyExtractor={(item) => item.voucherId}
+        keyExtractor={(item) => `${keyPrefix}${item.voucherId}`}
       />
     );
   }

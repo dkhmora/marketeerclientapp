@@ -35,6 +35,7 @@ class generalStore {
   @observable storeCategories = [];
   @observable availablePaymentMethods = {};
   @observable appwideVouchers = {};
+  @observable claimedVoucherIds = {};
   @observable getCourierInterval = null;
   @observable additionalPaymentMethods = {
     COD: {

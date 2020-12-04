@@ -9,7 +9,6 @@ async function claimVoucher(voucherId) {
   return await functions
     .httpsCallable('claimVoucher')({voucherId})
     .then((response) => {
-      console.log(response);
       if (response.data.s !== 200) {
         return Toast({
           text: response.data.m,
