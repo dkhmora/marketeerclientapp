@@ -9,6 +9,15 @@ const merchantSignUpUrl =
 
 const CDN_BASE_URL = 'https://cdn.marketeer.ph';
 const nowMillis = firestore.Timestamp.now().toMillis();
+const daysList = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+];
 
 export {
   CDN_BASE_URL,
@@ -17,4 +26,5 @@ export {
   privacyPolicyUrl,
   termsAndConditionsUrl,
   merchantSignUpUrl,
+  daysList,
 };

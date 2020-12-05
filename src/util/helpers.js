@@ -3,6 +3,28 @@ import {Linking} from 'react-native';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import {colors} from '../../assets/colors';
 import Toast from '../components/Toast';
+import {daysList} from './variables';
+
+const twentyFourHourToTwelveHour = (time) =>
+  moment(time, 'HH:mm').format('h:mm A');
+
+const extractStoreHoursArray = (storeHours) => {
+  return daysList.map((day, index) => {
+    const currentStoreHours = storeHours?.[day];
+
+    if (currentStoreHours !== undefined) {
+      const {closed, start, end} = currentStoreHours;
+
+      if (closed === true) {
+        return `${day}: Closed`;
+      }
+
+      return `${day}: ${twentyFourHourToTwelveHour(
+        start,
+      )} - ${twentyFourHourToTwelveHour(end)}`;
+    }
+  });
+};
 
 const getNextStoreOperationDate = (storeHours) => {
   const now = moment();
@@ -34,16 +56,14 @@ const getNextStoreOperationDate = (storeHours) => {
                 moment(currentStoreHours?.end, 'HH:mm'),
               )
             ) {
-              nextStoreOperationDate = `${day}, ${moment(
+              nextStoreOperationDate = `${day}, ${twentyFourHourToTwelveHour(
                 currentStoreHours?.start,
-                'HH:mm',
-              ).format('h:mm A')}`;
+              )}`;
             }
           } else {
-            nextStoreOperationDate = `${day}, ${moment(
+            nextStoreOperationDate = `${day}, ${twentyFourHourToTwelveHour(
               currentStoreHours?.start,
-              'HH:mm',
-            ).format('h:mm A')}`;
+            )}`;
           }
         }
       }
@@ -119,4 +139,10 @@ async function openLink(url) {
   }
 }
 
-export {getStoreAvailability, getNextStoreOperationDate, openLink};
+export {
+  getStoreAvailability,
+  getNextStoreOperationDate,
+  openLink,
+  extractStoreHoursArray,
+  twentyFourHourToTwelveHour,
+};

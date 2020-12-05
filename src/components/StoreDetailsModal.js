@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Text, Avatar, ButtonGroup, Icon, Button} from 'react-native-elements';
-import {View, ActivityIndicator, ImageBackground} from 'react-native';
+import {View, ActivityIndicator} from 'react-native';
 import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
 import {inject} from 'mobx-react';
@@ -11,6 +11,7 @@ import {styles} from '../../assets/styles';
 import {ScrollView} from 'react-native-gesture-handler';
 import {Modalize} from 'react-native-modalize';
 import Divider from './Divider';
+import {extractStoreHoursArray} from '../util/helpers';
 
 @inject('generalStore')
 class StoreDetailsModal extends Component {
@@ -438,11 +439,37 @@ class StoreDetailsModal extends Component {
                   <Text style={{fontSize: 16}}>{store.address}</Text>
                 </View>
               )}
+
+              {store.storeHours && (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'flex-start',
+                    paddingVertical: 10,
+                    maxWidth: '90%',
+                  }}>
+                  <Icon
+                    name="clock"
+                    color={colors.primary}
+                    style={{paddingRight: 10}}
+                  />
+
+                  <View>
+                    {extractStoreHoursArray(store.storeHours).map(
+                      (storeHourText) => {
+                        return (
+                          <Text style={{fontSize: 16}}>{storeHourText}</Text>
+                        );
+                      },
+                    )}
+                  </View>
+                </View>
+              )}
             </View>
 
             <View
               style={{
-                height: 400,
+                height: 300,
                 width: '100%',
                 overflow: 'hidden',
               }}>
