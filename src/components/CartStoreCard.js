@@ -1,15 +1,8 @@
 import React, {PureComponent} from 'react';
-import {
-  View,
-  ActivityIndicator,
-  Linking,
-  ScrollView,
-  StyleSheet,
-} from 'react-native';
+import {View, ActivityIndicator, ScrollView} from 'react-native';
 import {
   Card,
   Text,
-  Image,
   Icon,
   ListItem,
   Input,
@@ -23,11 +16,10 @@ import SelectionModal from './SelectionModal';
 import FastImage from 'react-native-fast-image';
 import Hyperlink from 'react-native-hyperlink';
 import stripHtml from 'string-strip-html';
-import Toast from './Toast';
-import InAppBrowser from 'react-native-inappbrowser-reborn';
 import * as Animatable from 'react-native-animatable';
 import {CDN_BASE_URL} from '../util/variables';
 import {withNavigation} from '@react-navigation/compat';
+import {openLink} from '../util/helpers';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -292,41 +284,6 @@ class CartStoreCard extends PureComponent {
     return titleElement;
   }
 
-  async openLink(url) {
-    try {
-      if (await InAppBrowser.isAvailable()) {
-        await InAppBrowser.open(url, {
-          dismissButtonStyle: 'close',
-          preferredBarTintColor: colors.primary,
-          preferredControlTintColor: 'white',
-          readerMode: false,
-          animated: true,
-          modalPresentationStyle: 'pageSheet',
-          modalTransitionStyle: 'coverVertical',
-          modalEnabled: true,
-          enableBarCollapsing: false,
-          // Android Properties
-          showTitle: true,
-          toolbarColor: colors.primary,
-          secondaryToolbarColor: 'black',
-          enableUrlBarHiding: true,
-          enableDefaultShare: true,
-          forceCloseOnRedirection: false,
-          animations: {
-            startEnter: 'slide_in_right',
-            startExit: 'slide_out_left',
-            endEnter: 'slide_in_left',
-            endExit: 'slide_out_right',
-          },
-        });
-      } else {
-        Linking.openURL(url);
-      }
-    } catch (err) {
-      Toast({text: err.message, type: 'danger'});
-    }
-  }
-
   async setStoreAssignedMerchantId() {
     this.props.shopStore.storeAssignedMerchantId[
       this.props.storeId
@@ -338,6 +295,13 @@ class CartStoreCard extends PureComponent {
       this.props.storeId,
       this.storeDetails.itemCategories,
     );
+  }
+
+  handleOpenLink(url) {
+    this.props.generalStore
+      .toggleAppLoader()
+      .then(() => openLink(url))
+      .then(() => this.props.generalStore.toggleAppLoader());
   }
 
   handleEmailChange = (email) => {
@@ -450,7 +414,7 @@ class CartStoreCard extends PureComponent {
                     subtitle={
                       <Hyperlink
                         linkStyle={{color: colors.accent}}
-                        onPress={(url, text) => this.openLink(url)}>
+                        onPress={(url, text) => this.handleOpenLink(url)}>
                         <Text
                           style={{
                             color: colors.text_secondary,

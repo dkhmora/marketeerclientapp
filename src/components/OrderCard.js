@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 import {Card, CardItem, Body, View} from 'native-base';
-import {ActionSheetIOS, Linking} from 'react-native';
+import {ActionSheetIOS} from 'react-native';
 import moment from 'moment';
 import {observer, inject} from 'mobx-react';
 import {observable, action, computed} from 'mobx';
@@ -10,8 +10,8 @@ import {colors} from '../../assets/colors';
 import AddReviewModal from './AddReviewModal';
 import Toast from './Toast';
 import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
-import InAppBrowser from 'react-native-inappbrowser-reborn';
 import {CDN_BASE_URL} from '../util/variables';
+import {openLink} from '../util/helpers';
 import {cancelOrder} from '../util/firebase-functions';
 
 @inject('generalStore')
@@ -61,40 +61,11 @@ class OrderCard extends PureComponent {
     this.confirmationModal = false;
   }
 
-  async openLink(url) {
-    try {
-      if (await InAppBrowser.isAvailable()) {
-        await InAppBrowser.open(url, {
-          dismissButtonStyle: 'close',
-          preferredBarTintColor: colors.primary,
-          preferredControlTintColor: 'white',
-          readerMode: false,
-          animated: true,
-          modalPresentationStyle: 'pageSheet',
-          modalTransitionStyle: 'coverVertical',
-          modalEnabled: true,
-          enableBarCollapsing: false,
-          // Android Properties
-          showTitle: true,
-          toolbarColor: colors.primary,
-          secondaryToolbarColor: 'black',
-          enableUrlBarHiding: true,
-          enableDefaultShare: true,
-          forceCloseOnRedirection: false,
-          animations: {
-            startEnter: 'slide_in_right',
-            startExit: 'slide_out_left',
-            endEnter: 'slide_in_left',
-            endExit: 'slide_out_right',
-          },
-        });
-      } else {
-        Linking.openURL(url);
-      }
-      this.props.generalStore.appReady = true;
-    } catch (err) {
-      Toast({text: err.message, type: 'danger'});
-    }
+  handleOpenLink(url) {
+    this.props.generalStore
+      .toggleAppLoader()
+      .then(() => openLink(url))
+      .then(() => this.props.generalStore.toggleAppLoader());
   }
 
   handleViewOrderItems() {
@@ -316,8 +287,7 @@ class OrderCard extends PureComponent {
               title="Pay Now"
               type="clear"
               onPress={() => {
-                this.props.generalStore.appReady = false;
-                this.openLink(paymentLink);
+                this.handleOpenLink(paymentLink);
               }}
               titleStyle={{color: colors.primary}}
               containerStyle={{borderRadius: 24}}

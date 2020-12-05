@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Card, CardItem, Left, Right} from 'native-base';
-import {View, ActivityIndicator, Linking} from 'react-native';
+import {View, ActivityIndicator} from 'react-native';
 import {Text, Input, Icon, Button, Badge, Image} from 'react-native-elements';
 import BaseHeader from '../components/BaseHeader';
 import {ScrollView} from 'react-native-gesture-handler';
@@ -10,7 +10,6 @@ import {inject, observer} from 'mobx-react';
 import ConfirmationModal from '../components/ConfirmationModal';
 import * as Animatable from 'react-native-animatable';
 import Toast from '../components/Toast';
-import InAppBrowser from 'react-native-inappbrowser-reborn';
 import {computed, when} from 'mobx';
 import PrimaryActivityIndicator from '../components/PrimaryActivityIndicator';
 import crashlytics from '@react-native-firebase/crashlytics';
@@ -18,6 +17,7 @@ import MapCardItem from '../components/MapCardItem';
 import CardItemHeader from '../components/CardItemHeader';
 import {cancelOrder} from '../util/firebase-functions';
 import {getOrderPayment, getOrderItems} from '../util/firebase-firestore';
+import {openLink} from '../util/helpers';
 
 @inject('generalStore')
 @inject('authStore')
@@ -312,47 +312,12 @@ class OrderDetailsScreen extends Component {
     }
   }
 
-  async openLink(url) {
-    try {
-      if (await InAppBrowser.isAvailable()) {
-        await InAppBrowser.open(url, {
-          dismissButtonStyle: 'close',
-          preferredBarTintColor: colors.primary,
-          preferredControlTintColor: 'white',
-          readerMode: false,
-          animated: true,
-          modalPresentationStyle: 'pageSheet',
-          modalTransitionStyle: 'coverVertical',
-          modalEnabled: true,
-          enableBarCollapsing: false,
-          // Android Properties
-          showTitle: true,
-          toolbarColor: colors.primary,
-          secondaryToolbarColor: 'black',
-          enableUrlBarHiding: true,
-          enableDefaultShare: true,
-          forceCloseOnRedirection: false,
-          animations: {
-            startEnter: 'slide_in_right',
-            startExit: 'slide_out_left',
-            endEnter: 'slide_in_left',
-            endExit: 'slide_out_right',
-          },
-        });
-      } else {
-        await Linking.openURL(url);
-      }
-      this.setState({paymentProcessing: false});
-      this.props.generalStore.appReady = true;
-    } catch (err) {
-      Toast({text: err.message, type: 'danger'});
-    }
-  }
-
   openPaymentLink() {
-    this.props.generalStore.appReady = false;
     this.setState({orderPayment: null, paymentProcessing: true}, () => {
-      this.openLink(this.props.generalStore.selectedOrder.paymentLink);
+      this.props.generalStore
+        .toggleAppLoader()
+        .then(() => openLink(this.props.generalStore.selectedOrder.paymentLink))
+        .then(() => this.props.generalStore.toggleAppLoader());
     });
   }
 

@@ -1,4 +1,8 @@
 import moment from 'moment';
+import {Linking} from 'react-native';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
+import {colors} from '../../assets/colors';
+import Toast from '../components/Toast';
 
 const getNextStoreOperationDate = (storeHours) => {
   const now = moment();
@@ -80,4 +84,39 @@ const getStoreAvailability = (storeHours, vacationMode) => {
   return true;
 };
 
-export {getStoreAvailability, getNextStoreOperationDate};
+async function openLink(url) {
+  try {
+    if (await InAppBrowser.isAvailable()) {
+      return await InAppBrowser.open(url, {
+        dismissButtonStyle: 'close',
+        preferredBarTintColor: colors.primary,
+        preferredControlTintColor: 'white',
+        readerMode: false,
+        animated: true,
+        modalPresentationStyle: 'pageSheet',
+        modalTransitionStyle: 'coverVertical',
+        modalEnabled: true,
+        enableBarCollapsing: false,
+        // Android Properties
+        showTitle: true,
+        toolbarColor: colors.primary,
+        secondaryToolbarColor: 'black',
+        enableUrlBarHiding: true,
+        enableDefaultShare: true,
+        forceCloseOnRedirection: false,
+        animations: {
+          startEnter: 'slide_in_right',
+          startExit: 'slide_out_left',
+          endEnter: 'slide_in_left',
+          endExit: 'slide_out_right',
+        },
+      });
+    } else {
+      return Linking.openURL(url);
+    }
+  } catch (err) {
+    Toast({text: err.message, type: 'danger'});
+  }
+}
+
+export {getStoreAvailability, getNextStoreOperationDate, openLink};
