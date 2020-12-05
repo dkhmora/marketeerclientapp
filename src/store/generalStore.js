@@ -61,7 +61,7 @@ class generalStore {
   }
 
   @action async setAppData() {
-    await firestore()
+    return await firestore()
       .collection('application')
       .doc('client_config')
       .get()

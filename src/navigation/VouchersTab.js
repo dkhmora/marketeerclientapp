@@ -16,8 +16,6 @@ class VouchersTab extends Component {
 
     return (
       <TabVouchers.Navigator
-        lazy
-        lazyPreloadDistance={0.5}
         initialRouteName="Near You"
         gestureHandlerProps={{enabled: true}}
         tabBarOptions={{

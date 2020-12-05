@@ -1,3 +1,4 @@
+import {computed} from 'mobx';
 import {inject, observer} from 'mobx-react';
 import React, {Component} from 'react';
 import {View} from 'react-native';
@@ -13,15 +14,9 @@ class VouchersScreen extends Component {
     this.state = {};
   }
 
-  componentDidMount() {
-    this.props.generalStore.setAppData();
-  }
-
-  render() {
+  @computed get voucherLists() {
     const {
       props: {
-        navigation,
-        route: {params},
         generalStore: {
           appwideVouchers,
           userDetails: {claimedVouchers},
@@ -29,28 +24,45 @@ class VouchersScreen extends Component {
       },
     } = this;
 
-    const claimedVouchersArray = Object.keys(claimedVouchers);
+    if (appwideVouchers !== undefined) {
+      let unclaimed = [];
+      let claimed = [];
 
-    const voucherList = Object.entries(appwideVouchers)
-      .filter(
-        ([voucherId, voucherData]) => !claimedVouchersArray.includes(voucherId),
-      )
-      .map(([voucherId, voucherData]) => {
-        return {voucherId, ...voucherData};
+      Object.entries(appwideVouchers).map(([voucherId, voucherData]) => {
+        if (claimedVouchers?.[voucherId] === undefined) {
+          return unclaimed.push({voucherId, ...voucherData});
+        }
+
+        return claimed.push({voucherId, ...voucherData});
       });
 
-    const claimedVoucherList = claimedVouchersArray.map((voucherId) => {
-      return {voucherId, ...appwideVouchers[voucherId]};
-    });
+      return {
+        unclaimed,
+        claimed,
+      };
+    }
+
+    return {};
+  }
+
+  componentDidMount() {
+    this.props.generalStore.setAppData();
+  }
+
+  render() {
+    const {
+      props: {navigation},
+      voucherLists: {unclaimed, claimed},
+    } = this;
 
     return (
       <View style={{flex: 1}}>
         <BaseHeader title="Vouchers" backButton navigation={navigation} />
 
         <VouchersTab
-          VoucherList={() => <VoucherList vouchers={voucherList} />}
+          VoucherList={() => <VoucherList vouchers={unclaimed} />}
           ClaimedVoucherList={() => (
-            <VoucherList vouchers={claimedVoucherList} keyPrefix="claimed" />
+            <VoucherList vouchers={claimed} keyPrefix="claimed" />
           )}
         />
       </View>
