@@ -34,7 +34,9 @@ class ItemQuantityControlButtons extends PureComponent {
       state: {minusButtonShown},
     } = this;
 
-    this.setState({addDisabled: itemStock ? itemQuantity >= itemStock : false});
+    this.setState({
+      addDisabled: itemStock !== undefined ? itemQuantity >= itemStock : false,
+    });
 
     if (!alwaysShowMinusButton) {
       if (minusButtonShown && itemQuantity <= 0) {
