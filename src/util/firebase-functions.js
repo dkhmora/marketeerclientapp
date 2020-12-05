@@ -105,7 +105,7 @@ async function getUserMrSpeedyDeliveryPriceEstimate(deliveryData) {
 async function signInWithPhoneAndPassword({phoneNumber, password}) {
   return await functions
     .httpsCallable('signInWithPhoneAndPassword')({
-      phone: phoneNumber,
+      phoneNumber,
       password,
     })
     .catch((err) => {
