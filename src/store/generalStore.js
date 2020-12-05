@@ -51,7 +51,6 @@ class generalStore {
 
   @action toggleAppLoader() {
     return new Promise((res) => {
-      console.log('yes');
       res((this.appReady = !this.appReady));
     });
   }

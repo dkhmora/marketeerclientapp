@@ -10,14 +10,16 @@ const getNextStoreOperationDate = (storeHours) => {
   if (storeHours) {
     [...Array(7 + currentDayIndex).keys()].map((i) => {
       if (i >= currentDayIndex) {
-        const dayIndex = i < 6 ? i : i - 6;
+        const dayIndex = i < 7 ? i : i - 7;
         const day = moment(String(dayIndex), 'e').format('dddd');
         const currentStoreHours = storeHours?.[day];
 
         if (
-          currentStoreHours !== undefined &&
           !nextStoreOperationDate &&
-          currentStoreHours?.closed !== true
+          currentStoreHours?.closed !== true &&
+          currentStoreHours !== undefined &&
+          currentStoreHours?.start !== undefined &&
+          currentStoreHours?.end !== undefined
         ) {
           if (currentDay === day) {
             if (
@@ -26,19 +28,18 @@ const getNextStoreOperationDate = (storeHours) => {
               ) &&
               moment(currentTime, 'HH:mm').isBefore(
                 moment(currentStoreHours?.end, 'HH:mm'),
-              ) &&
-              currentStoreHours?.start !== undefined
+              )
             ) {
               nextStoreOperationDate = `${day}, ${moment(
                 currentStoreHours?.start,
                 'HH:mm',
-              ).format('H:mm A')}`;
+              ).format('h:mm A')}`;
             }
-          } else if (currentStoreHours?.start !== undefined) {
+          } else {
             nextStoreOperationDate = `${day}, ${moment(
               currentStoreHours?.start,
               'HH:mm',
-            ).format('H:mm A')}`;
+            ).format('h:mm A')}`;
           }
         }
       }
