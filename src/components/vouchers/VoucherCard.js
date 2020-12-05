@@ -24,7 +24,15 @@ class VoucherCard extends Component {
   render() {
     const {
       props: {
-        voucher: {title, description, maxUses, voucherId, validUsers},
+        voucher: {
+          title,
+          description,
+          maxUses,
+          voucherId,
+          validUsers,
+          maxClaimsReached,
+          disabled,
+        },
         claimed,
       },
       handleClaimVoucher,
@@ -88,7 +96,7 @@ class VoucherCard extends Component {
               )}
             </View>
 
-            {!claimed && (
+            {!(claimed || disabled || maxClaimsReached) && (
               <Button
                 title="Claim Voucher"
                 type="clear"
@@ -102,6 +110,36 @@ class VoucherCard extends Component {
             )}
           </View>
         </View>
+
+        {!claimed && (maxClaimsReached || disabled) && (
+          <View
+            style={{
+              backgroundColor: 'rgba(0,0,0,0.4)',
+              justifyContent: 'center',
+              alignItems: 'center',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '100%',
+            }}>
+            <Text
+              style={{
+                color: colors.icons,
+                fontFamily: 'ProductSans-Bold',
+                fontSize: 16,
+                backgroundColor: colors.primary,
+                paddingHorizontal: 5,
+                paddingVertical: 2,
+                borderRadius: 10,
+                elevation: 3,
+                zIndex: 10,
+                overflow: 'hidden',
+              }}>
+              Max Claims Reached
+            </Text>
+          </View>
+        )}
       </Card>
     );
   }

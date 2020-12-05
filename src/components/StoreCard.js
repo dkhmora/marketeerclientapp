@@ -9,8 +9,6 @@ import {PlaceholderMedia, Placeholder, Fade} from 'rn-placeholder';
 import {computed} from 'mobx';
 import {observer} from 'mobx-react';
 import {CDN_BASE_URL} from '../util/variables';
-import moment from 'moment';
-import {BlurView} from '@react-native-community/blur';
 import {getStoreAvailability, getNextStoreOperationDate} from '../util/helpers';
 
 @observer

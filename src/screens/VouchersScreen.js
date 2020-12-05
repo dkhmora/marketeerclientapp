@@ -24,25 +24,26 @@ class VouchersScreen extends Component {
       },
     } = this;
 
-    if (appwideVouchers !== undefined) {
-      let unclaimed = [];
-      let claimed = [];
+    let unclaimed = [];
+    let claimed = [];
 
+    if (appwideVouchers !== undefined) {
       Object.entries(appwideVouchers).map(([voucherId, voucherData]) => {
-        if (claimedVouchers?.[voucherId] === undefined) {
+        if (
+          claimedVouchers?.[voucherId] === undefined &&
+          voucherData?.disabled !== true
+        ) {
           return unclaimed.push({voucherId, ...voucherData});
         }
 
         return claimed.push({voucherId, ...voucherData});
       });
-
-      return {
-        unclaimed,
-        claimed,
-      };
     }
 
-    return {};
+    return {
+      unclaimed,
+      claimed,
+    };
   }
 
   componentDidMount() {
