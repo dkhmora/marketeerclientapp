@@ -35,7 +35,7 @@ export default class VoucherList extends Component {
         claimed={this.props.keyPrefix !== undefined}
         voucher={item}
         navigation={this.props.navigation}
-        key={item.voucherId}
+        key={`${this.props.keyPrefix}${item.voucherId}`}
       />
     );
 

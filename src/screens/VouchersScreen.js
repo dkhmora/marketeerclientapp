@@ -40,7 +40,7 @@ class VouchersScreen extends Component {
       });
 
     const claimedVoucherList = claimedVouchersArray.map((voucherId) => {
-      return appwideVouchers[voucherId];
+      return {voucherId, ...appwideVouchers[voucherId]};
     });
 
     return (
