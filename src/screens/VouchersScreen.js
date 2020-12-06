@@ -24,8 +24,8 @@ class VouchersScreen extends Component {
       },
     } = this;
 
-    let unclaimed = [];
-    let claimed = [];
+    const unclaimed = [];
+    const claimed = [];
 
     if (appwideVouchers !== undefined) {
       Object.entries(appwideVouchers).map(([voucherId, voucherData]) => {

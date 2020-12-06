@@ -112,10 +112,14 @@ class shopStore {
         let storeTotal = 0;
 
         this.storeCartItems[storeId].map(async (item) => {
+          const optionsPrice = item.totalOptionsPrice
+            ? item.totalOptionsPrice
+            : 0;
           const itemPrice = item.discountedPrice
             ? item.discountedPrice
             : item.price;
-          let itemTotal = item.quantity * itemPrice;
+          const totalItemPrice = itemPrice + optionsPrice;
+          let itemTotal = item.quantity * totalItemPrice;
 
           storeTotal += itemTotal;
         });

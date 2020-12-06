@@ -458,7 +458,9 @@ class StoreDetailsModal extends Component {
                     {extractStoreHoursArray(store.storeHours).map(
                       (storeHourText) => {
                         return (
-                          <Text style={{fontSize: 16}}>{storeHourText}</Text>
+                          <Text style={{fontSize: 16}} key={storeHourText}>
+                            {storeHourText}
+                          </Text>
                         );
                       },
                     )}
