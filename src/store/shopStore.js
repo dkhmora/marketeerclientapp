@@ -250,7 +250,7 @@ class shopStore {
       });
   }
 
-  @action async placeOrder(orderData) {
+  @action async handlePlaceOrder(orderData) {
     const {
       cartStoreSnapshots,
       cartUpdateTimeout,

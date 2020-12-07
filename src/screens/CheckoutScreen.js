@@ -49,7 +49,7 @@ class CheckoutScreen extends Component {
     const userCoordinates = await this.props.generalStore.getUserLocation();
 
     this.props.shopStore
-      .placeOrder({
+      .handlePlaceOrder({
         deliveryCoordinates,
         deliveryCoordinatesGeohash,
         deliveryAddress,

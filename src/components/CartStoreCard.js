@@ -44,30 +44,15 @@ class CartStoreCard extends PureComponent {
 
   @computed get deliveryDiscountApplicable() {
     const {
-      props: {storeId},
       storeDetails: {
-        deliveryDiscount: {activated, minimumOrderAmount, discountAmount},
+        deliveryDiscount: {activated, minimumOrderAmount},
       },
       subTotal,
     } = this;
 
-    if (activated && minimumOrderAmount) {
-      if (subTotal >= minimumOrderAmount) {
-        /*this.props.shopStore.assignPropToStoreId(
-          storeId,
-          'deliveryDiscountAmount',
-          discountAmount,
-        );*/
-
-        return true;
-      }
-
-      //this.props.shopStore.assignPropToStoreId(storeId, 'discountAmount', null);
-
-      return false;
+    if (activated && minimumOrderAmount && subTotal >= minimumOrderAmount) {
+      return true;
     }
-    //this.props.shopStore.assignPropToStoreId(storeId, 'discountAmount', null);
-
     return false;
   }
 
