@@ -113,6 +113,7 @@ if ([FIRApp defaultApp] == nil) {
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
   [FIRMessaging messaging].APNSToken = deviceToken;
   [RNCPushNotificationIOS didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+  [[FIRAuth auth] setAPNSToken:deviceToken type:FIRAuthAPNSTokenTypeSandbox];
 }
 
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
@@ -121,11 +122,15 @@ if ([FIRApp defaultApp] == nil) {
 }
 
 // Required for the notification event. You must call the completion handler after handling the remote notification.
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)notification
 fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
-  [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
-  [RNCPushNotificationIOS didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+  [[FIRMessaging messaging] appDidReceiveMessage:notification];
+  [RNCPushNotificationIOS didReceiveRemoteNotification:notification fetchCompletionHandler:completionHandler];
+  if ([[FIRAuth auth] canHandleNotification:notification]) {
+    completionHandler(UIBackgroundFetchResultNoData);
+    return;
+  }
 }
 
 // Required for the registrationError event.
