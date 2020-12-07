@@ -190,6 +190,10 @@ class CartListItem extends PureComponent {
                     elevation: 3,
                     height: 26,
                     marginHorizontal: 5,
+                    backgroundColor: colors.icons,
+                    borderRadius: 100,
+                    paddingLeft: 5,
+                    overflow: 'hidden',
                   }}
                 />
               </View>

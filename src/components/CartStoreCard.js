@@ -11,7 +11,7 @@ import {
 import {inject, observer} from 'mobx-react';
 import CartListItem from './CartListItem';
 import {colors} from '../../assets/colors';
-import {observable, computed, when} from 'mobx';
+import {observable, computed, when, action} from 'mobx';
 import SelectionModal from './SelectionModal';
 import FastImage from 'react-native-fast-image';
 import Hyperlink from 'react-native-hyperlink';
@@ -32,7 +32,6 @@ class CartStoreCard extends PureComponent {
     this.state = {
       paymentOptionsModal: false,
       deliveryOptionsModal: false,
-      selectedPaymentMethod: null,
       emailCheck: false,
     };
   }
@@ -44,40 +43,49 @@ class CartStoreCard extends PureComponent {
   ];
 
   @computed get deliveryDiscountApplicable() {
-    if (this.storeDetails) {
-      const {deliveryDiscount} = this.storeDetails;
+    const {
+      props: {storeId},
+      storeDetails: {
+        deliveryDiscount: {activated, minimumOrderAmount, discountAmount},
+      },
+      subTotal,
+    } = this;
 
-      if (
-        deliveryDiscount &&
-        deliveryDiscount.activated &&
-        this.subTotal >= deliveryDiscount.minimumOrderAmount
-      ) {
-        this.props.shopStore.storeDeliveryDiscount[this.props.storeId] =
-          deliveryDiscount.discountAmount;
+    if (activated && minimumOrderAmount) {
+      if (subTotal >= minimumOrderAmount) {
+        /*this.props.shopStore.assignPropToStoreId(
+          storeId,
+          'deliveryDiscountAmount',
+          discountAmount,
+        );*/
 
         return true;
       }
 
-      this.props.shopStore.storeDeliveryDiscount[this.props.storeId] = null;
+      //this.props.shopStore.assignPropToStoreId(storeId, 'discountAmount', null);
 
       return false;
     }
-    this.props.shopStore.storeDeliveryDiscount[this.props.storeId] = null;
+    //this.props.shopStore.assignPropToStoreId(storeId, 'discountAmount', null);
 
     return false;
   }
 
   @computed get orderTotal() {
     if (this.storeDetails) {
-      const {storeId} = this.props;
-      const {availableDeliveryMethods, deliveryDiscount} = this.storeDetails;
-      const selectedDeliveryMethod = this.props.shopStore
-        .storeSelectedDeliveryMethod[storeId];
+      const {
+        selectedDeliveryMethod,
+        selectedPaymentMethod,
+        mrSpeedyDeliveryFees: {car, motorbike},
+        storeDetails: {availableDeliveryMethods, deliveryDiscount},
+        subTotal,
+        deliveryDiscountApplicable,
+      } = this;
 
       if (selectedDeliveryMethod === 'Own Delivery') {
-        if (this.deliveryDiscountApplicable) {
+        if (deliveryDiscountApplicable) {
           return (
-            this.subTotal +
+            subTotal +
             Math.max(
               0,
               availableDeliveryMethods['Own Delivery'].deliveryPrice -
@@ -87,35 +95,28 @@ class CartStoreCard extends PureComponent {
         }
 
         return `₱${(
-          this.subTotal + availableDeliveryMethods['Own Delivery'].deliveryPrice
+          subTotal + availableDeliveryMethods['Own Delivery'].deliveryPrice
         ).toFixed(2)}`;
       }
 
       if (selectedDeliveryMethod === 'Mr. Speedy') {
-        const selectedPaymentMethod = this.props.shopStore
-          .storeSelectedPaymentMethod[storeId];
-        const mrSpeedyDeliveryEstimates = this.props.shopStore
-          .storeMrSpeedyDeliveryFee[storeId];
-
-        if (mrSpeedyDeliveryEstimates) {
+        if (car !== undefined && motorbike !== undefined) {
           const motorbikeDeliveryFee =
             selectedPaymentMethod === 'COD'
-              ? Number(mrSpeedyDeliveryEstimates.motorbike) + 30
-              : Number(mrSpeedyDeliveryEstimates.motorbike);
+              ? Number(motorbike) + 30
+              : Number(motorbike);
           const carDeliveryFee =
-            selectedPaymentMethod === 'COD'
-              ? Number(mrSpeedyDeliveryEstimates.car) + 30
-              : Number(mrSpeedyDeliveryEstimates.car);
+            selectedPaymentMethod === 'COD' ? Number(car) + 30 : Number(car);
 
-          return `₱${(this.subTotal + motorbikeDeliveryFee).toFixed(2)} - ₱${(
-            this.subTotal + carDeliveryFee
+          return `₱${(subTotal + motorbikeDeliveryFee).toFixed(2)} - ₱${(
+            subTotal + carDeliveryFee
           ).toFixed(2)}`;
         }
 
         return <ActivityIndicator size="small" color={colors.primary} />;
       }
 
-      return this.subTotal;
+      return subTotal;
     }
 
     return null;
@@ -142,45 +143,55 @@ class CartStoreCard extends PureComponent {
     return amount;
   }
 
-  @computed get mrSpeedyDeliveryFee() {
-    const {storeId} = this.props;
-    const selectedStorePaymentMethod = this.props.shopStore
-      .storeSelectedPaymentMethod[storeId];
-    const CODFee = selectedStorePaymentMethod === 'COD' ? 30 : 0;
+  @computed get mrSpeedyDeliveryFees() {
+    const {
+      props: {storeId},
+      selectedPaymentMethod,
+    } = this;
+    const CODFee = selectedPaymentMethod === 'COD' ? 30 : 0;
     const mrSpeedyDeliveryEstimates = this.props.shopStore
       .storeMrSpeedyDeliveryFee[storeId];
-    const motorbikeDeliveryFee = mrSpeedyDeliveryEstimates
+    const motorbike = mrSpeedyDeliveryEstimates
       ? Number(mrSpeedyDeliveryEstimates.motorbike) + CODFee
       : '';
-    const carDeliveryFee = mrSpeedyDeliveryEstimates
+    const car = mrSpeedyDeliveryEstimates
       ? Number(mrSpeedyDeliveryEstimates.car) + CODFee
       : '';
 
-    return mrSpeedyDeliveryEstimates
-      ? `₱${motorbikeDeliveryFee} (Max. 20kg) - ₱${carDeliveryFee} (Max. 300kg)`
+    return {motorbike, car};
+  }
+
+  @computed get mrSpeedyDeliveryFeeText() {
+    const {
+      mrSpeedyDeliveryFees: {car, motorbike},
+    } = this;
+
+    return car !== undefined && motorbike !== undefined
+      ? `₱${motorbike} (Max. 20kg) - ₱${car} (Max. 300kg)`
       : '';
   }
 
-  @computed get deliveryFee() {
-    const {storeId} = this.props;
-    const selectedStoreDeliveryMethod = this.props.shopStore
-      .storeSelectedDeliveryMethod[storeId];
+  @computed get deliveryFeeText() {
+    const {
+      selectedDeliveryMethod,
+      mrSpeedyDeliveryFeeText,
+      freeDelivery,
+      storeDetails: {ownDeliveryServiceFee},
+    } = this;
 
-    if (selectedStoreDeliveryMethod === 'Mr. Speedy') {
-      return this.mrSpeedyDeliveryFee === '' ? (
+    if (selectedDeliveryMethod === 'Mr. Speedy') {
+      return mrSpeedyDeliveryFeeText === '' ? (
         <ActivityIndicator
           color={colors.primary}
           size="small"
           style={{marginLeft: 5}}
         />
       ) : (
-        this.mrSpeedyDeliveryFee
+        mrSpeedyDeliveryFeeText
       );
     }
-    if (selectedStoreDeliveryMethod === 'Own Delivery') {
-      return this.freeDelivery
-        ? 'Free Delivery'
-        : `₱${this.storeDetails.ownDeliveryServiceFee}`;
+    if (selectedDeliveryMethod === 'Own Delivery') {
+      return freeDelivery ? 'Free Delivery' : `₱${ownDeliveryServiceFee}`;
     }
 
     return 'Please discuss with merchant';
@@ -213,12 +224,26 @@ class CartStoreCard extends PureComponent {
     return [];
   }
 
-  @computed get selectedPayment() {
-    const {selectedPaymentMethod} = this.state;
+  @computed get selectedPaymentMethod() {
+    const {
+      props: {
+        shopStore: {cartStoreSnapshots},
+        storeId,
+      },
+    } = this;
 
-    return selectedPaymentMethod
-      ? Object.values(selectedPaymentMethod)[0]
-      : null;
+    return cartStoreSnapshots?.[storeId]?.paymentMethod;
+  }
+
+  @computed get selectedPaymentDetails() {
+    const {
+      props: {
+        generalStore: {availablePaymentMethods},
+      },
+      selectedPaymentMethod,
+    } = this;
+
+    return availablePaymentMethods?.[selectedPaymentMethod];
   }
 
   @computed get deliveryMethods() {
@@ -252,25 +277,38 @@ class CartStoreCard extends PureComponent {
     return [];
   }
 
+  @computed get selectedDeliveryMethod() {
+    const {
+      props: {
+        shopStore: {cartStoreSnapshots},
+        storeId,
+      },
+    } = this;
+
+    return cartStoreSnapshots?.[storeId]?.deliveryMethod;
+  }
+
   @computed get selectedDeliveryText() {
-    const {storeId} = this.props;
-    const selectedDelivery = this.props.shopStore.storeSelectedDeliveryMethod[
-      storeId
-    ];
+    const {
+      selectedDeliveryMethod,
+      mrSpeedyDeliveryFeeText,
+      storeDetails: {ownDeliveryServiceFee},
+    } = this;
 
     const listText =
-      selectedDelivery === 'Mr. Speedy'
-        ? `Mr. Speedy (${this.mrSpeedyDeliveryFee})`
-        : selectedDelivery === 'Own Delivery'
-        ? `Own Delivery (₱${this.storeDetails.ownDeliveryServiceFee})`
-        : selectedDelivery
-        ? selectedDelivery
+      selectedDeliveryMethod === 'Mr. Speedy'
+        ? `Mr. Speedy (${mrSpeedyDeliveryFeeText})`
+        : selectedDeliveryMethod === 'Own Delivery'
+        ? `Own Delivery (₱${ownDeliveryServiceFee})`
+        : selectedDeliveryMethod
+        ? selectedDeliveryMethod
         : 'Please select a delivery method';
 
     const titleElement =
-      selectedDelivery === 'Mr. Speedy' && this.mrSpeedyDeliveryFee === '' ? (
+      selectedDeliveryMethod === 'Mr. Speedy' &&
+      mrSpeedyDeliveryFeeText === '' ? (
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <Text style={{color: colors.primary}}>{selectedDelivery}</Text>
+          <Text style={{color: colors.primary}}>{selectedDeliveryMethod}</Text>
           <ActivityIndicator
             color={colors.primary}
             size="small"
@@ -284,18 +322,23 @@ class CartStoreCard extends PureComponent {
     return titleElement;
   }
 
-  async setStoreAssignedMerchantId() {
-    this.props.shopStore.storeAssignedMerchantId[
-      this.props.storeId
-    ] = this.storeDetails.merchantId;
+  @computed get storeAssignedEmail() {
+    const {
+      props: {
+        shopStore: {cartStoreSnapshots},
+        storeId,
+      },
+    } = this;
+
+    return cartStoreSnapshots?.[storeId]?.email;
   }
 
-  async getStoreItemsSnapshot() {
+  getStoreItemsSnapshot = () => {
     this.props.shopStore.setStoreItems(
       this.props.storeId,
       this.storeDetails.itemCategories,
     );
-  }
+  };
 
   handleOpenLink(url) {
     this.props.generalStore
@@ -305,9 +348,14 @@ class CartStoreCard extends PureComponent {
   }
 
   handleEmailChange = (email) => {
-    this.props.shopStore.storeUserEmail[this.props.storeId] = email;
+    const {
+      props: {storeId},
+      storeAssignedEmail,
+      checkEmail,
+    } = this;
+    this.props.shopStore.assignPropToStoreId(storeId, 'email', email);
 
-    this.checkEmail(this.props.shopStore.storeUserEmail[this.props.storeId]);
+    checkEmail(storeAssignedEmail);
   };
 
   checkEmail = (email) => {
@@ -315,7 +363,7 @@ class CartStoreCard extends PureComponent {
       /^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,5})$/,
     );
 
-    if (email.length !== 0 && regexp.test(email)) {
+    if (email?.length !== 0 && regexp.test(email)) {
       this.setState({
         emailCheck: true,
       });
@@ -327,53 +375,53 @@ class CartStoreCard extends PureComponent {
   };
 
   async componentDidMount() {
-    const {checkout, storeId} = this.props;
+    const {
+      props: {
+        authStore: {userEmail},
+        shopStore: {cartStoreSnapshots},
+        checkout,
+        storeId,
+        cart,
+      },
+      storeDetails: {merchantId},
+      paymentMethods,
+      deliveryMethods,
+      getStoreItemsSnapshot,
+      checkEmail,
+    } = this;
 
-    await this.setStoreAssignedMerchantId();
+    this.props.shopStore.assignPropToStoreId(storeId, 'merchantId', merchantId);
 
-    if (this.props.cart) {
-      this.getStoreItemsSnapshot();
+    if (cart) {
+      getStoreItemsSnapshot();
     }
 
     if (checkout) {
-      this.props.shopStore.storeUserEmail[
-        storeId
-      ] = this.props.authStore.userEmail;
-
-      this.checkEmail(this.props.shopStore.storeUserEmail[storeId]);
+      this.props.shopStore.assignPropToStoreId(storeId, 'email', userEmail);
 
       when(
-        () => this.deliveryMethods.length > 0,
-        () => {
-          this.props.shopStore.storeSelectedDeliveryMethod[
-            this.props.storeId
-          ] = this.deliveryMethods[0];
-        },
+        () => cartStoreSnapshots?.[storeId]?.email !== undefined,
+        () => checkEmail(cartStoreSnapshots[storeId].email),
       );
 
       when(
-        () => this.paymentMethods.length > 0,
+        () => deliveryMethods.length > 0,
+        () =>
+          this.props.shopStore.assignPropToStoreId(
+            storeId,
+            'deliveryMethod',
+            deliveryMethods[0],
+          ),
+      );
+
+      when(
+        () => paymentMethods.length > 0,
         () => {
-          if (!this.paymentMethods.includes('Online Banking')) {
-            this.setState(
-              {
-                selectedPaymentMethod: {
-                  COD: {
-                    longName: 'Cash On Delivery',
-                    shortName: 'COD',
-                    remarks: 'Pay in cash when you receive your order!',
-                    cost: 0,
-                    currencies: 'PHP',
-                    status: 'A',
-                    surcharge: 0,
-                  },
-                },
-              },
-              () => {
-                this.props.shopStore.storeSelectedPaymentMethod[
-                  this.props.storeId
-                ] = 'COD';
-              },
+          if (!paymentMethods.includes('Online Banking')) {
+            this.props.shopStore.assignPropToStoreId(
+              storeId,
+              'paymentMethod',
+              'COD',
             );
           }
         },
@@ -382,14 +430,16 @@ class CartStoreCard extends PureComponent {
   }
 
   renderPaymentMethods() {
-    const {storeDetails} = this;
+    const {
+      storeDetails: {paymentMethods},
+      selectedPaymentMethod,
+    } = this;
     const {storeId, checkout} = this.props;
-    const {selectedPaymentMethod} = this.state;
     const {availablePaymentMethods} = this.props.generalStore;
 
     if (
       checkout &&
-      storeDetails.paymentMethods &&
+      paymentMethods &&
       Object.keys(availablePaymentMethods).length > 0
     ) {
       return (
@@ -404,9 +454,8 @@ class CartStoreCard extends PureComponent {
               const paymentMethod = {[key]: value};
 
               if (
-                (key !== 'COD' &&
-                  storeDetails.paymentMethods.includes('Online Banking')) ||
-                (key === 'COD' && storeDetails.paymentMethods.includes('COD'))
+                (key !== 'COD' && paymentMethods.includes('Online Banking')) ||
+                (key === 'COD' && paymentMethods.includes('COD'))
               ) {
                 return (
                   <ListItem
@@ -462,19 +511,15 @@ class CartStoreCard extends PureComponent {
                           : 15,
                     }}
                     rightIcon={
-                      selectedPaymentMethod &&
-                      selectedPaymentMethod[key] === paymentMethod[key] ? (
+                      selectedPaymentMethod === key ? (
                         <Icon name="check" color={colors.primary} />
                       ) : null
                     }
                     onPress={() =>
-                      this.setState(
-                        {selectedPaymentMethod: paymentMethod},
-                        () => {
-                          this.props.shopStore.storeSelectedPaymentMethod[
-                            storeId
-                          ] = Object.keys(paymentMethod)[0];
-                        },
+                      this.props.shopStore.assignPropToStoreId(
+                        storeId,
+                        'paymentMethod',
+                        Object.keys(paymentMethod)[0],
                       )
                     }
                   />
@@ -500,10 +545,13 @@ class CartStoreCard extends PureComponent {
   }
 
   renderDeliveryMethods() {
-    const {deliveryMethods} = this;
-    const {storeId} = this.props;
-    const storeSelectedDeliveryMethod = this.props.shopStore
-      .storeSelectedDeliveryMethod[storeId];
+    const {
+      props: {storeId},
+      deliveryMethods,
+      selectedDeliveryMethod,
+      mrSpeedyDeliveryFeeText,
+      storeDetails: {ownDeliveryServiceFee},
+    } = this;
 
     if (deliveryMethods.length > 0) {
       return (
@@ -519,14 +567,14 @@ class CartStoreCard extends PureComponent {
             .map((deliveryMethod, index) => {
               const listText =
                 deliveryMethod === 'Mr. Speedy'
-                  ? `Mr. Speedy (${this.mrSpeedyDeliveryFee})`
+                  ? `Mr. Speedy (${mrSpeedyDeliveryFeeText})`
                   : deliveryMethod === 'Own Delivery'
-                  ? `Own Delivery (₱${this.storeDetails.ownDeliveryServiceFee})`
+                  ? `Own Delivery (₱${ownDeliveryServiceFee})`
                   : deliveryMethod;
 
               const titleElement =
                 deliveryMethod === 'Mr. Speedy' &&
-                this.mrSpeedyDeliveryFee === '' ? (
+                mrSpeedyDeliveryFeeText === '' ? (
                   <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Text>{deliveryMethod}</Text>
                     <ActivityIndicator
@@ -545,15 +593,17 @@ class CartStoreCard extends PureComponent {
                   key={`${deliveryMethod}-${index}`}
                   bottomDivider
                   rightIcon={
-                    storeSelectedDeliveryMethod &&
-                    storeSelectedDeliveryMethod === deliveryMethod ? (
+                    selectedDeliveryMethod &&
+                    selectedDeliveryMethod === deliveryMethod ? (
                       <Icon name="check" color={colors.primary} />
                     ) : null
                   }
                   onPress={() =>
-                    (this.props.shopStore.storeSelectedDeliveryMethod[
-                      storeId
-                    ] = deliveryMethod)
+                    this.props.shopStore.assignPropToStoreId(
+                      storeId,
+                      'deliveryMethod',
+                      deliveryMethod,
+                    )
                   }
                 />
               );
@@ -576,25 +626,19 @@ class CartStoreCard extends PureComponent {
   }
 
   render() {
-    const {storeId, checkout, navigation, cart} = this.props;
     const {
-      storeSelectedDeliveryMethod,
-      storeSelectedPaymentMethod,
-      storeUserEmail,
-    } = this.props.shopStore;
-    const {
-      paymentOptionsModal,
-      deliveryOptionsModal,
+      props: {storeId, checkout, navigation, cart},
+      state: {paymentOptionsModal, deliveryOptionsModal, emailCheck},
+      storeDetails,
+      selectedPaymentDetails,
       selectedPaymentMethod,
-      emailCheck,
-    } = this.state;
-    const {storeDetails, selectedPayment} = this;
-    const selectedDelivery = storeSelectedDeliveryMethod[storeId];
-    const selectedPaymentKey = storeSelectedPaymentMethod[storeId];
-    const email = storeUserEmail[storeId];
+      selectedDeliveryMethod,
+      storeAssignedEmail,
+    } = this;
     const storeImageUrl = {
       uri: `${CDN_BASE_URL}/images/stores/${storeId}/display.jpg`,
     };
+    const isNotCOD = selectedPaymentMethod && selectedPaymentMethod !== 'COD';
 
     return (
       <View
@@ -611,7 +655,7 @@ class CartStoreCard extends PureComponent {
           isVisible={paymentOptionsModal}
           title="Payment Method"
           closeModal={() => this.setState({paymentOptionsModal: false})}
-          confirmDisabled={!selectedPaymentMethod}
+          confirmDisabled={selectedPaymentMethod === undefined}
           renderItems={this.renderPaymentMethods()}
         />
 
@@ -619,9 +663,7 @@ class CartStoreCard extends PureComponent {
           isVisible={deliveryOptionsModal}
           title="Delivery Method"
           closeModal={() => this.setState({deliveryOptionsModal: false})}
-          confirmDisabled={
-            !this.props.shopStore.storeSelectedDeliveryMethod[storeId]
-          }
+          confirmDisabled={!selectedDeliveryMethod}
           renderItems={this.renderDeliveryMethods()}
         />
 
@@ -745,7 +787,7 @@ class CartStoreCard extends PureComponent {
               <View>
                 <ListItem
                   title="Delivery Fee"
-                  rightTitle={this.deliveryFee}
+                  rightTitle={this.deliveryFeeText}
                   rightTitleStyle={{
                     flex: 1,
                     fontSize: 18,
@@ -754,7 +796,7 @@ class CartStoreCard extends PureComponent {
                     textAlign: 'right',
                   }}
                   subtitle={
-                    selectedDelivery === 'Mr. Speedy'
+                    selectedDeliveryMethod === 'Mr. Speedy'
                       ? 'The delivery fee will vary depending on the total weight of your order'
                       : ''
                   }
@@ -803,7 +845,7 @@ class CartStoreCard extends PureComponent {
                   }}
                   titleStyle={{fontSize: 18}}
                   subtitle={
-                    selectedDelivery === 'Mr. Speedy'
+                    selectedDeliveryMethod === 'Mr. Speedy'
                       ? 'The final order total will be shown after the store ships your order'
                       : ''
                   }
@@ -868,11 +910,11 @@ class CartStoreCard extends PureComponent {
                       title="Payment Method"
                       onPress={() => this.setState({paymentOptionsModal: true})}
                       subtitle={
-                        selectedPayment
-                          ? selectedPayment.minAmount &&
-                            selectedPayment.maxAmount
-                            ? `${selectedPayment.shortName} (₱${selectedPayment.minAmount} - ₱${selectedPayment.maxAmount})`
-                            : `${selectedPayment.longName}`
+                        selectedPaymentDetails
+                          ? selectedPaymentDetails.minAmount &&
+                            selectedPaymentDetails.maxAmount
+                            ? `${selectedPaymentDetails.shortName} (₱${selectedPaymentDetails.minAmount} - ₱${selectedPaymentDetails.maxAmount})`
+                            : `${selectedPaymentDetails.longName}`
                           : 'Please select a payment method'
                       }
                       subtitleStyle={{fontSize: 14, color: colors.primary}}
@@ -880,31 +922,19 @@ class CartStoreCard extends PureComponent {
                       style={{
                         borderTopLeftRadius: 10,
                         borderTopRightRadius: 10,
-                        borderBottomRightRadius:
-                          selectedPaymentKey && selectedPaymentKey !== 'COD'
-                            ? 0
-                            : 10,
-                        borderBottomLeftRadius:
-                          selectedPaymentKey && selectedPaymentKey !== 'COD'
-                            ? 0
-                            : 10,
+                        borderBottomRightRadius: isNotCOD ? 0 : 10,
+                        borderBottomLeftRadius: isNotCOD ? 0 : 10,
                       }}
                       containerStyle={{
                         borderTopLeftRadius: 10,
                         borderTopRightRadius: 10,
-                        borderBottomRightRadius:
-                          selectedPaymentKey && selectedPaymentKey !== 'COD'
-                            ? 0
-                            : 10,
-                        borderBottomLeftRadius:
-                          selectedPaymentKey && selectedPaymentKey !== 'COD'
-                            ? 0
-                            : 10,
+                        borderBottomRightRadius: isNotCOD ? 0 : 10,
+                        borderBottomLeftRadius: isNotCOD ? 0 : 10,
                       }}
                       chevron
                     />
 
-                    {selectedPaymentKey && selectedPaymentKey !== 'COD' && (
+                    {isNotCOD && (
                       <ListItem
                         topDivider
                         title="Email Address"
@@ -951,7 +981,7 @@ class CartStoreCard extends PureComponent {
                                 }}
                                 maxLength={256}
                                 autoCapitalize="none"
-                                value={email}
+                                value={storeAssignedEmail}
                                 onChangeText={(value) =>
                                   this.handleEmailChange(value)
                                 }

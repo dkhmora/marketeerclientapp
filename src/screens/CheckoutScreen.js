@@ -126,8 +126,7 @@ class CheckoutScreen extends Component {
 
     !unsubscribeToGetCartItems && getCartItems(userId);
 
-    this.props.shopStore.storeSelectedDeliveryMethod = {};
-    this.props.shopStore.storeSelectedPaymentMethod = {};
+    this.props.shopStore.cartStoreSnapshots = {};
     this.props.shopStore.storeMrSpeedyDeliveryFee = {};
   }
 

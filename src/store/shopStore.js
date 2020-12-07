@@ -18,11 +18,7 @@ class shopStore {
   @persist @observable maxStoreUpdatedAt = 0;
   @observable storeCartItems = {};
   @observable storeDetails = {};
-  @observable storeSelectedDeliveryMethod = {};
-  @observable storeSelectedPaymentMethod = {};
-  @observable storeAssignedMerchantId = {};
-  @observable storeDeliveryDiscount = {};
-  @observable storeUserEmail = {};
+  @observable cartStoreSnapshots = {};
   @observable viewableStoreList = [];
   @observable itemCategories = [];
   @observable storeCategoryItems = new Map();
@@ -56,47 +52,39 @@ class shopStore {
   }
 
   @computed get validStoreUserEmail() {
+    const {cartStoreSnapshots} = this;
     const emailRegexp = new RegExp(
       /^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,5})$/,
     );
 
-    if (Object.values(this.storeUserEmail).length > 0) {
-      return Object.entries(this.storeUserEmail).map(([storeId, email]) => {
+    const userEmailValidityList = Object.values(cartStoreSnapshots).map(
+      ({paymentMethod, email}) => {
+        if (paymentMethod !== 'COD' && !emailRegexp.test(email)) {
+          return false;
+        }
+
+        return true;
+      },
+    );
+
+    return !userEmailValidityList.includes(false);
+  }
+
+  @computed get validPlaceOrder() {
+    if (this.cartStores.length > 0) {
+      const storeSelectedMethods = this.cartStores.map((storeId) => {
         if (
-          this.storeSelectedPaymentMethod[storeId] !== 'COD' &&
-          !emailRegexp.test(email)
+          this.cartStoreSnapshots?.[storeId]?.paymentMethod === undefined ||
+          this.cartStoreSnapshots?.[storeId]?.deliveryMethod === undefined ||
+          !this.validStoreUserEmail
         ) {
           return false;
         }
 
         return true;
       });
-    }
 
-    return true;
-  }
-
-  @computed get validPlaceOrder() {
-    if (this.cartStores.length > 0) {
-      const storeSelectedMethods = this.cartStores.map((storeId) => {
-        if (!this.storeSelectedPaymentMethod[storeId]) {
-          return false;
-        }
-
-        if (!this.storeSelectedDeliveryMethod[storeId]) {
-          return false;
-        }
-
-        if (this.validStoreUserEmail.includes(false)) {
-          return false;
-        }
-
-        return true;
-      });
-
-      if (storeSelectedMethods.includes(false)) {
-        return false;
-      }
+      return !storeSelectedMethods.includes(false);
     }
 
     return true;
@@ -108,7 +96,8 @@ class shopStore {
     if (this.storeCartItems) {
       Object.keys(this.storeCartItems).map(async (storeId) => {
         const storeDetails = this.allStoresMap[storeId];
-        const selectedDelivery = this.storeSelectedDeliveryMethod[storeId];
+        const selectedDelivery = this.cartStoreSnapshots?.[storeId]
+          ?.deliveryMethod;
         let storeTotal = 0;
 
         this.storeCartItems[storeId].map(async (item) => {
@@ -156,30 +145,29 @@ class shopStore {
   }
 
   @computed get totalAmountDisplay() {
-    let lowerEstimate = this.totalCartSubTotalAmount;
-    let upperEstimate = this.totalCartSubTotalAmount;
+    const {
+      totalCartSubTotalAmount,
+      cartStoreSnapshots,
+      storeCartItems,
+      storeMrSpeedyDeliveryFee,
+    } = this;
 
-    if (
-      this.storeCartItems &&
-      Object.keys(this.storeSelectedDeliveryMethod).length > 0
-    ) {
-      Object.entries(this.storeSelectedDeliveryMethod).map(
-        ([storeId, deliveryMethod]) => {
+    let lowerEstimate = totalCartSubTotalAmount;
+    let upperEstimate = totalCartSubTotalAmount;
+
+    if (storeCartItems && Object.keys(cartStoreSnapshots).length > 0) {
+      Object.entries(cartStoreSnapshots).map(
+        ([storeId, {deliveryMethod, paymentMethod}]) => {
           if (deliveryMethod === 'Mr. Speedy') {
-            const mrSpeedyDeliveryEstimates = this.storeMrSpeedyDeliveryFee[
-              storeId
-            ];
-            const selectedPaymentMethod = this.storeSelectedPaymentMethod[
-              storeId
-            ];
+            const mrSpeedyDeliveryEstimates = storeMrSpeedyDeliveryFee[storeId];
 
             if (mrSpeedyDeliveryEstimates) {
               const motorbikeDeliveryFee =
-                selectedPaymentMethod === 'COD'
+                paymentMethod === 'COD'
                   ? Number(mrSpeedyDeliveryEstimates.motorbike) + 30
                   : Number(mrSpeedyDeliveryEstimates.motorbike);
               const carDeliveryFee =
-                selectedPaymentMethod === 'COD'
+                paymentMethod === 'COD'
                   ? Number(mrSpeedyDeliveryEstimates.car) + 30
                   : Number(mrSpeedyDeliveryEstimates.car);
 
@@ -191,7 +179,7 @@ class shopStore {
       );
 
       if (upperEstimate === lowerEstimate) {
-        return `₱${this.totalCartSubTotalAmount.toFixed(2)}`;
+        return `₱${totalCartSubTotalAmount.toFixed(2)}`;
       }
 
       return `₱${lowerEstimate.toFixed(2)} - ₱${upperEstimate.toFixed(2)}`;
@@ -207,6 +195,16 @@ class shopStore {
       return stores;
     }
     return [];
+  }
+
+  @action assignPropToStoreId(storeId, propName, propData) {
+    this.cartStoreSnapshots = {
+      ...this.cartStoreSnapshots,
+      [storeId]: {
+        ...this.cartStoreSnapshots[storeId],
+        [propName]: propData,
+      },
+    };
   }
 
   @action getCartItemIndex(item, storeId) {
@@ -237,32 +235,6 @@ class shopStore {
     });
   }
 
-  @action async getStoreDetailsFromStoreId(storeId) {
-    return await new Promise(async (resolve, reject) => {
-      const storeDetails = await this.getStoreDetails(storeId);
-
-      if (storeDetails) {
-        return resolve(storeDetails);
-      }
-
-      return await firestore()
-        .collection('stores')
-        .doc(storeId)
-        .get()
-        .then((document) => {
-          if (document.exists) {
-            const store = {...document.data(), storeId: document.id};
-
-            return resolve(store);
-          }
-        })
-        .catch((err) => {
-          crashlytics().recordError(err);
-          return reject(err);
-        });
-    });
-  }
-
   @action async setCartItems(userId) {
     firestore()
       .collection('user_carts')
@@ -280,11 +252,7 @@ class shopStore {
 
   @action async placeOrder(orderData) {
     const {
-      storeDeliveryDiscount,
-      storeSelectedDeliveryMethod,
-      storeSelectedPaymentMethod,
-      storeAssignedMerchantId,
-      storeUserEmail,
+      cartStoreSnapshots,
       cartUpdateTimeout,
       updateCartItemsInstantly,
       getCartItems,
@@ -296,11 +264,7 @@ class shopStore {
 
     const orderInfo = {
       ...orderData,
-      storeDeliveryDiscount,
-      storeSelectedDeliveryMethod,
-      storeSelectedPaymentMethod,
-      storeAssignedMerchantId,
-      storeUserEmail,
+      cartStoreSnapshots,
     };
 
     return await updateCartItemsInstantly()
@@ -316,8 +280,7 @@ class shopStore {
 
   @action resetData() {
     this.storeCartItems = {};
-    this.storeSelectedDeliveryMethod = {};
-    this.storeDeliveryDiscount = {};
+    this.cartStoreSnapshots = {};
     this.itemCategories = [];
   }
 

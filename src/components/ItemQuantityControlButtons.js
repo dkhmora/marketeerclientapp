@@ -55,15 +55,15 @@ class ItemQuantityControlButtons extends PureComponent {
 
   showMinusButton() {
     this.setState({minusButtonShown: true}, () => {
-      this.buttonCounterView?.fadeInRight(150) &&
+      this.buttonCounterView?.fadeInRight(200) &&
         this.plusButton?.transformPlusButton(200);
     });
   }
 
   hideMinusButton() {
     this.setState({minusButtonShown: false}, () => {
-      this.buttonCounterView?.fadeOutRight(150) &&
-        this.plusButton?.deTransformPlusButton(200);
+      this.buttonCounterView?.fadeOutRight(200) &&
+        this.plusButton?.deTransformPlusButton(300);
     });
   }
 
@@ -97,7 +97,6 @@ class ItemQuantityControlButtons extends PureComponent {
             borderTopLeftRadius: 100,
             borderBottomLeftRadius: 100,
             marginLeft: -5,
-            elevation: 3,
           }}>
           <Animatable.View
             ref={(buttonCounterView) =>
@@ -117,6 +116,7 @@ class ItemQuantityControlButtons extends PureComponent {
               },
               shadowOpacity: 0.25,
               shadowRadius: 1.84,
+              elevation: 4,
             }}>
             <View
               style={{
@@ -199,7 +199,6 @@ class ItemQuantityControlButtons extends PureComponent {
               borderRadius: 24,
               backgroundColor: colors.icons,
               height: 40,
-              elevation: 3,
             },
             addButtonContainerStyle,
           ]}>
