@@ -42,7 +42,6 @@ LogBox.ignoreLogs([
   'Warning: Failed prop type: Invalid prop `color` supplied to `Text`: hsl(208, 8%, 63%)',
 ]);
 // ------- END OF WARNING SUPPRESSION
-
 @observer
 class App extends React.Component {
   constructor(props) {

@@ -5,6 +5,10 @@ import Toast from '../components/Toast';
 
 const functions = firebase.app().functions('asia-northeast1');
 
+if (process.env.DEVMODE === 'true') {
+  functions.useFunctionsEmulator('http://192.168.86.231:5001');
+}
+
 async function claimVoucher(voucherId) {
   return await functions
     .httpsCallable('claimVoucher')({voucherId})

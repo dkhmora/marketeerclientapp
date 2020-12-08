@@ -251,12 +251,7 @@ class shopStore {
   }
 
   @action async handlePlaceOrder(orderData) {
-    const {
-      cartStoreSnapshots,
-      cartUpdateTimeout,
-      updateCartItemsInstantly,
-      getCartItems,
-    } = this;
+    const {cartStoreSnapshots, cartUpdateTimeout} = this;
 
     if (cartUpdateTimeout) {
       clearTimeout(cartUpdateTimeout);
@@ -267,12 +262,12 @@ class shopStore {
       cartStoreSnapshots,
     };
 
-    return await updateCartItemsInstantly()
+    return await this.updateCartItemsInstantly()
       .then(async () => {
         return await placeOrder(orderInfo);
       })
       .then(async (response) => {
-        getCartItems();
+        this.getCartItems();
 
         return response;
       });
