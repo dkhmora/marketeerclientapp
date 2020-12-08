@@ -71,15 +71,9 @@ class CheckoutScreen extends Component {
             routes: [{name: 'Home'}, {name: 'Cart'}],
           });
         } else {
-          let responses = '';
-
-          await response.data.map((res) => {
-            if (res.s === 200) {
-              responses = `${responses !== '' ? `${responses}; ` : ''}${
-                res.m
-              };`;
-            }
-          });
+          const responses = await response.data
+            .map((res, index) => `${res.m};`)
+            .join(' ');
 
           if (responses) {
             Toast({
