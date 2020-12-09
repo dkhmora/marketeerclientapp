@@ -1,4 +1,3 @@
-import {computed} from 'mobx';
 import {inject, observer} from 'mobx-react';
 import React, {Component} from 'react';
 import {View} from 'react-native';
@@ -14,46 +13,18 @@ class VouchersScreen extends Component {
     this.state = {};
   }
 
-  @computed get voucherLists() {
-    const {
-      props: {
-        generalStore: {
-          appwideVouchers,
-          userDetails: {claimedVouchers},
-        },
-      },
-    } = this;
-
-    const unclaimed = [];
-    const claimed = [];
-
-    if (appwideVouchers !== undefined) {
-      Object.entries(appwideVouchers).map(([voucherId, voucherData]) => {
-        if (
-          claimedVouchers?.[voucherId] === undefined &&
-          voucherData?.disabled !== true
-        ) {
-          return unclaimed.push({voucherId, ...voucherData});
-        }
-
-        return claimed.push({voucherId, ...voucherData});
-      });
-    }
-
-    return {
-      unclaimed,
-      claimed,
-    };
-  }
-
   componentDidMount() {
     this.props.generalStore.setAppData();
   }
 
   render() {
     const {
-      props: {navigation},
-      voucherLists: {unclaimed, claimed},
+      props: {
+        navigation,
+        generalStore: {
+          voucherLists: {unclaimed, claimed},
+        },
+      },
     } = this;
 
     return (

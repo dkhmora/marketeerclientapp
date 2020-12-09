@@ -20,6 +20,7 @@ import * as Animatable from 'react-native-animatable';
 import {CDN_BASE_URL} from '../util/variables';
 import {withNavigation} from '@react-navigation/compat';
 import {openLink} from '../util/helpers';
+import VoucherList from './vouchers/VoucherList';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -32,6 +33,7 @@ class CartStoreCard extends PureComponent {
     this.state = {
       paymentOptionsModal: false,
       deliveryOptionsModal: false,
+      voucherSelectionModal: false,
       emailCheck: false,
     };
   }
@@ -305,6 +307,23 @@ class CartStoreCard extends PureComponent {
       );
 
     return titleElement;
+  }
+
+  @computed get selectedVoucherTitle() {
+    const {
+      props: {
+        shopStore: {cartStoreSnapshots},
+        generalStore: {appwideVouchers},
+        storeId,
+      },
+    } = this;
+    const voucherId = cartStoreSnapshots?.[storeId]?.vouchersApplied?.delivery;
+
+    if (voucherId) {
+      return appwideVouchers?.[voucherId]?.title;
+    }
+
+    return 'None selected';
   }
 
   @computed get storeAssignedEmail() {
@@ -612,18 +631,35 @@ class CartStoreCard extends PureComponent {
 
   render() {
     const {
-      props: {storeId, checkout, navigation, cart},
-      state: {paymentOptionsModal, deliveryOptionsModal, emailCheck},
+      props: {
+        shopStore: {cartStoreSnapshots},
+        generalStore: {
+          voucherLists: {claimed},
+        },
+        storeId,
+        checkout,
+        navigation,
+        cart,
+      },
+      state: {
+        voucherSelectionModal,
+        paymentOptionsModal,
+        deliveryOptionsModal,
+        emailCheck,
+      },
       storeDetails,
       selectedPaymentDetails,
       selectedPaymentMethod,
       selectedDeliveryMethod,
       storeAssignedEmail,
+      selectedVoucherTitle,
     } = this;
     const storeImageUrl = {
       uri: `${CDN_BASE_URL}/images/stores/${storeId}/display.jpg`,
     };
     const isNotCOD = selectedPaymentMethod && selectedPaymentMethod !== 'COD';
+    const selectedVoucherId =
+      cartStoreSnapshots?.[storeId]?.vouchersApplied?.delivery;
 
     return (
       <View
@@ -638,7 +674,7 @@ class CartStoreCard extends PureComponent {
         }}>
         <SelectionModal
           isVisible={paymentOptionsModal}
-          title="Payment Method"
+          title="Select Payment Method"
           closeModal={() => this.setState({paymentOptionsModal: false})}
           confirmDisabled={selectedPaymentMethod === undefined}
           renderItems={this.renderPaymentMethods()}
@@ -646,10 +682,31 @@ class CartStoreCard extends PureComponent {
 
         <SelectionModal
           isVisible={deliveryOptionsModal}
-          title="Delivery Method"
+          title="Select Delivery Method"
           closeModal={() => this.setState({deliveryOptionsModal: false})}
           confirmDisabled={!selectedDeliveryMethod}
           renderItems={this.renderDeliveryMethods()}
+        />
+
+        <SelectionModal
+          isVisible={voucherSelectionModal}
+          title="Select Voucher"
+          closeModal={() => this.setState({voucherSelectionModal: false})}
+          renderItems={
+            <VoucherList
+              vouchers={claimed}
+              keyPrefix="claimed"
+              voucherSelected={selectedVoucherId}
+              onDeliveryVoucherPress={(voucherId) => {
+                console.log(voucherId);
+                this.props.shopStore.assignPropToStoreId(
+                  storeId,
+                  'vouchersApplied',
+                  {delivery: voucherId},
+                );
+              }}
+            />
+          }
         />
 
         <Card
@@ -849,6 +906,34 @@ class CartStoreCard extends PureComponent {
                     marginTop: 10,
                     flexDirection: 'column',
                   }}>
+                  <View
+                    style={{
+                      marginVertical: 5,
+                    }}>
+                    <ListItem
+                      title="Applied Voucher"
+                      onPress={() =>
+                        this.setState({voucherSelectionModal: true})
+                      }
+                      subtitle={selectedVoucherTitle}
+                      subtitleStyle={{fontSize: 14, color: colors.primary}}
+                      titleStyle={{fontSize: 18}}
+                      style={{borderRadius: 10}}
+                      containerStyle={{
+                        borderRadius: 10,
+                        elevation: 3,
+                        shadowColor: '#000',
+                        shadowOffset: {
+                          width: 0,
+                          height: 1,
+                        },
+                        shadowOpacity: 0.2,
+                        shadowRadius: 1.41,
+                      }}
+                      chevron
+                    />
+                  </View>
+
                   <View
                     style={{
                       marginVertical: 5,

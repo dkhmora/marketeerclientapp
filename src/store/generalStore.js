@@ -1,4 +1,4 @@
-import {observable, action} from 'mobx';
+import {observable, action, computed} from 'mobx';
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 import GiftedChat from 'react-native-gifted-chat';
@@ -48,6 +48,34 @@ class generalStore {
       surcharge: 0,
     },
   };
+
+  @computed get voucherLists() {
+    const {
+      appwideVouchers,
+      userDetails: {claimedVouchers},
+    } = this;
+
+    const unclaimed = [];
+    const claimed = [];
+
+    if (appwideVouchers !== undefined) {
+      Object.entries(appwideVouchers).map(([voucherId, voucherData]) => {
+        if (
+          claimedVouchers?.[voucherId] === undefined &&
+          voucherData?.disabled !== true
+        ) {
+          return unclaimed.push({voucherId, ...voucherData});
+        }
+
+        return claimed.push({voucherId, ...voucherData});
+      });
+    }
+
+    return {
+      unclaimed,
+      claimed,
+    };
+  }
 
   @action toggleAppLoader() {
     return new Promise((res) => {
