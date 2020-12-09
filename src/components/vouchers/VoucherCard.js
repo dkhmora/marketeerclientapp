@@ -2,7 +2,7 @@ import {inject, observer} from 'mobx-react';
 import {Card} from 'native-base';
 import React, {Component} from 'react';
 import {View} from 'react-native';
-import {Button, Text} from 'react-native-elements';
+import {Button, Divider, Icon, Text} from 'react-native-elements';
 import {colors} from '../../../assets/colors';
 import {claimVoucher} from '../../util/firebase-functions';
 
@@ -32,6 +32,7 @@ class VoucherCard extends Component {
           validUsers,
           maxClaimsReached,
           disabled,
+          type,
         },
         claimed,
       },
@@ -53,21 +54,38 @@ class VoucherCard extends Component {
             flex: 1,
             borderRadius: 8,
             overflow: 'hidden',
-            paddingHorizontal: 10,
-            paddingVertical: 5,
+            padding: 10,
             alignItems: 'flex-start',
+            backgroundColor: colors.accent,
+            borderWidth: 6,
+            borderColor: colors.icons,
           }}>
-          <Text
+          <View
             style={{
-              fontFamily: 'ProductSans-Bold',
-              fontSize: 18,
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexDirection: 'row',
               marginBottom: 5,
             }}>
-            {title}
-          </Text>
+            <Icon name="tag" color={colors.icons} size={18} />
+
+            <Text
+              style={{
+                fontFamily: 'ProductSans-Bold',
+                fontSize: 18,
+                color: colors.icons,
+                textAlignVertical: 'center',
+                paddingHorizontal: 5,
+              }}>
+              {title}
+            </Text>
+          </View>
+
+          <Divider style={{backgroundColor: colors.icons, width: '100%'}} />
 
           {description && description.length > 0 ? (
-            <Text>{description}</Text>
+            <Text style={{color: colors.icons}}>{description}</Text>
           ) : null}
 
           <View
@@ -79,18 +97,18 @@ class VoucherCard extends Component {
               marginTop: 10,
             }}>
             <View>
-              <Text style={{color: colors.text_secondary}}>
+              <Text style={{color: colors.icons, fontSize: 12}}>
                 *Valid for up to {maxUses} uses
               </Text>
 
               {validUsers && validUsers.includes('first_purchase_users') && (
-                <Text style={{color: colors.text_secondary}}>
+                <Text style={{color: colors.icons, fontSize: 12}}>
                   *Valid for new users
                 </Text>
               )}
 
               {validUsers && validUsers.includes('all_users') && (
-                <Text style={{color: colors.text_secondary}}>
+                <Text style={{color: colors.icons, fontSize: 12}}>
                   *Valid for all users
                 </Text>
               )}
@@ -99,7 +117,13 @@ class VoucherCard extends Component {
             {!(claimed || disabled || maxClaimsReached) && (
               <Button
                 title="Claim Voucher"
-                type="clear"
+                titleStyle={{color: colors.icons}}
+                type="outline"
+                buttonStyle={{
+                  borderColor: colors.icons,
+                  borderWidth: 1,
+                  borderRadius: 30,
+                }}
                 containerStyle={{
                   alignSelf: 'flex-end',
                   borderRadius: 30,

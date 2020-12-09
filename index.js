@@ -13,7 +13,7 @@ messaging().setBackgroundMessageHandler(async (remoteMessage) => {});
 if (process.env.DEVMODE === 'true') {
   firestore()
     .settings({ssl: false, host: '192.168.86.231:5000'})
-    .then(() => console.log('set'));
+    .then(() => console.log('Firestore Host "192.168.86.231:5000" set'));
 }
 
 AppRegistry.registerComponent(appName, () => App);
