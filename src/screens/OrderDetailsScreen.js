@@ -576,7 +576,6 @@ class OrderDetailsScreen extends Component {
                         <Right>
                           <Text
                             style={{
-                              color: colors.text_primary,
                               fontSize: 16,
                               textAlign: 'right',
                             }}>
@@ -634,7 +633,6 @@ class OrderDetailsScreen extends Component {
                           ) : (
                             <Text
                               style={{
-                                color: colors.text_primary,
                                 fontSize: 16,
                                 textAlign: 'right',
                               }}>
@@ -749,7 +747,6 @@ class OrderDetailsScreen extends Component {
                       <Right>
                         <Text
                           style={{
-                            color: colors.text_primary,
                             fontSize: 16,
                             textAlign: 'right',
                           }}>
@@ -774,7 +771,6 @@ class OrderDetailsScreen extends Component {
                       <Right>
                         <Text
                           style={{
-                            color: colors.text_primary,
                             fontSize: 16,
                             textAlign: 'right',
                           }}>
@@ -850,7 +846,6 @@ class OrderDetailsScreen extends Component {
                             <Right>
                               <Text
                                 style={{
-                                  color: colors.text_primary,
                                   fontSize: 16,
                                   textAlign: 'right',
                                 }}>
@@ -896,7 +891,6 @@ class OrderDetailsScreen extends Component {
                             <Right>
                               <Text
                                 style={{
-                                  color: colors.text_primary,
                                   fontSize: 16,
                                   textAlign: 'right',
                                 }}>
@@ -943,7 +937,6 @@ class OrderDetailsScreen extends Component {
                               <Right>
                                 <Text
                                   style={{
-                                    color: colors.text_primary,
                                     fontSize: 16,
                                     textAlign: 'right',
                                   }}>
@@ -1011,7 +1004,6 @@ class OrderDetailsScreen extends Component {
                           style={{
                             flex: 1,
                             fontSize: 16,
-                            color: colors.text_primary,
                             fontFamily: 'ProductSans-Light',
                             textAlign: 'left',
                           }}>
@@ -1020,7 +1012,6 @@ class OrderDetailsScreen extends Component {
                         <Text
                           style={{
                             fontSize: 16,
-                            color: colors.text_primary,
                             fontFamily: 'ProductSans-Black',
                           }}>
                           ₱{selectedOrder?.subTotal.toFixed(2)}
@@ -1038,7 +1029,6 @@ class OrderDetailsScreen extends Component {
                             style={{
                               flex: 1,
                               fontSize: 16,
-                              color: colors.text_primary,
                               fontFamily: 'ProductSans-Light',
                               textAlign: 'left',
                             }}>
@@ -1047,7 +1037,6 @@ class OrderDetailsScreen extends Component {
                           <Text
                             style={{
                               fontSize: 16,
-                              color: colors.primary,
                               fontFamily: 'ProductSans-Black',
                             }}>
                             -₱{selectedOrder.deliveryDiscount.toFixed(2)}
@@ -1066,7 +1055,6 @@ class OrderDetailsScreen extends Component {
                             style={{
                               flex: 1,
                               fontSize: 16,
-                              color: colors.text_primary,
                               fontFamily: 'ProductSans-Light',
                               textAlign: 'left',
                             }}>
@@ -1075,7 +1063,6 @@ class OrderDetailsScreen extends Component {
                           <Text
                             style={{
                               fontSize: 16,
-                              color: colors.primary,
                               fontFamily: 'ProductSans-Black',
                             }}>
                             -₱{appliedDeliveryVoucherAmount.toFixed(2)}
@@ -1093,16 +1080,14 @@ class OrderDetailsScreen extends Component {
                           style={{
                             flex: 1,
                             fontSize: 16,
-                            color: colors.text_primary,
                             fontFamily: 'ProductSans-Light',
                             textAlign: 'left',
                           }}>
-                          {'Delivery Price: '}
+                          {'Discounted Delivery Price: '}
                         </Text>
                         <Text
                           style={{
                             fontSize: 16,
-                            color: colors.text_primary,
                             fontFamily: 'ProductSans-Black',
                           }}>
                           ₱{finalDeliveryPrice.toFixed(2)}

@@ -98,52 +98,15 @@ class CartStoreCard extends PureComponent {
     return amount;
   }
 
-  @computed get mrSpeedyDeliveryFees() {
-    const {
-      props: {storeId},
-      selectedPaymentMethod,
-    } = this;
-    const CODFee = selectedPaymentMethod === 'COD' ? 30 : 0;
-    const mrSpeedyDeliveryEstimates = this.props.shopStore
-      .storeMrSpeedyDeliveryFee[storeId];
-    const motorbike = mrSpeedyDeliveryEstimates
-      ? Number(mrSpeedyDeliveryEstimates.motorbike) + CODFee
-      : '';
-    const car = mrSpeedyDeliveryEstimates
-      ? Number(mrSpeedyDeliveryEstimates.car) + CODFee
-      : '';
-
-    return {motorbike, car};
-  }
-
-  @computed get mrSpeedyDeliveryFeeText() {
-    const {
-      mrSpeedyDeliveryFees: {car, motorbike},
-    } = this;
-
-    return car !== undefined && motorbike !== undefined
-      ? `₱${motorbike} (Max. 20kg) - ₱${car} (Max. 300kg)`
-      : '';
-  }
-
   @computed get deliveryFeeText() {
     const {
       selectedDeliveryMethod,
-      mrSpeedyDeliveryFeeText,
       freeDelivery,
       storeDetails: {ownDeliveryServiceFee},
     } = this;
 
     if (selectedDeliveryMethod === 'Mr. Speedy') {
-      return mrSpeedyDeliveryFeeText === '' ? (
-        <ActivityIndicator
-          color={colors.primary}
-          size="small"
-          style={{marginLeft: 5}}
-        />
-      ) : (
-        mrSpeedyDeliveryFeeText
-      );
+      return 'N/A';
     }
     if (selectedDeliveryMethod === 'Own Delivery') {
       return freeDelivery ? 'Free Delivery' : `₱${ownDeliveryServiceFee}`;
@@ -235,35 +198,19 @@ class CartStoreCard extends PureComponent {
   @computed get selectedDeliveryText() {
     const {
       selectedDeliveryMethod,
-      mrSpeedyDeliveryFeeText,
       storeDetails: {ownDeliveryServiceFee},
     } = this;
 
     const listText =
       selectedDeliveryMethod === 'Mr. Speedy'
-        ? `Mr. Speedy (${mrSpeedyDeliveryFeeText})`
+        ? `Mr. Speedy (To be determined once seller ships order)`
         : selectedDeliveryMethod === 'Own Delivery'
         ? `Own Delivery (₱${ownDeliveryServiceFee})`
         : selectedDeliveryMethod
         ? selectedDeliveryMethod
         : 'Please select a delivery method';
 
-    const titleElement =
-      selectedDeliveryMethod === 'Mr. Speedy' &&
-      mrSpeedyDeliveryFeeText === '' ? (
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <Text style={{color: colors.primary}}>{selectedDeliveryMethod}</Text>
-          <ActivityIndicator
-            color={colors.primary}
-            size="small"
-            style={{marginLeft: 5}}
-          />
-        </View>
-      ) : (
-        listText
-      );
-
-    return titleElement;
+    return listText;
   }
 
   @computed get selectedPaymentMethodSubtitleText() {
@@ -608,7 +555,6 @@ class CartStoreCard extends PureComponent {
       props: {storeId},
       deliveryMethods,
       selectedDeliveryMethod,
-      mrSpeedyDeliveryFeeText,
       storeDetails: {ownDeliveryServiceFee},
     } = this;
 
@@ -626,29 +572,14 @@ class CartStoreCard extends PureComponent {
             .map((deliveryMethod, index) => {
               const listText =
                 deliveryMethod === 'Mr. Speedy'
-                  ? `Mr. Speedy (${mrSpeedyDeliveryFeeText})`
+                  ? 'Mr. Speedy (To be determined once seller ships order)'
                   : deliveryMethod === 'Own Delivery'
                   ? `Own Delivery (₱${ownDeliveryServiceFee})`
                   : deliveryMethod;
 
-              const titleElement =
-                deliveryMethod === 'Mr. Speedy' &&
-                mrSpeedyDeliveryFeeText === '' ? (
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Text>{deliveryMethod}</Text>
-                    <ActivityIndicator
-                      color={colors.primary}
-                      size="small"
-                      style={{marginLeft: 5}}
-                    />
-                  </View>
-                ) : (
-                  listText
-                );
-
               return (
                 <ListItem
-                  title={titleElement}
+                  title={listText}
                   key={`${deliveryMethod}-${index}`}
                   bottomDivider
                   rightIcon={
