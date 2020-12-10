@@ -165,8 +165,7 @@ class ItemDescriptionModal extends Component {
                       textAlign: 'center',
                       color: colors.text_secondary,
                     }}>
-                    {' '}
-                    Left
+                    {' Left'}
                   </Text>
                 </View>
               ) : (

@@ -413,7 +413,7 @@ class SignUpScreen extends Component {
 
               <View style={{flexDirection: 'row', paddingTop: 15}}>
                 <Text style={{color: colors.text_secondary, fontSize: 12}}>
-                  You must be atleast{' '}
+                  {'You must be atleast '}
                 </Text>
                 <Text
                   style={{
@@ -421,7 +421,7 @@ class SignUpScreen extends Component {
                     color: colors.text_secondary,
                     fontSize: 12,
                   }}>
-                  18 years of age{' '}
+                  {'18 years of age '}
                 </Text>
                 <Text style={{color: colors.text_secondary, fontSize: 12}}>
                   to use Marketeer
@@ -645,7 +645,7 @@ class SignUpScreen extends Component {
                 paddingBottom: 30,
               }}>
               <Text style={styles.text_subtext}>
-                Already have an account? You can login{' '}
+                Already have an account? {'Login '}
               </Text>
 
               <TouchableOpacity onPress={() => navigation.navigate('Login')}>

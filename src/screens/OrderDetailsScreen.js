@@ -874,7 +874,7 @@ class OrderDetailsScreen extends Component {
                             <Right>
                               <Text
                                 style={{
-                                  fontSize: 18,
+                                  fontSize: 16,
                                   color: colors.primary,
                                   fontFamily: 'ProductSans-Black',
                                 }}>
@@ -967,15 +967,15 @@ class OrderDetailsScreen extends Component {
                             color: colors.text_primary,
                             fontFamily: 'ProductSans-Light',
                           }}>
-                          Subtotal:{' '}
+                          {'Subtotal: '}
                         </Text>
                         <Text
                           style={{
-                            fontSize: 18,
+                            fontSize: 16,
                             color: colors.text_primary,
                             fontFamily: 'ProductSans-Black',
                           }}>
-                          ₱{selectedOrder.subTotal}
+                          ₱{selectedOrder.subTotal.toFixed(2)}
                         </Text>
                       </View>
 
@@ -991,7 +991,7 @@ class OrderDetailsScreen extends Component {
                         </Text>
                         <Text
                           style={{
-                            fontSize: 18,
+                            fontSize: 16,
                             color: colors.text_primary,
                             fontFamily: 'ProductSans-Black',
                           }}>
@@ -1015,7 +1015,7 @@ class OrderDetailsScreen extends Component {
                         </Text>
                         <Text
                           style={{
-                            fontSize: 18,
+                            fontSize: 16,
                             color: colors.primary,
                             fontFamily: 'ProductSans-Black',
                           }}>

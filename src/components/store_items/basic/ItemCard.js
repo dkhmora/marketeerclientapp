@@ -276,8 +276,7 @@ class ItemCard extends PureComponent {
                         textAlign: 'center',
                         color: colors.text_secondary,
                       }}>
-                      {' '}
-                      Left
+                      {' Left'}
                     </Text>
                   </View>
                 ) : (

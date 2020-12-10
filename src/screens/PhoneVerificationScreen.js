@@ -290,7 +290,7 @@ class PhoneVerificationScreen extends Component {
                   paddingTop: 10,
                 }}>
                 <Text styles={styles.text_subtext}>
-                  Didn't receive the code?{' '}
+                  {"Didn't receive the code? "}
                 </Text>
                 <TouchableOpacity onPress={() => this.handleResend()}>
                   <Text style={styles.touchable_text}>

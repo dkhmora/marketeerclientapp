@@ -306,12 +306,27 @@ class OrderCard extends PureComponent {
       quantity,
       subTotal,
       deliveryPrice,
+      deliveryDiscount,
+      marketeerVoucherDetails,
       paymentMethod,
       createdAt,
       storeName,
       storeId,
     } = order;
     const {url, ready, addReviewModal} = this.state;
+    const finalDeliveryPrice = deliveryPrice
+      ? Math.max(
+          0,
+          deliveryPrice -
+            Number(deliveryDiscount ? deliveryDiscount : 0) -
+            Number(
+              marketeerVoucherDetails?.delivery?.discount?.amount !== undefined
+                ? marketeerVoucherDetails.delivery.discount.amount
+                : 0,
+            ),
+        )
+      : 0;
+    const totalAmount = subTotal + finalDeliveryPrice;
 
     return (
       <View style={{flex: 1, paddingHorizontal: 5}}>
@@ -383,7 +398,7 @@ class OrderCard extends PureComponent {
                       fontFamily: 'ProductSans-Bold',
                       textAlign: 'center',
                     }}>
-                    ₱{subTotal + (deliveryPrice ? deliveryPrice : 0)}
+                    {`₱${totalAmount.toFixed(2)}`}
                   </Text>
 
                   <Text>Total Amount</Text>

@@ -13,7 +13,7 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import firestore from '@react-native-firebase/firestore';
 import moment from 'moment';
 import crashlytics from '@react-native-firebase/crashlytics';
-import { nowMillis } from '../util/variables';
+import {nowMillis} from '../util/variables';
 @inject('generalStore')
 @inject('authStore')
 @observer
@@ -154,7 +154,7 @@ class OrderChatScreen extends Component {
           flexDirection: 'row',
         }}>
         <Text style={{textAlign: 'center', textAlignVertical: 'center'}}>
-          Chat is disabled since order is{' '}
+          {'Chat is disabled since order is '}
           {orderStatus[0] === 'CANCELLED'
             ? orderStatus[0]
             : 'COMPLETED and has surpassed 7 days'}
