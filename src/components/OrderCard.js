@@ -13,6 +13,7 @@ import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
 import {CDN_BASE_URL} from '../util/variables';
 import {openLink} from '../util/helpers';
 import {cancelOrder} from '../util/firebase-functions';
+import Pill from './Pill';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -198,24 +199,11 @@ class OrderCard extends PureComponent {
                   {storeName}
                 </Text>
 
-                <View
-                  style={{
-                    borderRadius: 20,
-                    backgroundColor: colors.accent,
-                    padding: 3,
-                    paddingHorizontal: 10,
-                    marginLeft: 2,
-                    alignSelf: 'flex-start',
-                  }}>
-                  <Text
-                    style={{
-                      fontSize: 13,
-                      fontFamily: 'ProductSans-Regular',
-                      color: colors.icons,
-                    }}>
-                    {paymentMethod}
-                  </Text>
-                </View>
+                <Pill
+                  title={paymentMethod}
+                  titleStyle={{textAlignVertical: 'center', fontSize: 14}}
+                  containerStyle={{marginLeft: 4}}
+                />
               </View>
 
               <View style={{flexDirection: 'row'}}>

@@ -1,7 +1,15 @@
 import React, {Component} from 'react';
 import {Card, CardItem, Left, Right} from 'native-base';
 import {View, ActivityIndicator} from 'react-native';
-import {Text, Input, Icon, Button, Badge, Image} from 'react-native-elements';
+import {
+  Text,
+  Input,
+  Icon,
+  Button,
+  Badge,
+  Image,
+  Divider,
+} from 'react-native-elements';
 import BaseHeader from '../components/BaseHeader';
 import {ScrollView} from 'react-native-gesture-handler';
 import {colors} from '../../assets/colors';
@@ -987,12 +995,10 @@ class OrderDetailsScreen extends Component {
                   ) : (
                     <PrimaryActivityIndicator />
                   )}
-                  <CardItem
-                    bordered
-                    style={{
-                      borderTopWidth: 0.5,
-                      borderTopColor: colors.divider,
-                    }}>
+
+                  <Divider />
+
+                  <CardItem bordered>
                     <View style={{flex: 1}}>
                       <View
                         style={{
@@ -1004,7 +1010,6 @@ class OrderDetailsScreen extends Component {
                           style={{
                             flex: 1,
                             fontSize: 16,
-                            fontFamily: 'ProductSans-Light',
                             textAlign: 'left',
                           }}>
                           {'Subtotal: '}
@@ -1029,7 +1034,6 @@ class OrderDetailsScreen extends Component {
                             style={{
                               flex: 1,
                               fontSize: 16,
-                              fontFamily: 'ProductSans-Light',
                               textAlign: 'left',
                             }}>
                             {'Store Delivery Discount: '}
@@ -1055,7 +1059,6 @@ class OrderDetailsScreen extends Component {
                             style={{
                               flex: 1,
                               fontSize: 16,
-                              fontFamily: 'ProductSans-Light',
                               textAlign: 'left',
                             }}>
                             {'Marketeer Voucher Delivery Discount: '}
@@ -1072,25 +1075,42 @@ class OrderDetailsScreen extends Component {
 
                       <View
                         style={{
+                          flex: 1,
                           flexDirection: 'row',
                           alignItems: 'center',
                           justifyContent: 'space-between',
                         }}>
-                        <Text
-                          style={{
-                            flex: 1,
-                            fontSize: 16,
-                            fontFamily: 'ProductSans-Light',
-                            textAlign: 'left',
-                          }}>
-                          {'Discounted Delivery Price: '}
-                        </Text>
+                        <View style={{flex: 1}}>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              textAlign: 'left',
+                            }}>
+                            {'Discounted Delivery Price: '}
+                          </Text>
+
+                          {!selectedOrder?.deliveryPrice && (
+                            <Text
+                              style={{
+                                flex: 1,
+                                fontSize: 12,
+                                color: colors.text_secondary,
+                                textAlign: 'left',
+                              }}>
+                              Delivery price will be shown once the store has
+                              shipped order
+                            </Text>
+                          )}
+                        </View>
+
                         <Text
                           style={{
                             fontSize: 16,
                             fontFamily: 'ProductSans-Black',
                           }}>
-                          ₱{finalDeliveryPrice.toFixed(2)}
+                          {selectedOrder?.deliveryPrice
+                            ? `₱${finalDeliveryPrice.toFixed(2)}`
+                            : 'TBD'}
                         </Text>
                       </View>
                     </View>

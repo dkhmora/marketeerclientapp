@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {View, FlatList} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
+import {Text} from 'react-native-elements';
 import VoucherCard from './VoucherCard';
 
 export default class VoucherList extends Component {
@@ -55,7 +56,7 @@ export default class VoucherList extends Component {
 
   render() {
     const {
-      props: {vouchers, keyPrefix, orderAmount},
+      props: {vouchers, keyPrefix, emptyText},
       formatData,
       renderItem,
     } = this;
@@ -70,6 +71,24 @@ export default class VoucherList extends Component {
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{paddingHorizontal: 10, flexGrow: 1}}
         keyExtractor={(item) => `${keyPrefix}${item.voucherId}`}
+        ListEmptyComponent={
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Text
+              style={{
+                textAlign: 'center',
+                paddingHorizontal: 15,
+                fontSize: 18,
+                fontFamily: 'ProductSans-Black',
+              }}>
+              {emptyText}
+            </Text>
+          </View>
+        }
       />
     );
   }

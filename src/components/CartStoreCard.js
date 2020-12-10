@@ -856,7 +856,7 @@ class CartStoreCard extends PureComponent {
 
                 {storeDeliveryDiscount !== undefined && (
                   <ListItem
-                    title="Delivery Discount"
+                    title="Store Delivery Discount"
                     rightTitle={`-₱${storeDeliveryDiscount}`}
                     rightTitleStyle={{
                       flex: 1,

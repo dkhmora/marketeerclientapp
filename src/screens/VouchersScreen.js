@@ -32,9 +32,18 @@ class VouchersScreen extends Component {
         <BaseHeader title="Vouchers" backButton navigation={navigation} />
 
         <VouchersTab
-          VoucherList={() => <VoucherList vouchers={unclaimed} />}
+          VoucherList={() => (
+            <VoucherList
+              vouchers={unclaimed}
+              emptyText="There are currently no vouchers you can claim. Don't worry, there will be more. Check back again soon for more exciting deals!"
+            />
+          )}
           ClaimedVoucherList={() => (
-            <VoucherList vouchers={claimed} keyPrefix="claimed" />
+            <VoucherList
+              vouchers={claimed}
+              keyPrefix="claimed"
+              emptyText="You haven't claimed a voucher yet"
+            />
           )}
         />
       </View>
