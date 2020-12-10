@@ -21,6 +21,7 @@ import {CDN_BASE_URL} from '../util/variables';
 import {withNavigation} from '@react-navigation/compat';
 import {openLink} from '../util/helpers';
 import VoucherList from './vouchers/VoucherList';
+import Toast from './Toast';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -698,11 +699,24 @@ class CartStoreCard extends PureComponent {
               keyPrefix="claimed"
               voucherSelected={selectedVoucherId}
               onDeliveryVoucherPress={(voucherId) => {
-                console.log(voucherId);
+                const voucherIsApplicable =
+                  this.props.generalStore.useableVoucherIds[voucherId] > 0;
+                const voucherIsSelected = selectedVoucherId === voucherId;
+
+                this.props.generalStore.useVoucher(voucherId, {
+                  voucherIsSelected,
+                  voucherIsApplicable,
+                });
+
                 this.props.shopStore.assignPropToStoreId(
                   storeId,
                   'vouchersApplied',
-                  {delivery: voucherId},
+                  {
+                    delivery:
+                      voucherIsSelected || !voucherIsApplicable
+                        ? null
+                        : voucherId,
+                  },
                 );
               }}
             />

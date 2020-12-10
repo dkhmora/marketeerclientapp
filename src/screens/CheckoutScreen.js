@@ -112,6 +112,10 @@ class CheckoutScreen extends Component {
     crashlytics().log('CheckoutScreen');
 
     this.getMrSpeedyDeliveryFees();
+
+    this.props.generalStore.useableVoucherIds = JSON.parse(
+      JSON.stringify(this.props.generalStore.userDetails.claimedVouchers),
+    );
   }
 
   componentWillUnmount() {

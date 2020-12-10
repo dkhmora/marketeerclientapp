@@ -1,13 +1,6 @@
-import firebase from '@react-native-firebase/app';
 import crashlytics from '@react-native-firebase/crashlytics';
-import '@react-native-firebase/functions';
 import Toast from '../components/Toast';
-
-const functions = firebase.app().functions('asia-northeast1');
-
-if (process.env.DEVMODE === 'true') {
-  functions.useFunctionsEmulator('http://192.168.86.231:5001');
-}
+import {functions} from '../util/variables';
 
 async function claimVoucher(voucherId) {
   return await functions
@@ -94,7 +87,7 @@ async function getUserMrSpeedyDeliveryPriceEstimate(deliveryData) {
   return await functions
     .httpsCallable('getUserMrSpeedyDeliveryPriceEstimate')(deliveryData)
     .then((response) => {
-      if (response.data.s !== 200) {
+      if (response?.data?.s !== 200) {
         Toast({text: response.data.m, type: 'danger'});
       }
 

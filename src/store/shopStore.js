@@ -227,7 +227,7 @@ class shopStore {
       deliveryLocation,
       deliveryAddress,
     }).then((response) => {
-      if (response.data.s === 200) {
+      if (response?.data?.s === 200) {
         this.storeMrSpeedyDeliveryFee = response.data.d;
       }
 

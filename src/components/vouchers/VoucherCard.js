@@ -5,6 +5,7 @@ import {View, TouchableWithoutFeedback} from 'react-native';
 import {Button, Divider, Icon, Text} from 'react-native-elements';
 import {colors} from '../../../assets/colors';
 import {claimVoucher} from '../../util/firebase-functions';
+import * as Animatable from 'react-native-animatable';
 
 @inject('generalStore')
 @observer
@@ -24,6 +25,10 @@ class VoucherCard extends Component {
   render() {
     const {
       props: {
+        generalStore: {
+          useableVoucherIds,
+          userDetails: {claimedVouchers},
+        },
         onDeliveryVoucherPress,
         voucherSelected,
         voucher: {
@@ -40,11 +45,19 @@ class VoucherCard extends Component {
       },
       handleClaimVoucher,
     } = this;
+    const voucherMaxUsageNumber =
+      claimedVouchers?.[voucherId] !== undefined
+        ? claimedVouchers[voucherId]
+        : 0;
+    const usageNumber = maxUses - voucherMaxUsageNumber;
+    const voucherMaxUsageReached = voucherMaxUsageNumber <= 0;
+    const voucherIsApplicable =
+      this.props.generalStore.useableVoucherIds[voucherId] > 0;
 
     return (
       <TouchableWithoutFeedback
         onPress={
-          type === 'delivery_discount'
+          onDeliveryVoucherPress && type === 'delivery_discount'
             ? () => onDeliveryVoucherPress(voucherId)
             : null
         }>
@@ -89,6 +102,14 @@ class VoucherCard extends Component {
                 }}>
                 {title}
               </Text>
+
+              {usageNumber > 0 && (
+                <Text
+                  numberOfLines={1}
+                  style={{color: colors.icons, fontSize: 12}}>
+                  Used {usageNumber} times
+                </Text>
+              )}
             </View>
 
             <Divider style={{backgroundColor: colors.icons, width: '100%'}} />
@@ -144,7 +165,9 @@ class VoucherCard extends Component {
             </View>
           </View>
 
-          {!claimed && (maxClaimsReached || disabled) && (
+          {((!claimed && (maxClaimsReached || disabled)) ||
+            !voucherIsApplicable ||
+            voucherMaxUsageReached) && (
             <View
               style={{
                 backgroundColor: 'rgba(0,0,0,0.4)',
@@ -169,22 +192,39 @@ class VoucherCard extends Component {
                   zIndex: 10,
                   overflow: 'hidden',
                 }}>
-                Max Claims Reached
+                {voucherMaxUsageReached || !voucherIsApplicable
+                  ? 'Voucher used for a maximum number of times'
+                  : 'Voucher has run out'}
               </Text>
             </View>
           )}
 
-          <View
-            style={{
-              backgroundColor: colors.primary,
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 35,
-            }}>
-            {voucherSelected === voucherId && (
-              <Icon name="check" color={colors.icons} />
-            )}
-          </View>
+          {onDeliveryVoucherPress && (
+            <View
+              style={{
+                backgroundColor: colors.primary,
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 35,
+              }}>
+              {voucherSelected === voucherId && (
+                <Animatable.View
+                  useNativeDriver
+                  animation="bounceIn"
+                  duration={300}>
+                  <Icon
+                    name="check"
+                    color={colors.primary}
+                    style={{
+                      backgroundColor: colors.icons,
+                      elevation: 3,
+                      borderRadius: 30,
+                    }}
+                  />
+                </Animatable.View>
+              )}
+            </View>
+          )}
         </Card>
       </TouchableWithoutFeedback>
     );

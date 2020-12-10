@@ -35,7 +35,7 @@ class generalStore {
   @observable storeCategories = [];
   @observable availablePaymentMethods = {};
   @observable appwideVouchers = {};
-  @observable claimedVoucherIds = {};
+  @observable useableVoucherIds = {};
   @observable getCourierInterval = null;
   @observable additionalPaymentMethods = {
     COD: {
@@ -60,14 +60,13 @@ class generalStore {
 
     if (appwideVouchers !== undefined) {
       Object.entries(appwideVouchers).map(([voucherId, voucherData]) => {
-        if (
-          claimedVouchers?.[voucherId] === undefined &&
-          voucherData?.disabled !== true
-        ) {
-          return unclaimed.push({voucherId, ...voucherData});
-        }
+        if (voucherData?.disabled !== true) {
+          if (claimedVouchers?.[voucherId] === undefined) {
+            return unclaimed.push({voucherId, ...voucherData});
+          }
 
-        return claimed.push({voucherId, ...voucherData});
+          return claimed.push({voucherId, ...voucherData});
+        }
       });
     }
 
@@ -75,6 +74,18 @@ class generalStore {
       unclaimed,
       claimed,
     };
+  }
+
+  @action useVoucher(voucherId, {voucherIsSelected, voucherIsApplicable}) {
+    if (
+      (voucherIsSelected && !voucherIsApplicable) ||
+      (voucherIsSelected && voucherIsApplicable)
+    ) {
+      this.useableVoucherIds[voucherId] += 1;
+    }
+    if (!voucherIsSelected && voucherIsApplicable) {
+      this.useableVoucherIds[voucherId] -= 1;
+    }
   }
 
   @action toggleAppLoader() {
