@@ -45,39 +45,25 @@ class CartStoreCard extends PureComponent {
     this.props.storeId
   ];
 
-  @computed get deliveryDiscountApplicable() {
-    const {
-      storeDetails: {
-        deliveryDiscount: {activated, minimumOrderAmount},
-      },
-      subTotal,
-    } = this;
-
-    if (activated && minimumOrderAmount && subTotal >= minimumOrderAmount) {
-      return true;
-    }
-    return false;
-  }
-
   @computed get orderTotal() {
     if (this.storeDetails) {
       const {
         selectedDeliveryMethod,
         selectedPaymentMethod,
         mrSpeedyDeliveryFees: {car, motorbike},
-        storeDetails: {availableDeliveryMethods, deliveryDiscount},
+        storeDetails: {availableDeliveryMethods},
         subTotal,
-        deliveryDiscountApplicable,
+        storeDeliveryDiscount,
       } = this;
 
       if (selectedDeliveryMethod === 'Own Delivery') {
-        if (deliveryDiscountApplicable) {
+        if (typeof storeDeliveryDiscount === 'number') {
           return (
             subTotal +
             Math.max(
               0,
               availableDeliveryMethods['Own Delivery'].deliveryPrice -
-                deliveryDiscount.discountAmount,
+                storeDeliveryDiscount,
             )
           );
         }
@@ -223,17 +209,6 @@ class CartStoreCard extends PureComponent {
     return cartStoreSnapshots?.[storeId]?.paymentMethod;
   }
 
-  @computed get selectedPaymentDetails() {
-    const {
-      props: {
-        generalStore: {availablePaymentMethods},
-      },
-      selectedPaymentMethod,
-    } = this;
-
-    return availablePaymentMethods?.[selectedPaymentMethod];
-  }
-
   @computed get deliveryMethods() {
     const {storeDetails} = this;
 
@@ -310,6 +285,35 @@ class CartStoreCard extends PureComponent {
     return titleElement;
   }
 
+  @computed get selectedPaymentMethodSubtitleText() {
+    const {
+      props: {
+        generalStore: {availablePaymentMethods},
+      },
+      selectedPaymentMethod,
+    } = this;
+
+    const selectedPaymentMethodDetails =
+      availablePaymentMethods?.[selectedPaymentMethod];
+
+    if (selectedPaymentMethodDetails !== undefined) {
+      const {
+        minAmount,
+        maxAmount,
+        longName,
+        shortName,
+      } = selectedPaymentMethodDetails;
+
+      if (minAmount && maxAmount) {
+        return `${shortName} (₱${minAmount} - ₱${maxAmount})`;
+      }
+
+      return `${longName}`;
+    }
+
+    return 'Please select a payment method';
+  }
+
   @computed get selectedVoucherId() {
     const {
       props: {
@@ -331,6 +335,65 @@ class CartStoreCard extends PureComponent {
 
     if (selectedVoucherId !== undefined) {
       return appwideVouchers?.[selectedVoucherId];
+    }
+  }
+
+  @computed get deliveryFeeSubtitle() {
+    const {selectedDeliveryMethod} = this;
+
+    if (selectedDeliveryMethod === 'Mr. Speedy') {
+      return 'The delivery fee will vary depending on the total weight of your order';
+    }
+    return '';
+  }
+
+  @computed get appliedVoucherSubtitle() {
+    if (this.selectedVoucherDetails) {
+      const {
+        selectedVoucherDetails: {
+          title,
+          discount: {amount},
+          type,
+        },
+      } = this;
+      const deliveryTypeText =
+        type === 'delivery_discount' ? 'delivery' : 'order';
+
+      return `${title} (Enjoy ₱${amount} off your ${deliveryTypeText})`;
+    }
+
+    return 'None selected';
+  }
+
+  @computed get storeDeliveryDiscount() {
+    const {
+      props: {},
+      storeDetails: {
+        deliveryDiscount: {activated, discountAmount, minimumOrderAmount},
+      },
+      subTotal,
+    } = this;
+
+    if (activated && minimumOrderAmount && subTotal >= minimumOrderAmount) {
+      return discountAmount;
+    }
+  }
+
+  @computed get marketeerVoucherDeliveryDiscount() {
+    if (this.selectedVoucherDetails) {
+      const {
+        selectedVoucherDetails: {
+          title,
+          discount: {amount},
+          type,
+          minimumOrderAmount,
+        },
+        subTotal,
+      } = this;
+
+      if (subTotal >= minimumOrderAmount) {
+        return amount;
+      }
     }
   }
 
@@ -640,7 +703,6 @@ class CartStoreCard extends PureComponent {
   render() {
     const {
       props: {
-        shopStore: {cartStoreSnapshots},
         generalStore: {
           voucherLists: {claimed},
         },
@@ -656,12 +718,15 @@ class CartStoreCard extends PureComponent {
         emailCheck,
       },
       storeDetails,
-      selectedPaymentDetails,
       selectedPaymentMethod,
       selectedDeliveryMethod,
       storeAssignedEmail,
-      selectedVoucherDetails,
       selectedVoucherId,
+      appliedVoucherSubtitle,
+      storeDeliveryDiscount,
+      marketeerVoucherDeliveryDiscount,
+      selectedPaymentMethodSubtitleText,
+      deliveryFeeSubtitle,
     } = this;
     const storeImageUrl = {
       uri: `${CDN_BASE_URL}/images/stores/${storeId}/display.jpg`,
@@ -834,13 +899,13 @@ class CartStoreCard extends PureComponent {
               rightTitle={`₱${this.subTotal.toFixed(2)}`}
               rightTitleStyle={{
                 flex: 1,
-                fontSize: 18,
+                fontSize: 16,
                 fontFamily: 'ProductSans-Black',
                 color: colors.text_primary,
                 textAlign: 'right',
               }}
               subtitleStyle={{fontSize: 12, color: colors.text_secondary}}
-              titleStyle={{fontSize: 18}}
+              titleStyle={{fontSize: 16}}
               rightContentContainerStyle={{flex: 1}}
               containerStyle={{paddingBottom: 5, paddingTop: 5}}
             />
@@ -852,40 +917,55 @@ class CartStoreCard extends PureComponent {
                   rightTitle={this.deliveryFeeText}
                   rightTitleStyle={{
                     flex: 1,
-                    fontSize: 18,
+                    fontSize: 16,
                     fontFamily: 'ProductSans-Black',
                     color: colors.text_primary,
                     textAlign: 'right',
                   }}
-                  subtitle={
-                    selectedDeliveryMethod === 'Mr. Speedy'
-                      ? 'The delivery fee will vary depending on the total weight of your order'
-                      : ''
-                  }
+                  subtitle={deliveryFeeSubtitle}
                   subtitleStyle={{
                     fontSize: 12,
                     color: colors.text_secondary,
                   }}
                   titleStyle={{
-                    fontSize: 18,
+                    fontSize: 16,
                   }}
                   rightContentContainerStyle={{flex: 1}}
                   containerStyle={{paddingBottom: 5, paddingTop: 5}}
                 />
 
-                {this.deliveryDiscountApplicable && (
+                {storeDeliveryDiscount !== undefined && (
                   <ListItem
                     title="Delivery Discount"
-                    rightTitle={`-₱${storeDetails.deliveryDiscount.discountAmount}`}
+                    rightTitle={`-₱${storeDeliveryDiscount}`}
                     rightTitleStyle={{
                       flex: 1,
-                      fontSize: 18,
+                      fontSize: 16,
                       fontFamily: 'ProductSans-Black',
                       color: colors.text_primary,
                       textAlign: 'right',
                     }}
                     subtitleStyle={{fontSize: 14, color: colors.primary}}
-                    titleStyle={{fontSize: 18}}
+                    titleStyle={{fontSize: 16}}
+                    rightContentContainerStyle={{flex: 1}}
+                    containerStyle={{paddingBottom: 5, paddingTop: 5}}
+                  />
+                )}
+
+                {marketeerVoucherDeliveryDiscount !== undefined && (
+                  <ListItem
+                    title="Marketeer Voucher Delivery Discount"
+                    rightTitle={`-₱${marketeerVoucherDeliveryDiscount}`}
+                    rightTitleStyle={{
+                      flex: 1,
+                      fontSize: 16,
+                      fontFamily: 'ProductSans-Black',
+                      color: colors.text_primary,
+                      textAlign: 'right',
+                      textAlignVertical: 'center',
+                    }}
+                    subtitleStyle={{fontSize: 14, color: colors.primary}}
+                    titleStyle={{fontSize: 16}}
                     rightContentContainerStyle={{flex: 1}}
                     containerStyle={{paddingBottom: 5, paddingTop: 5}}
                   />
@@ -896,7 +976,7 @@ class CartStoreCard extends PureComponent {
                   rightTitle={this.orderTotal}
                   rightTitleStyle={{
                     flex: 1,
-                    fontSize: 18,
+                    fontSize: 16,
                     fontFamily: 'ProductSans-Black',
                     color: colors.text_primary,
                     textAlign: 'right',
@@ -905,7 +985,7 @@ class CartStoreCard extends PureComponent {
                     fontSize: 12,
                     color: colors.text_secondary,
                   }}
-                  titleStyle={{fontSize: 18}}
+                  titleStyle={{fontSize: 16}}
                   subtitle={
                     selectedDeliveryMethod === 'Mr. Speedy'
                       ? 'The final order total will be shown after the store ships your order'
@@ -923,7 +1003,6 @@ class CartStoreCard extends PureComponent {
                   style={{
                     flex: 1,
                     marginHorizontal: 10,
-                    marginTop: 10,
                     flexDirection: 'column',
                   }}>
                   <View
@@ -935,13 +1014,9 @@ class CartStoreCard extends PureComponent {
                       onPress={() =>
                         this.setState({voucherSelectionModal: true})
                       }
-                      subtitle={
-                        selectedVoucherDetails
-                          ? selectedVoucherDetails.title
-                          : 'None selected'
-                      }
+                      subtitle={appliedVoucherSubtitle}
                       subtitleStyle={{fontSize: 14, color: colors.primary}}
-                      titleStyle={{fontSize: 18}}
+                      titleStyle={{fontSize: 16}}
                       style={{borderRadius: 10}}
                       containerStyle={{
                         borderRadius: 10,
@@ -969,7 +1044,7 @@ class CartStoreCard extends PureComponent {
                       }
                       subtitle={this.selectedDeliveryText}
                       subtitleStyle={{fontSize: 14, color: colors.primary}}
-                      titleStyle={{fontSize: 18}}
+                      titleStyle={{fontSize: 16}}
                       style={{borderRadius: 10}}
                       containerStyle={{
                         borderRadius: 10,
@@ -1003,16 +1078,9 @@ class CartStoreCard extends PureComponent {
                     <ListItem
                       title="Payment Method"
                       onPress={() => this.setState({paymentOptionsModal: true})}
-                      subtitle={
-                        selectedPaymentDetails
-                          ? selectedPaymentDetails.minAmount &&
-                            selectedPaymentDetails.maxAmount
-                            ? `${selectedPaymentDetails.shortName} (₱${selectedPaymentDetails.minAmount} - ₱${selectedPaymentDetails.maxAmount})`
-                            : `${selectedPaymentDetails.longName}`
-                          : 'Please select a payment method'
-                      }
+                      subtitle={selectedPaymentMethodSubtitleText}
                       subtitleStyle={{fontSize: 14, color: colors.primary}}
-                      titleStyle={{fontSize: 18}}
+                      titleStyle={{fontSize: 16}}
                       style={{
                         borderTopLeftRadius: 10,
                         borderTopRightRadius: 10,
@@ -1032,7 +1100,7 @@ class CartStoreCard extends PureComponent {
                       <ListItem
                         topDivider
                         title="Email Address"
-                        titleStyle={{fontSize: 18, flex: 0}}
+                        titleStyle={{fontSize: 16, flex: 0}}
                         style={{borderRadius: 10}}
                         containerStyle={{borderRadius: 10}}
                         subtitle={

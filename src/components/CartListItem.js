@@ -211,7 +211,6 @@ class CartListItem extends PureComponent {
                 numberOfLines={1}
                 style={{
                   fontFamily: 'ProductSans-Black',
-                  fontSize: 16,
                   color: colors.text_secondary,
                 }}>
                 ₱{totalItemPrice}
@@ -233,7 +232,7 @@ class CartListItem extends PureComponent {
               <Text
                 adjustsFontSizeToFit
                 numberOfLines={1}
-                style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
+                style={{fontFamily: 'ProductSans-Black'}}>
                 ₱{totalItemPrice * item.quantity}
               </Text>
             </View>
