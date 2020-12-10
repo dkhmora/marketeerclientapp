@@ -310,21 +310,28 @@ class CartStoreCard extends PureComponent {
     return titleElement;
   }
 
-  @computed get selectedVoucherTitle() {
+  @computed get selectedVoucherId() {
     const {
       props: {
         shopStore: {cartStoreSnapshots},
-        generalStore: {appwideVouchers},
         storeId,
       },
     } = this;
-    const voucherId = cartStoreSnapshots?.[storeId]?.vouchersApplied?.delivery;
 
-    if (voucherId) {
-      return appwideVouchers?.[voucherId]?.title;
+    return cartStoreSnapshots?.[storeId]?.vouchersApplied?.delivery;
+  }
+
+  @computed get selectedVoucherDetails() {
+    const {
+      props: {
+        generalStore: {appwideVouchers},
+      },
+      selectedVoucherId,
+    } = this;
+
+    if (selectedVoucherId !== undefined) {
+      return appwideVouchers?.[selectedVoucherId];
     }
-
-    return 'None selected';
   }
 
   @computed get storeAssignedEmail() {
@@ -653,14 +660,13 @@ class CartStoreCard extends PureComponent {
       selectedPaymentMethod,
       selectedDeliveryMethod,
       storeAssignedEmail,
-      selectedVoucherTitle,
+      selectedVoucherDetails,
+      selectedVoucherId,
     } = this;
     const storeImageUrl = {
       uri: `${CDN_BASE_URL}/images/stores/${storeId}/display.jpg`,
     };
     const isNotCOD = selectedPaymentMethod && selectedPaymentMethod !== 'COD';
-    const selectedVoucherId =
-      cartStoreSnapshots?.[storeId]?.vouchersApplied?.delivery;
 
     return (
       <View
@@ -929,7 +935,11 @@ class CartStoreCard extends PureComponent {
                       onPress={() =>
                         this.setState({voucherSelectionModal: true})
                       }
-                      subtitle={selectedVoucherTitle}
+                      subtitle={
+                        selectedVoucherDetails
+                          ? selectedVoucherDetails.title
+                          : 'None selected'
+                      }
                       subtitleStyle={{fontSize: 14, color: colors.primary}}
                       titleStyle={{fontSize: 18}}
                       style={{borderRadius: 10}}
