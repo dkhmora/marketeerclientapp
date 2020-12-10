@@ -18,6 +18,7 @@ import CardItemHeader from '../components/CardItemHeader';
 import {cancelOrder} from '../util/firebase-functions';
 import {getOrderPayment, getOrderItems} from '../util/firebase-firestore';
 import {openLink} from '../util/helpers';
+import Pill from '../components/Pill';
 
 @inject('generalStore')
 @inject('authStore')
@@ -239,11 +240,8 @@ class OrderDetailsScreen extends Component {
   @computed get mrspeedyVehicleType() {
     const {selectedOrder} = this.props.generalStore;
 
-    if (
-      selectedOrder.mrspeedyBookingData &&
-      selectedOrder.mrspeedyBookingData.order
-    ) {
-      return selectedOrder.mrspeedyBookingData.order.vehicle_type_id === 8
+    if (selectedOrder?.mrspeedyBookingData?.order !== undefined) {
+      return selectedOrder.mrspeedyBookingData.order?.vehicle_type_id === 8
         ? 'Motorbike'
         : 'Car';
     }
@@ -332,28 +330,29 @@ class OrderDetailsScreen extends Component {
 
   render() {
     const {
-      itemsReady,
-      orderItems,
-      orderPayment,
-      confirmCancelOrderModal,
-      cancelReasonCheck,
-      cancelReasonInput,
-      cancelOrderLoading,
-      courierCoordinates,
-      allowDragging,
-    } = this.state;
-    const {orderStatus} = this;
-    const {availablePaymentMethods, selectedOrder} = this.props.generalStore;
-    const paymentGateway =
-      selectedOrder && selectedOrder.processId
-        ? availablePaymentMethods[selectedOrder.processId]
-        : null;
-    const {userName} = this.props.authStore;
-    const {navigation} = this.props;
-
-    const cancelReason = selectedOrder
-      ? selectedOrder.orderStatus.cancelled.reason
+      state: {
+        itemsReady,
+        orderItems,
+        orderPayment,
+        confirmCancelOrderModal,
+        cancelReasonCheck,
+        cancelReasonInput,
+        cancelOrderLoading,
+        courierCoordinates,
+        allowDragging,
+      },
+      props: {
+        generalStore: {availablePaymentMethods, selectedOrder, navigation},
+        authStore: {userName},
+      },
+      orderStatus,
+      mrspeedyVehicleType,
+    } = this;
+    const paymentGateway = selectedOrder?.processId
+      ? availablePaymentMethods[selectedOrder.processId]
       : null;
+
+    const cancelReason = selectedOrder?.orderStatus?.cancelled?.reason;
 
     const paymentStatus =
       orderPayment &&
@@ -375,21 +374,43 @@ class OrderDetailsScreen extends Component {
         ? 'Authorized'
         : 'Undefined');
 
+    const appliedDeliveryVoucherTitle =
+      selectedOrder?.marketeerVoucherDetails?.delivery?.title;
+    const appliedDeliveryVoucherAmount =
+      selectedOrder?.marketeerVoucherDetails?.delivery?.discount?.amount;
+
+    const finalDeliveryPrice = selectedOrder?.deliveryPrice
+      ? Math.max(
+          0,
+          selectedOrder?.deliveryPrice -
+            Number(
+              selectedOrder?.deliveryDiscount
+                ? selectedOrder.deliveryDiscount
+                : 0,
+            ) -
+            Number(
+              appliedDeliveryVoucherAmount !== undefined
+                ? appliedDeliveryVoucherAmount
+                : 0,
+            ),
+        )
+      : 0;
+    const totalAmount =
+      (selectedOrder?.subTotal !== undefined ? selectedOrder.subTotal : 0) +
+      finalDeliveryPrice;
+
     return (
       <View style={{flex: 1}}>
         <BaseHeader
           title={
-            selectedOrder
-              ? selectedOrder.userOrderNumber &&
-                `Order #${selectedOrder.userOrderNumber} Details`
+            selectedOrder?.userOrderNumber !== undefined
+              ? `Order #${selectedOrder?.userOrderNumber} Details`
               : null
           }
           centerComponent={
-            selectedOrder
-              ? !selectedOrder.userOrderNumber && (
-                  <ActivityIndicator size="small" color={colors.icons} />
-                )
-              : null
+            selectedOrder?.userOrderNumber === undefined ? (
+              <ActivityIndicator size="small" color={colors.icons} />
+            ) : null
           }
           backButton
           optionsIcon="help-circle"
@@ -398,7 +419,7 @@ class OrderDetailsScreen extends Component {
             (orderStatus[0] === 'PENDING' ||
               orderStatus[0] === 'UNPAID' ||
               (orderStatus[0] === 'PAID' &&
-                selectedOrder.paymentMethod === 'COD'))
+                selectedOrder?.paymentMethod === 'COD'))
               ? ['Cancel Order']
               : null
           }
@@ -414,8 +435,8 @@ class OrderDetailsScreen extends Component {
           <View style={{flex: 1}}>
             <ConfirmationModal
               isVisible={confirmCancelOrderModal}
-              closeModal={() => this.closeModal()}
-              title={`Cancel Order #${selectedOrder.userOrderNumber}`}
+              closeModal={() => closeModal()}
+              title={`Cancel Order #${selectedOrder?.userOrderNumber}`}
               loading={cancelOrderLoading}
               confirmDisabled={!cancelReasonCheck}
               body={
@@ -515,10 +536,10 @@ class OrderDetailsScreen extends Component {
                               color={colors.primary}
                             />
 
-                            {selectedOrder.userUnreadCount !== null &&
-                              selectedOrder.userUnreadCount > 0 && (
+                            {selectedOrder?.userUnreadCount !== undefined &&
+                              selectedOrder?.userUnreadCount > 0 && (
                                 <Badge
-                                  value={selectedOrder.userUnreadCount}
+                                  value={selectedOrder?.userUnreadCount}
                                   badgeStyle={{backgroundColor: colors.accent}}
                                   containerStyle={{
                                     position: 'absolute',
@@ -559,7 +580,7 @@ class OrderDetailsScreen extends Component {
                               fontSize: 16,
                               textAlign: 'right',
                             }}>
-                            {selectedOrder.orderId}
+                            {selectedOrder?.orderId}
                           </Text>
                         </Right>
                       </CardItem>
@@ -601,7 +622,7 @@ class OrderDetailsScreen extends Component {
                         </Left>
 
                         <Right>
-                          {selectedOrder.deliveryMethod === 'Mr. Speedy' ? (
+                          {selectedOrder?.deliveryMethod === 'Mr. Speedy' ? (
                             <Image
                               source={require('../../assets/images/mrspeedy-logo.png')}
                               style={{
@@ -617,7 +638,7 @@ class OrderDetailsScreen extends Component {
                                 fontSize: 16,
                                 textAlign: 'right',
                               }}>
-                              {selectedOrder.deliveryMethod}
+                              {selectedOrder?.deliveryMethod}
                             </Text>
                           )}
                         </Right>
@@ -635,25 +656,49 @@ class OrderDetailsScreen extends Component {
                         </Left>
 
                         <Right>
-                          <View
-                            style={{
-                              borderRadius: 20,
-                              backgroundColor: colors.accent,
-                              padding: 3,
-                              paddingHorizontal: 10,
-                              marginLeft: 2,
-                            }}>
-                            <Text
-                              style={{
-                                fontSize: 13,
-                                fontFamily: 'ProductSans-Regular',
-                                color: colors.icons,
-                              }}>
-                              {selectedOrder.paymentMethod}
-                            </Text>
-                          </View>
+                          <Pill
+                            title={selectedOrder?.paymentMethod}
+                            titleStyle={{fontSize: 16}}
+                          />
                         </Right>
                       </CardItem>
+
+                      {appliedDeliveryVoucherTitle !== undefined && (
+                        <CardItem bordered>
+                          <Left>
+                            <Text
+                              style={{
+                                fontSize: 16,
+                                fontFamily: 'ProductSans-Bold',
+                              }}>
+                              Voucher/s Applied:
+                            </Text>
+                          </Left>
+
+                          <Right>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                backgroundColor: colors.primary,
+                                elevation: 3,
+                                borderRadius: 8,
+                                padding: 3,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}>
+                              <Icon name="tag" color={colors.icons} size={16} />
+                              <Text
+                                style={{
+                                  color: colors.icons,
+                                  fontSize: 16,
+                                  paddingHorizontal: 3,
+                                }}>
+                                {appliedDeliveryVoucherTitle}
+                              </Text>
+                            </View>
+                          </Right>
+                        </CardItem>
+                      )}
 
                       <MapCardItem
                         onTouchStart={() =>
@@ -663,7 +708,7 @@ class OrderDetailsScreen extends Component {
                         onTouchCancel={() =>
                           this.setState({allowDragging: true})
                         }
-                        vehicleType={this.mrspeedyVehicleType}
+                        vehicleType={mrspeedyVehicleType}
                         courierCoordinates={courierCoordinates}
                       />
                     </View>
@@ -710,7 +755,7 @@ class OrderDetailsScreen extends Component {
                           }}>
                           {selectedOrder.orderStatus.cancelled.byShopper
                             ? `${userName} (Shopper)`
-                            : `${selectedOrder.storeName} (Store)`}
+                            : `${selectedOrder?.storeName} (Store)`}
                         </Text>
                       </Right>
                     </CardItem>
@@ -741,7 +786,7 @@ class OrderDetailsScreen extends Component {
                 </View>
               )}
 
-              {selectedOrder.paymentMethod === 'Online Banking' &&
+              {selectedOrder?.paymentMethod === 'Online Banking' &&
                 !selectedOrder.orderStatus.pending.status &&
                 !selectedOrder.orderStatus.cancelled.status && (
                   <View
@@ -775,8 +820,8 @@ class OrderDetailsScreen extends Component {
                         </Text>
 
                         {orderStatus[0] === 'UNPAID' &&
-                          selectedOrder.paymentMethod === 'Online Banking' &&
-                          selectedOrder.paymentLink && (
+                          selectedOrder?.paymentMethod === 'Online Banking' &&
+                          selectedOrder?.paymentLink && (
                             <Button
                               title="Pay Now"
                               onPress={() => this.openPaymentLink()}
@@ -930,7 +975,7 @@ class OrderDetailsScreen extends Component {
                     borderRadius: 10,
                     overflow: 'hidden',
                   }}>
-                  <CardItemHeader title="Order Items" />
+                  <CardItemHeader title="Order Summary" />
 
                   {itemsReady ? (
                     <View>
@@ -939,7 +984,7 @@ class OrderDetailsScreen extends Component {
                           <View key={item.itemId}>
                             <CartListItem
                               item={item}
-                              storeId={selectedOrder.storeId}
+                              storeId={selectedOrder?.storeId}
                               checkout
                             />
                           </View>
@@ -955,17 +1000,20 @@ class OrderDetailsScreen extends Component {
                       borderTopWidth: 0.5,
                       borderTopColor: colors.divider,
                     }}>
-                    <Left>
-                      <Text note>{selectedOrder.quantity} items</Text>
-                    </Left>
-                    <Right>
+                    <View style={{flex: 1}}>
                       <View
-                        style={{flexDirection: 'row', alignItems: 'center'}}>
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                        }}>
                         <Text
                           style={{
-                            fontSize: 15,
+                            flex: 1,
+                            fontSize: 16,
                             color: colors.text_primary,
                             fontFamily: 'ProductSans-Light',
+                            textAlign: 'left',
                           }}>
                           {'Subtotal: '}
                         </Text>
@@ -975,17 +1023,79 @@ class OrderDetailsScreen extends Component {
                             color: colors.text_primary,
                             fontFamily: 'ProductSans-Black',
                           }}>
-                          ₱{selectedOrder.subTotal.toFixed(2)}
+                          ₱{selectedOrder?.subTotal.toFixed(2)}
                         </Text>
                       </View>
 
+                      {selectedOrder?.deliveryDiscount !== undefined && (
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                          }}>
+                          <Text
+                            style={{
+                              flex: 1,
+                              fontSize: 16,
+                              color: colors.text_primary,
+                              fontFamily: 'ProductSans-Light',
+                              textAlign: 'left',
+                            }}>
+                            {'Store Delivery Discount: '}
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              color: colors.primary,
+                              fontFamily: 'ProductSans-Black',
+                            }}>
+                            -₱{selectedOrder.deliveryDiscount.toFixed(2)}
+                          </Text>
+                        </View>
+                      )}
+
+                      {appliedDeliveryVoucherAmount !== undefined && (
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                          }}>
+                          <Text
+                            style={{
+                              flex: 1,
+                              fontSize: 16,
+                              color: colors.text_primary,
+                              fontFamily: 'ProductSans-Light',
+                              textAlign: 'left',
+                            }}>
+                            {'Marketeer Voucher Delivery Discount: '}
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              color: colors.primary,
+                              fontFamily: 'ProductSans-Black',
+                            }}>
+                            -₱{appliedDeliveryVoucherAmount.toFixed(2)}
+                          </Text>
+                        </View>
+                      )}
+
                       <View
-                        style={{flexDirection: 'row', alignItems: 'center'}}>
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                        }}>
                         <Text
                           style={{
-                            fontSize: 15,
+                            flex: 1,
+                            fontSize: 16,
                             color: colors.text_primary,
                             fontFamily: 'ProductSans-Light',
+                            textAlign: 'left',
                           }}>
                           {'Delivery Price: '}
                         </Text>
@@ -995,31 +1105,40 @@ class OrderDetailsScreen extends Component {
                             color: colors.text_primary,
                             fontFamily: 'ProductSans-Black',
                           }}>
-                          {this.deliveryPriceText}
+                          ₱{finalDeliveryPrice.toFixed(2)}
                         </Text>
                       </View>
-                    </Right>
+                    </View>
                   </CardItem>
                   <CardItem footer bordered>
-                    <Left />
+                    <Left>
+                      <View style={{flex: 1}}>
+                        <Text style={{color: colors.text_secondary}}>
+                          {selectedOrder?.quantity} items
+                        </Text>
+                      </View>
+                    </Left>
                     <Right>
                       <View
-                        style={{flexDirection: 'row', alignItems: 'center'}}>
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                        }}>
                         <Text
                           style={{
-                            fontSize: 15,
-                            color: colors.text_primary,
+                            fontSize: 16,
                             fontFamily: 'ProductSans-Light',
+                            textAlign: 'left',
                           }}>
                           {'Order Total: '}
                         </Text>
                         <Text
                           style={{
                             fontSize: 16,
-                            color: colors.primary,
                             fontFamily: 'ProductSans-Black',
                           }}>
-                          {this.orderTotalText}
+                          {`₱${totalAmount.toFixed(2)}`}
                         </Text>
                       </View>
                     </Right>

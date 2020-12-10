@@ -10,6 +10,7 @@ import {computed} from 'mobx';
 import {observer} from 'mobx-react';
 import {CDN_BASE_URL} from '../util/variables';
 import {getStoreAvailability, getNextStoreOperationDate} from '../util/helpers';
+import Pill from './Pill';
 
 @observer
 class StoreCard extends Component {
@@ -53,34 +54,7 @@ class StoreCard extends Component {
 
     paymentMethods &&
       paymentMethods.map((method, index) => {
-        pills.push(
-          <View
-            key={`${method}${index}`}
-            style={{
-              borderRadius: 20,
-              backgroundColor: colors.accent,
-              padding: 2,
-              paddingHorizontal: 5,
-              marginRight: 2,
-              shadowColor: '#000',
-              shadowOffset: {
-                width: 0,
-                height: 1,
-              },
-              shadowOpacity: 0.2,
-              shadowRadius: 1.41,
-              elevation: 2,
-            }}>
-            <Text
-              style={{
-                fontSize: 12,
-                fontFamily: 'ProductSans-Regular',
-                color: colors.icons,
-              }}>
-              {method}
-            </Text>
-          </View>,
-        );
+        pills.push(<Pill key={`${method}${index}`} title={method} />);
       });
 
     return pills;
