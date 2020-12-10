@@ -694,6 +694,7 @@ class CartStoreCard extends PureComponent {
         storeId,
       },
       selectedVoucherId,
+      subTotal,
     } = this;
 
     return (
@@ -701,6 +702,7 @@ class CartStoreCard extends PureComponent {
         vouchers={claimed}
         keyPrefix="claimed"
         voucherSelected={selectedVoucherId}
+        orderAmount={subTotal}
         onDeliveryVoucherPress={(voucherId) => {
           const voucherIsApplicable = useableVoucherIds[voucherId] > 0;
           const voucherIsSelected = selectedVoucherId === voucherId;

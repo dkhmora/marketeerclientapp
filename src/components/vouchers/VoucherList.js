@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, FlatList} from 'react-native';
+import {View, FlatList} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import VoucherCard from './VoucherCard';
 
@@ -24,26 +24,38 @@ export default class VoucherList extends Component {
     return data;
   }
 
-  renderItem = ({item, index}) =>
-    item.empty ? (
+  renderItem = ({item, index}) => {
+    const {
+      props: {
+        navigation,
+        orderAmount,
+        keyPrefix,
+        voucherSelected,
+        onDeliveryVoucherPress,
+      },
+    } = this;
+
+    return item.empty ? (
       <View
         style={{flex: 1, backgroundColor: 'transparent'}}
         key={`voucherEmpty${index}`}
       />
     ) : (
       <VoucherCard
-        claimed={this.props.keyPrefix !== undefined}
+        claimed={keyPrefix !== undefined}
         voucher={item}
-        navigation={this.props.navigation}
-        voucherSelected={this.props.voucherSelected}
-        onDeliveryVoucherPress={this.props.onDeliveryVoucherPress}
-        key={`${this.props.keyPrefix}${item.voucherId}`}
+        navigation={navigation}
+        orderAmount={orderAmount}
+        voucherSelected={voucherSelected}
+        onDeliveryVoucherPress={onDeliveryVoucherPress}
+        key={`${keyPrefix}${item.voucherId}`}
       />
     );
+  };
 
   render() {
     const {
-      props: {vouchers, keyPrefix},
+      props: {vouchers, keyPrefix, orderAmount},
       formatData,
       renderItem,
     } = this;

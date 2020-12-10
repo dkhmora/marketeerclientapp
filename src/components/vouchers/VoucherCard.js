@@ -34,30 +34,36 @@ class VoucherCard extends Component {
         voucher: {
           title,
           description,
+          discount,
           maxUses,
           voucherId,
           validUsers,
           maxClaimsReached,
           disabled,
           type,
+          minimumOrderAmount,
         },
+        orderAmount,
         claimed,
       },
       handleClaimVoucher,
     } = this;
-    const voucherMaxUsageNumber =
+    const voucherMaxnumberSelected =
       claimedVouchers?.[voucherId] !== undefined
         ? claimedVouchers[voucherId]
         : 0;
-    const usageNumber = maxUses - voucherMaxUsageNumber;
-    const voucherMaxUsageReached = voucherMaxUsageNumber <= 0;
-    const voucherIsApplicable =
-      this.props.generalStore.useableVoucherIds[voucherId] > 0;
+    const numberSelected = maxUses - useableVoucherIds[voucherId];
+    const usageNumber = maxUses - voucherMaxnumberSelected;
+    const voucherMaxUsageReached = voucherMaxnumberSelected <= 0;
+    const voucherMaxSelectedReached = useableVoucherIds[voucherId] > 0;
+    const voucherMinimumRequiredReached = orderAmount >= minimumOrderAmount;
 
     return (
       <TouchableWithoutFeedback
         onPress={
-          onDeliveryVoucherPress && type === 'delivery_discount'
+          onDeliveryVoucherPress !== undefined &&
+          type === 'delivery_discount' &&
+          voucherMinimumRequiredReached
             ? () => onDeliveryVoucherPress(voucherId)
             : null
         }>
@@ -166,8 +172,9 @@ class VoucherCard extends Component {
           </View>
 
           {((!claimed && (maxClaimsReached || disabled)) ||
-            !voucherIsApplicable ||
-            voucherMaxUsageReached) && (
+            voucherMaxUsageReached ||
+            !voucherMaxSelectedReached ||
+            !voucherMinimumRequiredReached) && (
             <View
               style={{
                 backgroundColor: 'rgba(0,0,0,0.4)',
@@ -192,8 +199,12 @@ class VoucherCard extends Component {
                   zIndex: 10,
                   overflow: 'hidden',
                 }}>
-                {voucherMaxUsageReached || !voucherIsApplicable
+                {voucherMaxUsageReached || !voucherMaxSelectedReached
                   ? 'Voucher used for a maximum number of times'
+                  : !voucherMinimumRequiredReached
+                  ? `Add ₱${
+                      minimumOrderAmount - orderAmount
+                    } to claim this voucher`
                   : 'Voucher has run out'}
               </Text>
             </View>
@@ -202,7 +213,11 @@ class VoucherCard extends Component {
           {onDeliveryVoucherPress && (
             <View
               style={{
-                backgroundColor: colors.primary,
+                backgroundColor: colors.icons,
+                borderColor: colors.primary,
+                borderWidth: 2,
+                borderTopRightRadius: 8,
+                borderBottomRightRadius: 8,
                 alignItems: 'center',
                 justifyContent: 'center',
                 width: 35,
@@ -211,16 +226,36 @@ class VoucherCard extends Component {
                 <Animatable.View
                   useNativeDriver
                   animation="bounceIn"
-                  duration={300}>
-                  <Icon
-                    name="check"
-                    color={colors.primary}
+                  duration={300}
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: colors.primary,
+                    marginBottom: -1,
+                    padding: 5,
+                  }}>
+                  <View
                     style={{
+                      flexDirection: 'row',
                       backgroundColor: colors.icons,
-                      elevation: 3,
                       borderRadius: 30,
-                    }}
-                  />
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 5,
+                      width: 25,
+                      height: 25,
+                    }}>
+                    <Text
+                      style={{
+                        color: colors.primary,
+                        textAlignVertical: 'center',
+                        textAlign: 'center',
+                        fontSize: 18,
+                      }}>
+                      {numberSelected}
+                    </Text>
+                  </View>
                 </Animatable.View>
               )}
             </View>
