@@ -113,9 +113,12 @@ class CheckoutScreen extends Component {
 
     this.getMrSpeedyDeliveryFees();
 
-    this.props.generalStore.useableVoucherIds = JSON.parse(
-      JSON.stringify(this.props.generalStore.userDetails.claimedVouchers),
-    );
+    this.props.generalStore.useableVoucherIds =
+      this.props.generalStore.userDetails?.claimedVouchers !== undefined
+        ? JSON.parse(
+            JSON.stringify(this.props.generalStore.userDetails.claimedVouchers),
+          )
+        : {};
   }
 
   componentWillUnmount() {

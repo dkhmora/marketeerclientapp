@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {View, FlatList} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import {Text} from 'react-native-elements';
+import {colors} from '../../../assets/colors';
 import VoucherCard from './VoucherCard';
 
 export default class VoucherList extends Component {
@@ -69,6 +70,9 @@ export default class VoucherList extends Component {
         renderItem={renderItem}
         initialNumToRender={10}
         contentInsetAdjustmentBehavior="automatic"
+        style={{
+          backgroundColor: colors.icons,
+        }}
         contentContainerStyle={{paddingHorizontal: 10, flexGrow: 1}}
         keyExtractor={(item) => `${keyPrefix}${item.voucherId}`}
         ListEmptyComponent={

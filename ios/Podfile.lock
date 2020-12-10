@@ -262,7 +262,7 @@ PODS:
     - FirebaseCoreDiagnostics (~> 7.0)
     - GoogleUtilities/Environment (~> 7.0)
     - GoogleUtilities/Logger (~> 7.0)
-  - FirebaseCoreDiagnostics (7.1.0):
+  - FirebaseCoreDiagnostics (7.2.0):
     - GoogleDataTransport (~> 8.0)
     - GoogleUtilities/Environment (~> 7.0)
     - GoogleUtilities/Logger (~> 7.0)
@@ -290,12 +290,12 @@ PODS:
   - FirebaseFunctions (7.1.0):
     - FirebaseCore (~> 7.0)
     - GTMSessionFetcher/Core (~> 1.4)
-  - FirebaseInstallations (7.1.0):
+  - FirebaseInstallations (7.2.0):
     - FirebaseCore (~> 7.0)
     - GoogleUtilities/Environment (~> 7.0)
     - GoogleUtilities/UserDefaults (~> 7.0)
     - PromisesObjC (~> 1.2)
-  - FirebaseInstanceID (7.1.0):
+  - FirebaseInstanceID (7.2.0):
     - FirebaseCore (~> 7.0)
     - FirebaseInstallations (~> 7.0)
     - GoogleUtilities/Environment (~> 7.0)
@@ -750,8 +750,8 @@ PODS:
     - Firebase/Storage (~> 7.1.0)
     - React-Core
     - RNFBApp
-  - RNGestureHandler (1.8.0):
-    - React
+  - RNGestureHandler (1.9.0):
+    - React-Core
   - RNImageCropPicker (0.32.2):
     - React-Core
     - React-RCTImage
@@ -1039,13 +1039,13 @@ SPEC CHECKSUMS:
   Firebase: 78e8dd2e39d653de6270432ad84fe8b59f7bf4e8
   FirebaseAuth: f82c2cfcc1c107bb0a97735cdbce4eb2a601f710
   FirebaseCore: 20046127eef0fcb8fa25df7fc12f7b97d4e48611
-  FirebaseCoreDiagnostics: 872cdb9b749b23346dddd5c1014d1babd2257de3
+  FirebaseCoreDiagnostics: 2d508e12e77e9691ca67d1669b91ee80f0985b29
   FirebaseCrashlytics: c722e4ca283272eb90eb5bc245fdc6588e2f22c2
   FirebaseDynamicLinks: dadf4564851de0ecdad2dab7fc2d1c401dcaa406
   FirebaseFirestore: bbf303f0638a93e6ecb38433aad283cebdfece5f
   FirebaseFunctions: c163794cd4a2b5f4901d0df6d9f7709f2e993686
-  FirebaseInstallations: 3de38553e86171b5f81d83cdeef63473d37bfdb0
-  FirebaseInstanceID: 61e8d10a4192a582c6239378169d10e504ca8d91
+  FirebaseInstallations: 9ab3a9a6522e687f59ff9bcfd92949ac85073f3c
+  FirebaseInstanceID: 68d2fa458c0c6adfde0007ffe35b51a37b163dec
   FirebaseMessaging: 076054895c9260f82c7304cc7709dbf19b8f3e4a
   FirebaseStorage: 80e2cd5200791540ca544f4dcac5e6b56994fc97
   Flipper: be611d4b742d8c87fbae2ca5f44603a02539e365
@@ -1115,7 +1115,7 @@ SPEC CHECKSUMS:
   RNFBFunctions: 76f9049d77a75bcb8bf706efeceb13f9ac874b9f
   RNFBMessaging: b61a2478fd3fb05bd2f72f18ad194cfb93e682f2
   RNFBStorage: 4a54067b318427ec4741ebca6d9e88b138149202
-  RNGestureHandler: 7a5833d0f788dbd107fbb913e09aa0c1ff333c39
+  RNGestureHandler: 9b7e605a741412e20e13c512738a31bd1611759b
   RNImageCropPicker: f0557a908758c4a3f83978894ec7227651529b45
   RNInAppBrowser: 6097fbc6b09051b40a6a9ec22caf7af40b115ec0
   RNReanimated: c2bb7438b57a3d987bb2e4e6e4bca94787e30b02
