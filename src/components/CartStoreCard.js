@@ -634,6 +634,7 @@ class CartStoreCard extends PureComponent {
         keyPrefix="claimed"
         voucherSelected={selectedVoucherId}
         orderAmount={subTotal}
+        emptyText="You haven't claimed any vouchers yet. Check out the Vouchers page to get amazing deals!"
         onDeliveryVoucherPress={(voucherId) => {
           const voucherIsApplicable = useableVoucherIds[voucherId] > 0;
           const voucherIsSelected = selectedVoucherId === voucherId;
