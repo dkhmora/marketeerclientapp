@@ -37,6 +37,7 @@ class generalStore {
   @observable appwideVouchers = {};
   @observable useableVoucherIds = {};
   @observable getCourierInterval = null;
+  @observable startupModalProps = {};
   @observable additionalPaymentMethods = {
     COD: {
       longName: 'Cash On Delivery',
@@ -110,6 +111,7 @@ class generalStore {
             availablePaymentMethods,
             storeCategories,
             vouchers,
+            startupModalProps,
           } = document.data();
           if (storeCategories) {
             this.storeCategories = storeCategories.sort(
@@ -134,6 +136,10 @@ class generalStore {
 
           if (vouchers) {
             this.appwideVouchers = vouchers;
+          }
+
+          if (startupModalProps) {
+            this.startupModalProps = startupModalProps;
           }
         }
       })
