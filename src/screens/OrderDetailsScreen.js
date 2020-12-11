@@ -207,42 +207,25 @@ class OrderDetailsScreen extends Component {
       }
     }
 
-    return 'N/A';
+    return 'TBD';
   }
 
   @computed get orderTotalText() {
     const {selectedOrder} = this.props.generalStore;
 
     if (selectedOrder) {
-      const {
-        deliveryPrice,
-        deliveryMethod,
-        mrspeedyBookingData,
-        subTotal,
-      } = selectedOrder;
+      const {deliveryPrice, deliveryMethod, subTotal} = selectedOrder;
 
-      if (deliveryPrice) {
-        if (deliveryPrice > 0) {
-          return `₱${(subTotal + deliveryPrice).toFixed(2)}`;
-        }
+      if (deliveryPrice && deliveryPrice > 0) {
+        return `₱${(subTotal + deliveryPrice).toFixed(2)}`;
       }
 
       if (deliveryMethod === 'Mr. Speedy') {
-        if (mrspeedyBookingData) {
-          const {estimatedOrderPrices} = mrspeedyBookingData;
-
-          if (estimatedOrderPrices) {
-            return `₱${(subTotal + estimatedOrderPrices.motorbike).toFixed(
-              2,
-            )} - ₱${(subTotal + estimatedOrderPrices.car).toFixed(2)}`;
-          }
-        }
-
-        return 'To be determined once order is shipped';
+        return `₱${subTotal.toFixed(2)} + Delivery Price`;
       }
     }
 
-    return 'N/A';
+    return '...';
   }
 
   @computed get mrspeedyVehicleType() {
@@ -1023,7 +1006,7 @@ class OrderDetailsScreen extends Component {
                         </Text>
                       </View>
 
-                      {selectedOrder?.deliveryDiscount !== undefined && (
+                      {selectedOrder?.deliveryDiscount && (
                         <View
                           style={{
                             flexDirection: 'row',
@@ -1048,7 +1031,7 @@ class OrderDetailsScreen extends Component {
                         </View>
                       )}
 
-                      {appliedDeliveryVoucherAmount !== undefined && (
+                      {appliedDeliveryVoucherAmount && (
                         <View
                           style={{
                             flexDirection: 'row',

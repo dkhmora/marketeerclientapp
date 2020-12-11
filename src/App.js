@@ -22,9 +22,6 @@ export default () => (
       <MainStack />
     </NavigationContainer>
 
-    <StartupModal
-      overlayStyle={{backgroundColor: colors.primary}}
-      image="https://www.thespruce.com/thmb/OU4gLtjlsNF60n-CcXS11JclGHQ=/960x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/green-broadbill-58d017f53df78c3c4f3c9b4e.jpg"
-    />
+    <StartupModal />
   </RootSiblingParent>
 );

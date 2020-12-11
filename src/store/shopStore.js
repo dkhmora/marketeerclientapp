@@ -494,11 +494,12 @@ class shopStore {
     });
   }
 
-  @action async setStoreItems(storeId, itemCategories) {
+  @action async setStoreItems(storeId) {
     const storeItemsCollection = firestore()
       .collection('stores')
       .doc(storeId)
       .collection('items');
+    const {itemCategories} = this.allStoresMap[storeId];
 
     await storeItemsCollection
       .get()

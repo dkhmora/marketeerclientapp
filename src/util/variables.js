@@ -30,6 +30,14 @@ const daysList = [
   'Sunday',
 ];
 
+const dynamicLinkUrlActions = {
+  store: 'https://marketeer.ph/store/',
+  orderPaymentStatus: 'https://marketeer.ph/app/order/payment/',
+  fbAd: 'https://marketeer.ph/app/fb/',
+  igAd: 'https://marketeer.ph/app/ig/',
+  twitAd: 'https://marketeer.ph/app/twit/',
+};
+
 export {
   CDN_BASE_URL,
   nowMillis,
@@ -39,4 +47,5 @@ export {
   merchantSignUpUrl,
   daysList,
   functions,
+  dynamicLinkUrlActions,
 };

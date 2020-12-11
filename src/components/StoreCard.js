@@ -63,7 +63,6 @@ class StoreCard extends Component {
   render() {
     const {
       props: {
-        store,
         store: {
           storeName,
           storeDescription,
@@ -76,12 +75,13 @@ class StoreCard extends Component {
           ratingAverage,
           distance,
           storeHours,
+          storeId,
         },
         navigation,
       },
+      state: {coverImageReady, displayImageReady},
       storeAvailable,
     } = this;
-    const {coverImageReady, displayImageReady} = this.state;
     const displayImageUrl = `${CDN_BASE_URL}${displayImage}`;
     const coverImageUrl = `${CDN_BASE_URL}${coverImage}`;
     const nextStoreOperationDateText = getNextStoreOperationDate(storeHours);
@@ -113,9 +113,7 @@ class StoreCard extends Component {
             onPress={() =>
               storeAvailable &&
               navigation.navigate('Store', {
-                store,
-                displayImageUrl,
-                coverImageUrl,
+                storeId,
               })
             }>
             <View style={{height: 200}}>

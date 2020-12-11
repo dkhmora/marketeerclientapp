@@ -36,33 +36,31 @@ class StoreScreen extends Component {
   constructor(props) {
     super(props);
 
-    const {store, displayImageUrl, coverImageUrl} = this.props.route.params;
+    const {storeId} = this.props.route.params;
 
     this.state = {
       storeItemCategories: {},
-      displayImageUrl,
-      coverImageUrl,
       ready: false,
       detailsModal: false,
       allowScrolling: false,
     };
 
-    this.props.shopStore
-      .setStoreItems(
-        this.props.route.params.store.storeId,
-        store.itemCategories,
-      )
-      .then(() => {
-        this.setState({
-          storeCategoryItems: this.props.shopStore.storeCategoryItems.get(
-            store.storeId,
-          ),
-        });
+    this.props.shopStore.setStoreItems(storeId).then(() => {
+      this.setState({
+        storeCategoryItems: this.props.shopStore.storeCategoryItems.get(
+          storeId,
+        ),
       });
+    });
   }
 
   componentDidMount() {
     crashlytics().log('StoreScreen');
+
+    const {store} = this.props.route.params;
+
+    if (store === undefined) {
+    }
   }
 
   handleCheckout() {
@@ -82,9 +80,16 @@ class StoreScreen extends Component {
   );
 
   render() {
-    const {store} = this.props.route.params;
-    const {navigation} = this.props;
-    const {storeCategoryItems} = this.state;
+    const {
+      props: {
+        route: {
+          params: {storeId},
+        },
+        navigation,
+      },
+      state: {storeCategoryItems},
+    } = this;
+    const store = this.props.shopStore.allStoresMap[storeId];
     const dataSource = this.props.shopStore.cartStores.slice();
     const emptyCartText = 'Your cart is empty';
     const displayImageUrl = `${CDN_BASE_URL}${store.displayImage}`;
@@ -244,7 +249,7 @@ class StoreScreen extends Component {
           ]}>
           <ItemCategoriesTab
             storeCategoryItems={storeCategoryItems}
-            storeId={store.storeId}
+            storeId={storeId}
             storeType={store.storeType}
             style={{paddingBottom: bottomPadding}}
           />

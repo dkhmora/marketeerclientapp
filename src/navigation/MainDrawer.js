@@ -14,7 +14,7 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import dynamicLinks from '@react-native-firebase/dynamic-links';
 import messaging from '@react-native-firebase/messaging';
 import RemotePushController from '../services/RemotePushController';
-import {openLink} from '../util/helpers';
+import {openLink, getDynamicLinkType} from '../util/helpers';
 import {
   contactUsUrl,
   privacyPolicyUrl,
@@ -39,14 +39,17 @@ class MainDrawer extends Component {
 
     this.initializeForegroundNotificationHandlers();
 
-    this.unsubscribe = dynamicLinks().onLink((link) =>
+    this.unsubscribeDynamicLink = dynamicLinks().onLink((link) =>
       this.handleDynamicLink(link),
     );
 
     try {
       const initialLink = await dynamicLinks().getInitialLink();
 
-      if (initialLink.url !== null) {
+      if (
+        this.props.generalStore.initialLink !== initialLink.url &&
+        initialLink !== null
+      ) {
         this.handleDynamicLink(initialLink);
       }
     } catch (error) {}
@@ -97,98 +100,62 @@ class MainDrawer extends Component {
       });
   }
 
-  handleDynamicLink = (link) => {
-    switch (link.url) {
-      case 'https://marketeer.ph/app/order/payment/success':
-        Toast({text: 'Payment successful!', duration: 5000});
-        this.props.navigation.reset({
-          index: 1,
-          routes: [{name: 'Home'}, {name: 'Orders'}],
+  handleDynamicLink = async (link) => {
+    const {navigation} = this.props;
+    const {urlType, urlPrefix, urlSuffix} = await getDynamicLinkType(link.url);
+    this.props.generalStore.initialLink = link.url;
+
+    switch (urlType) {
+      case 'store':
+        navigation.navigate('Store', {
+          storeId: urlSuffix,
         });
         break;
-      case 'https://marketeer.ph/app/order/payment/failure':
-        Toast({
-          text: 'Error: Payment failure. Please try again later.',
-          type: 'danger',
-          duration: 5000,
-        });
-        this.props.navigation.reset({
-          index: 1,
-          routes: [{name: 'Home'}, {name: 'Orders'}],
-        });
-        break;
-      case 'https://marketeer.ph/app/order/payment/pending':
-        Toast({
-          text:
-            'Payment pending. Please check your email for payment instructions.',
-          type: 'info',
-          duration: 8000,
-        });
-        this.props.navigation.reset({
-          index: 1,
-          routes: [{name: 'Home'}, {name: 'Orders'}],
-        });
-        break;
-      case 'https://marketeer.ph/app/order/payment/unknown':
-        Toast({text: 'Payment status unknown', type: 'info'});
-        this.props.navigation.reset({
-          index: 1,
-          routes: [{name: 'Home'}, {name: 'Orders'}],
-        });
-        break;
-      case 'https://marketeer.ph/app/order/payment/refund':
-        Toast({text: 'Payment refunded', type: 'info'});
-        this.props.navigation.reset({
-          index: 1,
-          routes: [{name: 'Home'}, {name: 'Orders'}],
-        });
-        break;
-      case 'https://marketeer.ph/app/order/payment/chargeback':
-        Toast({text: 'Payment chargedback', type: 'info'});
-        this.props.navigation.reset({
-          index: 1,
-          routes: [{name: 'Home'}, {name: 'Orders'}],
-        });
-        break;
-      case 'https://marketeer.ph/app/order/payment/void':
-        Toast({text: 'Payment voided', type: 'info'});
-        this.props.navigation.reset({
-          index: 1,
-          routes: [{name: 'Home'}, {name: 'Orders'}],
-        });
-        break;
-      case 'https://marketeer.ph/app/order/payment/authorized':
-        Toast({text: 'Payment authorized', type: 'info'});
-        this.props.navigation.reset({
-          index: 1,
-          routes: [{name: 'Home'}, {name: 'Orders'}],
-        });
-        break;
-      case 'https://marketeer.ph/app/fb/install':
-        when(
-          () => this.props.generalStore.appReady === true,
-          () => {
+
+      case 'orderPaymentStatus':
+        switch (link.url) {
+          case 'https://marketeer.ph/app/order/payment/success':
+            Toast({text: 'Payment successful!', duration: 5000});
+            break;
+          case 'https://marketeer.ph/app/order/payment/failure':
+            Toast({
+              text: 'Error: Payment failure. Please try again later.',
+              type: 'danger',
+              duration: 5000,
+            });
+            break;
+          case 'https://marketeer.ph/app/order/payment/pending':
             Toast({
               text:
-                'Welcome to Marketeer! Choose from the best stores in your area!',
-              duration: 10000,
+                'Payment pending. Please check your email for payment instructions.',
+              type: 'info',
+              duration: 8000,
             });
-          },
-        );
+            break;
+          case 'https://marketeer.ph/app/order/payment/unknown':
+            Toast({text: 'Payment status unknown', type: 'info'});
+            break;
+          case 'https://marketeer.ph/app/order/payment/refund':
+            Toast({text: 'Payment refunded', type: 'info'});
+            break;
+          case 'https://marketeer.ph/app/order/payment/chargeback':
+            Toast({text: 'Payment chargedback', type: 'info'});
+            break;
+          case 'https://marketeer.ph/app/order/payment/void':
+            Toast({text: 'Payment voided', type: 'info'});
+            break;
+          case 'https://marketeer.ph/app/order/payment/authorized':
+            Toast({text: 'Payment authorized', type: 'info'});
+            break;
+        }
+        this.props.navigation.reset({
+          index: 1,
+          routes: [{name: 'Home'}, {name: 'Orders'}],
+        });
+
         break;
-      case 'https://marketeer.ph/app/twit/install':
-        when(
-          () => this.props.generalStore.appReady === true,
-          () => {
-            Toast({
-              text:
-                'Welcome to Marketeer! Choose from the best stores in your area!',
-              duration: 10000,
-            });
-          },
-        );
-        break;
-      case 'https://marketeer.ph/app/ig/install':
+
+      case 'fbAd' || 'igAd' || 'twitAd':
         when(
           () => this.props.generalStore.appReady === true,
           () => {
@@ -201,6 +168,8 @@ class MainDrawer extends Component {
         );
         break;
     }
+
+    this.unsubscribeDynamicLink();
   };
 
   handleAuthentication() {

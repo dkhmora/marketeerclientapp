@@ -38,6 +38,7 @@ class generalStore {
   @observable useableVoucherIds = {};
   @observable getCourierInterval = null;
   @observable startupModalProps = {};
+  @observable initialLink = null;
   @observable additionalPaymentMethods = {
     COD: {
       longName: 'Cash On Delivery',

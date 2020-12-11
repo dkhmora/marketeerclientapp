@@ -23,7 +23,10 @@ class StartupModal extends PureComponent {
     if (Object.keys(startupModalProps).length <= 0) {
       this.props.generalStore.setAppData().then(() => {
         this.setState({
-          isVisible: this.props.generalStore.startupModalProps.isVisible,
+          isVisible:
+            startupModalProps?.isVisible !== undefined
+              ? startupModalProps?.isVisible
+              : false,
         });
       });
     }

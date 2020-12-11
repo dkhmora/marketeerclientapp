@@ -3,7 +3,7 @@ import {Linking} from 'react-native';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import {colors} from '../../assets/colors';
 import Toast from '../components/Toast';
-import {daysList} from './variables';
+import {daysList, dynamicLinkUrlActions} from './variables';
 
 const twentyFourHourToTwelveHour = (time) =>
   moment(time, 'HH:mm').format('h:mm A');
@@ -139,10 +139,21 @@ async function openLink(url) {
   }
 }
 
+async function getDynamicLinkType(url) {
+  if (url) {
+    return Object.entries(dynamicLinkUrlActions).map(([urlType, urlPrefix]) => {
+      if (url.match(urlPrefix)) {
+        return {urlType, urlPrefix, urlSuffix: url.replace(urlPrefix, '')};
+      }
+    })[0];
+  }
+}
+
 export {
   getStoreAvailability,
   getNextStoreOperationDate,
   openLink,
   extractStoreHoursArray,
   twentyFourHourToTwelveHour,
+  getDynamicLinkType,
 };
