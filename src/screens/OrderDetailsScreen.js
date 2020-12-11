@@ -1069,7 +1069,7 @@ class OrderDetailsScreen extends Component {
                               fontSize: 16,
                               textAlign: 'left',
                             }}>
-                            {'Discounted Delivery Price: '}
+                            {'Total Delivery Price: '}
                           </Text>
 
                           {!selectedOrder?.deliveryPrice && (
