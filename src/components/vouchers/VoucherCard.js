@@ -54,9 +54,15 @@ class VoucherCard extends Component {
         : 0;
     const numberSelected = maxUses - useableVoucherIds[voucherId];
     const usageNumber = maxUses - voucherMaxnumberSelected;
-    const voucherMaxUsageReached = voucherMaxnumberSelected <= 0;
-    const voucherMaxSelectedReached = useableVoucherIds[voucherId] > 0;
-    const voucherMinimumRequiredReached = orderAmount >= minimumOrderAmount;
+    const voucherMaxUsageReached = claimedVouchers?.[voucherId]
+      ? voucherMaxnumberSelected <= 0
+      : false;
+    const voucherMaxSelectedReached = useableVoucherIds?.[voucherId]
+      ? useableVoucherIds?.[voucherId] > 0
+      : false;
+    const voucherMinimumRequiredReached = orderAmount
+      ? orderAmount >= minimumOrderAmount
+      : true;
 
     return (
       <TouchableWithoutFeedback
