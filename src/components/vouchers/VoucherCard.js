@@ -51,15 +51,17 @@ class VoucherCard extends Component {
     const voucherMaxnumberSelected =
       claimedVouchers?.[voucherId] !== undefined
         ? claimedVouchers[voucherId]
-        : 0;
-    const numberSelected = maxUses - useableVoucherIds[voucherId];
+        : maxUses;
+    const numberSelected =
+      useableVoucherIds?.[voucherId] !== undefined
+        ? maxUses - useableVoucherIds[voucherId]
+        : null;
     const usageNumber = maxUses - voucherMaxnumberSelected;
-    const voucherMaxUsageReached = claimedVouchers?.[voucherId]
-      ? voucherMaxnumberSelected <= 0
-      : false;
-    const voucherMaxSelectedReached = useableVoucherIds?.[voucherId]
-      ? useableVoucherIds?.[voucherId] > 0
-      : false;
+    const voucherMaxUsageReached = voucherMaxnumberSelected <= 0;
+    const voucherMaxSelectedReached =
+      useableVoucherIds?.[voucherId] !== undefined
+        ? useableVoucherIds?.[voucherId] <= 0
+        : false;
     const voucherMinimumRequiredReached = orderAmount
       ? orderAmount >= minimumOrderAmount
       : true;
@@ -179,7 +181,7 @@ class VoucherCard extends Component {
 
           {((!claimed && (maxClaimsReached || disabled)) ||
             voucherMaxUsageReached ||
-            !voucherMaxSelectedReached ||
+            voucherMaxSelectedReached ||
             !voucherMinimumRequiredReached) && (
             <View
               style={{
@@ -205,7 +207,7 @@ class VoucherCard extends Component {
                   zIndex: 10,
                   overflow: 'hidden',
                 }}>
-                {voucherMaxUsageReached || !voucherMaxSelectedReached
+                {voucherMaxUsageReached || voucherMaxSelectedReached
                   ? 'Voucher used for a maximum number of times'
                   : !voucherMinimumRequiredReached
                   ? `Add ₱${
@@ -228,7 +230,7 @@ class VoucherCard extends Component {
                 justifyContent: 'center',
                 width: 35,
               }}>
-              {voucherSelected === voucherId && (
+              {voucherSelected === voucherId && numberSelected && (
                 <Animatable.View
                   useNativeDriver
                   animation="bounceIn"
