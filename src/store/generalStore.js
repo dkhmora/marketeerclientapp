@@ -7,13 +7,14 @@ import {v4 as uuidv4} from 'uuid';
 import Geolocation from 'react-native-geolocation-service';
 import geohash from 'ngeohash';
 import auth from '@react-native-firebase/auth';
-import {Platform, PermissionsAndroid} from 'react-native';
+import {Platform} from 'react-native';
 import Toast from '../components/Toast';
 import {persist} from 'mobx-persist';
 import messaging from '@react-native-firebase/messaging';
 import crashlytics from '@react-native-firebase/crashlytics';
 import {getAddressFromCoordinates} from '../util/firebase-functions';
 import {nowMillis} from '../util/variables';
+import {PERMISSIONS, request} from 'react-native-permissions';
 
 class generalStore {
   @observable appReady = false;
@@ -151,36 +152,27 @@ class generalStore {
   }
 
   @action async subscribeToNotifications() {
-    let authorizationStatus = null;
     const userId = auth().currentUser.uid;
     const guest = auth().currentUser.isAnonymous;
 
     if (!guest) {
-      if (Platform.OS === 'ios') {
-        authorizationStatus = await messaging().requestPermission();
-      } else {
-        authorizationStatus = true;
-      }
-
-      if (authorizationStatus) {
-        return await messaging()
-          .getToken()
-          .then((token) => {
-            if (
-              this.userDetails?.fcmTokens === undefined ||
-              !this.userDetails.fcmTokens.includes(token)
-            ) {
-              firestore()
-                .collection('users')
-                .doc(userId)
-                .update('fcmTokens', firestore.FieldValue.arrayUnion(token));
-            }
-          })
-          .catch((err) => {
-            crashlytics().recordError(err);
-            Toast({text: err.message, type: 'danger'});
-          });
-      }
+      return await messaging()
+        .getToken()
+        .then((token) => {
+          if (
+            this.userDetails?.fcmTokens === undefined ||
+            !this.userDetails.fcmTokens.includes(token)
+          ) {
+            firestore()
+              .collection('users')
+              .doc(userId)
+              .update('fcmTokens', firestore.FieldValue.arrayUnion(token));
+          }
+        })
+        .catch((err) => {
+          crashlytics().recordError(err);
+          Toast({text: err.message, type: 'danger'});
+        });
     }
   }
 
@@ -209,58 +201,80 @@ class generalStore {
       });
   }
 
-  @action async getUserLocation() {
+  @action getUserLocation() {
     return new Promise((resolve, reject) => {
-      if (Platform.OS === 'ios') {
-        Geolocation.requestAuthorization();
-      } else {
-        PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        ).then((granted) => {
-          if (granted !== 'granted') {
-            Toast({
-              text:
-                'Error: Location permissions not granted. Please set location manually.',
-              duration: 8000,
-              type: 'danger',
-              buttonText: 'Okay',
-            });
-          }
-        });
-      }
+      const platformLocationPermission =
+        Platform.OS === 'ios'
+          ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
+          : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
 
-      Geolocation.getCurrentPosition(
-        async (position) => {
-          resolve(position.coords);
-        },
-        (err) => {
-          crashlytics().recordError(err);
-          Toast({text: err.message, type: 'danger'});
-          reject();
-        },
-        {
-          timeout: 20000,
-        },
-      );
+      return request(platformLocationPermission).then((permissionResult) => {
+        if (permissionResult === 'granted') {
+          return Geolocation.getCurrentPosition(
+            (position) => {
+              resolve(position.coords);
+            },
+            (err) => {
+              crashlytics().recordError(err);
+              Toast({text: err.message, type: 'danger'});
+              return;
+            },
+            {
+              timeout: 20000,
+            },
+          );
+        }
+      });
     });
   }
 
   @action async setCurrentLocation() {
-    return new Promise(async (resolve, reject) => {
-      this.addressLoading = true;
+    this.addressLoading = true;
+    const platformLocationPermission =
+      Platform.OS === 'ios'
+        ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
+        : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
 
-      if (Platform.OS === 'android') {
-        await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        ).then((granted) => {
-          if (Platform.OS === 'android' && granted !== 'granted') {
-            Toast({
-              text:
-                'Error: Location permissions not granted. Please set location manually.',
-              duration: 6000,
-              type: 'danger',
-              buttonText: 'Okay',
+    return request(platformLocationPermission).then((permissionResult) => {
+      if (permissionResult === 'granted') {
+        return Geolocation.getCurrentPosition(
+          async (position) => {
+            this.selectedDeliveryLabel = 'Current Location';
+
+            const coords = {
+              latitude: parseFloat(position.coords.latitude),
+              longitude: parseFloat(position.coords.longitude),
+            };
+
+            this.currentLocationGeohash = await geohash.encode(
+              coords.latitude,
+              coords.longitude,
+              12,
+            );
+
+            this.currentLocationDetails = await getAddressFromCoordinates({
+              ...coords,
             });
+
+            this.currentLocation = {...coords};
+
+            this.appReady = true;
+            this.addressLoading = false;
+          },
+          (err) => {
+            crashlytics().recordError(err);
+
+            if (err.code === 2) {
+              Toast({
+                text:
+                  'Error: Cannot get location coordinates. Please set your coordinates manually.',
+                duration: 6000,
+                type: 'danger',
+                buttonText: 'Okay',
+              });
+            } else {
+              Toast({text: err.message, type: 'danger'});
+            }
 
             if (this.navigation) {
               this.appReady = true;
@@ -270,66 +284,31 @@ class generalStore {
                 locationError: true,
               });
             }
-          }
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 10000,
+          },
+        );
+      } else {
+        Toast({
+          text:
+            'Error: Location permissions not granted. Please set location manually.',
+          duration: 6000,
+          type: 'danger',
+          buttonText: 'Okay',
         });
-      }
 
-      Geolocation.getCurrentPosition(
-        async (position) => {
-          this.selectedDeliveryLabel = 'Current Location';
-
-          const coords = {
-            latitude: parseFloat(position.coords.latitude),
-            longitude: parseFloat(position.coords.longitude),
-          };
-
-          this.currentLocationGeohash = await geohash.encode(
-            coords.latitude,
-            coords.longitude,
-            12,
-          );
-
-          this.currentLocationDetails = await getAddressFromCoordinates({
-            ...coords,
-          });
-
-          this.currentLocation = {...coords};
-
+        if (this.navigation) {
           this.appReady = true;
           this.addressLoading = false;
-
-          resolve();
-        },
-        (err) => {
-          crashlytics().recordError(err);
-
-          if (err.code === 2) {
-            Toast({
-              text:
-                'Error: Cannot get location coordinates. Please set your coordinates manually.',
-              duration: 6000,
-              type: 'danger',
-              buttonText: 'Okay',
-            });
-          } else {
-            Toast({text: err.message, type: 'danger'});
-          }
-
-          if (this.navigation) {
-            this.appReady = true;
-            this.addressLoading = false;
-            this.navigation.navigate('Set Location', {
-              checkout: false,
-              locationError: true,
-            });
-          }
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 10000,
-        },
-      );
+          this.navigation.navigate('Set Location', {
+            checkout: false,
+            locationError: true,
+          });
+        }
+      }
     });
   }
 

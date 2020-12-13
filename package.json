@@ -78,6 +78,7 @@
     "react-native-modalize": "^2.0.6",
     "react-native-options-menu": "^2.0.2",
     "react-native-parallax-scroll-view": "^0.21.3",
+    "react-native-permissions": "^3.0.0",
     "react-native-push-notification": "^5.1.1",
     "react-native-rating-element": "^5.3.2",
     "react-native-reanimated": "^1.10.1",

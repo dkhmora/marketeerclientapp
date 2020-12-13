@@ -15,6 +15,7 @@ import auth from '@react-native-firebase/auth';
 import VersionCheck from 'react-native-version-check';
 import AsyncStorage from '@react-native-community/async-storage';
 import crashlytics from '@react-native-firebase/crashlytics';
+import {requestNotifications} from 'react-native-permissions';
 
 global._ = _;
 global.moment = moment;
@@ -81,7 +82,14 @@ class App extends React.Component {
               shopStore.getCartItems(uid);
             }
 
-            generalStore.getUserDetails(uid);
+            requestNotifications([
+              'alert',
+              'badge',
+              'sound',
+              'lockScreen',
+            ]).then(({status, settings}) => {
+              generalStore.getUserDetails(uid);
+            });
 
             generalStore.appReady = true;
           } else {
