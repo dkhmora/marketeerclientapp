@@ -426,7 +426,7 @@ class OrderDetailsScreen extends Component {
           <View style={{flex: 1}}>
             <ConfirmationModal
               isVisible={confirmCancelOrderModal}
-              closeModal={() => closeModal()}
+              closeModal={() => this.closeModal()}
               title={`Cancel Order #${selectedOrder?.userOrderNumber}`}
               loading={cancelOrderLoading}
               confirmDisabled={!cancelReasonCheck}
