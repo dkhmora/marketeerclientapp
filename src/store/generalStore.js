@@ -20,7 +20,7 @@ class generalStore {
   @observable appReady = false;
   @persist('list') @observable orders = [];
   @persist @observable maxOrderUpdatedAt = 0;
-  @observable firstLoad = true;
+  @persist @observable firstLoad = true;
   @observable orderItems = [];
   @observable orderMessages = [];
   @observable unsubscribeGetMessages = null;
@@ -337,16 +337,6 @@ class generalStore {
               this.userDetails = documentSnapshot.data();
 
               this.subscribeToNotifications();
-
-              if (this.firstLoad) {
-                this.firstLoad = false;
-
-                if (documentSnapshot.data().addresses) {
-                  return this.setLastDeliveryLocation();
-                } else {
-                  return this.setCurrentLocation();
-                }
-              }
             }
           } else {
             this.unsubscribeUserDetails();

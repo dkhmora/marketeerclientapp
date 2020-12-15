@@ -64,9 +64,10 @@ class Setup extends Component {
   render() {
     return (
       <ThemeProvider theme={theme}>
+        <StatusBar translucent backgroundColor="rgba(233, 30, 99,0.009)" />
         <App />
 
-        {!this.props.generalStore.appReady && (
+        {/* !this.props.generalStore.appReady && (
           <View
             style={{
               height: '100%',
@@ -79,10 +80,9 @@ class Setup extends Component {
               justifyContent: 'center',
               backgroundColor: 'rgba(0,0,0,0.5)',
             }}>
-            <StatusBar translucent backgroundColor="rgba(233, 30, 99,0.009)" />
             <ActivityIndicator size="large" color={colors.primary} />
           </View>
-        )}
+          )*/}
       </ThemeProvider>
     );
   }

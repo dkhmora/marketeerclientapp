@@ -14,17 +14,28 @@ import AccountScreen from '../screens/AccountScreen';
 import PhoneVerificationScreen from '../screens/PhoneVerificationScreen';
 import FoodItemDetailsScreen from '../screens/FoodItemDetailsScreen';
 import VouchersScreen from '../screens/VouchersScreen';
+import IntroSliderScreen from '../screens/IntroSliderScreen';
+import {inject, observer} from 'mobx-react';
 
+@inject('generalStore')
+@observer
 class MainStack extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
+    const {
+      props: {
+        generalStore: {firstLoad},
+      },
+    } = this;
+
     const StackMain = createStackNavigator();
+    const initialRoute = firstLoad ? 'Intro Slider' : 'Home';
 
     return (
-      <StackMain.Navigator initialRouteName="Home" headerMode="none">
+      <StackMain.Navigator initialRouteName={initialRoute} headerMode="none">
         <StackMain.Screen name="Auth" component={AuthStack} />
         <StackMain.Screen name="Home" component={MainDrawer} />
         <StackMain.Screen name="Store" component={StoreScreen} />
@@ -48,6 +59,7 @@ class MainStack extends Component {
           component={FoodItemDetailsScreen}
         />
         <StackMain.Screen name="Vouchers" component={VouchersScreen} />
+        <StackMain.Screen name="Intro Slider" component={IntroSliderScreen} />
       </StackMain.Navigator>
     );
   }

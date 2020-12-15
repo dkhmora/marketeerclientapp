@@ -1,6 +1,7 @@
 import firestore from '@react-native-firebase/firestore';
 import firebase from '@react-native-firebase/app';
 import '@react-native-firebase/functions';
+import {Dimensions, StatusBar} from 'react-native';
 
 const functions = firebase.app().functions('asia-northeast1');
 
@@ -38,6 +39,12 @@ const dynamicLinkUrlActions = {
   twitAd: 'https://marketeer.ph/app/twit/',
 };
 
+const STATUSBAR_HEIGHT = StatusBar.currentHeight;
+const SCREEN_DIMENSIONS = {
+  height: Dimensions.get('window').height,
+  width: Dimensions.get('window').width,
+};
+
 export {
   CDN_BASE_URL,
   nowMillis,
@@ -48,4 +55,6 @@ export {
   daysList,
   functions,
   dynamicLinkUrlActions,
+  STATUSBAR_HEIGHT,
+  SCREEN_DIMENSIONS,
 };

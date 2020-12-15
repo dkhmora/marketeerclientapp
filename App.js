@@ -101,8 +101,10 @@ class App extends React.Component {
               generalStore.unsubscribeUserDetails();
             }
 
-            if (!this.currentLocation) {
-              generalStore.setCurrentLocation();
+            if (!generalStore.currentLocation) {
+              return generalStore.setCurrentLocation();
+            } else {
+              return generalStore.setLastDeliveryLocation();
             }
           }
 
