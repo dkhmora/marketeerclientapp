@@ -1,9 +1,8 @@
 import {inject, observer} from 'mobx-react';
 import React, {Component} from 'react';
-import {StatusBar, View} from 'react-native';
+import {View} from 'react-native';
 import AppIntroSlider from 'react-native-app-intro-slider';
-import {Image, Text} from 'react-native-elements';
-import {color} from 'react-native-reanimated';
+import {Button, Image, Text} from 'react-native-elements';
 import {colors} from '../../assets/colors';
 import {SCREEN_DIMENSIONS, STATUSBAR_HEIGHT} from '../util/variables';
 
@@ -23,8 +22,17 @@ class IntroSliderScreen extends Component {
     });
   }
 
+  handleGoToLogin() {
+    this.props.generalStore.firstLoad = false;
+
+    this.props.navigation.reset({
+      index: 1,
+      routes: [{name: 'Home'}, {name: 'Auth'}],
+    });
+  }
+
   renderItem = ({item}) => {
-    const {height, width} = SCREEN_DIMENSIONS;
+    const {height} = SCREEN_DIMENSIONS;
     return (
       <View
         style={{
@@ -34,18 +42,41 @@ class IntroSliderScreen extends Component {
           backgroundColor: item.backgroundColor,
           paddingHorizontal: 50,
         }}>
-        <Image
-          source={item.image}
-          style={{height: height * 0.3, width: '100%', resizeMode: 'contain'}}
-        />
+        <View style={{paddingHorizontal: 30}}>
+          <Image
+            source={item.image}
+            style={{
+              height: height * 0.3,
+              width: '100%',
+              resizeMode: 'contain',
+              ...item.imageStyle,
+            }}
+          />
+        </View>
 
-        <View style={{flex: 1, paddingVertical: 30}}>
-          <Text style={{fontSize: 26, color: colors.icons, marginVertical: 10}}>
-            {item.title}
-          </Text>
-          <Text style={{fontSize: 14, color: colors.icons, marginVertical: 10}}>
-            {item.text}
-          </Text>
+        <View style={{flex: 1, paddingVertical: 30, marginBottom: 50}}>
+          <View style={{flex: 1}}>
+            <Text
+              style={{
+                fontSize: 30,
+                color: colors.icons,
+                marginVertical: 10,
+                ...item.titleStyle,
+              }}>
+              {item.title}
+            </Text>
+            <Text
+              style={{
+                fontSize: 18,
+                color: colors.icons,
+                marginVertical: 10,
+                ...item.textStyle,
+              }}>
+              {item.text}
+            </Text>
+          </View>
+
+          <View>{item.footerComponent && item.footerComponent()}</View>
         </View>
       </View>
     );
@@ -55,24 +86,44 @@ class IntroSliderScreen extends Component {
     const slides = [
       {
         key: 'one',
-        title: 'Welcome To Marketeer!',
-        text: 'Description.\nSay something cool',
+        title: 'Hi, welcome to Marketeer!',
+        text: 'Marketeer makes shopping easier and convenient!',
         image: require('../../assets/images/logo.png'),
         backgroundColor: colors.primary,
       },
       {
         key: 'two',
-        title: 'Title 2',
-        text: 'Other cool stuff',
-        image: require('../../assets/images/logo.png'),
-        backgroundColor: '#febe29',
+        title: 'Location',
+        titleStyle: {color: colors.icons},
+        text:
+          'Please enable your location services in order to easily see the stores near you.',
+        textStyle: {color: colors.icons},
+        image: require('../../assets/images/map-intro.png'),
+        backgroundColor: colors.accent,
       },
       {
         key: 'three',
-        title: 'Rocket guy',
-        text: "I'm already out of descriptions\n\nLorem ipsum bla bla bla",
-        image: require('../../assets/images/logo.png'),
-        backgroundColor: '#22bcb5',
+        title: 'Create an Account',
+        text:
+          "To place an order, you must be logged in to your account.\n\nIf you continue as a guest, we'll ask you to login/sign up before you place an order.\n\nEnjoy and happy shopping!",
+        image: require('../../assets/images/user-intro.png'),
+        imageStyle: {tintColor: colors.icons},
+        backgroundColor: colors.accent,
+        footerComponent: () => (
+          <View>
+            <Button
+              title="Go to Login"
+              buttonStyle={{
+                backgroundColor: colors.primary,
+                height: 50,
+                width: '100%',
+              }}
+              titleStyle={{color: colors.icons}}
+              containerStyle={{borderRadius: 30, overflow: 'hidden'}}
+              onPress={() => this.handleGoToLogin()}
+            />
+          </View>
+        ),
       },
     ];
 
@@ -81,6 +132,7 @@ class IntroSliderScreen extends Component {
         data={slides}
         renderItem={this.renderItem}
         onDone={() => this.handleSliderDone()}
+        doneLabel="Continue as Guest"
       />
     );
   }
