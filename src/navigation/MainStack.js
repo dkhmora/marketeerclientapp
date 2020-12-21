@@ -22,19 +22,13 @@ import {inject, observer} from 'mobx-react';
 class MainStack extends Component {
   constructor(props) {
     super(props);
-
-    this.props.generalStore.firstLoad = true;
   }
 
   render() {
-    const {
-      props: {
-        generalStore: {firstLoad},
-      },
-    } = this;
-
     const StackMain = createStackNavigator();
-    const initialRoute = firstLoad ? 'Intro Slider' : 'Home';
+    const initialRoute = this.props.generalStore.firstLoad
+      ? 'Intro Slider'
+      : 'Home';
 
     return (
       <StackMain.Navigator initialRouteName={initialRoute} headerMode="none">

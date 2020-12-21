@@ -21,8 +21,6 @@ class IntroSliderScreen extends Component {
   constructor(props) {
     super(props);
 
-    this.props.generalStore.appReady = true;
-
     this.state = {
       nextEnabled: true,
       skipEnabled: false,
@@ -52,7 +50,7 @@ class IntroSliderScreen extends Component {
 
     this.props.navigation.reset({
       index: 1,
-      routes: [{name: 'Home'}, {name: 'Auth'}],
+      routes: [{name: 'Intro Slider'}, {name: 'Auth'}],
     });
   }
 

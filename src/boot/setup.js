@@ -61,6 +61,10 @@ const theme = {
 @inject('generalStore')
 @observer
 class Setup extends Component {
+  constructor(props) {
+    super(props);
+  }
+
   render() {
     return (
       <ThemeProvider theme={theme}>

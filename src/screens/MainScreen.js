@@ -25,7 +25,6 @@ import MainTab from '../navigation/MainTab';
 import {computed} from 'mobx';
 import crashlytics from '@react-native-firebase/crashlytics';
 import auth from '@react-native-firebase/auth';
-import {requestNotifications} from 'react-native-permissions';
 
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
 const pixelsFromTop = getStatusBarHeight() + headerHeight;
@@ -42,6 +41,7 @@ class MainScreen extends Component {
       initialPosition: -400,
       image: '',
       url: '',
+      user: null,
     };
 
     Animatable.initializeRegistryWithDefinitions({
@@ -136,16 +136,12 @@ class MainScreen extends Component {
                 this.props.shopStore.getCartItems(uid);
               }
 
-              requestNotifications(['alert', 'badge', 'sound', 'lockScreen'])
-                .then(({status, settings}) => {
-                  return this.props.generalStore.getUserDetails(uid);
-                })
-                .then(() => (this.props.generalStore.appReady = true));
+              this.props.generalStore.getUserDetails(uid);
 
               if (!this.props.generalStore.currentLocation) {
-                return this.props.generalStore.setCurrentLocation();
+                this.props.generalStore.setCurrentLocation();
               } else {
-                return this.props.generalStore.setLastDeliveryLocation();
+                this.props.generalStore.setLastDeliveryLocation();
               }
             });
           } else {
@@ -158,9 +154,11 @@ class MainScreen extends Component {
             }
 
             if (!this.props.generalStore.currentLocation) {
-              return this.props.generalStore.setCurrentLocation();
+              this.props.generalStore.setCurrentLocation();
             }
           }
+
+          this.props.generalStore.appReady = true;
 
           AppState.addEventListener('change', (state) => {
             if (!this.props.authStore.guest) {
