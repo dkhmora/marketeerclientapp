@@ -3,7 +3,6 @@ import {NavigationContainer} from '@react-navigation/native';
 import MainStack from './navigation/MainStack';
 import {colors} from '../assets/colors';
 import {RootSiblingParent} from 'react-native-root-siblings';
-import StartupModal from './components/StartupModal';
 
 const NavigationTheme = {
   dark: false,
@@ -21,7 +20,5 @@ export default () => (
     <NavigationContainer theme={NavigationTheme}>
       <MainStack />
     </NavigationContainer>
-
-    <StartupModal />
   </RootSiblingParent>
 );

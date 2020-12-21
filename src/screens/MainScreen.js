@@ -25,6 +25,7 @@ import MainTab from '../navigation/MainTab';
 import {computed} from 'mobx';
 import crashlytics from '@react-native-firebase/crashlytics';
 import auth from '@react-native-firebase/auth';
+import StartupModal from '../components/StartupModal';
 
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
 const pixelsFromTop = getStatusBarHeight() + headerHeight;
@@ -605,6 +606,8 @@ class MainScreen extends Component {
             paddingHorizontal: 20,
           }}
         />
+
+        <StartupModal />
       </View>
     );
   }

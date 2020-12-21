@@ -57,7 +57,6 @@ const theme = {
     },
   },
 };
-@inject('authStore')
 @inject('generalStore')
 @observer
 class Setup extends Component {

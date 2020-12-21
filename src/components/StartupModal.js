@@ -1,11 +1,14 @@
 import React, {PureComponent} from 'react';
-import {Overlay, Text, Button, Icon} from 'react-native-elements';
-import {View, SafeAreaView, StatusBar, Platform} from 'react-native';
+import {Overlay, Button, Icon} from 'react-native-elements';
+import {View, SafeAreaView, StatusBar} from 'react-native';
 import {colors} from '../../assets/colors';
 import FastImage from 'react-native-fast-image';
-import {inject} from 'mobx-react';
+import {inject, observer} from 'mobx-react';
+import {when} from 'mobx';
 
 @inject('generalStore')
+@inject('authStore')
+@observer
 class StartupModal extends PureComponent {
   constructor(props) {
     super(props);
@@ -20,16 +23,19 @@ class StartupModal extends PureComponent {
       },
     } = this;
 
-    if (Object.keys(startupModalProps).length <= 0) {
-      this.props.generalStore.setAppData().then(() => {
-        this.setState({
-          isVisible:
-            startupModalProps?.isVisible !== undefined
-              ? startupModalProps?.isVisible
-              : false,
+    when(
+      () => this.props.authStore.userAuthenticated === true,
+      () => {
+        this.props.generalStore.setAppData().then(() => {
+          this.setState({
+            isVisible:
+              startupModalProps?.isVisible !== undefined
+                ? startupModalProps?.isVisible
+                : false,
+          });
         });
-      });
-    }
+      },
+    );
   }
 
   render() {
