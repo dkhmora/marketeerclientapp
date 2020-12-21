@@ -36,6 +36,8 @@ class MainStack extends Component {
     const StackMain = createStackNavigator();
     const initialRoute = firstLoad ? 'Intro Slider' : 'Home';
 
+    console.log('mount123', initialRoute);
+
     return (
       <StackMain.Navigator initialRouteName={initialRoute} headerMode="none">
         <StackMain.Screen name="Auth" component={AuthStack} />

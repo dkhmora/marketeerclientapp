@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Dimensions,
   ActivityIndicator,
+  AppState,
 } from 'react-native';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 import {
@@ -23,6 +24,8 @@ import {inject, observer} from 'mobx-react';
 import MainTab from '../navigation/MainTab';
 import {computed} from 'mobx';
 import crashlytics from '@react-native-firebase/crashlytics';
+import auth from '@react-native-firebase/auth';
+import {requestNotifications} from 'react-native-permissions';
 
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
 const pixelsFromTop = getStatusBarHeight() + headerHeight;
@@ -89,7 +92,7 @@ class MainScreen extends Component {
       selectedDeliveryLabel === 'Last Delivery Location' &&
       userDetails.addresses
     ) {
-      return userDetails.addresses.Home.address;
+      return userDetails?.addresses?.Home?.address;
     } else {
       return 'Current Location';
     }
@@ -97,6 +100,97 @@ class MainScreen extends Component {
 
   componentDidMount() {
     crashlytics().log('MainScreen');
+
+    this.executeAuthStateListener();
+  }
+
+  componentWillUnmount() {
+    this.closeAuthStateListener && this.closeAuthStateListener();
+  }
+
+  executeAuthStateListener() {
+    this.closeAuthStateListener = auth().onAuthStateChanged((user) => {
+      this.props.generalStore.appReady = false;
+
+      this.props.authStore.checkAuthStatus().then(() => {
+        if (user) {
+          const {isAnonymous, email, displayName, phoneNumber, uid} = user;
+
+          this.setState({user}, () => {
+            crashlytics().setAttributes({
+              email,
+              displayName,
+              phoneNumber,
+              uid,
+              isAnonymous: isAnonymous.toString(),
+            });
+          });
+
+          if (!this.props.authStore.guest) {
+            this.props.authStore.reloadUser().then(() => {
+              if (this.props.shopStore.cartStores.length !== 0) {
+                this.props.shopStore.updateCartItemsInstantly().then(() => {
+                  this.props.shopStore.getCartItems(uid);
+                });
+              } else {
+                this.props.shopStore.getCartItems(uid);
+              }
+
+              requestNotifications(['alert', 'badge', 'sound', 'lockScreen'])
+                .then(({status, settings}) => {
+                  return this.props.generalStore.getUserDetails(uid);
+                })
+                .then(() => (this.props.generalStore.appReady = true));
+
+              if (!this.props.generalStore.currentLocation) {
+                return this.props.generalStore.setCurrentLocation();
+              } else {
+                return this.props.generalStore.setLastDeliveryLocation();
+              }
+            });
+          } else {
+            if (this.props.shopStore.unsubscribeToGetCartItems) {
+              this.props.shopStore.unsubscribeToGetCartItems();
+            }
+
+            if (this.props.generalStore.unsubscribeUserDetails) {
+              this.props.generalStore.unsubscribeUserDetails();
+            }
+
+            if (!this.props.generalStore.currentLocation) {
+              return this.props.generalStore.setCurrentLocation();
+            }
+          }
+
+          AppState.addEventListener('change', (state) => {
+            if (!this.props.authStore.guest) {
+              if (state === 'active') {
+                if (!this.props.uthStore.guest && user) {
+                  this.props.shopStore.getCartItems(uid);
+                  this.props.generalStore.getUserDetails(uid);
+                }
+              } else if (state === 'background') {
+                if (this.props.shopStore.unsubscribeToGetCartItems) {
+                  this.props.shopStore.unsubscribeToGetCartItems();
+                }
+
+                if (this.props.generalStore.unsubscribeUserDetails) {
+                  this.props.generalStore.unsubscribeUserDetails();
+                }
+              } else if (state === 'inactive') {
+                if (this.props.shopStore.unsubscribeToGetCartItems) {
+                  this.props.shopStore.unsubscribeToGetCartItems();
+                }
+
+                if (this.props.generalStore.unsubscribeUserDetails) {
+                  this.props.generalStore.unsubscribeUserDetails();
+                }
+              }
+            }
+          });
+        }
+      });
+    });
   }
 
   menuButton = () => {
@@ -352,8 +446,9 @@ class MainScreen extends Component {
                 },
               ]}
               subtitle={
-                this.props.generalStore.userDetails.addresses
-                  ? this.props.generalStore.userDetails.addresses.Home.address
+                this.props.generalStore.userDetails?.addresses
+                  ? this.props.generalStore.userDetails?.addresses?.Home
+                      ?.address
                   : null
               }
               subtitleStyle={styles.subtitleStyle}

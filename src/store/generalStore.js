@@ -14,7 +14,7 @@ import messaging from '@react-native-firebase/messaging';
 import crashlytics from '@react-native-firebase/crashlytics';
 import {getAddressFromCoordinates} from '../util/firebase-functions';
 import {nowMillis} from '../util/variables';
-import {PERMISSIONS, request} from 'react-native-permissions';
+import {check, PERMISSIONS} from 'react-native-permissions';
 
 class generalStore {
   @observable appReady = false;
@@ -208,7 +208,7 @@ class generalStore {
           ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
           : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
 
-      return request(platformLocationPermission).then((permissionResult) => {
+      return check(platformLocationPermission).then((permissionResult) => {
         if (permissionResult === 'granted') {
           return Geolocation.getCurrentPosition(
             (position) => {
@@ -235,7 +235,7 @@ class generalStore {
         ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
         : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
 
-    return request(platformLocationPermission).then((permissionResult) => {
+    return check(platformLocationPermission).then((permissionResult) => {
       if (permissionResult === 'granted') {
         return Geolocation.getCurrentPosition(
           async (position) => {
@@ -316,9 +316,9 @@ class generalStore {
     return new Promise((resolve, reject) => {
       this.selectedDeliveryLabel = 'Last Delivery Location';
 
-      this.currentLocationGeohash = this.userDetails.addresses.Home.geohash;
-      this.currentLocation = this.userDetails.addresses.Home.coordinates;
-      this.currentLocationDetails = this.userDetails.addresses.Home.address;
+      this.currentLocationGeohash = this.userDetails?.addresses?.Home?.geohash;
+      this.currentLocation = this.userDetails?.addresses?.Home?.coordinates;
+      this.currentLocationDetails = this.userDetails?.addresses?.Home?.address;
 
       resolve();
     });
