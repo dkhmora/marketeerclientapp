@@ -165,7 +165,7 @@ class MainScreen extends Component {
           AppState.addEventListener('change', (state) => {
             if (!this.props.authStore.guest) {
               if (state === 'active') {
-                if (!this.props.uthStore.guest && user) {
+                if (!this.props.authStore.guest && user) {
                   this.props.shopStore.getCartItems(uid);
                   this.props.generalStore.getUserDetails(uid);
                 }
