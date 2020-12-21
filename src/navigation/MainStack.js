@@ -22,6 +22,8 @@ import {inject, observer} from 'mobx-react';
 class MainStack extends Component {
   constructor(props) {
     super(props);
+
+    this.props.generalStore.firstLoad = true;
   }
 
   render() {

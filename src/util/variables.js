@@ -6,10 +6,8 @@ import {Dimensions, StatusBar} from 'react-native';
 const functions = firebase.app().functions('asia-northeast1');
 
 if (process.env.DEVMODE === 'true') {
-  console.log(
-    'Firebase Functions Use Emulator at "http://192.168.86.231:5001"',
-  );
-  functions.useFunctionsEmulator('http://192.168.86.231:5001');
+  console.log('Firebase Functions Use Emulator at "http://192.168.86.20:5001"');
+  functions.useFunctionsEmulator('http://192.168.86.20:5001');
 }
 
 const contactUsUrl = 'https://marketeer.ph/components/pages/contactus';

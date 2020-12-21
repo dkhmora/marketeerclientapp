@@ -174,7 +174,7 @@ class StoreCard extends Component {
                 }}>
                 <Text style={{color: colors.icons}}>{deliveryType}</Text>
 
-                {deliveryDiscount && deliveryDiscount.activated && (
+                {deliveryDiscount && deliveryDiscount?.activated && (
                   <View
                     style={{
                       width: '100%',

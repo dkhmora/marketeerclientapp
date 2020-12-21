@@ -72,26 +72,27 @@ class App extends React.Component {
           });
 
           if (!authStore.guest) {
-            authStore.reloadUser();
-
-            if (shopStore.cartStores.length !== 0) {
-              shopStore.updateCartItemsInstantly().then(() => {
+            authStore.reloadUser().then(() => {
+              if (shopStore.cartStores.length !== 0) {
+                shopStore.updateCartItemsInstantly().then(() => {
+                  shopStore.getCartItems(uid);
+                });
+              } else {
                 shopStore.getCartItems(uid);
-              });
-            } else {
-              shopStore.getCartItems(uid);
-            }
+              }
 
-            requestNotifications([
-              'alert',
-              'badge',
-              'sound',
-              'lockScreen',
-            ]).then(({status, settings}) => {
-              generalStore.getUserDetails(uid);
+              requestNotifications(['alert', 'badge', 'sound', 'lockScreen'])
+                .then(({status, settings}) => {
+                  return generalStore.getUserDetails(uid);
+                })
+                .then(() => (generalStore.appReady = true));
+
+              if (!generalStore.currentLocation) {
+                return generalStore.setCurrentLocation();
+              } else {
+                return generalStore.setLastDeliveryLocation();
+              }
             });
-
-            generalStore.appReady = true;
           } else {
             if (shopStore.unsubscribeToGetCartItems) {
               shopStore.unsubscribeToGetCartItems();
@@ -103,8 +104,6 @@ class App extends React.Component {
 
             if (!generalStore.currentLocation) {
               return generalStore.setCurrentLocation();
-            } else {
-              return generalStore.setLastDeliveryLocation();
             }
           }
 

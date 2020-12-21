@@ -181,7 +181,7 @@ class ItemQuantityControlButtons extends PureComponent {
                   fontFamily: 'ProductSans-Black',
                   paddingRight: 4,
                   color:
-                    itemStock && itemQuantity > itemStock
+                    itemStock !== undefined && itemQuantity > itemStock
                       ? '#F44336'
                       : colors.text_primary,
                 }}>

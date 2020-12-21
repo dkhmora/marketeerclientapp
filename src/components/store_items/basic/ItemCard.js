@@ -70,10 +70,11 @@ class ItemCard extends PureComponent {
 
     updatedItem.quantity = cartItemQuantity + 1;
 
-    this.props.shopStore.addCartItemToStorage(updatedItem, storeId);
-
-    this.cartItemQuantity === parseInt(item.stock, 10) &&
-      this.setState({addDisabled: true});
+    this.props.shopStore.addCartItemToStorage(updatedItem, storeId).then(() => {
+      if (this.cartItemQuantity === parseInt(item.stock, 10)) {
+        this.setState({addDisabled: true});
+      }
+    });
   }
 
   handleDecreaseQuantity() {
@@ -241,55 +242,57 @@ class ItemCard extends PureComponent {
                 )}
               </View>
 
-              <View
-                style={{
-                  flexDirection: 'row',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  borderBottomRightRadius: 10,
-                  backgroundColor: colors.icons,
-                  opacity: 0.9,
-                  borderColor: 'rgba(0,0,0,0.4)',
-                  padding: 2,
-                  paddingRight: 4,
-                  alignItems: 'center',
-                  elevation: 5,
-                  shadowColor: '#000',
-                  shadowOffset: {
-                    width: 0,
-                    height: 2,
-                  },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 3.84,
-                }}>
-                {stock > 0 ? (
-                  <View style={{flexDirection: 'row'}}>
-                    <Text maxFontSizeMultiplier={1} style={{fontSize: 14}}>
-                      {stock}
-                    </Text>
+              {stock !== undefined && (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    borderBottomRightRadius: 10,
+                    backgroundColor: colors.icons,
+                    opacity: 0.9,
+                    borderColor: 'rgba(0,0,0,0.4)',
+                    padding: 2,
+                    paddingRight: 4,
+                    alignItems: 'center',
+                    elevation: 5,
+                    shadowColor: '#000',
+                    shadowOffset: {
+                      width: 0,
+                      height: 2,
+                    },
+                    shadowOpacity: 0.25,
+                    shadowRadius: 3.84,
+                  }}>
+                  {stock > 0 ? (
+                    <View style={{flexDirection: 'row'}}>
+                      <Text maxFontSizeMultiplier={1} style={{fontSize: 14}}>
+                        {stock}
+                      </Text>
 
+                      <Text
+                        maxFontSizeMultiplier={1}
+                        style={{
+                          fontSize: 14,
+                          textAlign: 'center',
+                          color: colors.text_secondary,
+                        }}>
+                        {' Left'}
+                      </Text>
+                    </View>
+                  ) : (
                     <Text
-                      maxFontSizeMultiplier={1}
                       style={{
                         fontSize: 14,
                         textAlign: 'center',
-                        color: colors.text_secondary,
+                        color: colors.danger,
                       }}>
-                      {' Left'}
+                      Out of Stock
                     </Text>
-                  </View>
-                ) : (
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      textAlign: 'center',
-                      color: colors.danger,
-                    }}>
-                    Out of Stock
-                  </Text>
-                )}
-              </View>
+                  )}
+                </View>
+              )}
             </CardItem>
 
             <ItemQuantityControlButtons

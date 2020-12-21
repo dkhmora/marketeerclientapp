@@ -96,10 +96,25 @@ class IntroSliderScreen extends Component {
         title: 'Location',
         titleStyle: {color: colors.icons},
         text:
-          'Please enable your location services in order to easily see the stores near you.',
+          'Please enable location permissions in order to easily see the stores near you.',
         textStyle: {color: colors.icons},
         image: require('../../assets/images/map-intro.png'),
         backgroundColor: colors.accent,
+        footerComponent: () => (
+          <View>
+            <Button
+              title="Enable Location"
+              buttonStyle={{
+                backgroundColor: colors.primary,
+                height: 50,
+                width: '100%',
+              }}
+              titleStyle={{color: colors.icons}}
+              containerStyle={{borderRadius: 30, overflow: 'hidden'}}
+              onPress={() => this.handleGoToLogin()}
+            />
+          </View>
+        ),
       },
       {
         key: 'three',
