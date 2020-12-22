@@ -399,41 +399,34 @@ class shopStore {
     }
   }
 
-  @action async getStoreList({currentLocationGeohash, locationCoordinates}) {
-    if (currentLocationGeohash && locationCoordinates) {
-      return await storesCollection
-        .where('visibleToPublic', '==', true)
-        .where('updatedAt', '>', this.maxStoreUpdatedAt)
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.forEach((documentSnapshot, index) => {
-            const storeId = documentSnapshot.id;
-            const storeData = documentSnapshot.data();
+  @action async getStoreList(locationCoordinates) {
+    return await storesCollection
+      .where('visibleToPublic', '==', true)
+      .where('updatedAt', '>', this.maxStoreUpdatedAt)
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((documentSnapshot, index) => {
+          const storeId = documentSnapshot.id;
+          const storeData = documentSnapshot.data();
 
-            if (storeData.updatedAt > this.maxStoreUpdatedAt) {
-              this.maxStoreUpdatedAt = storeData.updatedAt;
-            }
+          if (storeData.updatedAt > this.maxStoreUpdatedAt) {
+            this.maxStoreUpdatedAt = storeData.updatedAt;
+          }
 
-            this.allStoresMap[storeId] = storeData;
-          });
-        })
-        .then(async () => {
+          this.allStoresMap[storeId] = storeData;
+        });
+      })
+      .then(async () => {
+        if (locationCoordinates) {
           this.viewableStoreList = await this.setVisibleStores(
             locationCoordinates,
           );
-        })
-        .catch((err) => {
-          crashlytics().recordError(err);
-          Toast({text: err.message, type: 'danger'});
-        });
-    } else {
-      Toast({
-        text:
-          'Error: No location coordinates set. Please set your location to view stores.',
-        duration: 7000,
-        type: 'danger',
+        }
+      })
+      .catch((err) => {
+        crashlytics().recordError(err);
+        Toast({text: err.message, type: 'danger'});
       });
-    }
   }
 
   @action async setVisibleStores(locationCoordinates) {

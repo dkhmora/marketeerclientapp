@@ -391,11 +391,9 @@ class MainScreen extends Component {
             chevron
             onPress={() => {
               this.props.generalStore.setCurrentLocation().then(() => {
-                this.props.shopStore.getStoreList({
-                  currentLocationGeohash: this.props.generalStore
-                    .currentLocationGeohash,
-                  locationCoordinates: this.props.generalStore.currentLocation,
-                });
+                this.props.shopStore.getStoreList(
+                  this.props.generalStore.currentLocation,
+                );
               });
               this.hideLocationMenu();
             }}
@@ -455,12 +453,9 @@ class MainScreen extends Component {
               chevron
               onPress={() => {
                 this.props.generalStore.setLastDeliveryLocation().then(() => {
-                  this.props.shopStore.getStoreList({
-                    currentLocationGeohash: this.props.generalStore
-                      .currentLocationGeohash,
-                    locationCoordinates: this.props.generalStore
-                      .currentLocation,
-                  });
+                  this.props.shopStore.getStoreList(
+                    this.props.generalStore.currentLocation,
+                  );
                 });
                 this.hideLocationMenu();
               }}

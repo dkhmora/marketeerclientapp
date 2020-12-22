@@ -123,10 +123,7 @@ class SetLocationScreen extends Component {
     } else {
       navigation.navigate('Home');
 
-      this.props.shopStore.getStoreList({
-        currentLocationGeohash: coordinatesGeohash,
-        locationCoordinates: newMarkerPosition,
-      });
+      this.props.shopStore.getStoreList(newMarkerPosition);
 
       Toast({text: 'Successfully set location!'});
 

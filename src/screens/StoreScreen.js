@@ -7,6 +7,7 @@ import {
   Dimensions,
   Platform,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -39,27 +40,40 @@ class StoreScreen extends Component {
     const {storeId} = this.props.route.params;
 
     this.state = {
-      storeItemCategories: {},
+      store: {},
+      storeCategoryItems: null,
       ready: false,
       detailsModal: false,
       allowScrolling: false,
     };
-
-    this.props.shopStore.setStoreItems(storeId).then(() => {
-      this.setState({
-        storeCategoryItems: this.props.shopStore.storeCategoryItems.get(
-          storeId,
-        ),
-      });
-    });
   }
 
   componentDidMount() {
     crashlytics().log('StoreScreen');
 
-    const {store} = this.props.route.params;
+    const {storeId} = this.props.route.params;
+    const store = this.props.shopStore.allStoresMap?.[storeId];
 
     if (store === undefined) {
+      this.props.shopStore.getStoreList().then(() => {
+        this.setState({store: this.props.shopStore.allStoresMap?.[storeId]});
+        this.props.shopStore.setStoreItems(storeId).then(() => {
+          this.setState({
+            storeCategoryItems: this.props.shopStore.storeCategoryItems.get(
+              storeId,
+            ),
+          });
+        });
+      });
+    } else {
+      this.setState({store});
+      this.props.shopStore.setStoreItems(storeId).then(() => {
+        this.setState({
+          storeCategoryItems: this.props.shopStore.storeCategoryItems.get(
+            storeId,
+          ),
+        });
+      });
     }
   }
 
@@ -87,13 +101,12 @@ class StoreScreen extends Component {
         },
         navigation,
       },
-      state: {storeCategoryItems},
+      state: {storeCategoryItems, store},
     } = this;
-    const store = this.props.shopStore.allStoresMap[storeId];
     const dataSource = this.props.shopStore.cartStores.slice();
     const emptyCartText = 'Your cart is empty';
-    const displayImageUrl = `${CDN_BASE_URL}${store.displayImage}`;
-    const coverImageUrl = `${CDN_BASE_URL}${store.coverImage}`;
+    const displayImageUrl = `${CDN_BASE_URL}${store?.displayImage}`;
+    const coverImageUrl = `${CDN_BASE_URL}${store?.coverImage}`;
 
     return (
       <View style={{flex: 1, backgroundColor: colors.text_primary}}>
@@ -186,20 +199,24 @@ class StoreScreen extends Component {
                 alignItems: 'center',
                 justifyContent: 'space-between',
               }}>
-              <Text
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                style={[
-                  styles.text_footer,
-                  {
-                    color: colors.icons,
-                    fontSize: 30,
-                    flex: 1,
-                    paddingRight: 10,
-                  },
-                ]}>
-                {store.storeName}
-              </Text>
+              {store?.storeName !== undefined ? (
+                <Text
+                  adjustsFontSizeToFit
+                  numberOfLines={1}
+                  style={[
+                    styles.text_footer,
+                    {
+                      color: colors.icons,
+                      fontSize: 30,
+                      flex: 1,
+                      paddingRight: 10,
+                    },
+                  ]}>
+                  {store?.storeName}
+                </Text>
+              ) : (
+                <ActivityIndicator color={colors.icons} />
+              )}
 
               <Button
                 type="clear"
@@ -250,7 +267,7 @@ class StoreScreen extends Component {
           <ItemCategoriesTab
             storeCategoryItems={storeCategoryItems}
             storeId={storeId}
-            storeType={store.storeType}
+            storeType={store?.storeType}
             style={{paddingBottom: bottomPadding}}
           />
         </Animatable.View>

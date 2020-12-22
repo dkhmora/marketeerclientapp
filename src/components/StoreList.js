@@ -91,17 +91,12 @@ class StoreList extends Component {
   }
 
   getInitialStoreList() {
-    const {currentLocationGeohash, currentLocation} = this.props.generalStore;
+    const {currentLocation} = this.props.generalStore;
 
     this.setState({refreshing: true}, () => {
-      this.props.shopStore
-        .getStoreList({
-          currentLocationGeohash,
-          locationCoordinates: currentLocation,
-        })
-        .then(() => {
-          this.setState({refreshing: false, loading: false});
-        });
+      this.props.shopStore.getStoreList(currentLocation).then(() => {
+        this.setState({refreshing: false, loading: false});
+      });
     });
   }
 
