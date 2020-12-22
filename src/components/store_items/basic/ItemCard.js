@@ -1,16 +1,15 @@
 import React, {PureComponent} from 'react';
 import {Card, CardItem, Text, View} from 'native-base';
-import {Button, Icon} from 'react-native-elements';
+import {Icon} from 'react-native-elements';
 import {inject, observer} from 'mobx-react';
 import {computed} from 'mobx';
 import * as Animatable from 'react-native-animatable';
 import {colors} from '../../../../assets/colors';
-import {styles} from '../../../../assets/styles';
 import FastImage from 'react-native-fast-image';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import ItemDescriptionModal from '../../ItemDescriptionModal';
 import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
-import {CDN_BASE_URL} from '../../util/variables';
+import {CDN_BASE_URL} from '../../../util/variables';
 import ItemQuantityControlButtons from '../../ItemQuantityControlButtons';
 
 @inject('authStore')
@@ -20,17 +19,8 @@ class ItemCard extends PureComponent {
   constructor(props) {
     super(props);
 
-    const {item, storeId} = this.props;
-    const itemQuantity = this.props.shopStore.getCartItemQuantity(
-      item,
-      storeId,
-    );
-    const itemStock = item.stock;
-
     this.state = {
       ready: false,
-      addDisabled: itemQuantity >= itemStock ? true : false,
-      minusButtonShown: itemQuantity > 0 ? true : false,
       writeTimer: null,
       overlay: false,
     };
@@ -70,36 +60,6 @@ class ItemCard extends PureComponent {
     return 0;
   }
 
-  componentDidUpdate() {
-    if (this.state.minusButtonShown && this.cartItemQuantity <= 0) {
-      this.hideMinusButton();
-    }
-
-    if (this.cartItemQuantity > 0 && !this.state.minusButtonShown) {
-      this.showMinusButton();
-    }
-  }
-
-  showMinusButton() {
-    this.setState({minusButtonShown: true}, () => {
-      this.itemQuantityControlButtonsRef?.buttonCounterView?.fadeInRight(200) &&
-        this.itemQuantityControlButtonsRef?.plusButton?.transformPlusButton(
-          300,
-        );
-    });
-  }
-
-  hideMinusButton() {
-    this.setState({minusButtonShown: false}, () => {
-      this.itemQuantityControlButtonsRef?.buttonCounterView?.fadeOutRight(
-        200,
-      ) &&
-        this.itemQuantityControlButtonsRef?.plusButton?.deTransformPlusButton(
-          300,
-        );
-    });
-  }
-
   handleIncreaseQuantity() {
     const {
       props: {item, storeId},
@@ -110,10 +70,11 @@ class ItemCard extends PureComponent {
 
     updatedItem.quantity = cartItemQuantity + 1;
 
-    this.props.shopStore.addCartItemToStorage(updatedItem, storeId);
-
-    this.cartItemQuantity === parseInt(item.stock, 10) &&
-      this.setState({addDisabled: true});
+    this.props.shopStore.addCartItemToStorage(updatedItem, storeId).then(() => {
+      if (this.cartItemQuantity === parseInt(item.stock, 10)) {
+        this.setState({addDisabled: true});
+      }
+    });
   }
 
   handleDecreaseQuantity() {
@@ -260,13 +221,7 @@ class ItemCard extends PureComponent {
                     flex: 1,
                     opacity: ready ? 1 : 0,
                   }}
-                  onLoad={() =>
-                    this.setState({ready: true}, () => {
-                      if (this.cartItemQuantity >= 1) {
-                        this.showMinusButton();
-                      }
-                    })
-                  }
+                  onLoad={() => this.setState({ready: true})}
                   resizeMode={FastImage.resizeMode.contain}
                 />
 
@@ -287,78 +242,74 @@ class ItemCard extends PureComponent {
                 )}
               </View>
 
-              <View
-                style={{
-                  flexDirection: 'row',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  borderBottomRightRadius: 10,
-                  backgroundColor: colors.icons,
-                  opacity: 0.9,
-                  borderColor: 'rgba(0,0,0,0.4)',
-                  padding: 2,
-                  paddingRight: 4,
-                  alignItems: 'center',
-                  elevation: 5,
-                  shadowColor: '#000',
-                  shadowOffset: {
-                    width: 0,
-                    height: 2,
-                  },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 3.84,
-                }}>
-                {stock > 0 ? (
-                  <View style={{flexDirection: 'row'}}>
-                    <Text maxFontSizeMultiplier={1} style={{fontSize: 14}}>
-                      {stock}
-                    </Text>
+              {stock !== undefined && (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    borderBottomRightRadius: 10,
+                    backgroundColor: colors.icons,
+                    opacity: 0.9,
+                    borderColor: 'rgba(0,0,0,0.4)',
+                    padding: 2,
+                    paddingRight: 4,
+                    alignItems: 'center',
+                    elevation: 5,
+                    shadowColor: '#000',
+                    shadowOffset: {
+                      width: 0,
+                      height: 2,
+                    },
+                    shadowOpacity: 0.25,
+                    shadowRadius: 3.84,
+                  }}>
+                  {stock > 0 ? (
+                    <View style={{flexDirection: 'row'}}>
+                      <Text maxFontSizeMultiplier={1} style={{fontSize: 14}}>
+                        {stock}
+                      </Text>
 
+                      <Text
+                        maxFontSizeMultiplier={1}
+                        style={{
+                          fontSize: 14,
+                          textAlign: 'center',
+                          color: colors.text_secondary,
+                        }}>
+                        {' Left'}
+                      </Text>
+                    </View>
+                  ) : (
                     <Text
-                      maxFontSizeMultiplier={1}
                       style={{
                         fontSize: 14,
                         textAlign: 'center',
-                        color: colors.text_secondary,
+                        color: colors.danger,
                       }}>
-                      {' '}
-                      Left
+                      Out of Stock
                     </Text>
-                  </View>
-                ) : (
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      textAlign: 'center',
-                      color: colors.danger,
-                    }}>
-                    Out of Stock
-                  </Text>
-                )}
-              </View>
+                  )}
+                </View>
+              )}
             </CardItem>
 
-            <View
-              style={{
+            <ItemQuantityControlButtons
+              containerStyle={{
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'center',
                 position: 'absolute',
                 bottom: 10,
                 right: 10,
-              }}>
-              <ItemQuantityControlButtons
-                ref={(itemQuantityControlButtonsRef) =>
-                  (this.itemQuantityControlButtonsRef = itemQuantityControlButtonsRef)
-                }
-                addDisabled={addDisabled}
-                onIncreaseQuantity={() => this.handleIncreaseQuantity()}
-                onDecreaseQuantity={() => this.handleDecreaseQuantity()}
-                itemQuantity={this.cartItemQuantity}
-                itemStock={stock}
-              />
-            </View>
+              }}
+              addDisabled={addDisabled}
+              onIncreaseQuantity={() => this.handleIncreaseQuantity()}
+              onDecreaseQuantity={() => this.handleDecreaseQuantity()}
+              itemQuantity={this.cartItemQuantity}
+              itemStock={stock}
+            />
           </Card>
         </View>
       </Animatable.View>

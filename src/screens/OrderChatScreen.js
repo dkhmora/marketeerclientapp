@@ -13,6 +13,7 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import firestore from '@react-native-firebase/firestore';
 import moment from 'moment';
 import crashlytics from '@react-native-firebase/crashlytics';
+import {nowMillis} from '../util/variables';
 @inject('generalStore')
 @inject('authStore')
 @observer
@@ -57,7 +58,7 @@ class OrderChatScreen extends Component {
       if (
         orderStatus[0] === 'CANCELLED' ||
         (orderStatus[0] === 'COMPLETED' &&
-          firestore.Timestamp.now().toMillis() >=
+          nowMillis >=
             moment(selectedOrder.orderStatus.completed.updatedAt, 'x')
               .add(7, 'days')
               .format('x'))
@@ -82,18 +83,15 @@ class OrderChatScreen extends Component {
     const routes = this.props.navigation.dangerouslyGetState().routes;
     const index = this.props.navigation.dangerouslyGetState().index;
 
-    if (routes[index].name === 'Order Details') {
-      this.props.generalStore.unsubscribeGetOrder &&
-        this.props.generalStore.unsubscribeGetOrder();
+    this.props.generalStore.unsubscribeGetOrder &&
+      this.props.generalStore.unsubscribeGetOrder();
 
+    if (routes[index].name === 'Order Details') {
       this.props.generalStore.getOrder({orderId, readMessages: false});
     } else if (routes[index].name === 'Orders') {
       this.props.generalStore.setOrders(this.props.authStore.userId);
     } else {
       this.props.generalStore.selectedOrder = null;
-
-      this.props.generalStore.unsubscribeGetOrder &&
-        this.props.generalStore.unsubscribeGetOrder();
     }
   }
 
@@ -156,7 +154,7 @@ class OrderChatScreen extends Component {
           flexDirection: 'row',
         }}>
         <Text style={{textAlign: 'center', textAlignVertical: 'center'}}>
-          Chat is disabled since order is{' '}
+          {'Chat is disabled since order is '}
           {orderStatus[0] === 'CANCELLED'
             ? orderStatus[0]
             : 'COMPLETED and has surpassed 7 days'}
@@ -269,6 +267,7 @@ class OrderChatScreen extends Component {
               messages={dataSource}
               onSend={(messages) => this.onSend(messages)}
               user={user}
+              keyboardShouldPersistTaps="handled"
             />
           </KeyboardAvoidingView>
         </Container>

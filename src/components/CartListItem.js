@@ -6,7 +6,7 @@ import {StyleSheet, View, TouchableWithoutFeedback} from 'react-native';
 import {observer, inject} from 'mobx-react';
 import {styles} from '../../assets/styles';
 import {colors} from '../../assets/colors';
-import {CDN_BASE_URL} from './util/variables';
+import {CDN_BASE_URL} from '../util/variables';
 import ItemQuantityControlButtons from './ItemQuantityControlButtons';
 
 @inject('shopStore')
@@ -15,15 +15,6 @@ import ItemQuantityControlButtons from './ItemQuantityControlButtons';
 class CartListItem extends PureComponent {
   constructor(props) {
     super(props);
-  }
-
-  @computed get addButtonDisabled() {
-    const {item, itemSnapshot} = this.props;
-
-    if (itemSnapshot) {
-      return item.quantity >= itemSnapshot.stock;
-    }
-    return false;
   }
 
   handleIncreaseQuantity() {
@@ -175,10 +166,6 @@ class CartListItem extends PureComponent {
                 )}
 
                 <ItemQuantityControlButtons
-                  ref={(itemQuantityControlButtonsRef) =>
-                    (this.itemQuantityControlButtonsRef = itemQuantityControlButtonsRef)
-                  }
-                  addDisabled={this.addButtonDisabled}
                   onIncreaseQuantity={() => this.handleIncreaseQuantity()}
                   onDecreaseQuantity={() => this.handleDecreaseQuantity()}
                   itemQuantity={item.quantity}
@@ -203,6 +190,10 @@ class CartListItem extends PureComponent {
                     elevation: 3,
                     height: 26,
                     marginHorizontal: 5,
+                    backgroundColor: colors.icons,
+                    borderRadius: 100,
+                    paddingLeft: 5,
+                    overflow: 'hidden',
                   }}
                 />
               </View>
@@ -220,7 +211,6 @@ class CartListItem extends PureComponent {
                 numberOfLines={1}
                 style={{
                   fontFamily: 'ProductSans-Black',
-                  fontSize: 16,
                   color: colors.text_secondary,
                 }}>
                 ₱{totalItemPrice}
@@ -242,7 +232,7 @@ class CartListItem extends PureComponent {
               <Text
                 adjustsFontSizeToFit
                 numberOfLines={1}
-                style={{fontFamily: 'ProductSans-Black', fontSize: 18}}>
+                style={{fontFamily: 'ProductSans-Black'}}>
                 ₱{totalItemPrice * item.quantity}
               </Text>
             </View>

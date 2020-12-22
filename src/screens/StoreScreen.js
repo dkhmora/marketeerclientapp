@@ -7,6 +7,7 @@ import {
   Dimensions,
   Platform,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -21,7 +22,7 @@ import SlidingCartHeader from '../components/SlidingCartHeader';
 import CartStoreCard from '../components/CartStoreCard';
 import SlidingCartFooter from '../components/SlidingCartFooter';
 import crashlytics from '@react-native-firebase/crashlytics';
-import {CDN_BASE_URL} from '../components/util/variables';
+import {CDN_BASE_URL} from '../util/variables';
 import FastImage from 'react-native-fast-image';
 
 const STATUS_BAR_HEIGHT = StatusBar.currentHeight;
@@ -36,33 +37,44 @@ class StoreScreen extends Component {
   constructor(props) {
     super(props);
 
-    const {store, displayImageUrl, coverImageUrl} = this.props.route.params;
+    const {storeId} = this.props.route.params;
 
     this.state = {
-      storeItemCategories: {},
-      displayImageUrl,
-      coverImageUrl,
+      store: {},
+      storeCategoryItems: null,
       ready: false,
       detailsModal: false,
       allowScrolling: false,
     };
-
-    this.props.shopStore
-      .setStoreItems(
-        this.props.route.params.store.storeId,
-        store.itemCategories,
-      )
-      .then(() => {
-        this.setState({
-          storeCategoryItems: this.props.shopStore.storeCategoryItems.get(
-            store.storeId,
-          ),
-        });
-      });
   }
 
   componentDidMount() {
     crashlytics().log('StoreScreen');
+
+    const {storeId} = this.props.route.params;
+    const store = this.props.shopStore.allStoresMap?.[storeId];
+
+    if (store === undefined) {
+      this.props.shopStore.getStoreList().then(() => {
+        this.setState({store: this.props.shopStore.allStoresMap?.[storeId]});
+        this.props.shopStore.setStoreItems(storeId).then(() => {
+          this.setState({
+            storeCategoryItems: this.props.shopStore.storeCategoryItems.get(
+              storeId,
+            ),
+          });
+        });
+      });
+    } else {
+      this.setState({store});
+      this.props.shopStore.setStoreItems(storeId).then(() => {
+        this.setState({
+          storeCategoryItems: this.props.shopStore.storeCategoryItems.get(
+            storeId,
+          ),
+        });
+      });
+    }
   }
 
   handleCheckout() {
@@ -82,13 +94,19 @@ class StoreScreen extends Component {
   );
 
   render() {
-    const {store} = this.props.route.params;
-    const {navigation} = this.props;
-    const {storeCategoryItems} = this.state;
+    const {
+      props: {
+        route: {
+          params: {storeId},
+        },
+        navigation,
+      },
+      state: {storeCategoryItems, store},
+    } = this;
     const dataSource = this.props.shopStore.cartStores.slice();
     const emptyCartText = 'Your cart is empty';
-    const displayImageUrl = `${CDN_BASE_URL}${store.displayImage}`;
-    const coverImageUrl = `${CDN_BASE_URL}${store.coverImage}`;
+    const displayImageUrl = `${CDN_BASE_URL}${store?.displayImage}`;
+    const coverImageUrl = `${CDN_BASE_URL}${store?.coverImage}`;
 
     return (
       <View style={{flex: 1, backgroundColor: colors.text_primary}}>
@@ -181,20 +199,24 @@ class StoreScreen extends Component {
                 alignItems: 'center',
                 justifyContent: 'space-between',
               }}>
-              <Text
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                style={[
-                  styles.text_footer,
-                  {
-                    color: colors.icons,
-                    fontSize: 30,
-                    flex: 1,
-                    paddingRight: 10,
-                  },
-                ]}>
-                {store.storeName}
-              </Text>
+              {store?.storeName !== undefined ? (
+                <Text
+                  adjustsFontSizeToFit
+                  numberOfLines={1}
+                  style={[
+                    styles.text_footer,
+                    {
+                      color: colors.icons,
+                      fontSize: 30,
+                      flex: 1,
+                      paddingRight: 10,
+                    },
+                  ]}>
+                  {store?.storeName}
+                </Text>
+              ) : (
+                <ActivityIndicator color={colors.icons} />
+              )}
 
               <Button
                 type="clear"
@@ -244,8 +266,8 @@ class StoreScreen extends Component {
           ]}>
           <ItemCategoriesTab
             storeCategoryItems={storeCategoryItems}
-            storeId={store.storeId}
-            storeType={store.storeType}
+            storeId={storeId}
+            storeType={store?.storeType}
             style={{paddingBottom: bottomPadding}}
           />
         </Animatable.View>

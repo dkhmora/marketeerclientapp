@@ -1,14 +1,15 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, Image, Animated, StatusBar} from 'react-native';
 import StickyParallaxHeader from 'react-native-sticky-parallax-header';
-import {Button, Card, Divider, Icon, Input, Text} from 'react-native-elements';
+import {Button, Divider, Icon, Input, Text} from 'react-native-elements';
 import {colors} from '../../assets/colors';
-import {CDN_BASE_URL} from '../components/util/variables';
+import {CDN_BASE_URL} from '../util/variables';
 import FastImage from 'react-native-fast-image';
 import CustomizationOptionsCard from '../components/store_items/food/CustomizationOptionsCard';
 import ItemQuantityControlButtons from '../components/ItemQuantityControlButtons';
 import {inject, observer} from 'mobx-react';
 import {v4 as uuidv4} from 'uuid';
+import {Card} from 'native-base';
 
 const {event, ValueXY} = Animated;
 const scrollY = new ValueXY();
@@ -186,7 +187,7 @@ class FoodItemDetailsScreen extends Component {
           </View>
         </View>
 
-        <View style={{paddingHorizontal: 15}}>
+        <View style={{paddingHorizontal: 10}}>
           <Divider />
         </View>
       </View>
@@ -284,99 +285,93 @@ class FoodItemDetailsScreen extends Component {
     } = this;
 
     return (
-      <View style={{paddingHorizontal: 15, paddingVertical: 10}}>
-        <View
-          style={{
-            flex: 1,
-            paddingVertical: 10,
-          }}>
-          <View>
-            <Text style={{fontSize: 22, marginBottom: 5}}>Customization</Text>
+      <View
+        style={{
+          flex: 1,
+          padding: 10,
+        }}>
+        {Object.entries(itemOptions).map(([optionTitle, optionData], index) => {
+          const {multipleSelection, selection} = optionData;
 
-            {Object.entries(itemOptions).map(
-              ([optionTitle, optionData], index) => {
-                const {multipleSelection, selection} = optionData;
-
-                if (
-                  !multipleSelection &&
-                  selectedOptions?.[optionTitle] === undefined &&
-                  isValid?.[optionTitle] === undefined
-                ) {
-                  this.setState((prevState) => ({
-                    isValid: {
-                      ...prevState.isValid,
-                      [optionTitle]: false,
-                    },
-                  }));
-                }
-
-                return (
-                  <CustomizationOptionsCard
-                    isValid={isValid?.[optionTitle]}
-                    onIsValidChanged={(value) =>
-                      this.setState((prevState) => ({
-                        isValid: {
-                          ...prevState.isValid,
-                          [optionTitle]: value,
-                        },
-                      }))
-                    }
-                    onSelectionPress={(selectedSelection) =>
-                      this.handleSelectionPress(
-                        optionTitle,
-                        selectedSelection,
-                        multipleSelection,
-                      )
-                    }
-                    key={optionTitle}
-                    title={optionTitle}
-                    multipleSelection={multipleSelection}
-                    selections={selection}
-                    selectedSelections={selectedOptions?.[optionTitle]}
-                  />
-                );
+          if (
+            !multipleSelection &&
+            selectedOptions?.[optionTitle] === undefined &&
+            isValid?.[optionTitle] === undefined
+          ) {
+            this.setState((prevState) => ({
+              isValid: {
+                ...prevState.isValid,
+                [optionTitle]: false,
               },
-            )}
+            }));
+          }
 
-            <Card
-              containerStyle={{
-                paddingBottom: 10,
-                paddingTop: 10,
-                marginLeft: 0,
-                marginRight: 0,
-                borderRadius: 10,
+          return (
+            <CustomizationOptionsCard
+              isValid={isValid?.[optionTitle]}
+              onIsValidChanged={(value) =>
+                this.setState((prevState) => ({
+                  isValid: {
+                    ...prevState.isValid,
+                    [optionTitle]: value,
+                  },
+                }))
+              }
+              onSelectionPress={(selectedSelection) =>
+                this.handleSelectionPress(
+                  optionTitle,
+                  selectedSelection,
+                  multipleSelection,
+                )
+              }
+              key={optionTitle}
+              title={optionTitle}
+              multipleSelection={multipleSelection}
+              selections={selection}
+              selectedSelections={selectedOptions?.[optionTitle]}
+            />
+          );
+        })}
+
+        <Card
+          style={{
+            paddingVertical: 10,
+            paddingHorizontal: 10,
+            marginLeft: 0,
+            marginRight: 0,
+            borderRadius: 10,
+          }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text
+              style={{
+                fontSize: 20,
+                fontFamily: 'ProductSans-Bold',
+                marginBottom: 10,
+                flex: 1,
               }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text
-                  style={{
-                    fontSize: 20,
-                    fontFamily: 'ProductSans-Bold',
-                    marginBottom: 10,
-                    flex: 1,
-                  }}>
-                  Special Instructions
-                </Text>
-              </View>
-
-              <Input
-                multiline
-                numberOfLines={3}
-                value={specialInstructions}
-                onChangeText={(value) =>
-                  this.setState({specialInstructions: value})
-                }
-                inputStyle={{textAlignVertical: 'top'}}
-                maxLength={200}
-                placeholder={`Enter any special instructions for ${name}`}
-              />
-            </Card>
+              Special Instructions
+            </Text>
           </View>
-        </View>
+
+          <Input
+            multiline
+            numberOfLines={3}
+            value={specialInstructions}
+            onChangeText={(value) =>
+              this.setState({specialInstructions: value})
+            }
+            inputStyle={{
+              textAlignVertical: 'top',
+            }}
+            maxLength={200}
+            placeholder={`Enter any special instructions for ${name}`}
+          />
+        </Card>
       </View>
     );
   };
@@ -431,9 +426,6 @@ class FoodItemDetailsScreen extends Component {
               justifyContent: 'center',
             }}>
             <ItemQuantityControlButtons
-              ref={(itemQuantityControlButtonsRef) =>
-                (this.itemQuantityControlButtonsRef = itemQuantityControlButtonsRef)
-              }
               alwaysShowMinusButton
               persistMinusIcon
               onIncreaseQuantity={() =>

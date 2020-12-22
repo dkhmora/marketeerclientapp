@@ -7,7 +7,6 @@ import {
   StatusBar,
   Image,
   SafeAreaView,
-  Linking,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import {observer, inject} from 'mobx-react';
@@ -16,10 +15,11 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import BackButton from '../components/BackButton';
 import ForgotPasswordModal from '../components/ForgotPasswordModal';
-import InAppBrowser from 'react-native-inappbrowser-reborn';
 import Toast from '../components/Toast';
 import crashlytics from '@react-native-firebase/crashlytics';
 import {ScrollView} from 'react-native-gesture-handler';
+import {openLink} from '../util/helpers';
+import {privacyPolicyUrl, termsAndConditionsUrl} from '../util/variables';
 
 @inject('authStore')
 @inject('generalStore')
@@ -114,51 +114,11 @@ class LoginScreen extends Component {
       });
   }
 
-  async openLink(url) {
-    try {
-      if (await InAppBrowser.isAvailable()) {
-        await InAppBrowser.open(url, {
-          dismissButtonStyle: 'close',
-          preferredBarTintColor: colors.primary,
-          preferredControlTintColor: 'white',
-          readerMode: false,
-          animated: true,
-          modalPresentationStyle: 'pageSheet',
-          modalTransitionStyle: 'coverVertical',
-          modalEnabled: true,
-          enableBarCollapsing: false,
-          // Android Properties
-          showTitle: true,
-          toolbarColor: colors.primary,
-          secondaryToolbarColor: 'black',
-          enableUrlBarHiding: true,
-          enableDefaultShare: true,
-          forceCloseOnRedirection: false,
-          animations: {
-            startEnter: 'slide_in_right',
-            startExit: 'slide_out_left',
-            endEnter: 'slide_in_left',
-            endExit: 'slide_out_right',
-          },
-        });
-      } else {
-        Linking.openURL(url);
-      }
-    } catch (err) {
-      Toast({text: err.message, type: 'danger'});
-    }
-  }
-
-  openTermsAndConditions() {
-    const url = 'https://marketeer.ph/components/pages/termsandconditions';
-
-    this.openLink(url);
-  }
-
-  openPrivacyPolicy() {
-    const url = 'https://marketeer.ph/components/pages/privacypolicy';
-
-    this.openLink(url);
+  handleOpenLink(url) {
+    this.props.generalStore
+      .toggleAppLoader()
+      .then(() => openLink(url))
+      .then(() => this.props.generalStore.toggleAppLoader());
   }
 
   render() {
@@ -288,19 +248,20 @@ class LoginScreen extends Component {
                 By using our service, you agree to our
               </Text>
 
-              <TouchableOpacity onPress={() => this.openTermsAndConditions()}>
+              <TouchableOpacity
+                onPress={() => this.handleOpenLink(termsAndConditionsUrl)}>
                 <Text style={[styles.touchable_text, {textAlign: 'justify'}]}>
-                  {' '}
-                  Terms and Conditions{' '}
+                  {' Terms and Conditions '}
                 </Text>
               </TouchableOpacity>
 
               <Text
                 style={{textAlign: 'justify', color: colors.text_secondary}}>
-                and{' '}
+                {'and '}
               </Text>
 
-              <TouchableOpacity onPress={() => this.openPrivacyPolicy()}>
+              <TouchableOpacity
+                onPress={() => this.handleOpenLink(privacyPolicyUrl)}>
                 <Text style={[styles.touchable_text, {textAlign: 'justify'}]}>
                   Privacy Policy
                 </Text>

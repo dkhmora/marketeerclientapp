@@ -5,6 +5,7 @@ import {colors} from '../../assets/colors';
 import {styles} from '../../assets/styles';
 import {inject} from 'mobx-react';
 import {Rating} from 'react-native-rating-element';
+import { addReview } from '../util/firebase-functions';
 
 @inject('generalStore')
 class AddReviewModal extends PureComponent {
@@ -24,7 +25,6 @@ class AddReviewModal extends PureComponent {
   }
 
   submitReview() {
-    const {addReview} = this.props.generalStore;
     const {order, closeModal, onReviewSubmit} = this.props;
     const {orderId, storeId} = order;
     const {rating, reviewBody} = this.state;

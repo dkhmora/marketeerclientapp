@@ -56,6 +56,7 @@ class ItemCategoriesTab extends Component {
             lazy
             lazyPreloadDistance={0.5}
             backBehavior="initialRoute"
+            gestureHandlerProps={{enabled: true}}
             tabBarOptions={{
               allowFontScaling: false,
               scrollEnabled: true,

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Dimensions,
   ActivityIndicator,
+  AppState,
 } from 'react-native';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 import {
@@ -23,6 +24,8 @@ import {inject, observer} from 'mobx-react';
 import MainTab from '../navigation/MainTab';
 import {computed} from 'mobx';
 import crashlytics from '@react-native-firebase/crashlytics';
+import auth from '@react-native-firebase/auth';
+import StartupModal from '../components/StartupModal';
 
 const headerHeight = Platform.OS === 'android' ? 56 : 44;
 const pixelsFromTop = getStatusBarHeight() + headerHeight;
@@ -39,6 +42,7 @@ class MainScreen extends Component {
       initialPosition: -400,
       image: '',
       url: '',
+      user: null,
     };
 
     Animatable.initializeRegistryWithDefinitions({
@@ -89,7 +93,7 @@ class MainScreen extends Component {
       selectedDeliveryLabel === 'Last Delivery Location' &&
       userDetails.addresses
     ) {
-      return userDetails.addresses.Home.address;
+      return userDetails?.addresses?.Home?.address;
     } else {
       return 'Current Location';
     }
@@ -97,6 +101,95 @@ class MainScreen extends Component {
 
   componentDidMount() {
     crashlytics().log('MainScreen');
+
+    this.executeAuthStateListener();
+  }
+
+  componentWillUnmount() {
+    this.closeAuthStateListener && this.closeAuthStateListener();
+  }
+
+  executeAuthStateListener() {
+    this.closeAuthStateListener = auth().onAuthStateChanged((user) => {
+      this.props.generalStore.appReady = false;
+
+      this.props.authStore.checkAuthStatus().then(() => {
+        if (user) {
+          const {isAnonymous, email, displayName, phoneNumber, uid} = user;
+
+          this.setState({user}, () => {
+            crashlytics().setAttributes({
+              email,
+              displayName,
+              phoneNumber,
+              uid,
+              isAnonymous: isAnonymous.toString(),
+            });
+          });
+
+          if (!this.props.authStore.guest) {
+            this.props.authStore.reloadUser().then(() => {
+              if (this.props.shopStore.cartStores.length !== 0) {
+                this.props.shopStore.updateCartItemsInstantly().then(() => {
+                  this.props.shopStore.getCartItems(uid);
+                });
+              } else {
+                this.props.shopStore.getCartItems(uid);
+              }
+
+              this.props.generalStore.getUserDetails(uid);
+
+              if (!this.props.generalStore.currentLocation) {
+                this.props.generalStore.setCurrentLocation();
+              } else {
+                this.props.generalStore.setLastDeliveryLocation();
+              }
+            });
+          } else {
+            if (this.props.shopStore.unsubscribeToGetCartItems) {
+              this.props.shopStore.unsubscribeToGetCartItems();
+            }
+
+            if (this.props.generalStore.unsubscribeUserDetails) {
+              this.props.generalStore.unsubscribeUserDetails();
+            }
+
+            if (!this.props.generalStore.currentLocation) {
+              this.props.generalStore.setCurrentLocation();
+            }
+          }
+
+          this.props.generalStore.appReady = true;
+
+          AppState.addEventListener('change', (state) => {
+            if (!this.props.authStore.guest) {
+              if (state === 'active') {
+                if (!this.props.authStore.guest && user) {
+                  this.props.shopStore.getCartItems(uid);
+                  this.props.generalStore.getUserDetails(uid);
+                }
+              } else if (state === 'background') {
+                if (this.props.shopStore.unsubscribeToGetCartItems) {
+                  this.props.shopStore.unsubscribeToGetCartItems();
+                }
+
+                if (this.props.generalStore.unsubscribeUserDetails) {
+                  this.props.generalStore.unsubscribeUserDetails();
+                }
+              } else if (state === 'inactive') {
+                if (this.props.shopStore.unsubscribeToGetCartItems) {
+                  this.props.shopStore.unsubscribeToGetCartItems();
+                }
+
+                if (this.props.generalStore.unsubscribeUserDetails) {
+                  this.props.generalStore.unsubscribeUserDetails();
+                }
+              }
+            }
+          });
+        }
+      });
+    });
   }
 
   menuButton = () => {
@@ -298,11 +391,9 @@ class MainScreen extends Component {
             chevron
             onPress={() => {
               this.props.generalStore.setCurrentLocation().then(() => {
-                this.props.shopStore.getStoreList({
-                  currentLocationGeohash: this.props.generalStore
-                    .currentLocationGeohash,
-                  locationCoordinates: this.props.generalStore.currentLocation,
-                });
+                this.props.shopStore.getStoreList(
+                  this.props.generalStore.currentLocation,
+                );
               });
               this.hideLocationMenu();
             }}
@@ -352,8 +443,9 @@ class MainScreen extends Component {
                 },
               ]}
               subtitle={
-                this.props.generalStore.userDetails.addresses
-                  ? this.props.generalStore.userDetails.addresses.Home.address
+                this.props.generalStore.userDetails?.addresses
+                  ? this.props.generalStore.userDetails?.addresses?.Home
+                      ?.address
                   : null
               }
               subtitleStyle={styles.subtitleStyle}
@@ -361,12 +453,9 @@ class MainScreen extends Component {
               chevron
               onPress={() => {
                 this.props.generalStore.setLastDeliveryLocation().then(() => {
-                  this.props.shopStore.getStoreList({
-                    currentLocationGeohash: this.props.generalStore
-                      .currentLocationGeohash,
-                    locationCoordinates: this.props.generalStore
-                      .currentLocation,
-                  });
+                  this.props.shopStore.getStoreList(
+                    this.props.generalStore.currentLocation,
+                  );
                 });
                 this.hideLocationMenu();
               }}
@@ -512,6 +601,8 @@ class MainScreen extends Component {
             paddingHorizontal: 20,
           }}
         />
+
+        <StartupModal />
       </View>
     );
   }

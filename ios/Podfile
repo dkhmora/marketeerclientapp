@@ -15,6 +15,13 @@ target 'marketeerclientapp' do
   pod 'GoogleMaps'
   pod 'Google-Maps-iOS-Utils'
 
+  # React Native Permissions dependencies
+  permissions_path = '../node_modules/react-native-permissions/ios'
+
+  pod 'Permission-LocationAccuracy', :path => "#{permissions_path}/LocationAccuracy"
+  pod 'Permission-LocationWhenInUse', :path => "#{permissions_path}/LocationWhenInUse"
+  pod 'Permission-Notifications', :path => "#{permissions_path}/Notifications"
+
   target 'marketeerclientappTests' do
     inherit! :complete
     # Pods for testing

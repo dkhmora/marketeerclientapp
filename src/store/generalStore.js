@@ -1,4 +1,4 @@
-import {observable, action} from 'mobx';
+import {observable, action, computed} from 'mobx';
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 import GiftedChat from 'react-native-gifted-chat';
@@ -6,21 +6,21 @@ import 'react-native-get-random-values';
 import {v4 as uuidv4} from 'uuid';
 import Geolocation from 'react-native-geolocation-service';
 import geohash from 'ngeohash';
-import firebase from '@react-native-firebase/app';
 import auth from '@react-native-firebase/auth';
-import '@react-native-firebase/functions';
-import {Platform, PermissionsAndroid} from 'react-native';
+import {Platform} from 'react-native';
 import Toast from '../components/Toast';
 import {persist} from 'mobx-persist';
 import messaging from '@react-native-firebase/messaging';
 import crashlytics from '@react-native-firebase/crashlytics';
+import {getAddressFromCoordinates} from '../util/firebase-functions';
+import {nowMillis} from '../util/variables';
+import {check, PERMISSIONS} from 'react-native-permissions';
 
-const functions = firebase.app().functions('asia-northeast1');
 class generalStore {
   @observable appReady = false;
   @persist('list') @observable orders = [];
   @persist @observable maxOrderUpdatedAt = 0;
-  @observable firstLoad = true;
+  @persist @observable firstLoad = true;
   @observable orderItems = [];
   @observable orderMessages = [];
   @observable unsubscribeGetMessages = null;
@@ -35,7 +35,11 @@ class generalStore {
   @observable navigation = null;
   @observable storeCategories = [];
   @observable availablePaymentMethods = {};
+  @observable appwideVouchers = {};
+  @observable useableVoucherIds = {};
   @observable getCourierInterval = null;
+  @observable startupModalProps = {};
+  @observable initialLink = null;
   @observable additionalPaymentMethods = {
     COD: {
       longName: 'Cash On Delivery',
@@ -48,34 +52,97 @@ class generalStore {
     },
   };
 
+  @computed get voucherLists() {
+    const {
+      appwideVouchers,
+      userDetails: {claimedVouchers},
+    } = this;
+
+    const unclaimed = [];
+    const claimed = [];
+
+    if (appwideVouchers !== undefined) {
+      Object.entries(appwideVouchers).map(([voucherId, voucherData]) => {
+        if (voucherData?.disabled !== true) {
+          if (claimedVouchers?.[voucherId] === undefined) {
+            return unclaimed.push({voucherId, ...voucherData});
+          }
+
+          return claimed.push({voucherId, ...voucherData});
+        }
+      });
+    }
+
+    return {
+      unclaimed,
+      claimed,
+    };
+  }
+
+  @action useVoucher(voucherId, {voucherIsSelected, voucherIsApplicable}) {
+    if (
+      (voucherIsSelected && !voucherIsApplicable) ||
+      (voucherIsSelected && voucherIsApplicable)
+    ) {
+      this.useableVoucherIds[voucherId] += 1;
+    }
+    if (!voucherIsSelected && voucherIsApplicable) {
+      this.useableVoucherIds[voucherId] -= 1;
+    }
+  }
+
+  @action toggleAppLoader() {
+    return new Promise((res) => {
+      res((this.appReady = !this.appReady));
+    });
+  }
+
   @action clearGetCourierInterval() {
     clearInterval(this.getCourierInterval);
     this.getCourierInterval = null;
   }
 
   @action async setAppData() {
-    await firestore()
+    return await firestore()
       .collection('application')
       .doc('client_config')
       .get()
       .then(async (document) => {
         if (document.exists) {
-          const data = document.data();
-          this.storeCategories = data.storeCategories.sort(
-            (a, b) => a.name > b.name,
-          );
-          let sortedAvailablePaymentMethods = {};
+          const {
+            availablePaymentMethods,
+            storeCategories,
+            vouchers,
+            startupModalProps,
+          } = document.data();
+          if (storeCategories) {
+            this.storeCategories = storeCategories.sort(
+              (a, b) => a.name > b.name,
+            );
+          }
 
-          await Object.entries(data.availablePaymentMethods)
-            .sort((a, b) => a[1].longName > b[1].longName)
-            .map(([key, value], index) => {
-              sortedAvailablePaymentMethods[key] = value;
-            });
+          if (availablePaymentMethods) {
+            let sortedAvailablePaymentMethods = {};
 
-          this.availablePaymentMethods = {
-            ...this.additionalPaymentMethods,
-            ...sortedAvailablePaymentMethods,
-          };
+            await Object.entries(availablePaymentMethods)
+              .sort((a, b) => a[1].longName > b[1].longName)
+              .map(([key, value], index) => {
+                sortedAvailablePaymentMethods[key] = value;
+              });
+
+            this.availablePaymentMethods = {
+              ...this.additionalPaymentMethods,
+              ...sortedAvailablePaymentMethods,
+            };
+          }
+
+          if (vouchers) {
+            this.appwideVouchers = vouchers;
+          }
+
+          if (startupModalProps) {
+            this.startupModalProps = startupModalProps;
+          }
         }
       })
       .catch((err) => {
@@ -84,44 +151,28 @@ class generalStore {
       });
   }
 
-  @action async cancelOrder(orderId, cancelReason) {
-    return await functions
-      .httpsCallable('cancelOrder')({orderId, cancelReason})
-      .then((response) => {
-        return response;
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-      });
-  }
-
   @action async subscribeToNotifications() {
-    let authorizationStatus = null;
     const userId = auth().currentUser.uid;
     const guest = auth().currentUser.isAnonymous;
 
     if (!guest) {
-      if (Platform.OS === 'ios') {
-        authorizationStatus = await messaging().requestPermission();
-      } else {
-        authorizationStatus = true;
-      }
-
-      if (authorizationStatus) {
-        return await messaging()
-          .getToken()
-          .then((token) => {
+      return await messaging()
+        .getToken()
+        .then((token) => {
+          if (
+            this.userDetails?.fcmTokens === undefined ||
+            !this.userDetails.fcmTokens.includes(token)
+          ) {
             firestore()
               .collection('users')
               .doc(userId)
               .update('fcmTokens', firestore.FieldValue.arrayUnion(token));
-          })
-          .catch((err) => {
-            crashlytics().recordError(err);
-            Toast({text: err.message, type: 'danger'});
-          });
-      }
+          }
+        })
+        .catch((err) => {
+          crashlytics().recordError(err);
+          Toast({text: err.message, type: 'danger'});
+        });
     }
   }
 
@@ -150,100 +201,80 @@ class generalStore {
       });
   }
 
-  @action async addReview({review}) {
-    return await functions
-      .httpsCallable('addReview')({
-        ...review,
-      })
-      .then((response) => {
-        if (response.data.s === 200) {
-          Toast({text: 'Successfully submitted review'});
-        } else {
-          Toast({
-            text: response.data.m
-              ? response.data.m
-              : 'Error: Something went wrong. Please try again later.',
-            type: 'danger',
-          });
-        }
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-      });
-  }
-
-  @action async getAddressFromCoordinates({latitude, longitude}) {
-    return await functions
-      .httpsCallable('getAddressFromCoordinates')({latitude, longitude})
-      .then((response) => {
-        if (response.data.s !== 200) {
-          Toast({
-            text: response.data.m,
-            type: 'danger',
-          });
-        }
-
-        return response.data.locationDetails;
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-      });
-  }
-
-  @action async getUserLocation() {
+  @action getUserLocation() {
     return new Promise((resolve, reject) => {
-      if (Platform.OS === 'ios') {
-        Geolocation.requestAuthorization();
-      } else {
-        PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        ).then((granted) => {
-          if (granted !== 'granted') {
-            Toast({
-              text:
-                'Error: Location permissions not granted. Please set location manually.',
-              duration: 8000,
-              type: 'danger',
-              buttonText: 'Okay',
-            });
-          }
-        });
-      }
+      const platformLocationPermission =
+        Platform.OS === 'ios'
+          ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
+          : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
 
-      Geolocation.getCurrentPosition(
-        async (position) => {
-          resolve(position.coords);
-        },
-        (err) => {
-          crashlytics().recordError(err);
-          Toast({text: err.message, type: 'danger'});
-          reject();
-        },
-        {
-          timeout: 20000,
-        },
-      );
+      return check(platformLocationPermission).then((permissionResult) => {
+        if (permissionResult === 'granted') {
+          return Geolocation.getCurrentPosition(
+            (position) => {
+              resolve(position.coords);
+            },
+            (err) => {
+              crashlytics().recordError(err);
+              Toast({text: err.message, type: 'danger'});
+              return;
+            },
+            {
+              timeout: 20000,
+            },
+          );
+        }
+      });
     });
   }
 
   @action async setCurrentLocation() {
-    return new Promise(async (resolve, reject) => {
-      this.addressLoading = true;
+    this.addressLoading = true;
+    const platformLocationPermission =
+      Platform.OS === 'ios'
+        ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
+        : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
 
-      if (Platform.OS === 'android') {
-        await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        ).then((granted) => {
-          if (Platform.OS === 'android' && granted !== 'granted') {
-            Toast({
-              text:
-                'Error: Location permissions not granted. Please set location manually.',
-              duration: 6000,
-              type: 'danger',
-              buttonText: 'Okay',
+    return check(platformLocationPermission).then((permissionResult) => {
+      if (permissionResult === 'granted') {
+        return Geolocation.getCurrentPosition(
+          async (position) => {
+            this.selectedDeliveryLabel = 'Current Location';
+
+            const coords = {
+              latitude: parseFloat(position.coords.latitude),
+              longitude: parseFloat(position.coords.longitude),
+            };
+
+            this.currentLocationGeohash = await geohash.encode(
+              coords.latitude,
+              coords.longitude,
+              12,
+            );
+
+            this.currentLocationDetails = await getAddressFromCoordinates({
+              ...coords,
             });
+
+            this.currentLocation = {...coords};
+
+            this.appReady = true;
+            this.addressLoading = false;
+          },
+          (err) => {
+            crashlytics().recordError(err);
+
+            if (err.code === 2) {
+              Toast({
+                text:
+                  'Error: Cannot get location coordinates. Please set your coordinates manually.',
+                duration: 6000,
+                type: 'danger',
+                buttonText: 'Okay',
+              });
+            } else {
+              Toast({text: err.message, type: 'danger'});
+            }
 
             if (this.navigation) {
               this.appReady = true;
@@ -253,66 +284,31 @@ class generalStore {
                 locationError: true,
               });
             }
-          }
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 10000,
+          },
+        );
+      } else {
+        Toast({
+          text:
+            'Error: Location permissions not granted. Please set location manually.',
+          duration: 6000,
+          type: 'danger',
+          buttonText: 'Okay',
         });
-      }
 
-      Geolocation.getCurrentPosition(
-        async (position) => {
-          this.selectedDeliveryLabel = 'Current Location';
-
-          const coords = {
-            latitude: parseFloat(position.coords.latitude),
-            longitude: parseFloat(position.coords.longitude),
-          };
-
-          this.currentLocationGeohash = await geohash.encode(
-            coords.latitude,
-            coords.longitude,
-            12,
-          );
-
-          this.currentLocationDetails = await this.getAddressFromCoordinates({
-            ...coords,
-          });
-
-          this.currentLocation = {...coords};
-
+        if (this.navigation) {
           this.appReady = true;
           this.addressLoading = false;
-
-          resolve();
-        },
-        (err) => {
-          crashlytics().recordError(err);
-
-          if (err.code === 2) {
-            Toast({
-              text:
-                'Error: Cannot get location coordinates. Please set your coordinates manually.',
-              duration: 6000,
-              type: 'danger',
-              buttonText: 'Okay',
-            });
-          } else {
-            Toast({text: err.message, type: 'danger'});
-          }
-
-          if (this.navigation) {
-            this.appReady = true;
-            this.addressLoading = false;
-            this.navigation.navigate('Set Location', {
-              checkout: false,
-              locationError: true,
-            });
-          }
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 10000,
-        },
-      );
+          this.navigation.navigate('Set Location', {
+            checkout: false,
+            locationError: true,
+          });
+        }
+      }
     });
   }
 
@@ -320,9 +316,9 @@ class generalStore {
     return new Promise((resolve, reject) => {
       this.selectedDeliveryLabel = 'Last Delivery Location';
 
-      this.currentLocationGeohash = this.userDetails.addresses.Home.geohash;
-      this.currentLocation = this.userDetails.addresses.Home.coordinates;
-      this.currentLocationDetails = this.userDetails.addresses.Home.address;
+      this.currentLocationGeohash = this.userDetails?.addresses?.Home?.geohash;
+      this.currentLocation = this.userDetails?.addresses?.Home?.coordinates;
+      this.currentLocationDetails = this.userDetails?.addresses?.Home?.address;
 
       resolve();
     });
@@ -340,23 +336,7 @@ class generalStore {
             if (documentSnapshot.exists) {
               this.userDetails = documentSnapshot.data();
 
-              if (
-                !documentSnapshot
-                  .data()
-                  .fcmTokens.includes(await messaging().getToken())
-              ) {
-                this.subscribeToNotifications();
-              }
-
-              if (this.firstLoad) {
-                this.firstLoad = false;
-
-                if (documentSnapshot.data().addresses) {
-                  return this.setLastDeliveryLocation();
-                } else {
-                  return this.setCurrentLocation();
-                }
-              }
+              this.subscribeToNotifications();
             }
           } else {
             this.unsubscribeUserDetails();
@@ -386,7 +366,7 @@ class generalStore {
         .doc(orderId)
         .update({
           userUnreadCount: 0,
-          updatedAt: firestore.Timestamp.now().toMillis(),
+          updatedAt: nowMillis,
         })
         .catch((err) => {
           crashlytics().recordError(err);
@@ -474,7 +454,7 @@ class generalStore {
       .update({
         messages: firestore.FieldValue.arrayUnion(message),
         storeUnreadCount: firestore.FieldValue.increment(1),
-        updatedAt: firestore.Timestamp.now().toMillis(),
+        updatedAt: nowMillis,
       })
       .catch((err) => {
         crashlytics().recordError(err);
@@ -497,7 +477,7 @@ class generalStore {
       .update({
         messages: firestore.FieldValue.arrayUnion(message),
         storeUnreadCount: firestore.FieldValue.increment(1),
-        updatedAt: firestore.Timestamp.now().toMillis(),
+        updatedAt: nowMillis,
       })
       .catch((err) => {
         crashlytics().recordError(err);
@@ -563,82 +543,6 @@ class generalStore {
         crashlytics().recordError(err);
         Toast({text: err.message, type: 'danger'});
       });
-  }
-
-  @action async setOrderItems(orderId) {
-    await firestore()
-      .collection('order_items')
-      .doc(orderId)
-      .get()
-      .then((document) => {
-        return (this.orderItems = document.data().items);
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-
-        return null;
-      });
-  }
-
-  @action async getOrderItems(orderId) {
-    const orderItems = await firestore()
-      .collection('order_items')
-      .doc(orderId)
-      .get()
-      .then((document) => {
-        if (document.exists) {
-          return document.data().items;
-        }
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-
-        return null;
-      });
-
-    return orderItems;
-  }
-
-  @action async getOrderPayment(orderId) {
-    const orderPayment = await firestore()
-      .collection('order_payments')
-      .doc(orderId)
-      .get()
-      .then((document) => {
-        if (document.exists) {
-          return document.data();
-        }
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-
-        return null;
-      });
-
-    return orderPayment;
-  }
-
-  @action async getOrderDetails(orderId) {
-    const orderDetails = await firestore()
-      .collection('orders')
-      .doc(orderId)
-      .get()
-      .then((document) => {
-        if (document.exists) {
-          return document.data();
-        }
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
-
-        return null;
-      });
-
-    return orderDetails;
   }
 }
 

@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 import {Card, CardItem, Body, View} from 'native-base';
-import {ActionSheetIOS, Linking} from 'react-native';
+import {ActionSheetIOS} from 'react-native';
 import moment from 'moment';
 import {observer, inject} from 'mobx-react';
 import {observable, action, computed} from 'mobx';
@@ -10,8 +10,10 @@ import {colors} from '../../assets/colors';
 import AddReviewModal from './AddReviewModal';
 import Toast from './Toast';
 import {PlaceholderMedia, Fade, Placeholder} from 'rn-placeholder';
-import InAppBrowser from 'react-native-inappbrowser-reborn';
-import { CDN_BASE_URL } from './util/variables';
+import {CDN_BASE_URL} from '../util/variables';
+import {openLink} from '../util/helpers';
+import {cancelOrder} from '../util/firebase-functions';
+import Pill from './Pill';
 
 @inject('generalStore')
 @inject('shopStore')
@@ -60,40 +62,11 @@ class OrderCard extends PureComponent {
     this.confirmationModal = false;
   }
 
-  async openLink(url) {
-    try {
-      if (await InAppBrowser.isAvailable()) {
-        await InAppBrowser.open(url, {
-          dismissButtonStyle: 'close',
-          preferredBarTintColor: colors.primary,
-          preferredControlTintColor: 'white',
-          readerMode: false,
-          animated: true,
-          modalPresentationStyle: 'pageSheet',
-          modalTransitionStyle: 'coverVertical',
-          modalEnabled: true,
-          enableBarCollapsing: false,
-          // Android Properties
-          showTitle: true,
-          toolbarColor: colors.primary,
-          secondaryToolbarColor: 'black',
-          enableUrlBarHiding: true,
-          enableDefaultShare: true,
-          forceCloseOnRedirection: false,
-          animations: {
-            startEnter: 'slide_in_right',
-            startExit: 'slide_out_left',
-            endEnter: 'slide_in_left',
-            endExit: 'slide_out_right',
-          },
-        });
-      } else {
-        Linking.openURL(url);
-      }
-      this.props.generalStore.appReady = true;
-    } catch (err) {
-      Toast({text: err.message, type: 'danger'});
-    }
+  handleOpenLink(url) {
+    this.props.generalStore
+      .toggleAppLoader()
+      .then(() => openLink(url))
+      .then(() => this.props.generalStore.toggleAppLoader());
   }
 
   handleViewOrderItems() {
@@ -105,17 +78,21 @@ class OrderCard extends PureComponent {
   handleCancelOrder() {
     const {storeId, orderId, userOrderNumber} = this.props.order;
 
-    this.props.generalStore
-      .cancelOrder(storeId, orderId, this.cancelReason)
-      .then(() => {
-        Toast({
+    cancelOrder(storeId, orderId, this.cancelReason).then((response) => {
+      if (response.data.s !== 500 && response.data.s !== 400) {
+        return Toast({
           text: `Order # ${userOrderNumber} successfully cancelled!`,
-          buttonText: 'Okay',
           type: 'success',
           duration: 3500,
-          style: {margin: 20, borderRadius: 16},
         });
+      }
+
+      return Toast({
+        text: response.data.m,
+        type: 'danger',
+        duration: 3500,
       });
+    });
   }
 
   openOptions() {
@@ -222,24 +199,11 @@ class OrderCard extends PureComponent {
                   {storeName}
                 </Text>
 
-                <View
-                  style={{
-                    borderRadius: 20,
-                    backgroundColor: colors.accent,
-                    padding: 3,
-                    paddingHorizontal: 10,
-                    marginLeft: 2,
-                    alignSelf: 'flex-start',
-                  }}>
-                  <Text
-                    style={{
-                      fontSize: 13,
-                      fontFamily: 'ProductSans-Regular',
-                      color: colors.icons,
-                    }}>
-                    {paymentMethod}
-                  </Text>
-                </View>
+                <Pill
+                  title={paymentMethod}
+                  titleStyle={{textAlignVertical: 'center', fontSize: 14}}
+                  containerStyle={{marginLeft: 4}}
+                />
               </View>
 
               <View style={{flexDirection: 'row'}}>
@@ -311,8 +275,7 @@ class OrderCard extends PureComponent {
               title="Pay Now"
               type="clear"
               onPress={() => {
-                this.props.generalStore.appReady = false;
-                this.openLink(paymentLink);
+                this.handleOpenLink(paymentLink);
               }}
               titleStyle={{color: colors.primary}}
               containerStyle={{borderRadius: 24}}
@@ -331,12 +294,27 @@ class OrderCard extends PureComponent {
       quantity,
       subTotal,
       deliveryPrice,
+      deliveryDiscount,
+      marketeerVoucherDetails,
       paymentMethod,
       createdAt,
       storeName,
       storeId,
     } = order;
     const {url, ready, addReviewModal} = this.state;
+    const finalDeliveryPrice = deliveryPrice
+      ? Math.max(
+          0,
+          deliveryPrice -
+            Number(deliveryDiscount ? deliveryDiscount : 0) -
+            Number(
+              marketeerVoucherDetails?.delivery?.discount?.amount !== undefined
+                ? marketeerVoucherDetails.delivery.discount.amount
+                : 0,
+            ),
+        )
+      : 0;
+    const totalAmount = subTotal + finalDeliveryPrice;
 
     return (
       <View style={{flex: 1, paddingHorizontal: 5}}>
@@ -408,7 +386,7 @@ class OrderCard extends PureComponent {
                       fontFamily: 'ProductSans-Bold',
                       textAlign: 'center',
                     }}>
-                    ₱{subTotal + (deliveryPrice ? deliveryPrice : 0)}
+                    {`₱${totalAmount.toFixed(2)}`}
                   </Text>
 
                   <Text>Total Amount</Text>

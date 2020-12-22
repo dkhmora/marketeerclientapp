@@ -1,14 +1,15 @@
 import {observable, action, computed} from 'mobx';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import firebase from '@react-native-firebase/app';
-import '@react-native-firebase/functions';
 import * as geolib from 'geolib';
 import {persist} from 'mobx-persist';
 import Toast from '../components/Toast';
 import crashlytics from '@react-native-firebase/crashlytics';
-
-const functions = firebase.app().functions('asia-northeast1');
+import {
+  getUserMrSpeedyDeliveryPriceEstimate,
+  placeOrder,
+} from '../util/firebase-functions';
+import {nowMillis} from '../util/variables';
 
 const userCartCollection = firestore().collection('user_carts');
 const storesCollection = firestore().collection('stores');
@@ -17,11 +18,7 @@ class shopStore {
   @persist @observable maxStoreUpdatedAt = 0;
   @observable storeCartItems = {};
   @observable storeDetails = {};
-  @observable storeSelectedDeliveryMethod = {};
-  @observable storeSelectedPaymentMethod = {};
-  @observable storeAssignedMerchantId = {};
-  @observable storeDeliveryDiscount = {};
-  @observable storeUserEmail = {};
+  @observable cartStoreSnapshots = {};
   @observable viewableStoreList = [];
   @observable itemCategories = [];
   @observable storeCategoryItems = new Map();
@@ -55,47 +52,39 @@ class shopStore {
   }
 
   @computed get validStoreUserEmail() {
+    const {cartStoreSnapshots} = this;
     const emailRegexp = new RegExp(
       /^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,5})$/,
     );
 
-    if (Object.values(this.storeUserEmail).length > 0) {
-      return Object.entries(this.storeUserEmail).map(([storeId, email]) => {
+    const userEmailValidityList = Object.values(cartStoreSnapshots).map(
+      ({paymentMethod, email}) => {
+        if (paymentMethod !== 'COD' && !emailRegexp.test(email)) {
+          return false;
+        }
+
+        return true;
+      },
+    );
+
+    return !userEmailValidityList.includes(false);
+  }
+
+  @computed get validPlaceOrder() {
+    if (this.cartStores.length > 0) {
+      const storeSelectedMethods = this.cartStores.map((storeId) => {
         if (
-          this.storeSelectedPaymentMethod[storeId] !== 'COD' &&
-          !emailRegexp.test(email)
+          this.cartStoreSnapshots?.[storeId]?.paymentMethod === undefined ||
+          this.cartStoreSnapshots?.[storeId]?.deliveryMethod === undefined ||
+          !this.validStoreUserEmail
         ) {
           return false;
         }
 
         return true;
       });
-    }
 
-    return true;
-  }
-
-  @computed get validPlaceOrder() {
-    if (this.cartStores.length > 0) {
-      const storeSelectedMethods = this.cartStores.map((storeId) => {
-        if (!this.storeSelectedPaymentMethod[storeId]) {
-          return false;
-        }
-
-        if (!this.storeSelectedDeliveryMethod[storeId]) {
-          return false;
-        }
-
-        if (this.validStoreUserEmail.includes(false)) {
-          return false;
-        }
-
-        return true;
-      });
-
-      if (storeSelectedMethods.includes(false)) {
-        return false;
-      }
+      return !storeSelectedMethods.includes(false);
     }
 
     return true;
@@ -107,14 +96,19 @@ class shopStore {
     if (this.storeCartItems) {
       Object.keys(this.storeCartItems).map(async (storeId) => {
         const storeDetails = this.allStoresMap[storeId];
-        const selectedDelivery = this.storeSelectedDeliveryMethod[storeId];
+        const selectedDelivery = this.cartStoreSnapshots?.[storeId]
+          ?.deliveryMethod;
         let storeTotal = 0;
 
         this.storeCartItems[storeId].map(async (item) => {
+          const optionsPrice = item.totalOptionsPrice
+            ? item.totalOptionsPrice
+            : 0;
           const itemPrice = item.discountedPrice
             ? item.discountedPrice
             : item.price;
-          let itemTotal = item.quantity * itemPrice;
+          const totalItemPrice = itemPrice + optionsPrice;
+          let itemTotal = item.quantity * totalItemPrice;
 
           storeTotal += itemTotal;
         });
@@ -151,30 +145,29 @@ class shopStore {
   }
 
   @computed get totalAmountDisplay() {
-    let lowerEstimate = this.totalCartSubTotalAmount;
-    let upperEstimate = this.totalCartSubTotalAmount;
+    const {
+      totalCartSubTotalAmount,
+      cartStoreSnapshots,
+      storeCartItems,
+      storeMrSpeedyDeliveryFee,
+    } = this;
 
-    if (
-      this.storeCartItems &&
-      Object.keys(this.storeSelectedDeliveryMethod).length > 0
-    ) {
-      Object.entries(this.storeSelectedDeliveryMethod).map(
-        ([storeId, deliveryMethod]) => {
+    let lowerEstimate = totalCartSubTotalAmount;
+    let upperEstimate = totalCartSubTotalAmount;
+
+    if (storeCartItems && Object.keys(cartStoreSnapshots).length > 0) {
+      Object.entries(cartStoreSnapshots).map(
+        ([storeId, {deliveryMethod, paymentMethod}]) => {
           if (deliveryMethod === 'Mr. Speedy') {
-            const mrSpeedyDeliveryEstimates = this.storeMrSpeedyDeliveryFee[
-              storeId
-            ];
-            const selectedPaymentMethod = this.storeSelectedPaymentMethod[
-              storeId
-            ];
+            const mrSpeedyDeliveryEstimates = storeMrSpeedyDeliveryFee[storeId];
 
             if (mrSpeedyDeliveryEstimates) {
               const motorbikeDeliveryFee =
-                selectedPaymentMethod === 'COD'
+                paymentMethod === 'COD'
                   ? Number(mrSpeedyDeliveryEstimates.motorbike) + 30
                   : Number(mrSpeedyDeliveryEstimates.motorbike);
               const carDeliveryFee =
-                selectedPaymentMethod === 'COD'
+                paymentMethod === 'COD'
                   ? Number(mrSpeedyDeliveryEstimates.car) + 30
                   : Number(mrSpeedyDeliveryEstimates.car);
 
@@ -186,7 +179,7 @@ class shopStore {
       );
 
       if (upperEstimate === lowerEstimate) {
-        return `₱${this.totalCartSubTotalAmount.toFixed(2)}`;
+        return `₱${totalCartSubTotalAmount.toFixed(2)}`;
       }
 
       return `₱${lowerEstimate.toFixed(2)} - ₱${upperEstimate.toFixed(2)}`;
@@ -202,6 +195,16 @@ class shopStore {
       return stores;
     }
     return [];
+  }
+
+  @action assignPropToStoreId(storeId, propName, propData) {
+    this.cartStoreSnapshots = {
+      ...this.cartStoreSnapshots,
+      [storeId]: {
+        ...this.cartStoreSnapshots[storeId],
+        [propName]: propData,
+      },
+    };
   }
 
   @action getCartItemIndex(item, storeId) {
@@ -220,46 +223,15 @@ class shopStore {
     deliveryLocation,
     deliveryAddress,
   ) {
-    return await functions
-      .httpsCallable('getUserMrSpeedyDeliveryPriceEstimate')({
-        deliveryLocation,
-        deliveryAddress,
-      })
-      .then((response) => {
-        if (response.data.s === 200) {
-          this.storeMrSpeedyDeliveryFee = response.data.d;
-
-          return;
-        }
-
-        return Toast({text: response.data.m, type: 'danger'});
-      })
-      .catch((err) => Toast({text: err, type: 'danger'}));
-  }
-
-  @action async getStoreDetailsFromStoreId(storeId) {
-    return await new Promise(async (resolve, reject) => {
-      const storeDetails = await this.getStoreDetails(storeId);
-
-      if (storeDetails) {
-        return resolve(storeDetails);
+    return await getUserMrSpeedyDeliveryPriceEstimate({
+      deliveryLocation,
+      deliveryAddress,
+    }).then((response) => {
+      if (response?.data?.s === 200) {
+        this.storeMrSpeedyDeliveryFee = response.data.d;
       }
 
-      return await firestore()
-        .collection('stores')
-        .doc(storeId)
-        .get()
-        .then((document) => {
-          if (document.exists) {
-            const store = {...document.data(), storeId: document.id};
-
-            return resolve(store);
-          }
-        })
-        .catch((err) => {
-          crashlytics().recordError(err);
-          return reject(err);
-        });
+      return;
     });
   }
 
@@ -278,55 +250,32 @@ class shopStore {
       });
   }
 
-  @action async placeOrder({
-    deliveryCoordinates,
-    deliveryCoordinatesGeohash,
-    deliveryAddress,
-    userCoordinates,
-    userName,
-  }) {
-    this.cartUpdateTimeout ? clearTimeout(this.cartUpdateTimeout) : null;
+  @action async handlePlaceOrder(orderData) {
+    const {cartStoreSnapshots, cartUpdateTimeout} = this;
 
-    const {
-      storeDeliveryDiscount,
-      storeSelectedDeliveryMethod,
-      storeSelectedPaymentMethod,
-      storeAssignedMerchantId,
-      storeUserEmail,
-    } = this;
+    if (cartUpdateTimeout) {
+      clearTimeout(cartUpdateTimeout);
+    }
+
+    const orderInfo = {
+      ...orderData,
+      cartStoreSnapshots,
+    };
 
     return await this.updateCartItemsInstantly()
       .then(async () => {
-        return await functions.httpsCallable('placeOrder')({
-          orderInfo: JSON.stringify({
-            deliveryCoordinates,
-            deliveryCoordinatesGeohash,
-            deliveryAddress,
-            userCoordinates,
-            userName,
-            storeUserEmail,
-            storeSelectedDeliveryMethod,
-            storeSelectedPaymentMethod,
-            storeAssignedMerchantId,
-            storeDeliveryDiscount,
-          }),
-        });
+        return await placeOrder(orderInfo);
       })
       .then(async (response) => {
         this.getCartItems();
 
         return response;
-      })
-      .catch((err) => {
-        crashlytics().recordError(err);
-        Toast({text: err.message, type: 'danger'});
       });
   }
 
   @action resetData() {
     this.storeCartItems = {};
-    this.storeSelectedDeliveryMethod = {};
-    this.storeDeliveryDiscount = {};
+    this.cartStoreSnapshots = {};
     this.itemCategories = [];
   }
 
@@ -365,15 +314,14 @@ class shopStore {
   @action async addCartItemToStorage(item, storeId, options) {
     return new Promise((resolve, reject) => {
       const storeCartItems = this.storeCartItems[storeId];
-      const dateNow = firestore.Timestamp.now().toMillis();
 
       item.sales && delete item.sales;
       item.options && delete item.options;
 
       if (!item.createdAt) {
-        item.createdAt = dateNow;
+        item.createdAt = nowMillis;
       }
-      item.updatedAt = dateNow;
+      item.updatedAt = nowMillis;
 
       if (storeCartItems) {
         if (!options?.ignoreExistingCartItems) {
@@ -399,14 +347,13 @@ class shopStore {
 
   @action async deleteCartItemInStorage(item, storeId, options) {
     const storeCartItems = this.storeCartItems[storeId];
-    const dateNow = firestore.Timestamp.now().toMillis();
 
     if (storeCartItems) {
       const cartItemIndex = this.getCartItemIndex(item, storeId);
 
       if (cartItemIndex >= 0) {
         storeCartItems[cartItemIndex].quantity -= 1;
-        storeCartItems[cartItemIndex].updatedAt = dateNow;
+        storeCartItems[cartItemIndex].updatedAt = nowMillis;
 
         if (storeCartItems[cartItemIndex].quantity <= 0) {
           storeCartItems.splice(cartItemIndex, 1);
@@ -444,7 +391,6 @@ class shopStore {
         .doc(userId)
         .set({
           ...this.storeCartItems,
-          //updatedAt: firestore.Timestamp.now().toMillis(),
         })
         .catch((err) => {
           crashlytics().recordError(err);
@@ -453,41 +399,34 @@ class shopStore {
     }
   }
 
-  @action async getStoreList({currentLocationGeohash, locationCoordinates}) {
-    if (currentLocationGeohash && locationCoordinates) {
-      return await storesCollection
-        .where('visibleToPublic', '==', true)
-        .where('updatedAt', '>', this.maxStoreUpdatedAt)
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.forEach((documentSnapshot, index) => {
-            const storeId = documentSnapshot.id;
-            const storeData = documentSnapshot.data();
+  @action async getStoreList(locationCoordinates) {
+    return await storesCollection
+      .where('visibleToPublic', '==', true)
+      .where('updatedAt', '>', this.maxStoreUpdatedAt)
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((documentSnapshot, index) => {
+          const storeId = documentSnapshot.id;
+          const storeData = documentSnapshot.data();
 
-            if (storeData.updatedAt > this.maxStoreUpdatedAt) {
-              this.maxStoreUpdatedAt = storeData.updatedAt;
-            }
+          if (storeData.updatedAt > this.maxStoreUpdatedAt) {
+            this.maxStoreUpdatedAt = storeData.updatedAt;
+          }
 
-            this.allStoresMap[storeId] = storeData;
-          });
-        })
-        .then(async () => {
+          this.allStoresMap[storeId] = storeData;
+        });
+      })
+      .then(async () => {
+        if (locationCoordinates) {
           this.viewableStoreList = await this.setVisibleStores(
             locationCoordinates,
           );
-        })
-        .catch((err) => {
-          crashlytics().recordError(err);
-          Toast({text: err.message, type: 'danger'});
-        });
-    } else {
-      Toast({
-        text:
-          'Error: No location coordinates set. Please set your location to view stores.',
-        duration: 7000,
-        type: 'danger',
+        }
+      })
+      .catch((err) => {
+        crashlytics().recordError(err);
+        Toast({text: err.message, type: 'danger'});
       });
-    }
   }
 
   @action async setVisibleStores(locationCoordinates) {
@@ -499,11 +438,10 @@ class shopStore {
           const {
             deliveryCoordinates,
             storeLocation,
-            vacationMode,
             creditThresholdReached,
           } = storeData;
 
-          if (!vacationMode && !creditThresholdReached) {
+          if (!creditThresholdReached) {
             const isPointInPolygon =
               deliveryCoordinates && deliveryCoordinates.boundingBox
                 ? geolib.isPointInPolygon(
@@ -549,11 +487,12 @@ class shopStore {
     });
   }
 
-  @action async setStoreItems(storeId, itemCategories) {
+  @action async setStoreItems(storeId) {
     const storeItemsCollection = firestore()
       .collection('stores')
       .doc(storeId)
       .collection('items');
+    const {itemCategories} = this.allStoresMap[storeId];
 
     await storeItemsCollection
       .get()

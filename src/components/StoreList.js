@@ -15,6 +15,7 @@ import * as Animatable from 'react-native-animatable';
 import {computed, when} from 'mobx';
 import {initialWindowMetrics} from 'react-native-safe-area-context';
 import DeviceInfo from 'react-native-device-info';
+import {getStoreAvailability} from '../util/helpers';
 
 const inset = initialWindowMetrics && initialWindowMetrics.insets;
 const bottomPadding = Platform.OS === 'ios' ? inset.bottom : 0;
@@ -34,12 +35,28 @@ class StoreList extends Component {
   @computed get displayedStoreList() {
     const {categoryName} = this.props;
     const storeList = this.props.shopStore.viewableStoreList.slice();
+    let finalList = storeList;
 
     if (categoryName) {
-      return storeList.filter((store) => store.storeCategory === categoryName);
+      finalList = storeList.filter(
+        (store) => store.storeCategory === categoryName,
+      );
     }
 
-    return storeList;
+    return finalList.sort((a, b) => {
+      const storeAvailability = [
+        getStoreAvailability(a.storeHours, a.vacationMode),
+        getStoreAvailability(b.storeHours, b.vacationMode),
+      ];
+
+      if (storeAvailability[0] === storeAvailability[1]) {
+        return 0;
+      } else if (!storeAvailability[1]) {
+        return -1;
+      }
+
+      return 1;
+    });
   }
 
   componentDidMount() {
@@ -74,17 +91,12 @@ class StoreList extends Component {
   }
 
   getInitialStoreList() {
-    const {currentLocationGeohash, currentLocation} = this.props.generalStore;
+    const {currentLocation} = this.props.generalStore;
 
     this.setState({refreshing: true}, () => {
-      this.props.shopStore
-        .getStoreList({
-          currentLocationGeohash,
-          locationCoordinates: currentLocation,
-        })
-        .then(() => {
-          this.setState({refreshing: false, loading: false});
-        });
+      this.props.shopStore.getStoreList(currentLocation).then(() => {
+        this.setState({refreshing: false, loading: false});
+      });
     });
   }
 
@@ -135,6 +147,7 @@ class StoreList extends Component {
           justifyContent: 'center',
         }}>
         <FlatList
+          contentInsetAdjustmentBehavior="automatic"
           ref={(flatList) => (this.flatList = flatList)}
           style={{paddingHorizontal: 5}}
           contentContainerStyle={{flexGrow: 1}}

@@ -246,7 +246,7 @@ class AccountScreen extends Component {
                     textAlignVertical: 'center',
                     alignSelf: 'center',
                   }}>
-                  Display Name:{' '}
+                  {'Display Name: '}
                 </Text>
 
                 <View
@@ -305,7 +305,7 @@ class AccountScreen extends Component {
                     textAlignVertical: 'center',
                     alignSelf: 'center',
                   }}>
-                  Email address:{' '}
+                  {'Email address: '}
                 </Text>
 
                 <View
@@ -362,7 +362,7 @@ class AccountScreen extends Component {
                     textAlignVertical: 'center',
                     alignSelf: 'center',
                   }}>
-                  Mobile Number:{' '}
+                  {'Mobile Number: '}
                 </Text>
 
                 <View

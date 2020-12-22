@@ -3,12 +3,12 @@ import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import firestore from '@react-native-firebase/firestore';
 import Toast from '../components/Toast';
-import '@react-native-firebase/functions';
 import {Platform} from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import crashlytics from '@react-native-firebase/crashlytics';
+import {signInWithPhoneAndPassword} from '../util/firebase-functions';
+import {nowMillis} from '../util/variables';
 
-const functions = firebase.app().functions('asia-northeast1');
 class authStore {
   @observable userAuthenticated = false;
 
@@ -277,8 +277,8 @@ class authStore {
         phoneNumber,
         birthdate,
         gender,
-        updatedAt: firestore.Timestamp.now().toMillis(),
-        createdAt: firestore.Timestamp.now().toMillis(),
+        updatedAt: nowMillis,
+        createdAt: nowMillis,
       })
       .then(() => {
         auth().currentUser.updateProfile({displayName: name});
@@ -305,12 +305,8 @@ class authStore {
       const phoneBody = userCredential.slice(1, 11);
       const phoneNumber = `+63${phoneBody}`;
 
-      return await functions
-        .httpsCallable('signInWithPhoneAndPassword')({
-          phone: phoneNumber,
-          password,
-        })
-        .then((response) => {
+      return await signInWithPhoneAndPassword({phoneNumber, password}).then(
+        (response) => {
           if (response.data.s === 200) {
             auth()
               .signInWithCustomToken(response.data.t)
@@ -337,7 +333,9 @@ class authStore {
                   });
                 }
 
-                crashlytics().log(`${userCred.user.email} signed in.`);
+                crashlytics().log(
+                  `${userCred.user.email} signed in using phone number.`,
+                );
 
                 return await Promise.all([
                   crashlytics().setUserId(userCred.user.uid),
@@ -359,25 +357,37 @@ class authStore {
           }
 
           return response;
-        })
-        .catch((err) => {
-          crashlytics().recordError(err);
-          Toast({text: err.message, type: 'danger'});
-
-          return null;
-        });
+        },
+      );
     } else {
       return await auth()
         .signInWithEmailAndPassword(userCredential, password)
-        .then((user) => {
+        .then(async (userCred) => {
           this.userAuthenticated = true;
 
           this.subscribeToNotifications();
 
           Toast({
-            text: `Welcome back to Marketeer, ${user.user.displayName}!`,
+            text: `Welcome back to Marketeer, ${userCred.user.displayName}!`,
             duration: 3500,
           });
+
+          const claims = (await userCred.user.getIdTokenResult(true)).claims;
+          const role = claims ? claims.role : null;
+          let storeIds = null;
+
+          crashlytics().log(`${userCred.user.email} signed in using email.`);
+
+          await Promise.all([
+            crashlytics().setUserId(userCred.user.uid),
+            crashlytics().setAttributes({
+              name: userCred.user.displayName,
+              phoneNumber: userCred.user.phoneNumber,
+              email: userCred.user.email,
+              role,
+              storeIds,
+            }),
+          ]);
 
           return {data: {s: 200}};
         })

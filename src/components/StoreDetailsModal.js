@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Text, Avatar, ButtonGroup, Icon, Button} from 'react-native-elements';
-import {View, ActivityIndicator, ImageBackground} from 'react-native';
+import {View, ActivityIndicator} from 'react-native';
 import FastImage from 'react-native-fast-image';
 import {colors} from '../../assets/colors';
 import {inject} from 'mobx-react';
@@ -11,6 +11,8 @@ import {styles} from '../../assets/styles';
 import {ScrollView} from 'react-native-gesture-handler';
 import {Modalize} from 'react-native-modalize';
 import Divider from './Divider';
+import {extractStoreHoursArray} from '../util/helpers';
+import {when} from 'mobx';
 
 @inject('generalStore')
 class StoreDetailsModal extends Component {
@@ -25,7 +27,12 @@ class StoreDetailsModal extends Component {
   }
 
   componentDidMount() {
-    this.getReviews();
+    const {store} = this.props;
+
+    when(
+      () => store,
+      () => this.getReviews(),
+    );
   }
 
   async getReviews() {
@@ -438,46 +445,75 @@ class StoreDetailsModal extends Component {
                   <Text style={{fontSize: 16}}>{store.address}</Text>
                 </View>
               )}
+
+              {store.storeHours && (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'flex-start',
+                    paddingVertical: 10,
+                    maxWidth: '90%',
+                  }}>
+                  <Icon
+                    name="clock"
+                    color={colors.primary}
+                    style={{paddingRight: 10}}
+                  />
+
+                  <View>
+                    {extractStoreHoursArray(store.storeHours).map(
+                      (storeHourText) => {
+                        return (
+                          <Text style={{fontSize: 16}} key={storeHourText}>
+                            {storeHourText}
+                          </Text>
+                        );
+                      },
+                    )}
+                  </View>
+                </View>
+              )}
             </View>
 
             <View
               style={{
-                height: 400,
+                height: 300,
                 width: '100%',
                 overflow: 'hidden',
               }}>
-              <MapView
-                style={{
-                  flex: 1,
-                }}
-                liteMode
-                provider="google"
-                ref={(map) => {
-                  this.map = map;
-                }}
-                showsUserLocation
-                initialRegion={{
-                  latitude: store.storeLocation.latitude,
-                  longitude: store.storeLocation.longitude,
-                  latitudeDelta: 0.009,
-                  longitudeDelta: 0.009,
-                }}>
-                {store.storeLocation.latitude && store.storeLocation.longitude && (
-                  <Marker
-                    ref={(marker) => {
-                      this.marker = marker;
+              {store?.storeLocation?.latitude &&
+                store?.storeLocation?.longitude && (
+                  <MapView
+                    style={{
+                      flex: 1,
                     }}
-                    tracksViewChanges={false}
-                    coordinate={{
-                      latitude: store.storeLocation.latitude,
-                      longitude: store.storeLocation.longitude,
+                    liteMode
+                    provider="google"
+                    ref={(map) => {
+                      this.map = map;
+                    }}
+                    showsUserLocation
+                    initialRegion={{
+                      latitude: store?.storeLocation?.latitude,
+                      longitude: store?.storeLocation?.longitude,
+                      latitudeDelta: 0.009,
+                      longitudeDelta: 0.009,
                     }}>
-                    <View>
-                      <Icon color={colors.primary} name="map-pin" />
-                    </View>
-                  </Marker>
+                    <Marker
+                      ref={(marker) => {
+                        this.marker = marker;
+                      }}
+                      tracksViewChanges={false}
+                      coordinate={{
+                        latitude: store?.storeLocation?.latitude,
+                        longitude: store?.storeLocation?.longitude,
+                      }}>
+                      <View>
+                        <Icon color={colors.primary} name="map-pin" />
+                      </View>
+                    </Marker>
+                  </MapView>
                 )}
-              </MapView>
             </View>
           </View>
         )}

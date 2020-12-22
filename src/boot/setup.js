@@ -57,13 +57,17 @@ const theme = {
     },
   },
 };
-@inject('authStore')
 @inject('generalStore')
 @observer
 class Setup extends Component {
+  constructor(props) {
+    super(props);
+  }
+
   render() {
     return (
       <ThemeProvider theme={theme}>
+        <StatusBar translucent backgroundColor="rgba(233, 30, 99,0.009)" />
         <App />
 
         {!this.props.generalStore.appReady && (
@@ -79,7 +83,6 @@ class Setup extends Component {
               justifyContent: 'center',
               backgroundColor: 'rgba(0,0,0,0.5)',
             }}>
-            <StatusBar translucent backgroundColor="rgba(233, 30, 99,0.009)" />
             <ActivityIndicator size="large" color={colors.primary} />
           </View>
         )}

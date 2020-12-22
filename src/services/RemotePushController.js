@@ -30,6 +30,12 @@ const RemotePushController = (props) => {
               openPaymentLink: true,
             });
           }
+
+          if (notification.action === 'view_store') {
+            props.navigation.navigate('Store', {
+              storeId: notification.storeId,
+            });
+          }
         }
 
         notification.finish(PushNotificationIOS.FetchResult.NoData);

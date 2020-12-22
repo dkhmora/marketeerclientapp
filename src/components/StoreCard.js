@@ -8,7 +8,9 @@ import {styles} from '../../assets/styles';
 import {PlaceholderMedia, Placeholder, Fade} from 'rn-placeholder';
 import {computed} from 'mobx';
 import {observer} from 'mobx-react';
-import {CDN_BASE_URL} from './util/variables';
+import {CDN_BASE_URL} from '../util/variables';
+import {getStoreAvailability, getNextStoreOperationDate} from '../util/helpers';
+import Pill from './Pill';
 
 @observer
 class StoreCard extends Component {
@@ -38,50 +40,51 @@ class StoreCard extends Component {
     return [];
   }
 
+  @computed get storeAvailable() {
+    const {
+      store: {storeHours, vacationMode},
+    } = this.props;
+
+    return getStoreAvailability(storeHours, vacationMode);
+  }
+
   PaymentMethods = () => {
     const {paymentMethods} = this;
     const pills = [];
 
     paymentMethods &&
       paymentMethods.map((method, index) => {
-        pills.push(
-          <View
-            key={`${method}${index}`}
-            style={{
-              borderRadius: 20,
-              backgroundColor: colors.accent,
-              padding: 2,
-              paddingHorizontal: 5,
-              marginRight: 2,
-              shadowColor: '#000',
-              shadowOffset: {
-                width: 0,
-                height: 1,
-              },
-              shadowOpacity: 0.2,
-              shadowRadius: 1.41,
-              elevation: 2,
-            }}>
-            <Text
-              style={{
-                fontSize: 12,
-                fontFamily: 'ProductSans-Regular',
-                color: colors.icons,
-              }}>
-              {method}
-            </Text>
-          </View>,
-        );
+        pills.push(<Pill key={`${method}${index}`} title={method} />);
       });
 
     return pills;
   };
 
   render() {
-    const {store, navigation} = this.props;
-    const {coverImageReady, displayImageReady} = this.state;
-    const displayImageUrl = `${CDN_BASE_URL}${store.displayImage}`;
-    const coverImageUrl = `${CDN_BASE_URL}${store.coverImage}`;
+    const {
+      props: {
+        store: {
+          storeName,
+          storeDescription,
+          displayImage,
+          coverImage,
+          vacationMode,
+          deliveryType,
+          deliveryDiscount,
+          storeCategory,
+          ratingAverage,
+          distance,
+          storeHours,
+          storeId,
+        },
+        navigation,
+      },
+      state: {coverImageReady, displayImageReady},
+      storeAvailable,
+    } = this;
+    const displayImageUrl = `${CDN_BASE_URL}${displayImage}`;
+    const coverImageUrl = `${CDN_BASE_URL}${coverImage}`;
+    const nextStoreOperationDateText = getNextStoreOperationDate(storeHours);
 
     return (
       <View
@@ -105,13 +108,12 @@ class StoreCard extends Component {
             overflow: 'hidden',
           }}>
           <TouchableOpacity
-            activeOpacity={0.9}
-            style={{backgroundColor: colors.primary}}
+            activeOpacity={storeAvailable ? 0.9 : 1}
+            style={{backgroundColor: colors.icons}}
             onPress={() =>
+              storeAvailable &&
               navigation.navigate('Store', {
-                store,
-                displayImageUrl,
-                coverImageUrl,
+                storeId,
               })
             }>
             <View style={{height: 200}}>
@@ -168,11 +170,11 @@ class StoreCard extends Component {
                   },
                   shadowOpacity: 0.25,
                   shadowRadius: 3.84,
-                  elevation: 5,
+                  elevation: 3,
                 }}>
-                <Text style={{color: colors.icons}}>{store.deliveryType}</Text>
+                <Text style={{color: colors.icons}}>{deliveryType}</Text>
 
-                {store.deliveryDiscount && store.deliveryDiscount.activated && (
+                {deliveryDiscount && deliveryDiscount?.activated && (
                   <View
                     style={{
                       width: '100%',
@@ -231,10 +233,49 @@ class StoreCard extends Component {
                   },
                   shadowOpacity: 0.34,
                   shadowRadius: 6.27,
-                  elevation: 10,
+                  elevation: 3,
                 }}>
-                <Text style={{color: colors.icons}}>{store.storeCategory}</Text>
+                <Text style={{color: colors.icons}}>{storeCategory}</Text>
               </View>
+
+              {!storeAvailable && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 150,
+                    backgroundColor: 'transparent',
+                    elevation: 4,
+                  }}>
+                  <View
+                    style={{
+                      flex: 1,
+                      backgroundColor: 'rgba(0,0,0,0.4)',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        color: colors.icons,
+                        fontFamily: 'ProductSans-Bold',
+                        fontSize: 16,
+                        backgroundColor: colors.primary,
+                        paddingHorizontal: 5,
+                        paddingVertical: 2,
+                        borderRadius: 10,
+                        elevation: 5,
+                        zIndex: 10,
+                        overflow: 'hidden',
+                      }}>
+                      {vacationMode || !nextStoreOperationDateText
+                        ? 'Currently Unavailable'
+                        : `Opens on ${nextStoreOperationDateText}`}
+                    </Text>
+                  </View>
+                </View>
+              )}
             </View>
 
             <CardItem
@@ -279,10 +320,10 @@ class StoreCard extends Component {
                         flex: 1,
                       },
                     ]}>
-                    {store.storeName}
+                    {storeName}
                   </Text>
 
-                  {store.ratingAverage && (
+                  {ratingAverage && (
                     <View
                       style={{
                         flexDirection: 'row',
@@ -290,7 +331,7 @@ class StoreCard extends Component {
                         alignItems: 'center',
                       }}>
                       <Text style={{color: colors.text_primary}}>
-                        {store.ratingAverage.toFixed(1)}
+                        {ratingAverage.toFixed(1)}
                       </Text>
 
                       <FastImage
@@ -318,7 +359,7 @@ class StoreCard extends Component {
                       minHeight: 28,
                     },
                   ]}>
-                  {store.storeDescription}
+                  {storeDescription}
                 </Text>
 
                 <View
@@ -337,10 +378,10 @@ class StoreCard extends Component {
                   </View>
 
                   <Text style={{color: colors.text_secondary, fontSize: 12}}>
-                    {store.distance
-                      ? store.distance > 1000
-                        ? `${(store.distance / 1000).toFixed(2)} km`
-                        : `${store.distance} meters`
+                    {distance
+                      ? distance > 1000
+                        ? `${(distance / 1000).toFixed(2)} km`
+                        : `${distance} meters`
                       : ''}
                   </Text>
                 </View>

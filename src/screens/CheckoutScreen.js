@@ -49,7 +49,7 @@ class CheckoutScreen extends Component {
     const userCoordinates = await this.props.generalStore.getUserLocation();
 
     this.props.shopStore
-      .placeOrder({
+      .handlePlaceOrder({
         deliveryCoordinates,
         deliveryCoordinatesGeohash,
         deliveryAddress,
@@ -71,15 +71,9 @@ class CheckoutScreen extends Component {
             routes: [{name: 'Home'}, {name: 'Cart'}],
           });
         } else {
-          let responses = '';
-
-          await response.data.map((res) => {
-            if (res.s === 200) {
-              responses = `${responses !== '' ? `${responses}; ` : ''}${
-                res.m
-              };`;
-            }
-          });
+          const responses = await response.data
+            .map((res, index) => `${res.m};`)
+            .join(' ');
 
           if (responses) {
             Toast({
@@ -118,6 +112,13 @@ class CheckoutScreen extends Component {
     crashlytics().log('CheckoutScreen');
 
     this.getMrSpeedyDeliveryFees();
+
+    this.props.generalStore.useableVoucherIds =
+      this.props.generalStore.userDetails?.claimedVouchers !== undefined
+        ? JSON.parse(
+            JSON.stringify(this.props.generalStore.userDetails.claimedVouchers),
+          )
+        : {};
   }
 
   componentWillUnmount() {
@@ -126,8 +127,7 @@ class CheckoutScreen extends Component {
 
     !unsubscribeToGetCartItems && getCartItems(userId);
 
-    this.props.shopStore.storeSelectedDeliveryMethod = {};
-    this.props.shopStore.storeSelectedPaymentMethod = {};
+    this.props.shopStore.cartStoreSnapshots = {};
     this.props.shopStore.storeMrSpeedyDeliveryFee = {};
   }
 

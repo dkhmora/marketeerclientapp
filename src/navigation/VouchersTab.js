@@ -1,23 +1,21 @@
 import React, {Component} from 'react';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import StoreList from '../components/StoreList';
-import {inject, observer} from 'mobx-react';
-import StoreCategoryList from '../components/StoreCategoryList';
 import {colors} from '../../assets/colors';
 
-const TabStores = createMaterialTopTabNavigator();
-@inject('shopStore')
-@observer
-class MainTab extends Component {
+const TabVouchers = createMaterialTopTabNavigator();
+
+class VouchersTab extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
+    const {
+      props: {VoucherList, ClaimedVoucherList},
+    } = this;
+
     return (
-      <TabStores.Navigator
-        lazy
-        lazyPreloadDistance={0.5}
+      <TabVouchers.Navigator
         initialRouteName="Near You"
         gestureHandlerProps={{enabled: true}}
         tabBarOptions={{
@@ -51,11 +49,11 @@ class MainTab extends Component {
             elevation: 5,
           },
         }}>
-        <TabStores.Screen name="Near You" component={StoreList} />
-        <TabStores.Screen name="Categories" component={StoreCategoryList} />
-      </TabStores.Navigator>
+        <TabVouchers.Screen name="New" children={VoucherList} />
+        <TabVouchers.Screen name="Claimed" component={ClaimedVoucherList} />
+      </TabVouchers.Navigator>
     );
   }
 }
 
-export default MainTab;
+export default VouchersTab;

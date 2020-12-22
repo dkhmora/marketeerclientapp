@@ -67,6 +67,7 @@ class StoreCategoryList extends Component {
       return (
         <View style={{flex: 1}}>
           <FlatList
+            contentInsetAdjustmentBehavior="automatic"
             style={{paddingHorizontal: 5}}
             data={this.formatData(dataSource, numOfColumns)}
             renderItem={this.renderItem}
